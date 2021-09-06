@@ -1,4 +1,4 @@
-# HTML&CC judge for [Dodona](https://dodona.ugent.be/)
+# HTML&CSS judge for [Dodona](https://dodona.ugent.be/)
 
 ## Judge features
 
@@ -9,7 +9,7 @@
 ### Feedback
 
 * Syntax errors
-* Differences between submission and solution table are highlighted
+* Checklist
 * ...
 
 ## Recommended exercise directory structure
@@ -27,8 +27,8 @@ Add your solution (`solution.html` and `solution.css` file) to the **`evaluation
 |   +-- 📂first_html_exercise           # Folder name for the exercise
 |   |   +-- config.json                  # ▶ Configuration of the exercise
 |   |   +-- 📂evaluation                # -- 🔽️ ADD YOUR SOLUTION FILES HERE 🔽 --
-|   |   |   +-- solution.html           # ▶ The HTML model solution file
-|   |   |   +-- solution.css            # ▶ The CSS model solution file
+|   |   |   +-- solution.html            # ▶ The HTML model solution file
+|   |   |   +-- solution.css             # ▶ The CSS model solution file
 |   |   +-- 📂solution                  # Optional: This will be visible in Dodona
 |   |   |   +-- solution.html            # Optional: The HTML model solution file
 |   |   |   +-- solution.css             # Optional: The CSS model solution file
