@@ -1,4 +1,3 @@
-
 #!/bin/sh
 
 # Script that runs the SQL judge inside a container.
