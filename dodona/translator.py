@@ -2,7 +2,7 @@
 
 from enum import Enum, auto
 
-from dodona_command import ErrorType
+from dodona.dodona_command import ErrorType
 
 
 class Translator:
@@ -20,17 +20,7 @@ class Translator:
     class Text(Enum):
         """Text message content enum"""
 
-        ADD_A_SEMICOLON = auto()
-        SUBMISSION_CONTAINS_MORE_QUERIES = auto()
-        SUBMISSION_CONTAINS_LESS_QUERIES = auto()
-        DIFFERENT_ROW_COUNT = auto()
-        DIFFERENT_COLUMN_COUNT = auto()
-        COMPARING_QUERY_OUTPUT_CSV_CONTENT = auto()
-        COMPARING_QUERY_OUTPUT_TYPES = auto()
-        QUERY_SHOULD_ORDER_ROWS = auto()
-        QUERY_SHOULD_NOT_ORDER_ROWS = auto()
-        ROWS_ARE_BEING_ORDERED = auto()
-        ROWS_ARE_NOT_BEING_ORDERED = auto()
+        UNCLOSED_HTML_TAG = auto()
 
     def __init__(self, language: Language):
         self.language = language
