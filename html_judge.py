@@ -20,7 +20,7 @@ def main():
         config.translator = Translator.from_str(config.natural_language)
 
         with Tab("Tab 1"):
-            with Context(), TestCase(description="Setup test description"):
+            with Context(), TestCase("Setup test description"):
                 with Test("First arg", "Second arg") as test:
                     test.generated = "Generated"
 
