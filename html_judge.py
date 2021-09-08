@@ -1,6 +1,6 @@
 import sys
 
-from dodona.dodona_command import Judgement, Test, TestCase, Message, ErrorType
+from dodona.dodona_command import Judgement, Test, TestCase, Message, ErrorType, Tab, Context
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 
@@ -19,11 +19,12 @@ def main():
         # Initiate translator
         config.translator = Translator.from_str(config.natural_language)
 
-        with TestCase(description="Setup test description"):
-            with Test("First arg", "Second arg") as test:
-                test.generated = "Generated"
+        with Tab("Tab 1"):
+            with Context(), TestCase(description="Setup test description"):
+                with Test("First arg", "Second arg") as test:
+                    test.generated = "Generated"
 
-                test.status = config.translator.error_status(ErrorType.CORRECT)
+                    test.status = config.translator.error_status(ErrorType.CORRECT)
 
 
 if __name__ == "__main__":
