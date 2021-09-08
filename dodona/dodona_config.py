@@ -29,11 +29,11 @@ class DodonaConfig(SimpleNamespace):
         workdir:                Full path to the directory in which all user code should be executed.
     """
 
-    def __init__(self, **kargs):
+    def __init__(self, **kwargs):
         """store all parameters & set correct type for 'known' Dodona judge configuration fields
-        :param kargs: the named parameters in the form of a dict
+        :param kwargs: the named parameters in the form of a dict
         """
-        super().__init__(**kargs)
+        super().__init__(**kwargs)
         self.memory_limit = int(self.memory_limit)
         self.time_limit = int(self.time_limit)
         self.programming_language = str(self.programming_language)
@@ -54,7 +54,7 @@ class DodonaConfig(SimpleNamespace):
 
     def sanity_check(self) -> None:
         """perform sanity checks
-        This function checsk if the Python file is executed correctly. The current working dir
+        This function checks if the Python file is executed correctly. The current working dir
         should be the same directory that is passed as the 'workdir' property in the Dodona config.
         Also, this Python file (and all other Python judge files) should be located in the 'judge' dir.
         """
