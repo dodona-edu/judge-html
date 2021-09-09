@@ -1,8 +1,10 @@
 import sys
-
+from os import path, getcwd, listdir
 from dodona.dodona_command import Judgement, Test, TestCase, Message, ErrorType, Tab, Context
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
+from importlib import import_module
+from inspect import getmembers, isfunction
 
 
 def main():
@@ -18,6 +20,13 @@ def main():
 
         # Initiate translator
         config.translator = Translator.from_str(config.natural_language)
+
+        custom_evaluator_path = path.join(config.resources, "evaluator.py")
+        print(listdir(getcwd()))
+        # If a custom evaluator exists, try to import and use it
+        if path.exists(custom_evaluator_path):
+            m = import_module(custom_evaluator_path)
+            print(getmembers(m, isfunction))
 
         with Tab("Tab 1"):
             with Context(), TestCase("Setup test description"):

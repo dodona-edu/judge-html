@@ -15,8 +15,8 @@ class Check:
     """Class that represents a single check
 
     Attributes:
-        message     Message to display to the user in the checklist
-        callback    The function to run in order to perform this test
+        message     Message to display to the user in the checklist.
+        callback    The function to run in order to perform this test.
         on_success  A list of checks that will only be performed in case this
                     check succeeds. An example of how this could be useful is to
                     first test if an element exists and THEN perform extra checks
@@ -44,11 +44,11 @@ class Element:
     """Class for an HTML element used in testing
 
     Attributes:
-        tag         The HTML tag of this element
+        tag         The HTML tag of this element.
         id          An optional id to specify when searching for the element,
-                    if not specified then the first result found will be used
+                    if not specified then the first result found will be used.
         _element    The inner HTML element that was matched in the document,
-                    can be None if nothing was found
+                    can be None if nothing was found.
     """
     tag: str
     id: Optional[str] = None
@@ -60,8 +60,15 @@ class Element:
 
         return f"<{self.tag}>"
 
-    def get_child(self, tag: str, id: Optional[str] = None) -> "Element":
-        """Find"""
+    def get_child(self, tag: str, direct: bool = True, **kwargs) -> "Element":
+        """Find the child element with the given tag
+
+        :param tag:     the tag to search for
+        :param direct:  indicate that only direct children should be considered,
+                        no elements of children
+        """
+        child = self._element.find(tag, recursive=not direct, **kwargs)
+        return Element(tag, kwargs.get("id", None), child)
 
     def exists(self) -> Check:
         """Check that this element was found"""
@@ -71,22 +78,35 @@ class Element:
         message = f"Element {str(self)} is missing."
         return Check(message, _inner)
 
-    def has_child(self, tag: str) -> Check:
-        """Check that this element has a DIRECT (!) child with the given tag"""
-        def _inner(_: BeautifulSoup) -> bool:
-            # This can be done using an any() statement, but this is more readable
-            for child in self._element.children:
-                # A match was found
-                if child.name == tag:
-                    return True
+    def has_child(self, tag: str, direct: bool = True, **kwargs) -> Check:
+        """Check that this element has a child with the given tag
 
-            return False
+        :param tag:     the tag to search for
+        :param direct:  indicate that only direct children should be considered,
+                        no elements of children
+        """
+        def _inner(_: BeautifulSoup) -> bool:
+            return self._element.find(tag, recursive=not direct, **kwargs) is not None
 
         message = f"Element {str(self)} is missing child with tag {tag}."
         return Check(message, _inner)
 
-    def has_any_id(self) -> Check:
-        """Check that this element has an id, no matter what it is"""
+    def has_content(self, text: Optional[str] = None) -> Check:
+        """Check if this element has given text as content.
+        In case no text is passed, any non-empty string will make the test pass
+        """
+        def _inner(_: BeautifulSoup) -> bool:
+            if text is not None:
+                return self._element.text == text
+
+            return len(self._element.text) > 0
+
+        if text:
+            message = f"Content of element {str(self)} ({self._element.text}) did not match required content ({text})."
+        else:
+            message = f"Element {str(self)} does not contain any text."
+
+        return Check(message, _inner)
 
 
 @dataclass
@@ -109,22 +129,16 @@ class TestSuite:
         # correctly starts/ends with <html> tags
         self._root = self._bs.html
 
-    def element(self, tag: str, id: Optional[str] = None, from_root=True) -> Element:
+    def element(self, tag: str, from_root=True, **kwargs) -> Element:
         """Create a reference to an HTML element
         :param tag:         the name of the HTML tag to search for
-        :param id:          an optional id that can be specified to get a specific element
         :param from_root:   find the element as a child of the root node instead of anywhere
                             in the document
         """
-        def _find(start: Union[BeautifulSoup, Tag]):
-            # Search by id if passed
-            if id is not None:
-                return start.find(tag, id=id)
+        start: Union[BeautifulSoup, Tag] = self._root if from_root else self._bs
 
-            return start.find(tag)
-
-        element = _find(self._root if from_root else self._bs)
-        return Element(tag, id, element)
+        element = start.find(tag, **kwargs)
+        return Element(tag, kwargs.get("id", None), element)
 
     def evaluate(self) -> List[Tuple[bool, str]]:
         """Run the test suite, returns a list of messages (being the checklist)
@@ -157,7 +171,7 @@ class TestSuite:
         return messages
 
 
-def grouped_checks(message: str, *args: Check) -> Check:
+def grouped_checks(message: str, args: List[Check]) -> Check:
     """Perform multiple checks at once, and show the given message in case one fails
     This method can be used to perform checks that require one another, without revealing
     the answer by accident.
@@ -172,7 +186,7 @@ def grouped_checks(message: str, *args: Check) -> Check:
     a <div>, then this function can do that by ALWAYS displaying the message passed as an argument,
     no matter which check failed. That way the user won't get a "missing <div>" message.
     """
-    queue: Deque[Check] = deque(args)
+    queue: Deque[Check] = deque(deepcopy(args))
 
     def _inner(bs: BeautifulSoup) -> bool:
         while queue:
