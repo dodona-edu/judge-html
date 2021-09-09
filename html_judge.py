@@ -11,7 +11,6 @@ def main():
     """
     # Read config JSON from stdin
     config = DodonaConfig.from_json(sys.stdin)
-
     with Judgement():
         # Perform sanity check
         config.sanity_check()

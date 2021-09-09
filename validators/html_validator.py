@@ -3,30 +3,33 @@ from html.parser import HTMLParser
 from exceptions.htmlExceptions import *
 
 
-class Validator(HTMLParser):
+class HtmlValidator(HTMLParser):
     """
     this class checks the following when text is fed to it (.feed(text)):
       IMPLEMENTED
       * each tag that opens must have a corresponding closing tag
       NOT IMPLEMENTED
       * valid tag (with valid attributes)
-
     """
 
-    def __init__(self, text: str):
+    def __init__(self):
         super().__init__()
         self.tag_stack = []
-        self.text = text
         with open("html_tags_attributes.json", "r") as f:
             self.valid_dict = json.load(f)
-        self.feed(self.text)
+
+    def validate(self, text: str):
+        self.reset()
+        self.feed(text)
 
     def error(self, error: HtmlValidationError):  # make exception classes and throw these instead
         raise error
 
     def handle_starttag(self, tag: str, attributes: [(str, str)]):
         self._valid_tag(tag)
-        # self._valid_attributes(tag, attributes)  # always throws an exception because the dicts in the json for the attributes are still empty
+        # always throws an exception because the dicts in the json for the attributes are still empty
+        # so this is temporary commented out
+        # self._valid_attributes(tag, attributes)
         self.tag_stack.append(tag)
 
     def handle_endtag(self, tag: str):
@@ -56,4 +59,6 @@ class Validator(HTMLParser):
                 self.error(InvalidAttributeError(tag, atr[0], self.tag_stack))
 
 
-validated = Validator('<!DOCTYPE html><html><body><h1>My First Heading</h1><p>My first paragraph.</p></body></html>')
+#validator = HtmlValidator()
+#validator.validate('<!DOCTYPE html><html><body><h1>My First Heading</h1><p>My first paragraph.</p></body></html>')
+
