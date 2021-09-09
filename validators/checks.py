@@ -8,6 +8,8 @@ from typing import Deque, List, Optional, Callable, Union, Tuple
 
 
 # TODO extend Translator functionality for error messages to allow NL
+# TODO find a solution for potential index errors when strict-checking order of children
+#   wrapper class for containers?
 
 
 @dataclass
@@ -32,11 +34,39 @@ class Check:
     on_success: List["Check"] = field(default_factory=list)
     hidden: bool = True
 
+    def _find_deepest_nested(self) -> "Check":
+        """Find the deepest Check nested with on_success chains"""
+        current_deepest = self.on_success[-1]
+
+        # Keep going until the current one no longer contains anything
+        while current_deepest.on_success:
+            current_deepest = current_deepest.on_success[-1]
+
+        return current_deepest
+
     def display(self) -> "Check":
         """Make the message of this check visible in the checklist"""
         self.hidden = False
 
         return self
+
+    def then(self, *args: "Check") -> "Check":
+        """Register a list of checks to perform in case this check succeeds
+        When this check already has checks registered, try to find the deepest check
+        and append it to that check. The reasoning is that x.then(y).then(z) suggests y should
+        complete for z to start. This makes the overall use more fluent and avoids
+        a big mess of brackets when it's not necessary at all.
+
+        Returns a reference to the last entry to allow a fluent interface.
+        """
+        if not self.on_success:
+            self.on_success = list(args)
+        else:
+            # Find the deepest child check and add to that one
+            deepest: "Check" = self._find_deepest_nested()
+            deepest.on_success = list(args)
+
+        return args[-1]
 
 
 @dataclass
@@ -60,22 +90,60 @@ class Element:
 
         return f"<{self.tag}>"
 
-    def get_child(self, tag: str, direct: bool = True, **kwargs) -> "Element":
+    def get_child(self, tag: str, index: int = 0, direct: bool = True, **kwargs) -> "Element":
         """Find the child element with the given tag
 
         :param tag:     the tag to search for
-        :param direct:  indicate that only direct children should be considered,
-                        no elements of children
+        :param index:   in case multiple children are found, specify the index to fetch
+                        if not enough children were found, still return the first
+        :param direct:  indicate that only direct children should be considered
         """
-        child = self._element.find(tag, recursive=not direct, **kwargs)
-        return Element(tag, kwargs.get("id", None), child)
+        # This element was not found, so the children don't exist either
+        if self._element is None:
+            return Element(tag, kwargs.get("id", None), None)
+
+        # No index specified, first child requested
+        if index == 0:
+            child = self._element.find(tag, recursive=not direct, **kwargs)
+        else:
+            all_children = self._element.find_all(tag, recursive=not direct, **kwargs)
+
+            # No children found
+            if len(all_children) == 0:
+                child = None
+            else:
+                # Not enough children found (index out of range)
+                if index >= len(all_children):
+                    index = 0
+
+                child = all_children[index]
+
+        return Element(tag, child.get("id", None), child)
+
+    def get_children(self, tag: str = "", direct: bool = True, **kwargs) -> List["Element"]:
+        """Get all children of this element that match the requested input"""
+        # This element doesn't exist so it has no children
+        if self._element is None:
+            return []
+
+        # If a tag was specified, only search for those
+        # Otherwise, use all children instead
+        if tag:
+            matches = self._element.find_all(tag, recursive=not direct, **kwargs)
+        else:
+            matches = self._element.children if direct else self._element.descendants
+
+            # Filter out string content
+            matches = list(filter(lambda x: isinstance(x, Tag), matches))
+
+        return list(map(lambda x: Element(x.name, x.get("id", None), x), matches))
 
     def exists(self) -> Check:
         """Check that this element was found"""
         def _inner(_: BeautifulSoup) -> bool:
             return self._element is not None
 
-        message = f"Element {str(self)} is missing."
+        message = f"Element {str(self)} exists."
         return Check(message, _inner)
 
     def has_child(self, tag: str, direct: bool = True, **kwargs) -> Check:
@@ -88,7 +156,7 @@ class Element:
         def _inner(_: BeautifulSoup) -> bool:
             return self._element.find(tag, recursive=not direct, **kwargs) is not None
 
-        message = f"Element {str(self)} is missing child with tag {tag}."
+        message = f"Element {str(self)} has at least one child with tag '{tag}'."
         return Check(message, _inner)
 
     def has_content(self, text: Optional[str] = None) -> Check:
@@ -102,11 +170,29 @@ class Element:
             return len(self._element.text) > 0
 
         if text:
-            message = f"Content of element {str(self)} ({self._element.text}) did not match required content ({text})."
+            message = f"Content of element {str(self)} matches the required text ({text})."
         else:
-            message = f"Element {str(self)} does not contain any text."
+            message = f"Element {str(self)} contains text."
 
         return Check(message, _inner)
+
+    def count_children(self, tag: str, amount: int, direct: bool = True, **kwargs) -> Check:
+        """Check that this element has exactly [amount] children matching the requirements"""
+        def _inner(_: BeautifulSoup) -> bool:
+            return len(self._element.find_all(tag, recursive=not direct, **kwargs)) == amount
+
+        message = f"Element {str(self)} has {amount} children with tag {tag}."
+        return Check(message, _inner)
+
+    def has_tag(self, tag: str) -> Check:
+        """Check that this element has the required tag"""
+        def _inner(_: BeautifulSoup) -> bool:
+            if self._element is None:
+                return False
+
+            return self.tag == tag
+
+        return Check("", _inner)
 
 
 @dataclass
@@ -140,23 +226,43 @@ class TestSuite:
         element = start.find(tag, **kwargs)
         return Element(tag, kwargs.get("id", None), element)
 
+    def _flatten_queue(self, queue: List) -> List[Check]:
+        """Flatten the queue to allow nested lists to be put it"""
+        flattened: List[Check] = []
+
+        while queue:
+            el = queue.pop(0)
+
+            # This entry is a list too, unpack it
+            # & add to front of the queue
+            if isinstance(el, list):
+                # Iterate in reverse to keep the order of checks!
+                for nested_el in reversed(el):
+                    queue.insert(0, nested_el)
+            else:
+                flattened.append(el)
+
+        return flattened
+
     def evaluate(self) -> List[Tuple[bool, str]]:
         """Run the test suite, returns a list of messages (being the checklist)
         Every message is of the format (bool, str). The boolean indicates that
         the check was successful, the string contains the message itself.
         """
         messages = []
-        queue: Deque[Check] = deque(deepcopy(self.checklist))
+        # Flatten list of checks
+        flattened = self._flatten_queue(deepcopy(self.checklist))
+        queue: Deque[Check] = deque(flattened)
 
         # Keep running every check until the queue is exhausted
         while queue:
             check = queue.popleft()
-
             # Run checks
             success = check.callback(self._bs)
 
-            # If the message should be shown on the checklist,
-            if not check.hidden:
+            # If the message should be shown on the checklist and it has
+            # a message, then add it
+            if not check.hidden and check.message:
                 messages.append((success, check.message))
 
             # Check failed, don't perform subtests
@@ -166,6 +272,7 @@ class TestSuite:
             # Add all on_success checks to the BEGINNING of the queue
             # because they should run next
             for sub in reversed(check.on_success):
+                print("sub", sub)
                 queue.appendleft(sub)
 
         return messages
@@ -203,3 +310,11 @@ def grouped_checks(message: str, args: List[Check]) -> Check:
         return True
 
     return Check(message, _inner)
+
+
+def has_count(elements: List, amount: int) -> Check:
+    """Check that a list of elements has a certain amount of entries"""
+    def _inner(_: BeautifulSoup) -> bool:
+        return len(elements) == amount
+
+    return Check("", _inner)
