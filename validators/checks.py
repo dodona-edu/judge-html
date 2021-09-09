@@ -155,3 +155,37 @@ class TestSuite:
                 queue.appendleft(sub)
 
         return messages
+
+
+def grouped_checks(message: str, *args: Check) -> Check:
+    """Perform multiple checks at once, and show the given message in case one fails
+    This method can be used to perform checks that require one another, without revealing
+    the answer by accident.
+
+    For example:
+    - Check 1: does <body> exist?
+    - Check 2: is there a <div> inside the body?
+    - Check 3: is there an <a> inside that div?
+
+    In case the first check fails, it would reveal part of the answer. If the checklist should
+    only tell the student that there should be an <a>, and not that it should also be inside of
+    a <div>, then this function can do that by ALWAYS displaying the message passed as an argument,
+    no matter which check failed. That way the user won't get a "missing <div>" message.
+    """
+    queue: Deque[Check] = deque(args)
+
+    def _inner(bs: BeautifulSoup) -> bool:
+        while queue:
+            check = queue.popleft()
+
+            # One check failed, return False
+            if not check.callback(bs):
+                return False
+
+            # Try the other checks
+            for sub in reversed(check.on_success):
+                queue.appendleft(sub)
+
+        return True
+
+    return Check(message, _inner)
