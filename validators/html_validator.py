@@ -29,17 +29,17 @@ class HtmlValidator(HTMLParser):
 
     def validate_file(self, source_filepath: str):
         self._validate(html_loader(source_filepath, shorted=False))
-        if self.warnings:
-            raise self.warnings
 
     def validate_content(self, content: str):
         self._validate(content)
-        if self.warnings:
-            raise self.warnings
 
     def _validate(self, text: str):
         self.reset()
         self.feed(text)
+        if self.tag_stack:
+            raise MissingClosingTagError(self.tag_stack.pop(), self.tag_stack, self.getpos())
+        if self.warnings:
+            raise self.warnings
 
     def error(self, error: HtmlValidationError):  # make exception classes and throw these instead
         raise error
