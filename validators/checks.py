@@ -11,6 +11,10 @@ from typing import Deque, List, Optional, Callable, Union, Tuple
 # TODO find a solution for potential index errors when strict-checking order of children
 #   wrapper class for containers?
 
+# TODO Main ChecklistItem that contains the message & all checks for that item
+#   Allows test suite to mark all other tests as failed if we have to abort
+#   instead of not showing the messages at all because we didn't get there
+
 
 @dataclass
 class Check:
@@ -33,6 +37,7 @@ class Check:
     callback: Callable[[BeautifulSoup], bool]
     on_success: List["Check"] = field(default_factory=list)
     hidden: bool = True
+    abort_on_fail: bool = False
 
     def _find_deepest_nested(self) -> "Check":
         """Find the deepest Check nested with on_success chains"""
@@ -48,6 +53,14 @@ class Check:
         """Make the message of this check visible in the checklist"""
         self.hidden = False
 
+        return self
+
+    def or_abort(self) -> "Check":
+        """Prevent the next tests from running if this one fails
+        Can be used when a test is necessary for the rest to continue, for example
+        the HTML-validation step.
+        """
+        self.abort_on_fail = True
         return self
 
     def then(self, *args: "Check") -> "Check":
@@ -195,6 +208,25 @@ class Element:
         return Check("", _inner)
 
 
+def _flatten_queue(queue: List) -> List[Check]:
+    """Flatten the queue to allow nested lists to be put it"""
+    flattened: List[Check] = []
+
+    while queue:
+        el = queue.pop(0)
+
+        # This entry is a list too, unpack it
+        # & add to front of the queue
+        if isinstance(el, list):
+            # Iterate in reverse to keep the order of checks!
+            for nested_el in reversed(el):
+                queue.insert(0, nested_el)
+        else:
+            flattened.append(el)
+
+    return flattened
+
+
 @dataclass
 class TestSuite:
     """Main test suite class
@@ -226,24 +258,6 @@ class TestSuite:
         element = start.find(tag, **kwargs)
         return Element(tag, kwargs.get("id", None), element)
 
-    def _flatten_queue(self, queue: List) -> List[Check]:
-        """Flatten the queue to allow nested lists to be put it"""
-        flattened: List[Check] = []
-
-        while queue:
-            el = queue.pop(0)
-
-            # This entry is a list too, unpack it
-            # & add to front of the queue
-            if isinstance(el, list):
-                # Iterate in reverse to keep the order of checks!
-                for nested_el in reversed(el):
-                    queue.insert(0, nested_el)
-            else:
-                flattened.append(el)
-
-        return flattened
-
     def evaluate(self) -> List[Tuple[bool, str]]:
         """Run the test suite, returns a list of messages (being the checklist)
         Every message is of the format (bool, str). The boolean indicates that
@@ -251,7 +265,7 @@ class TestSuite:
         """
         messages = []
         # Flatten list of checks
-        flattened = self._flatten_queue(deepcopy(self.checklist))
+        flattened = _flatten_queue(deepcopy(self.checklist))
         queue: Deque[Check] = deque(flattened)
 
         # Keep running every check until the queue is exhausted
@@ -293,7 +307,9 @@ def grouped_checks(message: str, args: List[Check]) -> Check:
     a <div>, then this function can do that by ALWAYS displaying the message passed as an argument,
     no matter which check failed. That way the user won't get a "missing <div>" message.
     """
-    queue: Deque[Check] = deque(deepcopy(args))
+    # Flatten list of checks
+    flattened = _flatten_queue(deepcopy(args))
+    queue: Deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:
         while queue:
