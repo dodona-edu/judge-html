@@ -32,7 +32,6 @@ table_check = table.has_tag("table").then(  # Check that the 2nd entry is the ta
         table.get_child("tr", 1).count_children("td", 3)  # Check that the second row contains tds
     )
 
-# TODO find a solution for potential index errors?
 body_checks = [
     body_children[0].has_tag("p").then(body_children[0].has_content()),  # First paragraph is not empty
     table_check,
