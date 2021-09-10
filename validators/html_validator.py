@@ -8,12 +8,15 @@ base_path = path.dirname(__file__)
 # keynames for the json
 REQUIRED_ATR_KEY = "required_attributes"
 RECOMMENDED_ATR_KEY = "recommended_attributes"
+CLOSING_TAG_OMISSION_KEY = "closing_tag_omission"
 
 
 class HtmlValidator(HTMLParser):
     """
     this class checks the following:
       * each tag that opens must have a corresponding closing tag
+        * tags starting with </ are omitted
+        * tags that dont need a closing tag (see json) can bit omitted (like <meta>)
       * is the tag a valid tag
       * required attributes (to be completed in the json)
       * recommended attributes (to be completed in the json)
@@ -36,8 +39,10 @@ class HtmlValidator(HTMLParser):
     def _validate(self, text: str):
         self.reset()
         self.feed(text)
-        if self.tag_stack:
-            raise MissingClosingTagError(self.tag_stack.pop(), self.tag_stack, self.getpos())
+        while self.tag_stack:  # clear tag stack
+            if not self._is_omittable(self.tag_stack[-1]):
+                raise MissingClosingTagError(self.tag_stack.pop(), self.tag_stack, self.getpos())
+            self.tag_stack.pop()
         if self.warnings:
             raise self.warnings
 
@@ -48,8 +53,6 @@ class HtmlValidator(HTMLParser):
         self.warnings.add(warning)
 
     def handle_starttag(self, tag: str, attributes: [(str, str)]):
-        if tag == "meta":
-            return
         self._valid_tag(tag)
         # already append, because the tag is valid,
         #  this way the tag stack is updated for a more accurate location of the error messages
@@ -67,7 +70,14 @@ class HtmlValidator(HTMLParser):
         """validate that each tag that opens has a corresponding closing tag
         """
         if tag != self.tag_stack[-1]:
-            self.error(MissingClosingTagError(self.tag_stack[-1], self.tag_stack, self.getpos()))
+            while self._is_omittable(self.tag_stack[-1]):
+                self.tag_stack.pop()
+            if tag != self.tag_stack[-1]:
+                self.error(MissingClosingTagError(self.tag_stack[-1], self.tag_stack, self.getpos()))
+
+    def _is_omittable(self, tag: str) -> bool:
+        return CLOSING_TAG_OMISSION_KEY in self.valid_dict[tag] \
+                and self.valid_dict[tag][CLOSING_TAG_OMISSION_KEY]
 
     def _valid_tag(self, tag: str):
         """validate that a tag is a valid HTML tag"""
