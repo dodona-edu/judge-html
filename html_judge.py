@@ -4,7 +4,9 @@ from dodona.dodona_command import Judgement, Test, TestCase, Message, ErrorType,
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from exceptions.htmlExceptions import HtmlValidationError, Warnings
+from utils.file_loaders import html_loader
 from utils.evaluation_module import EvaluationModule
+from validators.checks import TestSuite
 from validators.html_validator import HtmlValidator
 
 
@@ -22,11 +24,15 @@ def main():
         config.translator = Translator.from_str(config.natural_language)
 
         # Compile evaluator code
-        evaluator = EvaluationModule.build(config)
-        evaluator.create_suite("test")
+        evaluator: EvaluationModule = EvaluationModule.build(config)
+
+        # Load HTML
+        html_content: str = html_loader(config.source, shorted=False)
+        test_suite: TestSuite = evaluator.create_suite(html_content)
 
         # validate html
         with Tab("checklist"):
+            print(test_suite.evaluate())
             with Context(), TestCase("HTML validation"):
 
                 with Test("Checking tags and attributes", "") as test:

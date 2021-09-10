@@ -56,6 +56,12 @@ class MissingRequiredAttributeError(LocatableHtmlValidationError):
         return f"Missing required attribute(s) for tag <{self.tag}>: {self.missing_attributes} ({self.tag_location()})"
 
 
+class EvaluationAborted(RuntimeError):
+    """Exception raised when evaluation is aborted because a crucial test did not pass"""
+    def __init__(self, *args):
+        super().__init__(*args)
+
+
 class MissingRecommendedAttributesWarning(LocatableHtmlValidationError):
     """
     this is a warning, warnings will only be raised at the end

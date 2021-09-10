@@ -5,6 +5,8 @@ from copy import deepcopy
 from collections import deque
 from dataclasses import dataclass, field
 from typing import Deque, List, Optional, Callable, Union, Tuple
+from validators.html_validator import HtmlValidator
+from exceptions.htmlExceptions import EvaluationAborted, Warnings, HtmlValidationError
 
 
 # TODO extend Translator functionality for error messages to allow NL
@@ -49,6 +51,10 @@ class Check:
         """
         self.abort_on_fail = True
         return self
+
+    def is_crucial(self) -> "Check":
+        """Alias to or_abort()"""
+        return self.or_abort()
 
     def then(self, *args: "Check") -> "Check":
         """Register a list of checks to perform in case this check succeeds
@@ -213,7 +219,7 @@ class Element:
 
         return Check(_inner)
 
-    def table_headers(self, headers: List[str]) -> Check:
+    def has_table_header(self, header: List[str]) -> Check:
         """If this element is a table, check that the header content matches up"""
         def _inner(_: BeautifulSoup) -> bool:
             # This element is either None or not a table
@@ -221,22 +227,22 @@ class Element:
                 return False
 
             # List of all headers in this table
-            th = self._element.find_all("th")
+            ths = self._element.find_all("th")
 
             # Not the same amount of headers
-            if len(th) != len(headers):
+            if len(ths) != len(header):
                 return False
 
             # Check if all headers have the same content in the same order
-            for i in range(len(headers)):
-                if headers[i] != th[i].text:
+            for i in range(len(header)):
+                if header[i] != ths[i].text:
                     return False
 
             return True
 
         return Check(_inner)
 
-    def table_content(self, rows: List[List[str]], has_header: bool = True) -> Check:
+    def has_table_content(self, rows: List[List[str]], has_header: bool = True) -> Check:
         """Check that a table's rows have the requested content
         :param rows:        The data of all the rows to check
         :param has_header:  Boolean that indicates that this table has a header,
@@ -247,23 +253,23 @@ class Element:
             if not self._has_tag("table"):
                 return False
 
-            tr = self._element.find_all("tr")
+            trs = self._element.find_all("tr")
 
             # No rows found
-            if not tr:
+            if not trs:
                 return False
 
             # Cut header out
             if has_header:
-                tr = tr[1:]
+                trs = trs[1:]
 
                 # Table only had a header, no actual content
-                if not tr:
+                if not trs:
                     return False
 
             # Compare tds (actual data)
             for i in range(len(rows)):
-                data = tr[i].find_all("td")
+                data = trs[i].find_all("td")
 
                 # Row doesn't have the same amount of tds
                 if len(data) != len(rows[i]):
@@ -274,6 +280,28 @@ class Element:
                     # Content doesn't match
                     if data[j].text != rows[i][j]:
                         return False
+
+            return True
+
+        return Check(_inner)
+
+    def table_row_has_content(self, row: List[str]) -> Check:
+        """Check the content of one row instead of the whole table"""
+        def _inner(_: BeautifulSoup) -> bool:
+            # Check that this element exists and is a <tr>
+            if not self._has_tag("tr"):
+                return False
+
+            tds = self._element.find_all("td")
+
+            # Amount of items doesn't match up
+            if len(tds) != len(row):
+                return False
+
+            for i in range(len(row)):
+                # Text doesn't match
+                if row[i] != tds[i].text:
+                    return False
 
             return True
 
@@ -417,7 +445,10 @@ class ChecklistItem:
         """Evaluate all checks inside of this item"""
         for check in self._checks:
             if not check.callback(bs):
-                # TODO create Aborted exception if check requests it & raise if necessary
+                # Abort testing if necessary
+                if check.abort_on_fail:
+                    raise EvaluationAborted()
+
                 return False
 
         return True
@@ -436,12 +467,35 @@ class TestSuite:
     _bs: BeautifulSoup = field(init=False)
     _root: Tag = field(init=False)
 
+    _validator: HtmlValidator = HtmlValidator(check_recommended=True)
+
     def __post_init__(self):
         self._bs = BeautifulSoup(self.content, "html.parser")
 
         # Assume HTML validation has been done beforehand, and every document
         # correctly starts/ends with <html> tags
         self._root = self._bs.html
+
+    def validate_html(self) -> Check:
+        """Check that the HTML is valid
+        This is done in here so that all errors and warnings can be sent to
+        Dodona afterwards by reading them out of here
+        """
+
+        def _inner(_: BeautifulSoup) -> bool:
+            try:
+                self._validator.validate_content(self.content)
+            except Warnings:
+                # Ignore warnings, they are shown on Dodona afterwards but
+                # aren't considered invalid HTML
+                return True
+            except HtmlValidationError:
+                return False
+
+            # If no validation errors were raised, the HTML is valid
+            return True
+
+        return Check(_inner)
 
     def element(self, tag: str, from_root=True, **kwargs) -> Element:
         """Create a reference to an HTML element
@@ -463,11 +517,15 @@ class TestSuite:
         # all future checks on the list are already marked as failed
         messages = list((False, item.message,) for item in self.checklist)
 
-        # Run all items on the checklist & mark them as successful if applicable
-        # TODO try-catch aborted exception
+        # Run all items on the checklist & mark them as successful if they pass
         for i, item in enumerate(self.checklist):
             # Can't set items on tuples so overwrite it
-            messages[i] = (item.evaluate(self._bs), item.message,)
+            try:
+                messages[i] = (item.evaluate(self._bs), item.message,)
+            except EvaluationAborted:
+                # Crucial test failed, stop evaluation and let the next tests
+                # all remain False
+                return messages
 
         return messages
 

@@ -4,6 +4,7 @@ from types import ModuleType
 from dodona.dodona_command import DodonaException, ErrorType, MessagePermission, MessageFormat
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
+from validators.checks import TestSuite
 
 
 class EvaluationModule(ModuleType):
@@ -15,7 +16,7 @@ class EvaluationModule(ModuleType):
         super().__init__(name, *args, **kwargs)
         self.config = config
 
-    def create_suite(self, content: str):
+    def create_suite(self, content: str) -> TestSuite:
         """Method that we expect the TestSuite to have
         This stops PyCharm from complaining that the method doesn't exist,
         and also allows us to throw an exception in case it wasn't implemented.
