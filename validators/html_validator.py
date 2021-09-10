@@ -12,18 +12,19 @@ class HtmlValidator(HTMLParser):
       IMPLEMENTED
       * each tag that opens must have a corresponding closing tag
       * valid tag
+      * required attributes (to be completed in the json)
+      * each tag has valid attributes (to be completed in the json)
       NOT IMPLEMENTED
-      * each tag has valid attributes
     """
 
-    def __init__(self):
+    def __init__(self, judge_filepath: str):
         super().__init__()
         self.tag_stack = []
-        with open("html_tags_attributes.json", "r") as f:
+        with open(f"{judge_filepath}/validators/html_tags_attributes.json", "r") as f:
             self.valid_dict = json.load(f)
 
-    def validate(self, filepath: str):
-        with open(filepath, "r") as f:
+    def validate(self, source_filepath: str):
+        with open(source_filepath, "r") as f:
             self._validate(f.read())
 
     def _validate(self, text: str):
@@ -34,15 +35,19 @@ class HtmlValidator(HTMLParser):
         raise error
 
     def handle_starttag(self, tag: str, attributes: [(str, str)]):
+        if tag == "meta":
+            return
         self._valid_tag(tag)
         # already append, because the tag is valid,
         #  this way the tag stack is updated for a more accurate location of the error messages
         self.tag_stack.append(tag)
         self._valid_attributes(tag, attributes)
+        print(self.tag_stack)
 
     def handle_endtag(self, tag: str):
         self._validate_corresponding_tag(tag)
         self.tag_stack.pop()
+        print(self.tag_stack)
 
     def handle_data(self, data: str):
         pass  # we don't need to ook at data
@@ -75,6 +80,6 @@ class HtmlValidator(HTMLParser):
                     self.error(InvalidAttributeError(tag, atr[0], self.tag_stack))
 
 
-validator = HtmlValidator()
-# validator._validate('<!DOCTYPE html><html lang="en"><body><h1>My First Heading</h1><p>My first paragraph.</p></body></html>')
+validator = HtmlValidator("..")
+validator._validate('<!DOCTYPE html><html lang="en"><body><img/><h1>My First Heading</h1><p>My first paragraph.</p></body></html>')
 # validator.validate("simple.html")
