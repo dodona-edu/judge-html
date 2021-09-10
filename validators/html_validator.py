@@ -1,7 +1,7 @@
-import json
 from html.parser import HTMLParser
 from exceptions.htmlExceptions import *
 from os import path
+from utils.file_loaders import json_loader, html_loader
 
 # Location of this test file
 base_path = path.dirname(__file__)
@@ -23,17 +23,14 @@ class HtmlValidator(HTMLParser):
         super().__init__()
         self.warnings = Warnings()
         self.tag_stack = []
-        with open(path.abspath(path.join(base_path, "html_tags_attributes.json")), "r") as f:
-            self.valid_dict = json.load(f)
-
+        self.valid_dict = json_loader(path.abspath(path.join(base_path, "html_tags_attributes.json")))
         self.check_required = kwargs.get("required", True)
         self.check_recommended = kwargs.get("recommended", True)
 
-    def validate_fpath(self, source_filepath: str):
-        with open(source_filepath, "r") as f:
-            self._validate(f.read())
-            if self.warnings:
-                raise self.warnings
+    def validate_file(self, source_filepath: str):
+        self._validate(html_loader(source_filepath, shorted=False))
+        if self.warnings:
+            raise self.warnings
 
     def validate_content(self, content: str):
         self._validate(content)

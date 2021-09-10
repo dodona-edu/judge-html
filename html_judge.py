@@ -51,7 +51,7 @@ def main():
         config.translator = Translator.from_str(config.natural_language)
 
         # Compile evaluator code
-        evaluator = build_evaluator_module(config)
+        # evaluator = build_evaluator_module(config)
 
         # validate html
         with Tab("checklist"):
@@ -59,7 +59,7 @@ def main():
 
                 with Test("Checking tags and attributes", "") as test:
                     try:
-                        HtmlValidator().validate_fpath(config.source)
+                        HtmlValidator().validate_file(config.source)
                     except Warnings as war:
                         with Message(description=str(war), format=MessageFormat.CODE):  # code preserves spaces&newlines
                             test.status = config.translator.error_status(ErrorType.CORRECT)
