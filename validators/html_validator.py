@@ -41,8 +41,7 @@ class HtmlValidator(HTMLParser):
         self.tag_stack.pop()
 
     def handle_data(self, data: str):
-        # we don't need to ook at data
-        pass
+        pass  # we don't need to ook at data
 
     def _validate_corresponding_tag(self, tag: str):
         """validate that each tag that opens has a corresponding closing tag
@@ -57,24 +56,21 @@ class HtmlValidator(HTMLParser):
 
     def _valid_attributes(self, tag: str, attributes: [(str, str)]):
         """validate that each attribute is a valid attribute for its tag"""
-        if not attributes:
-            return
 
-        valid_attributes = self.valid_dict[tag][ALL_ATR_KEY]
+        tag_info = self.valid_dict[tag]
         atrs = [a[0] for a in attributes]  # only the attribute names, not the values
 
-        if not valid_attributes:  # there are no valid attributes
-            raise InvalidAttributeError(tag, ", ".join(atrs), self.tag_stack)
-
-        for atr in attributes:  # check if every attribute is a valid attribute
-            if not atr[0] in valid_attributes:
-                self.error(InvalidAttributeError(tag, atr[0], self.tag_stack))
-
-        if attributes[REQUIRED_ATR_KEY]:  # there are required attributes, check if they are present
-            for key in attributes[REQUIRED_ATR_KEY]:
+        if REQUIRED_ATR_KEY in tag_info:  # there are required attributes, check if they are present
+            for key in tag_info[REQUIRED_ATR_KEY]:
                 if key not in atrs:
                     self.error(MissingRequiredAttributeError(tag, key, self.tag_stack))
 
+        if ALL_ATR_KEY in tag_info:  # there are no valid attributes set in the json
+            for atr in attributes:  # check if every attribute is a valid attribute
+                if not atr[0] in tag_info[ALL_ATR_KEY]:
+                    self.error(InvalidAttributeError(tag, atr[0], self.tag_stack))
 
-# validator = HtmlValidator()
-# validator.validate('<!DOCTYPE html><html><body><h1>My First Heading</h1><p>My first paragraph.</p></body></html>')
+
+validator = HtmlValidator()
+validator.validate(
+    '<!DOCTYPE html><html lang="en"><body><h1>My First Heading</h1><p>My first paragraph.</p></body></html>')
