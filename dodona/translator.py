@@ -22,6 +22,8 @@ class Translator:
         """Text message content enum"""
 
         UNCLOSED_HTML_TAG = auto()
+        MISSING_EVALUATION_FILE = auto()
+        MISSING_CREATE_SUITE = auto()
 
     def __init__(self, language: Language):
         self.language = language
@@ -94,9 +96,13 @@ class Translator:
 
     text_translations = {
         Language.EN: {
-            Text.UNCLOSED_HTML_TAG: "There is a tag that was opened but not closed"
+            Text.UNCLOSED_HTML_TAG: "An HTML-tag was opened but not closed",
+            Text.MISSING_EVALUATION_FILE: "The evaluation.py file is missing",
+            Text.MISSING_CREATE_SUITE: "The evaluation.py file does not implement the 'create_suite(content)' method."
         },
         Language.NL: {
-            Text.UNCLOSED_HTML_TAG: "Er is een HTML-tag geopend die niet afgesloten werd"
+            Text.UNCLOSED_HTML_TAG: "Er is een HTML-tag geopend die niet gesloten werd",
+            Text.MISSING_EVALUATION_FILE: "Het evaluation.py-bestand ontbreekt",
+            Text.MISSING_CREATE_SUITE: "Het evaluation.py-bestand bevat de 'create_suite(content)' methode niet."
         },
     }
