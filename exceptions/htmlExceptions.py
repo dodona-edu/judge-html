@@ -76,9 +76,6 @@ class Warnings(Exception):
     def __init__(self):
         self.warnings = []
 
-    def __int__(self, warnings: [Exception]):
-        self.warnings = warnings
-
     def __len__(self):
         return len(self.warnings)
 
