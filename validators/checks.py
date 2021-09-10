@@ -218,10 +218,17 @@ class ChecklistItem:
     """
     message: str
     # People can pass nested lists into this, so the type is NOT List[Check] yet
-    checks: List = field(default_factory=list)
+    checks: Union[List, Check] = field(default_factory=list)
     _checks: List[Check] = field(init=False)
 
     def __post_init__(self):
+        self._checks = []
+
+        # Only one check was passed
+        if isinstance(self.checks, Check):
+            self._checks.append(self.checks)
+            return
+
         # Flatten the list of checks and store in internal list
         for item in self.checks:
             if isinstance(item, Check):

@@ -40,8 +40,8 @@ body_checks = [
 ]
 
 suite.checklist = [
-    grouped_head_checks,
-    body_checks
+    checks.ChecklistItem("Document has a title.", grouped_head_checks),
+    checks.ChecklistItem("Body has two paragraphs and a table.", body_checks)
 ]
 
 print("\n".join(
