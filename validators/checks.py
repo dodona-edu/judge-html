@@ -8,8 +8,6 @@ from typing import Deque, List, Optional, Callable, Union, Tuple
 
 
 # TODO extend Translator functionality for error messages to allow NL
-# TODO find a solution for potential index errors when strict-checking order of children
-#   wrapper class for containers?
 
 
 @dataclass
