@@ -1,10 +1,14 @@
 import sys
 
 from dodona.dodona_command import Judgement, Test, TestCase, Message, ErrorType, Tab, Context, MessageFormat
-from dodona.dodona_config import DodonaConfig
-from dodona.translator import Translator
 from validators.html_validator import HtmlValidator
 from exceptions.htmlExceptions import HtmlValidationError, Warnings
+from os import path, getcwd, listdir
+from dodona.dodona_command import Judgement, Test, TestCase, Message, ErrorType, Tab, Context
+from dodona.dodona_config import DodonaConfig
+from dodona.translator import Translator
+from importlib import import_module
+from inspect import getmembers, isfunction
 
 
 def main():
@@ -19,6 +23,13 @@ def main():
         config.sanity_check()
         # Initiate translator
         config.translator = Translator.from_str(config.natural_language)
+
+        custom_evaluator_path = path.join(config.resources, "evaluator.py")
+        print(listdir(getcwd()))
+        # If a custom evaluator exists, try to import and use it
+        if path.exists(custom_evaluator_path):
+            m = import_module(custom_evaluator_path)
+            print(getmembers(m, isfunction))
 
         # validate html
         with Tab("checklist"):
