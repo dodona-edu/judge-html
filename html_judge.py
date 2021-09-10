@@ -1,10 +1,10 @@
 import sys
 
-from dodona.dodona_command import Judgement, Test, TestCase, Message, ErrorType, Tab, Context
+from dodona.dodona_command import Judgement, Test, TestCase, Message, ErrorType, Tab, Context, MessageFormat
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from validators.html_validator import HtmlValidator
-from exceptions.htmlExceptions import HtmlValidationError, MissingRecommendedAttributeError
+from exceptions.htmlExceptions import HtmlValidationError, Warnings
 
 
 def main():
@@ -20,21 +20,22 @@ def main():
         # Initiate translator
         config.translator = Translator.from_str(config.natural_language)
 
-        # valid html
+        # validate html
         with Tab("checklist"):
             with Context(), TestCase("HTML validation"):
-                with Test("Checking tags and attributes", "Valid") as test:
+
+                with Test("Checking tags and attributes", "") as test:
                     try:
-                        HtmlValidator(config.judge).validate(config.source)
-                    except MissingRecommendedAttributeError as err:
-                        with Message(str(err)):
+                        HtmlValidator().validate_fpath(config.source)
+                    except Warnings as war:
+                        with Message(description=str(war), format=MessageFormat.CODE):  # code preserves spaces&newlines
                             test.status = config.translator.error_status(ErrorType.CORRECT)
-                            test.generated = "Valid"
+                            test.generated = ""
                     except HtmlValidationError as err:
                         test.generated = str(err)
                         test.status = config.translator.error_status(ErrorType.WRONG)
                     else:
-                        test.generated = "Valid"
+                        test.generated = ""
                         test.status = config.translator.error_status(ErrorType.CORRECT)
 
         with Tab("Tab 1"):
