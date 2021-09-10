@@ -201,14 +201,81 @@ class Element:
 
         return Check(_inner)
 
+    def _has_tag(self, tag: str) -> bool:
+        """Internal function that checks if this element has the required tag"""
+        return self._element is not None and self._element.name == tag
+
     def has_tag(self, tag: str) -> Check:
         """Check that this element has the required tag"""
 
         def _inner(_: BeautifulSoup) -> bool:
-            if self._element is None:
+            return self._has_tag(tag)
+
+        return Check(_inner)
+
+    def table_headers(self, headers: List[str]) -> Check:
+        """If this element is a table, check that the header content matches up"""
+        def _inner(_: BeautifulSoup) -> bool:
+            # This element is either None or not a table
+            if not self._has_tag("table"):
                 return False
 
-            return self.tag == tag
+            # List of all headers in this table
+            th = self._element.find_all("th")
+
+            # Not the same amount of headers
+            if len(th) != len(headers):
+                return False
+
+            # Check if all headers have the same content in the same order
+            for i in range(len(headers)):
+                if headers[i] != th[i].text:
+                    return False
+
+            return True
+
+        return Check(_inner)
+
+    def table_content(self, rows: List[List[str]], has_header: bool = True) -> Check:
+        """Check that a table's rows have the requested content
+        :param rows:        The data of all the rows to check
+        :param has_header:  Boolean that indicates that this table has a header,
+                            so the first row will be ignored (!)
+        """
+        def _inner(_: BeautifulSoup) -> bool:
+            # This element is either None or not a table
+            if not self._has_tag("table"):
+                return False
+
+            tr = self._element.find_all("tr")
+
+            # No rows found
+            if not tr:
+                return False
+
+            # Cut header out
+            if has_header:
+                tr = tr[1:]
+
+                # Table only had a header, no actual content
+                if not tr:
+                    return False
+
+            # Compare tds (actual data)
+            for i in range(len(rows)):
+                data = tr[i].find_all("td")
+
+                # Row doesn't have the same amount of tds
+                if len(data) != len(rows[i]):
+                    return False
+
+                # Compare content
+                for j in range(len(rows[i])):
+                    # Content doesn't match
+                    if data[j].text != rows[i][j]:
+                        return False
+
+            return True
 
         return Check(_inner)
 
@@ -265,9 +332,36 @@ class ElementContainer:
 
         return self.elements[item]
 
+    def __len__(self):
+        return self._size
+
     def get(self, index: int) -> Element:
         """Get an item at a given index, same as []-operator"""
         return self[index]
+
+    def at_most(self, amount: int) -> Check:
+        """Check that a container has at most [amount] elements"""
+
+        def _inner(_: BeautifulSoup):
+            return self._size <= amount
+
+        return Check(_inner)
+
+    def at_least(self, amount: int) -> Check:
+        """Check that a container has at least [amount] elements"""
+
+        def _inner(_: BeautifulSoup):
+            return self._size >= amount
+
+        return Check(_inner)
+
+    def exactly(self, amount: int) -> Check:
+        """Check that a container has exactly [amount] elements"""
+
+        def _inner(_: BeautifulSoup) -> bool:
+            return self._size == amount
+
+        return Check(_inner)
 
 
 def _flatten_queue(queue: List) -> List[Check]:
@@ -379,7 +473,7 @@ class TestSuite:
 
 
 def all_of(args: List[Check]) -> Check:
-    """Perform an AND-statement on a list of checks
+    """Perform an AND-statement on a list of Checks
     Creates a new Check that requires every single one of the checks to pass,
     otherwise returns False.
     """
@@ -404,10 +498,37 @@ def all_of(args: List[Check]) -> Check:
     return Check(_inner)
 
 
-def has_count(elements: List, amount: int) -> Check:
-    """Check that a list of elements has a certain amount of entries"""
+def any_of(args: List[Check]) -> Check:
+    """Perform an OR-statement on a list of Checks
+    Returns True if at least one of the tests succeeds, and stops
+    evaluating the rest at that point.
+    """
+    # Flatten list of checks
+    flattened = _flatten_queue(deepcopy(args))
+    queue: Deque[Check] = deque(flattened)
 
-    def _inner(_: BeautifulSoup) -> bool:
-        return len(elements) == amount
+    def _inner(bs: BeautifulSoup) -> bool:
+        while queue:
+            check = queue.popleft()
+
+            # One check failed, return False
+            if check.callback(bs):
+                return True
+
+            # Try the other checks
+            for sub in reversed(check.on_success):
+                queue.appendleft(sub)
+
+        return False
+
+    return Check(_inner)
+
+
+def fail_if(check: Check) -> Check:
+    """Fail if the inner Check returns True
+    Equivalent to the not-operator.
+    """
+    def _inner(bs: BeautifulSoup):
+        return not check.callback(bs)
 
     return Check(_inner)
