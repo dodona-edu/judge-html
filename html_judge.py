@@ -51,7 +51,7 @@ def main():
         config.translator = Translator.from_str(config.natural_language)
 
         # Compile evaluator code
-        evaluator = build_evaluator_module(config)
+        # evaluator = build_evaluator_module(config)
 
         # validate html
         with Tab("checklist"):

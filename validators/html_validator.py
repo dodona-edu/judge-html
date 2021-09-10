@@ -28,7 +28,7 @@ class HtmlValidator(HTMLParser):
         self.check_recommended = kwargs.get("recommended", True)
 
     def validate_file(self, source_filepath: str):
-        self._validate(html_loader(source_filepath))
+        self._validate(html_loader(source_filepath, shorted=False))
         if self.warnings:
             raise self.warnings
 
