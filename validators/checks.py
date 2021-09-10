@@ -8,6 +8,7 @@ from typing import Deque, List, Optional, Callable, Union, Tuple
 
 
 # TODO extend Translator functionality for error messages to allow NL
+# TODO dedicated table content checks
 
 
 @dataclass
@@ -117,6 +118,9 @@ class Element:
 
                 child = all_children[index]
 
+        if child is None:
+            return EmptyElement()
+
         return Element(tag, child.get("id", None), child)
 
     def get_children(self, tag: str = "", direct: bool = True, **kwargs) -> "ElementContainer":
@@ -190,6 +194,9 @@ class Element:
         """Check that this element has exactly [amount] children matching the requirements"""
 
         def _inner(_: BeautifulSoup) -> bool:
+            if self._element is None:
+                return False
+
             return len(self._element.find_all(tag, recursive=not direct, **kwargs)) == amount
 
         return Check(_inner)
@@ -261,8 +268,6 @@ class ElementContainer:
     def get(self, index: int) -> Element:
         """Get an item at a given index, same as []-operator"""
         return self[index]
-
-
 
 
 def _flatten_queue(queue: List) -> List[Check]:
