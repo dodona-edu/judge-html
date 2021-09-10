@@ -11,10 +11,6 @@ from typing import Deque, List, Optional, Callable, Union, Tuple
 # TODO find a solution for potential index errors when strict-checking order of children
 #   wrapper class for containers?
 
-# TODO Main ChecklistItem that contains the message & all checks for that item
-#   Allows test suite to mark all other tests as failed if we have to abort
-#   instead of not showing the messages at all because we didn't get there
-
 
 @dataclass
 class Check:
@@ -33,10 +29,8 @@ class Check:
                     in the final checklist. Again avoids unnecessary spam and can
                     help hide checks that would reveal the answer to the student.
     """
-    message: str
     callback: Callable[[BeautifulSoup], bool]
     on_success: List["Check"] = field(default_factory=list)
-    hidden: bool = True
     abort_on_fail: bool = False
 
     def _find_deepest_nested(self) -> "Check":
@@ -48,12 +42,6 @@ class Check:
             current_deepest = current_deepest.on_success[-1]
 
         return current_deepest
-
-    def display(self) -> "Check":
-        """Make the message of this check visible in the checklist"""
-        self.hidden = False
-
-        return self
 
     def or_abort(self) -> "Check":
         """Prevent the next tests from running if this one fails
@@ -156,8 +144,7 @@ class Element:
         def _inner(_: BeautifulSoup) -> bool:
             return self._element is not None
 
-        message = f"Element {str(self)} exists."
-        return Check(message, _inner)
+        return Check(_inner)
 
     def has_child(self, tag: str, direct: bool = True, **kwargs) -> Check:
         """Check that this element has a child with the given tag
@@ -169,8 +156,7 @@ class Element:
         def _inner(_: BeautifulSoup) -> bool:
             return self._element.find(tag, recursive=not direct, **kwargs) is not None
 
-        message = f"Element {str(self)} has at least one child with tag '{tag}'."
-        return Check(message, _inner)
+        return Check(_inner)
 
     def has_content(self, text: Optional[str] = None) -> Check:
         """Check if this element has given text as content.
@@ -182,20 +168,14 @@ class Element:
 
             return len(self._element.text) > 0
 
-        if text:
-            message = f"Content of element {str(self)} matches the required text ({text})."
-        else:
-            message = f"Element {str(self)} contains text."
-
-        return Check(message, _inner)
+        return Check(_inner)
 
     def count_children(self, tag: str, amount: int, direct: bool = True, **kwargs) -> Check:
         """Check that this element has exactly [amount] children matching the requirements"""
         def _inner(_: BeautifulSoup) -> bool:
             return len(self._element.find_all(tag, recursive=not direct, **kwargs)) == amount
 
-        message = f"Element {str(self)} has {amount} children with tag {tag}."
-        return Check(message, _inner)
+        return Check(_inner)
 
     def has_tag(self, tag: str) -> Check:
         """Check that this element has the required tag"""
@@ -205,7 +185,7 @@ class Element:
 
             return self.tag == tag
 
-        return Check("", _inner)
+        return Check(_inner)
 
 
 def _flatten_queue(queue: List) -> List[Check]:
@@ -228,6 +208,39 @@ def _flatten_queue(queue: List) -> List[Check]:
 
 
 @dataclass
+class ChecklistItem:
+    """An item to add to the checklist
+
+    Attributes:
+        message     The message displayed on the Dodona checklist for this item
+        checklist   List of Checks to run, all of which should pass for this item
+                    to be marked as passed/successful on the final list
+    """
+    message: str
+    # People can pass nested lists into this, so the type is NOT List[Check] yet
+    checks: List = field(default_factory=list)
+    _checks: List[Check] = field(init=False)
+
+    def __post_init__(self):
+        # Flatten the list of checks and store in internal list
+        for item in self.checks:
+            if isinstance(item, Check):
+                self._checks.append(item)
+            elif isinstance(item, list):
+                # Group the list into one main check and add that one
+                self._checks.append(all_of(item))
+
+    def evaluate(self, bs: BeautifulSoup) -> bool:
+        """Evaluate all checks inside of this item"""
+        for check in self._checks:
+            if not check.callback(bs):
+                # TODO create Aborted exception if check requests it & raise if necessary
+                return False
+
+        return True
+
+
+@dataclass
 class TestSuite:
     """Main test suite class
 
@@ -236,7 +249,7 @@ class TestSuite:
         checklist   A list of all checks to perform on this document
     """
     content: str
-    checklist: List[Check] = field(default_factory=list)
+    checklist: List[ChecklistItem] = field(default_factory=list)
     _bs: BeautifulSoup = field(init=False)
     _root: Tag = field(init=False)
 
@@ -263,49 +276,23 @@ class TestSuite:
         Every message is of the format (bool, str). The boolean indicates that
         the check was successful, the string contains the message itself.
         """
-        messages = []
-        # Flatten list of checks
-        flattened = _flatten_queue(deepcopy(self.checklist))
-        queue: Deque[Check] = deque(flattened)
+        # Create an initial list with only False's so when we abort the checks
+        # all future checks on the list are already marked as failed
+        messages = list((False, item.message,) for item in self.checklist)
 
-        # Keep running every check until the queue is exhausted
-        while queue:
-            check = queue.popleft()
-            # Run checks
-            success = check.callback(self._bs)
-
-            # If the message should be shown on the checklist and it has
-            # a message, then add it
-            if not check.hidden and check.message:
-                messages.append((success, check.message))
-
-            # Check failed, don't perform subtests
-            if not success:
-                continue
-
-            # Add all on_success checks to the BEGINNING of the queue
-            # because they should run next
-            for sub in reversed(check.on_success):
-                print("sub", sub)
-                queue.appendleft(sub)
+        # Run all items on the checklist & mark them as successful if applicable
+        # TODO try-catch aborted exception
+        for i, item in enumerate(self.checklist):
+            # Can't set items on tuples so overwrite it
+            messages[i] = (item.evaluate(self._bs), item.message,)
 
         return messages
 
 
-def grouped_checks(message: str, args: List[Check]) -> Check:
-    """Perform multiple checks at once, and show the given message in case one fails
-    This method can be used to perform checks that require one another, without revealing
-    the answer by accident.
-
-    For example:
-    - Check 1: does <body> exist?
-    - Check 2: is there a <div> inside the body?
-    - Check 3: is there an <a> inside that div?
-
-    In case the first check fails, it would reveal part of the answer. If the checklist should
-    only tell the student that there should be an <a>, and not that it should also be inside of
-    a <div>, then this function can do that by ALWAYS displaying the message passed as an argument,
-    no matter which check failed. That way the user won't get a "missing <div>" message.
+def all_of(args: List[Check]) -> Check:
+    """Perform an AND-statement on a list of checks
+    Creates a new Check that requires every single one of the checks to pass,
+    otherwise returns False.
     """
     # Flatten list of checks
     flattened = _flatten_queue(deepcopy(args))
@@ -325,7 +312,7 @@ def grouped_checks(message: str, args: List[Check]) -> Check:
 
         return True
 
-    return Check(message, _inner)
+    return Check(_inner)
 
 
 def has_count(elements: List, amount: int) -> Check:
@@ -333,4 +320,4 @@ def has_count(elements: List, amount: int) -> Check:
     def _inner(_: BeautifulSoup) -> bool:
         return len(elements) == amount
 
-    return Check("", _inner)
+    return Check(_inner)

@@ -31,7 +31,7 @@ class TestChecks(unittest.TestCase):
 
         # Assign checklist
         suite.checklist = [
-            checks.grouped_checks(message, grouped_list).display()
+            checks.all_of(message, grouped_list).display()
         ]
 
         # Check that test failed, but the requested message was shown

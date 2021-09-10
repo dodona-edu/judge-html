@@ -14,7 +14,7 @@ head_checks = [
     el_title.exists(),
     el_title.has_content()
 ]
-grouped_head_checks = checks.grouped_checks("Document has a title.", head_checks)
+grouped_head_checks = checks.all_of(head_checks)
 
 # BODY CHECKS
 el_body = suite.element("body")
@@ -34,9 +34,9 @@ table_check = table.has_tag("table").then(  # Check that the 2nd entry is the ta
 
 # TODO find a solution for potential index errors?
 body_checks = [
-    body_children[0].has_tag("p").then(body_children[0].has_content().display()),  # First paragraph is not empty
-    table_check.display(),
-    body_children[2].has_tag("p").then(body_children[2].has_content().display())
+    body_children[0].has_tag("p").then(body_children[0].has_content()),  # First paragraph is not empty
+    table_check,
+    body_children[2].has_tag("p").then(body_children[2].has_content())
 ]
 
 suite.checklist = [
