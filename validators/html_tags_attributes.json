@@ -1,5 +1,5 @@
 {
-"html": {"required":["lang"]},
+"html": {"required_attributes":["lang"]},
 "base": {},
 "head": {},
 "link": {},

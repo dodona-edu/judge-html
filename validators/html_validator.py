@@ -2,8 +2,8 @@ import json
 from html.parser import HTMLParser
 from exceptions.htmlExceptions import *
 
-REQUIRED_ATR_KEY = "required"
-ALL_ATR_KEY = "all"
+REQUIRED_ATR_KEY = "required_attributes"
+ALL_ATR_KEY = "all_attributes"
 
 
 class HtmlValidator(HTMLParser):
@@ -22,7 +22,11 @@ class HtmlValidator(HTMLParser):
         with open("html_tags_attributes.json", "r") as f:
             self.valid_dict = json.load(f)
 
-    def validate(self, text: str):
+    def validate(self, filepath: str):
+        with open(filepath, "r") as f:
+            self._validate(f.read())
+
+    def _validate(self, text: str):
         self.reset()
         self.feed(text)
 
@@ -72,5 +76,5 @@ class HtmlValidator(HTMLParser):
 
 
 validator = HtmlValidator()
-validator.validate(
-    '<!DOCTYPE html><html lang="en"><body><h1>My First Heading</h1><p>My first paragraph.</p></body></html>')
+# validator._validate('<!DOCTYPE html><html lang="en"><body><h1>My First Heading</h1><p>My first paragraph.</p></body></html>')
+# validator.validate("simple.html")
