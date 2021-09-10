@@ -1,14 +1,39 @@
 import sys
-
-from dodona.dodona_command import Judgement, Test, TestCase, Message, ErrorType, Tab, Context, MessageFormat
+from dodona.dodona_command import Judgement, Test, TestCase, Message, ErrorType, Tab, Context, MessageFormat, DodonaException, MessagePermission
 from validators.html_validator import HtmlValidator
 from exceptions.htmlExceptions import HtmlValidationError, Warnings
 from os import path, getcwd, listdir
-from dodona.dodona_command import Judgement, Test, TestCase, Message, ErrorType, Tab, Context
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
-from importlib import import_module
-from inspect import getmembers, isfunction
+from types import ModuleType
+
+
+def build_evaluator_module(config: DodonaConfig) -> ModuleType:
+    """Compile the evaluation code & create a new module"""
+    # Create filepath
+    custom_evaluator_path = path.join(config.resources, "./evaluator.py")
+
+    # Evaluator doesn't exist, throw an exception
+    if not path.exists(custom_evaluator_path):
+        raise DodonaException(
+            config.translator.error_status(ErrorType.INTERNAL_ERROR),
+            permission=MessagePermission.STAFF,
+            description="Could not find evaluator.py script. ",
+            format=MessageFormat.TEXT,
+        )
+
+    # Read raw content of .py file
+    with open(custom_evaluator_path, "r") as fp:
+        # Compile the code into bytecode
+        evaluator_script = compile(fp.read(), "<string>", "exec")
+
+    # Create a new module
+    evaluator_module = ModuleType("evaluation")
+
+    # Build the bytecode & add to the new module
+    exec(evaluator_script, evaluator_module.__dict__)
+
+    return evaluator_module
 
 
 def main():
@@ -24,12 +49,8 @@ def main():
         # Initiate translator
         config.translator = Translator.from_str(config.natural_language)
 
-        custom_evaluator_path = path.join(config.resources, "evaluator.py")
-        print(listdir(getcwd()))
-        # If a custom evaluator exists, try to import and use it
-        if path.exists(custom_evaluator_path):
-            m = import_module(custom_evaluator_path)
-            print(getmembers(m, isfunction))
+        # Compile evaluator code
+        evaluator = build_evaluator_module(config)
 
         # validate html
         with Tab("checklist"):
