@@ -1,4 +1,4 @@
-from tests.utils import html_loader
+from tests.helpers import html_loader
 import unittest
 from validators import checks
 
