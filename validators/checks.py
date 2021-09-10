@@ -121,11 +121,11 @@ class Element:
 
         return Element(tag, child.get("id", None), child)
 
-    def get_children(self, tag: str = "", direct: bool = True, **kwargs) -> List["Element"]:
+    def get_children(self, tag: str = "", direct: bool = True, **kwargs) -> "ElementContainer":
         """Get all children of this element that match the requested input"""
         # This element doesn't exist so it has no children
         if self._element is None:
-            return []
+            return ElementContainer([])
 
         # If a tag was specified, only search for those
         # Otherwise, use all children instead
@@ -137,7 +137,8 @@ class Element:
             # Filter out string content
             matches = list(filter(lambda x: isinstance(x, Tag), matches))
 
-        return list(map(lambda x: Element(x.name, x.get("id", None), x), matches))
+        elements = list(map(lambda x: Element(x.name, x.get("id", None), x), matches))
+        return ElementContainer(elements)
 
     def exists(self) -> Check:
         """Check that this element was found"""
@@ -163,9 +164,23 @@ class Element:
     def has_content(self, text: Optional[str] = None) -> Check:
         """Check if this element has given text as content.
         In case no text is passed, any non-empty string will make the test pass
+
+        Example:
+        >>> suite = TestSuite("<p>This is some text</p>")
+        >>> element = suite.element("p")
+        >>> element.has_content()
+        True
+        >>> element.has_content("This is some text")
+        True
+        >>> element.has_content("Something else")
+        False
         """
 
         def _inner(_: BeautifulSoup) -> bool:
+            # Element doesn't exist
+            if self._element is None:
+                return False
+
             if text is not None:
                 return self._element.text == text
 
