@@ -1,6 +1,6 @@
 import sys
 from os import path
-from dodona.dodona_command import Judgement, Test, TestCase, Message, ErrorType, Tab, Context, DodonaException, \
+from dodona.dodona_command import Judgement, Test, TestCase, ErrorType, Tab, Context, DodonaException, \
     MessagePermission, MessageFormat
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
