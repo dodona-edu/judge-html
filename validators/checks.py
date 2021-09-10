@@ -8,8 +8,7 @@ from typing import Deque, List, Optional, Callable, Union, Tuple
 
 
 # TODO extend Translator functionality for error messages to allow NL
-# TODO find a solution for potential index errors when strict-checking order of children
-#   wrapper class for containers?
+# TODO dedicated table content checks
 
 
 @dataclass
@@ -119,13 +118,16 @@ class Element:
 
                 child = all_children[index]
 
+        if child is None:
+            return EmptyElement()
+
         return Element(tag, child.get("id", None), child)
 
-    def get_children(self, tag: str = "", direct: bool = True, **kwargs) -> List["Element"]:
+    def get_children(self, tag: str = "", direct: bool = True, **kwargs) -> "ElementContainer":
         """Get all children of this element that match the requested input"""
         # This element doesn't exist so it has no children
         if self._element is None:
-            return []
+            return ElementContainer([])
 
         # If a tag was specified, only search for those
         # Otherwise, use all children instead
@@ -137,10 +139,12 @@ class Element:
             # Filter out string content
             matches = list(filter(lambda x: isinstance(x, Tag), matches))
 
-        return list(map(lambda x: Element(x.name, x.get("id", None), x), matches))
+        elements = list(map(lambda x: Element(x.name, x.get("id", None), x), matches))
+        return ElementContainer(elements)
 
     def exists(self) -> Check:
         """Check that this element was found"""
+
         def _inner(_: BeautifulSoup) -> bool:
             return self._element is not None
 
@@ -153,6 +157,7 @@ class Element:
         :param direct:  indicate that only direct children should be considered,
                         no elements of children
         """
+
         def _inner(_: BeautifulSoup) -> bool:
             return self._element.find(tag, recursive=not direct, **kwargs) is not None
 
@@ -161,8 +166,23 @@ class Element:
     def has_content(self, text: Optional[str] = None) -> Check:
         """Check if this element has given text as content.
         In case no text is passed, any non-empty string will make the test pass
+
+        Example:
+        >>> suite = TestSuite("<p>This is some text</p>")
+        >>> element = suite.element("p")
+        >>> element.has_content()
+        True
+        >>> element.has_content("This is some text")
+        True
+        >>> element.has_content("Something else")
+        False
         """
+
         def _inner(_: BeautifulSoup) -> bool:
+            # Element doesn't exist
+            if self._element is None:
+                return False
+
             if text is not None:
                 return self._element.text == text
 
@@ -172,13 +192,18 @@ class Element:
 
     def count_children(self, tag: str, amount: int, direct: bool = True, **kwargs) -> Check:
         """Check that this element has exactly [amount] children matching the requirements"""
+
         def _inner(_: BeautifulSoup) -> bool:
+            if self._element is None:
+                return False
+
             return len(self._element.find_all(tag, recursive=not direct, **kwargs)) == amount
 
         return Check(_inner)
 
     def has_tag(self, tag: str) -> Check:
         """Check that this element has the required tag"""
+
         def _inner(_: BeautifulSoup) -> bool:
             if self._element is None:
                 return False
@@ -186,6 +211,63 @@ class Element:
             return self.tag == tag
 
         return Check(_inner)
+
+
+@dataclass
+class EmptyElement(Element):
+    """Class that represents an element that could not be found"""
+    def __init__(self):
+        super().__init__("", None, None)
+
+
+@dataclass
+class ElementContainer:
+    """Class used for collections of elements fetched from the HTML
+    This class was made to avoid potential IndexErrors in the evaluation file
+    when using indexing.
+
+    The example below assumes that there are two <div>s in the solution in order
+    to set up the checklist, but the student's current file may not have these.
+    This would cause IndexErrors when parsing the file.
+
+    By letting get_children() return this container class, we can just return an
+    empty Element() object when the list doesn't have enough elements, and then
+    other checks will just fail instead of crashing.
+    Example:
+    >>> suite = TestSuite("<body>"
+    ...                     "<div id='div1'>"
+    ...                         "..."
+    ...                     "</div>"
+    ...                     "<div id='div2'>"
+    ...                         "..."
+    ...                     "</div>"
+    ...                   "</body>")
+    >>> all_divs = suite.element("body").get_children("div")
+    >>> all_divs[1].has_child("...")  # IndexError if student doesn't have this!
+
+    Attributes:
+        elements       the elements to add into this container
+    """
+    elements: List[Element]
+    _size: int = field(init=False)
+
+    def __post_init__(self):
+        # Avoid calling len() all the time
+        self._size = len(self.elements)
+
+    def __getitem__(self, item) -> Element:
+        if not isinstance(item, int):
+            raise TypeError(f"Key {item} was of type {item}, not int.")
+
+        # Out of range
+        if item >= self._size:
+            return EmptyElement()
+
+        return self.elements[item]
+
+    def get(self, index: int) -> Element:
+        """Get an item at a given index, same as []-operator"""
+        return self[index]
 
 
 def _flatten_queue(queue: List) -> List[Check]:
@@ -324,6 +406,7 @@ def all_of(args: List[Check]) -> Check:
 
 def has_count(elements: List, amount: int) -> Check:
     """Check that a list of elements has a certain amount of entries"""
+
     def _inner(_: BeautifulSoup) -> bool:
         return len(elements) == amount
 
