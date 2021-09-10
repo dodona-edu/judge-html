@@ -1,8 +1,8 @@
 from validators import checks
-from tests.utils import load_html_file
+from utils.file_loaders import read
 
 
-content = load_html_file("submission_example")
+content = read("submission_example")
 suite = checks.TestSuite(content)
 
 # HEAD CHECKS
