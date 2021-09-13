@@ -85,6 +85,9 @@ class Warnings(Exception):
     def add(self, warning: Exception):
         self.warnings.append(warning)
 
+    def clear(self):
+        self.warnings.clear()
+
     def __str__(self):
         return f"Warnings ({len(self)}):\n{self._print_warnings()}"
 
