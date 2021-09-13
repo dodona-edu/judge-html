@@ -22,6 +22,11 @@ class Translator:
         """Text message content enum"""
 
         UNCLOSED_HTML_TAG = auto()
+        MISSING_EVALUATION_FILE = auto()
+        MISSING_CREATE_SUITE = auto()
+        TESTCASE_ABORTED = auto()
+        TESTCASE_NO_LONGER_EVALUATED = auto()
+        FAILED_TESTS = auto()
 
     def __init__(self, language: Language):
         self.language = language
@@ -41,20 +46,20 @@ class Translator:
         return cls(cls.Language.EN)
 
     def human_error(self, error: ErrorType) -> str:
-        """translate an ErrorType enum into a human-readeable string
+        """translate an ErrorType enum into a human-readable string
         :param error: ErrorType enum
-        :return: translated human-readeable string
+        :return: translated human-readable string
         """
         return self.error_translations[self.language][error]
 
-    def error_status(self, error: ErrorType) -> Dict[str, str]:
+    def error_status(self, error: ErrorType, **kwargs) -> Dict[str, str]:
         """translate an ErrorType enum into a status object
         :param error: ErrorType enum
         :return: Dodona status object
         """
         return {
             "enum": error,
-            "human": self.human_error(error),
+            "human": self.human_error(error).format(**kwargs),
         }
 
     def translate(self, message: Text, **kwargs) -> str:
@@ -74,7 +79,7 @@ class Translator:
             ErrorType.OUTPUT_LIMIT_EXCEEDED: "Output limit exceeded",
             ErrorType.RUNTIME_ERROR: "Crashed while testing",
             ErrorType.WRONG: "Test failed",
-            ErrorType.WRONG_ANSWER: "Test failed",
+            ErrorType.WRONG_ANSWER: "{amount} test(s) failed",
             ErrorType.CORRECT: "All tests succeeded",
             ErrorType.CORRECT_ANSWER: "All tests succeeded",
         },
@@ -86,7 +91,7 @@ class Translator:
             ErrorType.OUTPUT_LIMIT_EXCEEDED: "Outputlimiet overschreden",
             ErrorType.RUNTIME_ERROR: "Gecrasht bij testen",
             ErrorType.WRONG: "Test gefaald",
-            ErrorType.WRONG_ANSWER: "Test gefaald",
+            ErrorType.WRONG_ANSWER: "{amount} test(en) gefaald",
             ErrorType.CORRECT: "Alle testen geslaagd",
             ErrorType.CORRECT_ANSWER: "Alle testen geslaagd",
         },
@@ -94,9 +99,19 @@ class Translator:
 
     text_translations = {
         Language.EN: {
-            Text.UNCLOSED_HTML_TAG: "There is a tag that was opened but not closed"
+            Text.UNCLOSED_HTML_TAG: "An HTML-tag was opened but not closed",
+            Text.MISSING_EVALUATION_FILE: "The evaluator.py file is missing",
+            Text.MISSING_CREATE_SUITE: "The evaluator.py file does not implement the 'create_suites(content)' method.",
+            Text.TESTCASE_ABORTED: "Evaluation was aborted because this test failed. All subsequent tests were not executed.",
+            Text.TESTCASE_NO_LONGER_EVALUATED: "This test was not evaluated.",
+            Text.FAILED_TESTS: "{amount} test(s) failed."
         },
         Language.NL: {
-            Text.UNCLOSED_HTML_TAG: "Er is een HTML-tag geopend die niet afgesloten werd"
+            Text.UNCLOSED_HTML_TAG: "Er is een HTML-tag geopend die niet gesloten werd",
+            Text.MISSING_EVALUATION_FILE: "Het evaluator.py-bestand ontbreekt",
+            Text.MISSING_CREATE_SUITE: "Het evaluator.py-bestand bevat de 'create_suites(content)' methode niet.",
+            Text.TESTCASE_ABORTED: "Het evalueren is onderbroken omdat deze test faalde. De hierop volgende tests werden niet uitgevoerd.",
+            Text.TESTCASE_NO_LONGER_EVALUATED: "Deze test werd niet uitgevoerd.",
+            Text.FAILED_TESTS: "{amount} test(en) gefaald."
         },
     }

@@ -11,4 +11,4 @@ class TestChecks(unittest.TestCase):
         # Open HTML file
         html_content = html_loader("nested_attributes")
 
-        suite = checks.TestSuite(html_content)
+        suite = checks.TestSuite("suite", html_content)
