@@ -21,6 +21,8 @@ class HtmlValidator(HTMLParser):
         * tags starting with </ are omitted
         * tags that dont need a closing tag (see json) can bit omitted (like <meta>)
       * is the tag a valid tag
+      * does the tag have valid nesting (it checks the permitted parents)
+          for example a head tag has the html tag as permitted parent but nothing else
       * required attributes (to be completed in the json)
       * recommended attributes (to be completed in the json)
     """
@@ -53,6 +55,9 @@ class HtmlValidator(HTMLParser):
         self.tag_stack.clear()
         self.warnings.clear()
         self.reset()
+        # check brackets and stuff ( '(', '"', '{', '[', '<')
+        self._valid_chars(text)
+        # check html syntax
         self.feed(text)
         while self.tag_stack:  # clear tag stack
             if not self._is_omittable(self.tag_stack[-1]):
@@ -66,6 +71,35 @@ class HtmlValidator(HTMLParser):
 
     def warning(self, warning: HtmlValidationError):
         self.warnings.add(warning)
+
+    def _valid_chars(self, text: str):
+        stack = []
+        pos_stack = []
+        convert = {
+            "(": ")",
+            "<": ">",
+            "'": "'",
+            '"': '"'
+        }
+        convert.update({val: key for key, val in convert.items()})  # put the inverse map in the map
+        text = list(text)
+        i = 0
+        end = len(text)
+        # loop text
+        while i < end:
+            char = text[i]
+            # closing
+            if stack and convert[stack[-1]] == char:
+                stack.pop()
+                pos_stack.pop()
+            # not closing
+            elif char in convert:
+                stack.append(char)
+                pos_stack.append(i + 1)  # humans count from 1 not from 0
+            i += 1
+        print(len(stack))
+        print(stack)
+        print(pos_stack)
 
     def handle_starttag(self, tag: str, attributes: [(str, str)]):
         self._valid_tag(tag)
@@ -86,6 +120,9 @@ class HtmlValidator(HTMLParser):
     def _validate_corresponding_tag(self, tag: str):
         """validate that each tag that opens has a corresponding closing tag
         """
+        if not self.tag_stack:
+            self.error(MissingClosingTagError(tag, self.tag_stack, self.getpos()))
+
         if tag != self.tag_stack[-1]:
             while self._is_omittable(self.tag_stack[-1]):
                 self.tag_stack.pop()
@@ -128,4 +165,5 @@ class HtmlValidator(HTMLParser):
                     self.error(UnexpectedTagError(tag, self.tag_stack, self.getpos()))
             elif prev_tag is not None and prev_tag not in tag_info[PERMITTED_PARENTS_KEY]:
                 self.error(UnexpectedTagError(tag, self.tag_stack, self.getpos()))
+
 
