@@ -47,6 +47,8 @@ def create_suite(content: str):
 
 <img src="media/tabs.png" alt="image: TestSuites visualized on Dodona.">
 
+The image also shows a `1` next to the `HTML` tab, indicating that 1 test failed. This instantly allows users to see which part of their code caused the exercise to be incorrect, and which parts are already finished.
+
 ### Adding checks
 
 In order to add checks, you can either set the entire checklist at once, or add separate `ChecklistItem`s one by one.
