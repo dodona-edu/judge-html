@@ -37,9 +37,12 @@ class HtmlValidator(HTMLParser):
         self._validate(content)
 
     def _validate(self, text: str):
+        self.tag_stack.clear()
+        self.warnings.clear()
         self.reset()
         self.feed(text)
         while self.tag_stack:  # clear tag stack
+            print(self.tag_stack)
             if not self._is_omittable(self.tag_stack[-1]):
                 raise MissingClosingTagError(self.tag_stack.pop(), self.tag_stack, self.getpos())
             self.tag_stack.pop()
