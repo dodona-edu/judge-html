@@ -36,6 +36,15 @@ class InvalidTagError(LocatableHtmlValidationError):
         return f"Invalid tag: <{self.invalid_tag}> ({self.tag_location()})"
 
 
+class UnexpectedTagError(LocatableHtmlValidationError):
+    def __init__(self, unexpected_tag: str, tag_location: [str], position: (int, int)):
+        super(UnexpectedTagError, self).__init__(tag_location, position)
+        self.unexpected_tag = unexpected_tag
+
+    def __str__(self):
+        return f"Unexpected tag: <{self.unexpected_tag}> ({self.tag_location()})"
+
+
 class InvalidAttributeError(LocatableHtmlValidationError):
     def __init__(self, tag: str, invalid_attribute: str, tag_location: [str], position: (int, int)):
         super(InvalidAttributeError, self).__init__(tag_location, position)
