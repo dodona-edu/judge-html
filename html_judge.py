@@ -36,6 +36,8 @@ def main():
 
         # Run all test suites
         for suite in test_suites:
+            suite.create_validator(config)
+
             with Tab(suite.name):
                 failed_tests += suite.evaluate(config.translator)
                 with Test("Checking tags and attributes", "") as test:
