@@ -1,5 +1,6 @@
 from exceptions.double_char_exceptions import *
 
+
 class DoubleCharsValidator:
     def __init__(self):
         self.opening = ["(", "<", "{", "[", "'", '"']
