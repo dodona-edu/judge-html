@@ -89,15 +89,15 @@ class Warnings(Exception):
     class made to gather multiple warnings
     """
     def __init__(self):
-        self.warnings = []
+        self.warnings: [MissingRecommendedAttributesWarning] = []
 
     def __len__(self):
         return len(self.warnings)
 
     def __bool__(self):
-        return len(self) != 0
+        return bool(self.warnings)
 
-    def add(self, warning: Exception):
+    def add(self, warning: MissingRecommendedAttributesWarning):
         self.warnings.append(warning)
 
     def clear(self):
