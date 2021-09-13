@@ -29,6 +29,16 @@ class HtmlValidator(HTMLParser):
         self.valid_dict = json_loader(path.abspath(path.join(base_path, "html_tags_attributes.json")))
         self.check_required = kwargs.get("required", True)
         self.check_recommended = kwargs.get("recommended", True)
+        self.check_nesting = kwargs.get("nesting", True)
+
+    def set_check_required(self, b: bool):
+        self.check_required = b
+
+    def set_check_recommended(self, b: bool):
+        self.check_recommended = b
+
+    def set_check_nesting(self, b: bool):
+        self.check_nesting = b
 
     def validate_file(self, source_filepath: str):
         self._validate(html_loader(source_filepath, shorted=False))
@@ -80,7 +90,7 @@ class HtmlValidator(HTMLParser):
 
     def _is_omittable(self, tag: str) -> bool:
         return CLOSING_TAG_OMISSION_KEY in self.valid_dict[tag] \
-                and self.valid_dict[tag][CLOSING_TAG_OMISSION_KEY]
+               and self.valid_dict[tag][CLOSING_TAG_OMISSION_KEY]
 
     def _valid_tag(self, tag: str):
         """validate that a tag is a valid HTML tag"""
