@@ -541,7 +541,7 @@ class TestSuite:
         The Suite is created in the evaluation file by teachers, so we
         avoid passing extra arguments into the constructor as much as we can.
         """
-        self._validator = HtmlValidator(config.translator, check_recommended=self.check_recommended)
+        self._validator = HtmlValidator(config.translator, recommended=self.check_recommended)
 
     def validate_html(self, allow_warnings=True) -> Check:
         """Check that the HTML is valid
