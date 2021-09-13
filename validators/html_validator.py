@@ -117,12 +117,15 @@ class HtmlValidator(HTMLParser):
                                                                  self.getpos()))
 
     def _valid_nesting(self, tag):
-        if not self.tag_stack:
-            if tag != "html":  # the first tag needs to be the <html> tag
-                self.error(UnexpectedTagError(tag, self.tag_stack, self.getpos()))
-        else:  # tag is not the first tag, check permitted parents
-            tag_info = self.valid_dict[tag]
-            if PERMITTED_PARENTS_KEY in tag_info:
-                # check if the prev tag is in the permitted parents field of the current tag
-                if self.tag_stack[-1] not in tag_info[PERMITTED_PARENTS_KEY]:
+        tag_info = self.valid_dict[tag]
+        if PERMITTED_PARENTS_KEY in tag_info:
+            # check if the prev tag is in the permitted parents field of the current tag
+            prev_tag = self.tag_stack[-1] if self.tag_stack else None
+            # prev tag can be None when tag is <html>, you don't expect it has a parent,
+            #   if you want a tag without a parent you need to add "permitted_parent: []" in the json for that tag
+            if not tag_info[PERMITTED_PARENTS_KEY]:
+                if prev_tag is not None:
                     self.error(UnexpectedTagError(tag, self.tag_stack, self.getpos()))
+            elif prev_tag is not None and prev_tag not in tag_info[PERMITTED_PARENTS_KEY]:
+                self.error(UnexpectedTagError(tag, self.tag_stack, self.getpos()))
+
