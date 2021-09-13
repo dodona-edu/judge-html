@@ -9,9 +9,10 @@ from dataclasses import dataclass, field
 from typing import Deque, List, Optional, Callable, Union
 
 from dodona.dodona_command import Context, TestCase, Message, MessageFormat
+from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from validators.html_validator import HtmlValidator
-from exceptions.htmlExceptions import EvaluationAborted, Warnings, HtmlValidationError
+from exceptions.html_exceptions import EvaluationAborted, Warnings, HtmlValidationError
 
 
 @dataclass
@@ -523,17 +524,24 @@ class TestSuite:
     """
     name: str
     content: str
+    check_recommended: bool = True
     checklist: List[ChecklistItem] = field(default_factory=list)
     _bs: BeautifulSoup = field(init=False)
     _root: Tag = field(init=False)
-
-    _validator: HtmlValidator = HtmlValidator(check_recommended=True)
+    _validator: HtmlValidator = field(init=False)
 
     def __post_init__(self):
         self._bs = BeautifulSoup(self.content, "html.parser")
 
         # TODO don't require this anymore
         self._root = self._bs.html
+
+    def create_validator(self, config: DodonaConfig):
+        """Create the HTML validator from outside the Suite
+        The Suite is created in the evaluation file by teachers, so we
+        avoid passing extra arguments into the constructor as much as we can.
+        """
+        self._validator = HtmlValidator(config.translator, recommended=self.check_recommended)
 
     def validate_html(self, allow_warnings=True) -> Check:
         """Check that the HTML is valid

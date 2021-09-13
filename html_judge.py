@@ -1,12 +1,14 @@
 import sys
 from typing import List
 
-from dodona.dodona_command import Judgement, ErrorType, Tab
+from dodona.dodona_command import Judgement, Test, Message, ErrorType, Tab, MessageFormat
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
+from exceptions.html_exceptions import Warnings, HtmlValidationError
 from utils.evaluation_module import EvaluationModule
 from utils.file_loaders import html_loader
 from validators.checks import TestSuite
+from validators.html_validator import HtmlValidator
 
 
 def main():
@@ -34,6 +36,8 @@ def main():
 
         # Run all test suites
         for suite in test_suites:
+            suite.create_validator(config)
+
             with Tab(suite.name):
                 failed_tests += suite.evaluate(config.translator)
 
