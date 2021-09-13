@@ -1,4 +1,6 @@
 import unittest
+
+from dodona.translator import Translator
 from validators.double_chars_validator import DoubleCharsValidator
 from exceptions.double_char_exceptions import MissingOpeningCharError, MissingClosingCharError, MultipleMissingCharsError
 
@@ -6,16 +8,16 @@ from exceptions.double_char_exceptions import MissingOpeningCharError, MissingCl
 class TestHtmlValidator(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.validator = DoubleCharsValidator()
+        self.validator = DoubleCharsValidator(Translator(Translator.Language.EN))
         self.all_opening = self.validator.opening
         self.all_closing = self.validator.closing
         self.all_combined = [f"{x[0]}{x[1]}" for x in zip(self.all_opening, self.all_closing)]
 
-    def run_correct(self, xs:[str]):
+    def run_correct(self, xs: [str]):
         for x in xs:
             self.validator.validate_content(x)
 
-    def run_incorrect(self, xs:[str]):
+    def run_incorrect(self, xs: [str]):
         for x in xs:
             with self.assertRaises(MultipleMissingCharsError):
                 self.validator.validate_content(x)

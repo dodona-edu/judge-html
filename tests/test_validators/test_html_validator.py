@@ -1,4 +1,6 @@
 import unittest
+
+from dodona.translator import Translator
 from validators.html_validator import HtmlValidator
 from exceptions.html_exceptions import MissingClosingTagError, InvalidTagError, UnexpectedTagError, MissingRequiredAttributeError, Warnings
 
@@ -6,7 +8,7 @@ from exceptions.html_exceptions import MissingClosingTagError, InvalidTagError, 
 class TestHtmlValidator(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.validator = HtmlValidator()
+        self.validator = HtmlValidator(Translator(Translator.Language.EN))
 
     def setup(self, required, recommended, nesting):
         self.validator.set_check_required(required)
