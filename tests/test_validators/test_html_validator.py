@@ -58,8 +58,6 @@ class TestHtmlValidator(unittest.TestCase):
         with self.assertRaises(MissingRequiredAttributeError):
             self.validator.validate_content("<img/>")
         with self.assertRaises(MissingRequiredAttributeError):
-            self.validator.validate_content("<img/>")
-        with self.assertRaises(MissingRequiredAttributeError):
             self.validator.validate_content("<body><img/></body>")
 
     def test_missing_recommended_attribute(self):
