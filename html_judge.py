@@ -1,7 +1,8 @@
 import sys
 from typing import List
 
-from dodona.dodona_command import Judgement, Test, TestCase, Message, ErrorType, Tab, Context, MessageFormat
+from dodona.dodona_command import Judgement, Test, TestCase, Message, ErrorType, Tab, Context, MessageFormat, \
+    DodonaException
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from exceptions.htmlExceptions import HtmlValidationError, Warnings
@@ -18,7 +19,10 @@ def main():
     # Read config JSON from stdin
     config = DodonaConfig.from_json(sys.stdin)
 
-    with Judgement():
+    with Judgement() as judge:
+        # Counter for failed tests because this judge works a bit differently
+        failed_tests = 0
+
         # Perform sanity check
         config.sanity_check()
         # Initiate translator
@@ -31,37 +35,13 @@ def main():
         html_content: str = html_loader(config.source, shorted=False)
         test_suites: List[TestSuite] = evaluator.create_suites(html_content)
 
-        # validate html
-        with Tab("checklist"):
-            # print(test_suite.evaluate())
-            with Message(description="<html>✅ The HTML is valid.<br />✖ Something else is valid.<br /></html>", format=MessageFormat.HTML):
-                pass
-            with Context(), TestCase("HTML validation"):
+        # Run all test suites
+        for suite in test_suites:
+            with Tab(suite.name):
+                failed_tests += suite.evaluate(config.translator)
 
-                with Test("The HTML is valid.", "") as test:
-                    try:
-                        HtmlValidator().validate_file(config.source)
-                    except Warnings as war:
-                        with Message(description=str(war), format=MessageFormat.CODE):  # code preserves spaces&newlines
-                            test.status = config.translator.error_status(ErrorType.CORRECT)
-                            test.generated = ""
-                    except HtmlValidationError as err:
-                        test.generated = str(err)
-                        test.status = config.translator.error_status(ErrorType.WRONG)
-                    else:
-                        test.generated = ""
-                        test.status = config.translator.error_status(ErrorType.CORRECT)
-
-            with Context(), TestCase("Something else is valid."):
-                with Test("Something else is valid.", "") as test:
-                    test.status = config.translator.error_status(ErrorType.WRONG)
-                    test.generated = ""
-
-        with Tab("Tab 1"):
-            with Context(), TestCase("Setup test description"):
-                with Test("First arg", "Second arg") as test:
-                    test.generated = "Generated"
-                    test.status = config.translator.error_status(ErrorType.CORRECT)
+        judge.status = config.translator.error_status(ErrorType.WRONG_ANSWER)
+        # judge.description = config.translator.translate(config.translator.Text.FAILED_TESTS, amount=failed_tests)
 
 
 if __name__ == "__main__":

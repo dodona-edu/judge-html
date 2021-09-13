@@ -4,13 +4,12 @@ from bs4.element import Tag
 from copy import deepcopy
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Deque, List, Optional, Callable, Union, Tuple
+from typing import Deque, List, Optional, Callable, Union
+
+from dodona.dodona_command import Context, TestCase, Message, MessageFormat
+from dodona.translator import Translator
 from validators.html_validator import HtmlValidator
 from exceptions.htmlExceptions import EvaluationAborted, Warnings, HtmlValidationError
-
-
-# TODO extend Translator functionality for error messages to allow NL
-# TODO dedicated table content checks
 
 
 @dataclass
@@ -165,6 +164,9 @@ class Element:
         """
 
         def _inner(_: BeautifulSoup) -> bool:
+            if self._element is None:
+                return False
+
             return self._element.find(tag, recursive=not direct, **kwargs) is not None
 
         return Check(_inner)
@@ -216,6 +218,29 @@ class Element:
 
         def _inner(_: BeautifulSoup) -> bool:
             return self._has_tag(tag)
+
+        return Check(_inner)
+
+    def has_attribute(self, attr: str, value: Optional[str] = None) -> Check:
+        """Check that this element has the required attribute, optionally with a value
+        :param attr:    The name of the attribute to check.
+        :param value:   The value to check. If no value is passed, this will not be checked.
+        """
+        def _inner(_: BeautifulSoup) -> bool:
+            if self._element is None:
+                return False
+
+            attribute = self._element.get(attr)
+
+            # Attribute wasn't found
+            if attribute is None:
+                return False
+
+            # No value specified
+            if value is None:
+                return True
+
+            return attribute == value
 
         return Check(_inner)
 
@@ -473,25 +498,26 @@ class TestSuite:
     def __post_init__(self):
         self._bs = BeautifulSoup(self.content, "html.parser")
 
-        # Assume HTML validation has been done beforehand, and every document
-        # correctly starts/ends with <html> tags
+        # TODO don't require this anymore
         self._root = self._bs.html
 
-    def validate_html(self) -> Check:
+    def validate_html(self, allow_warnings=True) -> Check:
         """Check that the HTML is valid
         This is done in here so that all errors and warnings can be sent to
         Dodona afterwards by reading them out of here
+
+        The CODE format is used because it preserves spaces & newlines
         """
 
         def _inner(_: BeautifulSoup) -> bool:
             try:
                 self._validator.validate_content(self.content)
-            except Warnings:
-                # Ignore warnings, they are shown on Dodona afterwards but
-                # aren't considered invalid HTML
-                return True
-            except HtmlValidationError:
-                return False
+            except Warnings as war:
+                with Message(description=str(war), format=MessageFormat.CODE):
+                    return allow_warnings
+            except HtmlValidationError as err:
+                with Message(description=str(err), format=MessageFormat.CODE):
+                    return False
 
             # If no validation errors were raised, the HTML is valid
             return True
@@ -509,26 +535,50 @@ class TestSuite:
         element = start.find(tag, **kwargs)
         return Element(tag, kwargs.get("id", None), element)
 
-    def evaluate(self) -> List[Tuple[bool, str]]:
-        """Run the test suite, returns a list of messages (being the checklist)
-        Every message is of the format (bool, str). The boolean indicates that
-        the check was successful, the string contains the message itself.
+    def evaluate(self, translator: Translator) -> int:
+        """Run the test suite, and print the Dodona output
+        :returns:   the amount of failed tests
+        :rtype:     int
         """
-        # Create an initial list with only False's so when we abort the checks
-        # all future checks on the list are already marked as failed
-        messages = list((False, item.message,) for item in self.checklist)
+        aborted = -1
+        failed_tests = 0
 
         # Run all items on the checklist & mark them as successful if they pass
         for i, item in enumerate(self.checklist):
-            # Can't set items on tuples so overwrite it
-            try:
-                messages[i] = (item.evaluate(self._bs), item.message,)
-            except EvaluationAborted:
-                # Crucial test failed, stop evaluation and let the next tests
-                # all remain False
-                return messages
+            with Context(), TestCase(item.message) as test_case:
+                # Make it False by default so crashing doesn't make it default to True
+                test_case.accepted = False
 
-        return messages
+                # Evaluation was aborted, print a message and skip this test
+                if aborted >= 0:
+                    with Message(description=translator.translate(translator.Text.TESTCASE_NO_LONGER_EVALUATED),
+                                 format=MessageFormat.TEXT):
+                        failed_tests += 1
+                        continue
+
+                # Can't set items on tuples so overwrite it
+                try:
+                    test_case.accepted = item.evaluate(self._bs)
+                except Warnings as war:
+                    # Warnings don't cause the test to fail, but must still be printed
+                    with Message(description=str(war), format=MessageFormat.CODE):  # code preserves spaces & newlines
+                        test_case.accepted = True
+                except HtmlValidationError as err:
+                    with Message(description=str(err), format=MessageFormat.CODE):  # code preserves spaces & newlines
+                        pass
+                except EvaluationAborted:
+                    # Crucial test failed, stop evaluation and let the next tests
+                    # all be marked as wrong
+                    aborted = i
+
+                    with Message(description=translator.translate(translator.Text.TESTCASE_ABORTED)):
+                        pass
+
+                # If the test wasn't marked as True above, increase the counter for failed tests
+                if not test_case.accepted:
+                    failed_tests += 1
+
+        return failed_tests
 
 
 def all_of(args: List[Check]) -> Check:
