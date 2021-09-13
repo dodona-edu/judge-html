@@ -1,6 +1,7 @@
 import sys
 from typing import List
-from dodona.dodona_command import Judgement, ErrorType, Tab, Test, Message, MessageFormat
+
+from dodona.dodona_command import Judgement, Test, Message, ErrorType, Tab, MessageFormat
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from exceptions.html_exceptions import Warnings, HtmlValidationError
