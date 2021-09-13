@@ -655,13 +655,36 @@ def any_of(args: List[Check]) -> Check:
         while queue:
             check = queue.popleft()
 
-            # One check failed, return False
+            # One check passed, return True
             if check.callback(bs):
                 return True
 
             # Try the other checks
             for sub in reversed(check.on_success):
                 queue.appendleft(sub)
+
+        return False
+
+    return Check(_inner)
+
+
+def at_least(amount: int, args: List[Check]) -> Check:
+    """Check that at least [amount] checks passed"""
+    # Flatten list of checks
+    flattened = _flatten_queue(deepcopy(args))
+    queue: Deque[Check] = deque(flattened)
+
+    def _inner(bs: BeautifulSoup) -> bool:
+        passed = 0
+
+        while queue:
+            check = queue.popleft()
+
+            if check.callback(bs):
+                passed += 1
+
+            if passed >= amount:
+                return True
 
         return False
 
