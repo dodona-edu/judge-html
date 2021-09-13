@@ -28,7 +28,7 @@ class HtmlValidator(HTMLParser):
       * recommended attributes (to be completed in the json)
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, translator: Translator, **kwargs):
         """
         kwargs:
         * required: whether or not to check required arguments
@@ -36,9 +36,10 @@ class HtmlValidator(HTMLParser):
         * nesting: whether or not to check the nesting of tags
         """
         super().__init__()
-        self.warnings = Warnings()
+        self.translator = translator
+        self.warnings = Warnings(self.translator)
         self.tag_stack = []
-        self.double_chars_validator = DoubleCharsValidator()
+        self.double_chars_validator = DoubleCharsValidator(translator)
         self.valid_dict = json_loader(path.abspath(path.join(base_path, "html_tags_attributes.json")))
         self.check_required = kwargs.get("required", True)
         self.check_recommended = kwargs.get("recommended", True)
@@ -70,7 +71,7 @@ class HtmlValidator(HTMLParser):
         self.feed(text)
         while self.tag_stack:  # clear tag stack
             if not self._is_omittable(self.tag_stack[-1]):
-                raise MissingClosingTagError(self.tag_stack.pop(), self.tag_stack, self.getpos())
+                raise MissingClosingTagError(self.translator, self.tag_stack.pop(), self.tag_stack, self.getpos())
             self.tag_stack.pop()
         if self.warnings:
             raise self.warnings
@@ -112,13 +113,13 @@ class HtmlValidator(HTMLParser):
         """validate that each tag that opens has a corresponding closing tag
         """
         if not self.tag_stack:
-            self.error(MissingClosingTagError(tag, self.tag_stack, self.getpos()))
+            self.error(MissingClosingTagError(self.translator, tag, self.tag_stack, self.getpos()))
 
         if tag != self.tag_stack[-1]:
             while self._is_omittable(self.tag_stack[-1]):
                 self.tag_stack.pop()
             if tag != self.tag_stack[-1]:
-                self.error(MissingClosingTagError(self.tag_stack[-1], self.tag_stack, self.getpos()))
+                self.error(MissingClosingTagError(self.translator, self.tag_stack[-1], self.tag_stack, self.getpos()))
 
     def _is_omittable(self, tag: str) -> bool:
         """indicates whether the tag its corresponding closing tag is omittable or not"""
@@ -128,7 +129,7 @@ class HtmlValidator(HTMLParser):
     def _valid_tag(self, tag: str):
         """validate that a tag is a valid HTML tag (if a tag isn't allowed, this wil also raise an exception"""
         if tag not in self.valid_dict:
-            self.error(InvalidTagError(tag, self.tag_stack, self.getpos()))
+            self.error(InvalidTagError(self.translator, tag, self.tag_stack, self.getpos()))
 
     def _valid_attributes(self, tag: str, attributes: set[str]):
         """validate attributes
@@ -140,13 +141,14 @@ class HtmlValidator(HTMLParser):
         if self.check_required:
             required = set(tag_info[REQUIRED_ATR_KEY]) if REQUIRED_ATR_KEY in tag_info else set()
             if missing_req := (required - attributes):
-                self.error(MissingRequiredAttributeError(tag, ", ".join(missing_req), self.tag_stack, self.getpos()))
+                self.error(MissingRequiredAttributeError(self.translator, tag, ", ".join(missing_req),
+                                                         self.tag_stack, self.getpos()))
 
         if self.check_recommended:
             recommended = set(tag_info[RECOMMENDED_ATR_KEY]) if RECOMMENDED_ATR_KEY in tag_info else set()
             if missing_rec := (recommended - attributes):
-                self.warning(MissingRecommendedAttributesWarning(tag, ", ".join(missing_rec), self.tag_stack.copy(),
-                                                                 self.getpos()))
+                self.warning(MissingRecommendedAttributesWarning(self.translator, tag, ", ".join(missing_rec),
+                                                                 self.tag_stack.copy(), self.getpos()))
 
     def _valid_nesting(self, tag):
         """check whether the nesting is html-approved,
@@ -160,6 +162,10 @@ class HtmlValidator(HTMLParser):
             #   if you want a tag without a parent you need to add "permitted_parent: []" in the json for that tag
             if not tag_info[PERMITTED_PARENTS_KEY]:
                 if prev_tag is not None:
-                    self.error(UnexpectedTagError(tag, self.tag_stack, self.getpos()))
+                    self.error(UnexpectedTagError(self.translator, tag, self.tag_stack, self.getpos()))
             elif prev_tag is not None and prev_tag not in tag_info[PERMITTED_PARENTS_KEY]:
-                self.error(UnexpectedTagError(tag, self.tag_stack, self.getpos()))
+                self.error(UnexpectedTagError(self.translator, tag, self.tag_stack, self.getpos()))
+
+
+v = HtmlValidator(Translator(Translator.Language.NL))
+v.validate_content("<img/>")

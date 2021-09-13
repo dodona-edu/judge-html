@@ -1,11 +1,13 @@
 import sys
 from typing import List
-from dodona.dodona_command import Judgement, ErrorType, Tab
+from dodona.dodona_command import Judgement, ErrorType, Tab, Test, Message, MessageFormat
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
+from exceptions.html_exceptions import Warnings, HtmlValidationError
 from utils.evaluation_module import EvaluationModule
 from utils.file_loaders import html_loader
 from validators.checks import TestSuite
+from validators.html_validator import HtmlValidator
 
 
 def main():
@@ -35,6 +37,19 @@ def main():
         for suite in test_suites:
             with Tab(suite.name):
                 failed_tests += suite.evaluate(config.translator)
+                with Test("Checking tags and attributes", "") as test:
+                    try:
+                        HtmlValidator(config.translator).validate_file(config.source)
+                    except Warnings as war:
+                        with Message(description=str(war), format=MessageFormat.CODE):  # code preserves spaces&newlines
+                            test.status = config.translator.error_status(ErrorType.CORRECT)
+                            test.generated = ""
+                    except HtmlValidationError as err:
+                        test.generated = str(err)
+                        test.status = config.translator.error_status(ErrorType.WRONG)
+                    else:
+                        test.generated = ""
+                        test.status = config.translator.error_status(ErrorType.CORRECT)
 
         status = ErrorType.CORRECT_ANSWER if failed_tests == 0 else ErrorType.WRONG_ANSWER
         judge.status = config.translator.error_status(status, amount=failed_tests)

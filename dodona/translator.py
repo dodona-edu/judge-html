@@ -21,12 +21,27 @@ class Translator:
     class Text(Enum):
         """Text message content enum"""
 
-        UNCLOSED_HTML_TAG = auto()
         MISSING_EVALUATION_FILE = auto()
         MISSING_CREATE_SUITE = auto()
         TESTCASE_ABORTED = auto()
         TESTCASE_NO_LONGER_EVALUATED = auto()
         FAILED_TESTS = auto()
+        # double char exceptions
+        MISSING_OPENING_CHARACTER = auto()
+        MISSING_CLOSING_CHARACTER = auto()
+        # html exceptions
+        MISSING_CLOSING_TAG = auto()
+        INVALID_TAG = auto()
+        UNEXPECTED_TAG = auto()
+        INVALID_ATTRIBUTE = auto()
+        MISSING_REQUIRED_ATTRIBUTE = auto()
+        MISSING_RECOMMENDED_ATTRIBUTE = auto()
+        # normal text
+        ERRORS = auto()
+        WARNINGS = auto()
+        LOCATED_AT = auto()
+        LINE = auto()
+        POSITION = auto()
 
     def __init__(self, language: Language):
         self.language = language
@@ -99,19 +114,49 @@ class Translator:
 
     text_translations = {
         Language.EN: {
-            Text.UNCLOSED_HTML_TAG: "An HTML-tag was opened but not closed",
             Text.MISSING_EVALUATION_FILE: "The evaluator.py file is missing",
             Text.MISSING_CREATE_SUITE: "The evaluator.py file does not implement the 'create_suites(content)' method.",
             Text.TESTCASE_ABORTED: "Evaluation was aborted because this test failed. All subsequent tests were not executed.",
             Text.TESTCASE_NO_LONGER_EVALUATED: "This test was not evaluated.",
-            Text.FAILED_TESTS: "{amount} test(s) failed."
+            Text.FAILED_TESTS: "{amount} test(s) failed.",
+            # double char exceptions
+            Text.MISSING_OPENING_CHARACTER: "Missing opening character for",
+            Text.MISSING_CLOSING_CHARACTER: "Missing closing character for",
+            # html exceptions
+            Text.MISSING_CLOSING_TAG: "Missing closing html-tag for",
+            Text.INVALID_TAG: "Invalid html-tag",
+            Text.UNEXPECTED_TAG: "Unexpected html-tag",
+            Text.INVALID_ATTRIBUTE: "Invalid attribute for",
+            Text.MISSING_REQUIRED_ATTRIBUTE: "Missing required attribute(s) for",
+            Text.MISSING_RECOMMENDED_ATTRIBUTE: "Missing recommended attribute(s) for",
+            # normal text
+            Text.ERRORS: "Error(s)",
+            Text.WARNINGS: "Warning(s)",
+            Text.LOCATED_AT: "located at",
+            Text.LINE: "line",
+            Text.POSITION: "position"
         },
         Language.NL: {
-            Text.UNCLOSED_HTML_TAG: "Er is een HTML-tag geopend die niet gesloten werd",
             Text.MISSING_EVALUATION_FILE: "Het evaluator.py-bestand ontbreekt",
             Text.MISSING_CREATE_SUITE: "Het evaluator.py-bestand bevat de 'create_suites(content)' methode niet.",
             Text.TESTCASE_ABORTED: "Het evalueren is onderbroken omdat deze test faalde. De hierop volgende tests werden niet uitgevoerd.",
             Text.TESTCASE_NO_LONGER_EVALUATED: "Deze test werd niet uitgevoerd.",
-            Text.FAILED_TESTS: "{amount} test(en) gefaald."
-        },
+            Text.FAILED_TESTS: "{amount} test(en) gefaald.",
+            # double char exceptions
+            Text.MISSING_OPENING_CHARACTER: "Ontbrekend openend karakter voor",
+            Text.MISSING_CLOSING_CHARACTER: "Ontbrekend sluited karakter voor",
+            # html exceptions
+            Text.MISSING_CLOSING_TAG: "Ontbrekende sluitende html-tag voor",
+            Text.INVALID_TAG: "Ongeldige html-tag",
+            Text.UNEXPECTED_TAG: "Onverwachte html-tag",
+            Text.INVALID_ATTRIBUTE: "Ongeldig attribuut voor",
+            Text.MISSING_REQUIRED_ATTRIBUTE: "Ontbrekende vereiste attributen voor",
+            Text.MISSING_RECOMMENDED_ATTRIBUTE: "Ontbrekende vereiste attributen voor",
+            # normal text
+            Text.ERRORS: "Fout(en)",
+            Text.WARNINGS: "Waarschuwing(en)",
+            Text.LOCATED_AT: "gevonden op",
+            Text.LINE: "regel",
+            Text.POSITION: "positie",
+        }
     }

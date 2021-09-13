@@ -1,4 +1,5 @@
 from exceptions.double_char_exceptions import *
+from dodona.translator import Translator
 
 
 class DoubleCharsValidator:
@@ -12,7 +13,8 @@ class DoubleCharsValidator:
         * ' '
         * " "
     """
-    def __init__(self):
+    def __init__(self, translator: Translator):
+        self.translator = translator
         self.opening = ["(", "<", "{", "[", "'", '"']
         self.closing = [")", ">", "}", "]", "'", '"']
         self.convert = dict((key, val) for key, val in [*zip(self.opening, self.closing), *zip(self.closing, self.opening)])
@@ -48,9 +50,7 @@ class DoubleCharsValidator:
                 char = stack.pop()
                 pos = pos_stack.pop()
                 if char in self.opening:
-                    errors.add(MissingClosingCharError(char, pos))
+                    errors.add(MissingClosingCharError(self.translator, char, pos))
                 else:
-                    errors.add(MissingOpeningCharError(char, pos))
+                    errors.add(MissingOpeningCharError(self.translator, char, pos))
             raise errors
-
-
