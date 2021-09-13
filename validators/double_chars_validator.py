@@ -45,7 +45,7 @@ class DoubleCharsValidator:
 
         # the stack should be empty, if not print remaining things
         if stack:
-            errors = MultipleMissingCharsError()
+            errors = MultipleMissingCharsError(self.translator)
             while stack:
                 char = stack.pop()
                 pos = pos_stack.pop()

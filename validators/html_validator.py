@@ -165,7 +165,3 @@ class HtmlValidator(HTMLParser):
                     self.error(UnexpectedTagError(self.translator, tag, self.tag_stack, self.getpos()))
             elif prev_tag is not None and prev_tag not in tag_info[PERMITTED_PARENTS_KEY]:
                 self.error(UnexpectedTagError(self.translator, tag, self.tag_stack, self.getpos()))
-
-
-v = HtmlValidator(Translator(Translator.Language.NL))
-v.validate_content("<img/>")
