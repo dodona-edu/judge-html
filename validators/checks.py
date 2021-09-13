@@ -11,7 +11,7 @@ from typing import Deque, List, Optional, Callable, Union
 from dodona.dodona_command import Context, TestCase, Message, MessageFormat
 from dodona.translator import Translator
 from validators.html_validator import HtmlValidator
-from exceptions.htmlExceptions import EvaluationAborted, Warnings, HtmlValidationError
+from exceptions.html_exceptions import EvaluationAborted, Warnings, HtmlValidationError
 
 
 @dataclass
@@ -527,7 +527,7 @@ class TestSuite:
     _bs: BeautifulSoup = field(init=False)
     _root: Tag = field(init=False)
 
-    _validator: HtmlValidator = HtmlValidator(check_recommended=True)
+    _validator: HtmlValidator = HtmlValidator(Translator(Translator.Language.EN), check_recommended=True)
 
     def __post_init__(self):
         self._bs = BeautifulSoup(self.content, "html.parser")
