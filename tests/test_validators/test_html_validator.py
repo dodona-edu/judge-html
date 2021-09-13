@@ -44,7 +44,7 @@ class TestHtmlValidator(unittest.TestCase):
         # no required arguments are set in the json yet
 
     def test_missing_recommended_attribute(self):
-        # correct required attribute test
+        # correct recommended attribute test
         self.validator.validate_content("<html lang='en'></html>")
         # incorrect (missing) required attribute test
         with self.assertRaises(Warnings):  # throws a MissingRecommendedAttributeError but it is collected as Warnings
