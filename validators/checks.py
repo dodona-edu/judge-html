@@ -1,4 +1,6 @@
 """Basic checking library to create evaluation tests for exercises"""
+import re
+
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 from copy import deepcopy
@@ -221,16 +223,22 @@ class Element:
 
         return Check(_inner)
 
+    def _get_attribute(self, attr: str) -> Optional[str]:
+        """Internal function that gets an attribute"""
+        if self._element is None:
+            return None
+
+        attribute = self._element.get(attr)
+
+        return attribute
+
     def has_attribute(self, attr: str, value: Optional[str] = None) -> Check:
         """Check that this element has the required attribute, optionally with a value
         :param attr:    The name of the attribute to check.
         :param value:   The value to check. If no value is passed, this will not be checked.
         """
         def _inner(_: BeautifulSoup) -> bool:
-            if self._element is None:
-                return False
-
-            attribute = self._element.get(attr)
+            attribute = self._get_attribute(attr)
 
             # Attribute wasn't found
             if attribute is None:
@@ -241,6 +249,32 @@ class Element:
                 return True
 
             return attribute == value
+
+        return Check(_inner)
+
+    def attribute_contains(self, attr: str, substr: str) -> Check:
+        """Check that the value of this attribute contains a substring"""
+        def _inner(_: BeautifulSoup) -> bool:
+            attribute = self._get_attribute(attr)
+
+            # Attribute wasn't found
+            if attribute is None:
+                return False
+
+            return substr in attribute
+
+        return Check(_inner)
+
+    def attribute_matches(self, attr: str, regex: re.Pattern):
+        """Check that the value of an attribute matches a regex pattern"""
+        def _inner(_: BeautifulSoup) -> bool:
+            attribute = self._get_attribute(attr)
+
+            # Attribute wasn't found
+            if attribute is None:
+                return False
+
+            return re.match(regex, attribute) is not None
 
         return Check(_inner)
 
