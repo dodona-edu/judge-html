@@ -1,8 +1,10 @@
+from typing import List
+
 from validators import checks
 
 
-def create_suite(content: str) -> checks.TestSuite:
-    suite = checks.TestSuite(content)
+def create_suites(content: str) -> List[checks.TestSuite]:
+    suite = checks.TestSuite("HTML", content)
 
     # Item 1: the HTML is valid
     ci_html_valid = checks.ChecklistItem("The HTML is valid.",
@@ -69,4 +71,4 @@ def create_suite(content: str) -> checks.TestSuite:
         ci_fourth_row_is_correct
     ]
 
-    return suite
+    return [suite]

@@ -462,6 +462,7 @@ class TestSuite:
         content     The HTML of the document to perform the tests on
         checklist   A list of all checks to perform on this document
     """
+    name: str
     content: str
     checklist: List[ChecklistItem] = field(default_factory=list)
     _bs: BeautifulSoup = field(init=False)

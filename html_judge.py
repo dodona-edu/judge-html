@@ -1,4 +1,5 @@
 import sys
+from typing import List
 
 from dodona.dodona_command import Judgement, Test, TestCase, Message, ErrorType, Tab, Context, MessageFormat
 from dodona.dodona_config import DodonaConfig
@@ -28,14 +29,16 @@ def main():
 
         # Load HTML
         html_content: str = html_loader(config.source, shorted=False)
-        test_suite: TestSuite = evaluator.create_suite(html_content)
+        test_suites: List[TestSuite] = evaluator.create_suites(html_content)
 
         # validate html
         with Tab("checklist"):
-            print(test_suite.evaluate())
+            # print(test_suite.evaluate())
+            with Message(description="<html>✅ The HTML is valid.<br />✖ Something else is valid.<br /></html>", format=MessageFormat.HTML):
+                pass
             with Context(), TestCase("HTML validation"):
 
-                with Test("Checking tags and attributes", "") as test:
+                with Test("The HTML is valid.", "") as test:
                     try:
                         HtmlValidator().validate_file(config.source)
                     except Warnings as war:
@@ -48,6 +51,11 @@ def main():
                     else:
                         test.generated = ""
                         test.status = config.translator.error_status(ErrorType.CORRECT)
+
+            with Context(), TestCase("Something else is valid."):
+                with Test("Something else is valid.", "") as test:
+                    test.status = config.translator.error_status(ErrorType.WRONG)
+                    test.generated = ""
 
         with Tab("Tab 1"):
             with Context(), TestCase("Setup test description"):
