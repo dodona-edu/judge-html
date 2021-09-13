@@ -66,3 +66,54 @@ suite.checklist = [first_item, second_item]
 suite.checklist.append(first_item)
 suite.checklist.append(second_item)
 ```
+
+## ChecklistItem class
+
+`ChecklistItem`s, as the name suggests, represent items on the checklist. This contains a message that will be displayed to the user, and all checks that will run behind the scenes. All of these checks have to pass in order to mark this item as correct.
+
+There is **no** message telling the user which checks failed, as this would allow them to slowly figure out the solution. The only message they can see is the one you pass into the ChecklistItem when creating it. The image below shows what this would look like on Dodona:
+
+```python
+item_1 = ChecklistItem("This is the first item", [check1, check2, ...])
+item_2 = ChecklistItem("This is the second item", [check3, check4, ...])
+```
+
+# TODO image
+
+## Utility functions
+
+These functions add extra functionality to the testing library, and can simplify common behaviour for you.
+
+### all_of
+
+The `all_of` function takes a list of checks, and will only pass if all of these checks passed too. Once one check fails, all other checks in the list will no longer be evaluated.
+
+The example below will fail because there is no `<table>` inside the `<body>`.
+
+```python
+document = "<html><body></body></html>"
+suite = TestSuite("HTML", document)
+
+body_element = suite.element("body")
+table_element = body.get_child("table")
+
+# Check if the <body> exists AND it has a <table> child
+all_of([body_element.exists(), table_element.exists()])
+```
+
+### any_of
+
+The `any_of` function takes a list of checks, and will pass if at least one of these checks passes as well. Once one check passes, all other checks in the list will no longer evaluated.
+
+The example below will pass because `<body>` exists, even if `<head>` doesn't. It will also pass if `<head>` exists while `<body>`  doesn't, and if both exist. This last scenario, however, will not be evaluated (as stated above).
+
+```python
+document = "<html><body></body></html>"
+suite = TestSuite("HTML", document)
+
+head_element = suite.element("head")
+body_element = suite.element("body")
+
+# Check if the <body> exists OR <head> exists
+any_of([body_element.exists(), head_element.exists()])
+```
