@@ -1,6 +1,6 @@
 import unittest
 from validators.html_validator import HtmlValidator
-from exceptions.htmlExceptions import MissingClosingTagError, InvalidTagError, Warnings
+from exceptions.htmlExceptions import MissingClosingTagError, InvalidTagError, MissingRequiredAttributeError, Warnings
 
 
 class TestHtmlValidator(unittest.TestCase):
@@ -40,8 +40,16 @@ class TestHtmlValidator(unittest.TestCase):
         # there is no incorrect attribute checking
 
     def test_missing_required_attribute(self):
+        # correct attributes test
+        self.validator.validate_content("<img src='' alt='' />")
         pass
-        # no required arguments are set in the json yet
+        # incorrect (missing) required attributes test
+        with self.assertRaises(MissingRequiredAttributeError):
+            self.validator.validate_content("<img alt=''/>")
+        with self.assertRaises(MissingRequiredAttributeError):
+            self.validator.validate_content("<img alt=''/>")
+        with self.assertRaises(MissingRequiredAttributeError):
+            self.validator.validate_content("<body><img alt=''/></body>")
 
     def test_missing_recommended_attribute(self):
         # correct recommended attribute test
