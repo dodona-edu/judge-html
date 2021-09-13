@@ -4,6 +4,7 @@ class HtmlValidationError(Exception):
 
 
 class LocatableHtmlValidationError(HtmlValidationError):
+    """Exceptions that can be located"""
     def __init__(self, tag_location: [str], position: (int, int)):
         self._tag_location = tag_location
         self.position = position
@@ -19,6 +20,7 @@ class LocatableHtmlValidationError(HtmlValidationError):
 
 
 class MissingClosingTagError(LocatableHtmlValidationError):
+    """Exception that indicates that the closing tag is missing for a tag"""
     def __init__(self, tag: str, tag_location: [str], position: (int, int)):
         super(MissingClosingTagError, self).__init__(tag_location, position)
         self.tag = tag
@@ -28,6 +30,7 @@ class MissingClosingTagError(LocatableHtmlValidationError):
 
 
 class InvalidTagError(LocatableHtmlValidationError):
+    """Exception that indicates that a tag is invalid (tag doesn't exist or isn't allowed to be used"""
     def __init__(self, invalid_tag: str, tag_location: [str], position: (int, int)):
         super(InvalidTagError, self).__init__(tag_location, position)
         self.invalid_tag = invalid_tag
@@ -37,6 +40,9 @@ class InvalidTagError(LocatableHtmlValidationError):
 
 
 class UnexpectedTagError(LocatableHtmlValidationError):
+    """Exception that indicates that a certain tag was not expected
+        ex: you don't expect a <html> tag inside of a <body> tag
+    """
     def __init__(self, unexpected_tag: str, tag_location: [str], position: (int, int)):
         super(UnexpectedTagError, self).__init__(tag_location, position)
         self.unexpected_tag = unexpected_tag
@@ -46,6 +52,7 @@ class UnexpectedTagError(LocatableHtmlValidationError):
 
 
 class InvalidAttributeError(LocatableHtmlValidationError):
+    """Exception that indicates that an attribute is invalid for a tag"""
     def __init__(self, tag: str, invalid_attribute: str, tag_location: [str], position: (int, int)):
         super(InvalidAttributeError, self).__init__(tag_location, position)
         self.tag = tag
@@ -56,6 +63,7 @@ class InvalidAttributeError(LocatableHtmlValidationError):
 
 
 class MissingRequiredAttributeError(LocatableHtmlValidationError):
+    """Exception that indicates that a required attribute for a tag is missing"""
     def __init__(self, tag: str, missing_attributes: str, tag_location: [str], position: (int, int)):
         super(MissingRequiredAttributeError, self).__init__(tag_location, position)
         self.tag = tag
@@ -66,8 +74,9 @@ class MissingRequiredAttributeError(LocatableHtmlValidationError):
 
 
 class MissingRecommendedAttributesWarning(LocatableHtmlValidationError):
-    """
-    this is a warning, warnings will only be raised at the end
+    """Exception that indicates that a recommended attribute is missing
+            this is considered a warning, and all instances of this class will be
+            gathered and thrown at the very end if no other exceptions appear
     """
     def __init__(self, tag: str, missing_attributes: str, tag_location: [str], position: (int, int)):
         super(MissingRecommendedAttributesWarning, self).__init__(tag_location, position)
@@ -79,9 +88,7 @@ class MissingRecommendedAttributesWarning(LocatableHtmlValidationError):
 
 
 class Warnings(Exception):
-    """
-    class made to gather multiple warnings
-    """
+    """class made to gather multiple warnings"""
     def __init__(self):
         self.warnings: [MissingRecommendedAttributesWarning] = []
 

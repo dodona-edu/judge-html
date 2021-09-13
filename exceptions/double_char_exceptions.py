@@ -1,9 +1,10 @@
 class DoubleCharError(Exception):
-    """Base class for HTML related exceptions in this module."""
+    """Base class for double char related exceptions in this module."""
     pass
 
 
 class LocatableDoubleCharError(DoubleCharError):
+    """Exceptions that can be located"""
     def __init__(self, position: (int, int)):
         self.position = position
 
@@ -33,22 +34,26 @@ class LocatableDoubleCharError(DoubleCharError):
 
 
 class MissingCharError(LocatableDoubleCharError):
+    """Exception that indicates a missing character for a character"""
     def __init__(self, char: str, position: (int, int)):
         super(MissingCharError, self).__init__(position)
         self.char = char
 
 
 class MissingOpeningCharError(MissingCharError):
+    """Exception that indicates that an opening equivalent of a certain character is missing"""
     def __str__(self):
         return f"Missing opening character for '{self.char}' at {self.location()}"
 
 
 class MissingClosingCharError(MissingCharError):
+    """Exception that indicates that a closing equivalent of a certain character is missing"""
     def __str__(self):
         return f"Missing closing character for '{self.char}' at {self.location()}"
 
 
 class MultipleMissingCharsError(Exception):
+    """class made to gather multiple missing chars errors"""
     def __init__(self):
         self.errors: [MissingCharError] = []
 
