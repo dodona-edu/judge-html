@@ -17,6 +17,10 @@ class TestHtmlValidator(unittest.TestCase):
             self.validator.validate_content("<body><div></div>")
         with self.assertRaises(MissingClosingTagError):
             self.validator.validate_content("<body><div></body>")
+        # omittable tags (tags that don't need to be closed
+        self.validator.validate_content("<base>")
+        self.validator.validate_content("<meta>")
+        self.validator.validate_content("<body><meta></body>")
 
     def test_invalid_tag(self):
         # correct tag test
@@ -24,6 +28,11 @@ class TestHtmlValidator(unittest.TestCase):
         # incorrect tag test
         with self.assertRaises(InvalidTagError):
             self.validator.validate_content("<jibberjabber></jibberjabber>")
+        # script tag is also seen as an invalid tag
+        with self.assertRaises(InvalidTagError):
+            self.validator.validate_content("<script>")
+        with self.assertRaises(InvalidTagError):
+            self.validator.validate_content("<noscript>")
 
     def test_invalid_attribute(self):
         # correct attribute test
