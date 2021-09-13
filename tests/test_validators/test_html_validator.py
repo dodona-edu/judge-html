@@ -1,12 +1,12 @@
 import unittest
 from validators.html_validator import HtmlValidator
-from exceptions.htmlExceptions import MissingClosingTagError, InvalidTagError, MissingRequiredAttributeError, Warnings
+from exceptions.htmlExceptions import MissingClosingTagError, InvalidTagError, UnexpectedTagError, MissingRequiredAttributeError, Warnings
 
 
 class TestHtmlValidator(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.validator = HtmlValidator()
+        self.validator = HtmlValidator(nesting=False)
 
     def test_missing_closing_tag(self):
         # correct tag closing test
@@ -59,3 +59,14 @@ class TestHtmlValidator(unittest.TestCase):
             self.validator.validate_content("<html></html>")
         with self.assertRaises(Warnings):
             self.validator.validate_content("<html><html><html></html></html></html>")
+
+    def test_nesting(self):
+        self.validator.set_check_nesting(True)
+        # correct nesting
+        self.validator.validate_content("<html lang=''><table><caption></caption><tr><td></td></tr></table></html>")
+        # incorrect nesting
+        with self.assertRaises(UnexpectedTagError):
+            self.validator.validate_content("<body/>")
+            with self.assertRaises(UnexpectedTagError):
+                self.validator.validate_content("<html lang=''><html lang=''></html></html>")
+

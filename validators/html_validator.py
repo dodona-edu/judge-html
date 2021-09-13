@@ -9,10 +9,13 @@ base_path = path.dirname(__file__)
 REQUIRED_ATR_KEY = "required_attributes"
 RECOMMENDED_ATR_KEY = "recommended_attributes"
 CLOSING_TAG_OMISSION_KEY = "closing_tag_omission"
+PERMITTED_PARENTS_KEY = "permitted_parents"
 
 
 class HtmlValidator(HTMLParser):
     """
+    parses & validates the html
+      the html doesn't need to start with <!DOCTYPE html>, if it is present it will just be ignored
     this class checks the following:
       * each tag that opens must have a corresponding closing tag
         * tags starting with </ are omitted
@@ -29,7 +32,7 @@ class HtmlValidator(HTMLParser):
         self.valid_dict = json_loader(path.abspath(path.join(base_path, "html_tags_attributes.json")))
         self.check_required = kwargs.get("required", True)
         self.check_recommended = kwargs.get("recommended", True)
-        self.check_nesting = kwargs.get("nesting", True)
+        self.check_nesting = kwargs.get('nesting', True)
 
     def set_check_required(self, b: bool):
         self.check_required = b
@@ -52,7 +55,6 @@ class HtmlValidator(HTMLParser):
         self.reset()
         self.feed(text)
         while self.tag_stack:  # clear tag stack
-            print(self.tag_stack)
             if not self._is_omittable(self.tag_stack[-1]):
                 raise MissingClosingTagError(self.tag_stack.pop(), self.tag_stack, self.getpos())
             self.tag_stack.pop()
@@ -69,6 +71,8 @@ class HtmlValidator(HTMLParser):
         self._valid_tag(tag)
         # already append, because the tag is valid,
         #  this way the tag stack is updated for a more accurate location of the error messages
+        if self.check_nesting:
+            self._valid_nesting(tag)
         self.tag_stack.append(tag)
         self._valid_attributes(tag, set(a[0] for a in attributes))
 
@@ -109,4 +113,16 @@ class HtmlValidator(HTMLParser):
         if self.check_recommended:
             recommended = set(tag_info[RECOMMENDED_ATR_KEY]) if RECOMMENDED_ATR_KEY in tag_info else set()
             if missing_rec := (recommended - attributes):
-                self.warning(MissingRecommendedAttributesWarning(tag, ", ".join(missing_rec), self.tag_stack.copy(), self.getpos()))
+                self.warning(MissingRecommendedAttributesWarning(tag, ", ".join(missing_rec), self.tag_stack.copy(),
+                                                                 self.getpos()))
+
+    def _valid_nesting(self, tag):
+        if not self.tag_stack:
+            if tag != "html":  # the first tag needs to be the <html> tag
+                self.error(UnexpectedTagError(tag, self.tag_stack, self.getpos()))
+        else:  # tag is not the first tag, check permitted parents
+            tag_info = self.valid_dict[tag]
+            if PERMITTED_PARENTS_KEY in tag_info:
+                # check if the prev tag is in the permitted parents field of the current tag
+                if self.tag_stack[-1] not in tag_info[PERMITTED_PARENTS_KEY]:
+                    self.error(UnexpectedTagError(tag, self.tag_stack, self.getpos()))
