@@ -40,7 +40,8 @@ def main():
             with Tab(suite.name):
                 failed_tests += suite.evaluate(config.translator)
 
-        judge.status = config.translator.error_status(ErrorType.WRONG_ANSWER)
+        status = ErrorType.CORRECT_ANSWER if failed_tests == 0 else ErrorType.WRONG_ANSWER
+        judge.status = config.translator.error_status(status, amount=failed_tests)
         # judge.description = config.translator.translate(config.translator.Text.FAILED_TESTS, amount=failed_tests)
 
 

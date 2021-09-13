@@ -571,7 +571,8 @@ class TestSuite:
                     # all be marked as wrong
                     aborted = i
 
-                    with Message(description=translator.translate(translator.Text.TESTCASE_ABORTED)):
+                    with Message(description=translator.translate(translator.Text.TESTCASE_ABORTED),
+                                 format=MessageFormat.TEXT):
                         pass
 
                 # If the test wasn't marked as True above, increase the counter for failed tests

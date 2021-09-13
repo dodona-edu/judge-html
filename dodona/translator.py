@@ -52,14 +52,14 @@ class Translator:
         """
         return self.error_translations[self.language][error]
 
-    def error_status(self, error: ErrorType) -> Dict[str, str]:
+    def error_status(self, error: ErrorType, **kwargs) -> Dict[str, str]:
         """translate an ErrorType enum into a status object
         :param error: ErrorType enum
         :return: Dodona status object
         """
         return {
             "enum": error,
-            "human": self.human_error(error),
+            "human": self.human_error(error).format(**kwargs),
         }
 
     def translate(self, message: Text, **kwargs) -> str:
@@ -79,7 +79,7 @@ class Translator:
             ErrorType.OUTPUT_LIMIT_EXCEEDED: "Output limit exceeded",
             ErrorType.RUNTIME_ERROR: "Crashed while testing",
             ErrorType.WRONG: "Test failed",
-            ErrorType.WRONG_ANSWER: "Test failed",
+            ErrorType.WRONG_ANSWER: "{amount} test(s) failed",
             ErrorType.CORRECT: "All tests succeeded",
             ErrorType.CORRECT_ANSWER: "All tests succeeded",
         },
@@ -91,7 +91,7 @@ class Translator:
             ErrorType.OUTPUT_LIMIT_EXCEEDED: "Outputlimiet overschreden",
             ErrorType.RUNTIME_ERROR: "Gecrasht bij testen",
             ErrorType.WRONG: "Test gefaald",
-            ErrorType.WRONG_ANSWER: "Test gefaald",
+            ErrorType.WRONG_ANSWER: "{amount} test(en) gefaald",
             ErrorType.CORRECT: "Alle testen geslaagd",
             ErrorType.CORRECT_ANSWER: "Alle testen geslaagd",
         },
