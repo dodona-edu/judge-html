@@ -1,6 +1,6 @@
 import unittest
 from validators.html_validator import HtmlValidator
-from exceptions.htmlExceptions import MissingClosingTagError, InvalidTagError, UnexpectedTagError, MissingRequiredAttributeError, Warnings
+from exceptions.html_exceptions import MissingClosingTagError, InvalidTagError, UnexpectedTagError, MissingRequiredAttributeError, Warnings
 
 
 class TestHtmlValidator(unittest.TestCase):

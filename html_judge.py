@@ -2,7 +2,7 @@ import sys
 from dodona.dodona_command import Judgement, Test, TestCase, Message, ErrorType, Tab, Context, MessageFormat, \
     DodonaException, MessagePermission
 from validators.html_validator import HtmlValidator
-from exceptions.htmlExceptions import HtmlValidationError, Warnings
+from exceptions.html_exceptions import HtmlValidationError, Warnings
 from os import path
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator

@@ -1,7 +1,8 @@
 from html.parser import HTMLParser
-from exceptions.htmlExceptions import *
+from exceptions.html_exceptions import *
 from os import path
 from utils.file_loaders import json_loader, html_loader
+from validators.double_chars_validator import DoubleCharsValidator
 
 # Location of this test file
 base_path = path.dirname(__file__)
@@ -31,6 +32,7 @@ class HtmlValidator(HTMLParser):
         super().__init__()
         self.warnings = Warnings()
         self.tag_stack = []
+        self.double_chars_validator = DoubleCharsValidator()
         self.valid_dict = json_loader(path.abspath(path.join(base_path, "html_tags_attributes.json")))
         self.check_required = kwargs.get("required", True)
         self.check_recommended = kwargs.get("recommended", True)
@@ -56,7 +58,7 @@ class HtmlValidator(HTMLParser):
         self.warnings.clear()
         self.reset()
         # check brackets and stuff ( '(', '"', '{', '[', '<')
-        self._valid_chars(text)
+        self._valid_double_chars(text)
         # check html syntax
         self.feed(text)
         while self.tag_stack:  # clear tag stack
@@ -72,34 +74,8 @@ class HtmlValidator(HTMLParser):
     def warning(self, warning: HtmlValidationError):
         self.warnings.add(warning)
 
-    def _valid_chars(self, text: str):
-        stack = []
-        pos_stack = []
-        convert = {
-            "(": ")",
-            "<": ">",
-            "'": "'",
-            '"': '"'
-        }
-        convert.update({val: key for key, val in convert.items()})  # put the inverse map in the map
-        text = list(text)
-        i = 0
-        end = len(text)
-        # loop text
-        while i < end:
-            char = text[i]
-            # closing
-            if stack and convert[stack[-1]] == char:
-                stack.pop()
-                pos_stack.pop()
-            # not closing
-            elif char in convert:
-                stack.append(char)
-                pos_stack.append(i + 1)  # humans count from 1 not from 0
-            i += 1
-        print(len(stack))
-        print(stack)
-        print(pos_stack)
+    def _valid_double_chars(self, text):
+        self.double_chars_validator.validate_content(text)
 
     def handle_starttag(self, tag: str, attributes: [(str, str)]):
         self._valid_tag(tag)
@@ -165,5 +141,4 @@ class HtmlValidator(HTMLParser):
                     self.error(UnexpectedTagError(tag, self.tag_stack, self.getpos()))
             elif prev_tag is not None and prev_tag not in tag_info[PERMITTED_PARENTS_KEY]:
                 self.error(UnexpectedTagError(tag, self.tag_stack, self.getpos()))
-
 
