@@ -29,6 +29,12 @@ class HtmlValidator(HTMLParser):
     """
 
     def __init__(self, **kwargs):
+        """
+        kwargs:
+        * required: whether or not to check required arguments
+        * recommended: whether or not to check recommended arguments
+        * nesting: whether or not to check the nesting of tags
+        """
         super().__init__()
         self.warnings = Warnings()
         self.tag_stack = []
@@ -54,6 +60,7 @@ class HtmlValidator(HTMLParser):
         self._validate(content)
 
     def _validate(self, text: str):
+        """here the actual validation occurs"""
         self.tag_stack.clear()
         self.warnings.clear()
         self.reset()
@@ -71,13 +78,19 @@ class HtmlValidator(HTMLParser):
     def error(self, error: HtmlValidationError):  # make exception classes and throw these instead
         raise error
 
-    def warning(self, warning: HtmlValidationError):
+    def warning(self, warning: MissingRecommendedAttributesWarning):
+        """gathers the warnings,
+            these will be thrown at the end if no Errors occur
+        """
         self.warnings.add(warning)
 
     def _valid_double_chars(self, text):
+        """check whether every opening char has a corresponding closing char"""
         self.double_chars_validator.validate_content(text)
 
     def handle_starttag(self, tag: str, attributes: [(str, str)]):
+        """handles a html tag that opens, like <body>
+            attributes hold the (name, value) of the attributes supplied in the tag"""
         self._valid_tag(tag)
         # already append, because the tag is valid,
         #  this way the tag stack is updated for a more accurate location of the error messages
@@ -87,10 +100,12 @@ class HtmlValidator(HTMLParser):
         self._valid_attributes(tag, set(a[0] for a in attributes))
 
     def handle_endtag(self, tag: str):
+        """handles a html tag that closes, like </body>"""
         self._validate_corresponding_tag(tag)
         self.tag_stack.pop()
 
     def handle_data(self, data: str):
+        """handles the data between tags, like <p>this is the data</p>"""
         pass  # we don't need to ook at data
 
     def _validate_corresponding_tag(self, tag: str):
@@ -106,16 +121,20 @@ class HtmlValidator(HTMLParser):
                 self.error(MissingClosingTagError(self.tag_stack[-1], self.tag_stack, self.getpos()))
 
     def _is_omittable(self, tag: str) -> bool:
+        """indicates whether the tag its corresponding closing tag is omittable or not"""
         return CLOSING_TAG_OMISSION_KEY in self.valid_dict[tag] \
-               and self.valid_dict[tag][CLOSING_TAG_OMISSION_KEY]
+            and self.valid_dict[tag][CLOSING_TAG_OMISSION_KEY]
 
     def _valid_tag(self, tag: str):
-        """validate that a tag is a valid HTML tag"""
+        """validate that a tag is a valid HTML tag (if a tag isn't allowed, this wil also raise an exception"""
         if tag not in self.valid_dict:
             self.error(InvalidTagError(tag, self.tag_stack, self.getpos()))
 
     def _valid_attributes(self, tag: str, attributes: set[str]):
-        """validate attributes"""
+        """validate attributes
+            check whether all required attributes are there, if not, raise an error
+            check whether all recommended attributes are there, if not, add a warning
+        """
         tag_info = self.valid_dict[tag]
 
         if self.check_required:
@@ -130,6 +149,9 @@ class HtmlValidator(HTMLParser):
                                                                  self.getpos()))
 
     def _valid_nesting(self, tag):
+        """check whether the nesting is html-approved,
+            some tags can only have specific parent tags
+        """
         tag_info = self.valid_dict[tag]
         if PERMITTED_PARENTS_KEY in tag_info:
             # check if the prev tag is in the permitted parents field of the current tag
@@ -141,4 +163,3 @@ class HtmlValidator(HTMLParser):
                     self.error(UnexpectedTagError(tag, self.tag_stack, self.getpos()))
             elif prev_tag is not None and prev_tag not in tag_info[PERMITTED_PARENTS_KEY]:
                 self.error(UnexpectedTagError(tag, self.tag_stack, self.getpos()))
-
