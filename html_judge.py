@@ -59,7 +59,7 @@ def main():
 
                 with Test("Checking tags and attributes", "") as test:
                     try:
-                        HtmlValidator().validate_file(config.source)
+                        HtmlValidator(config.translator).validate_file(config.source)
                     except Warnings as war:
                         with Message(description=str(war), format=MessageFormat.CODE):  # code preserves spaces&newlines
                             test.status = config.translator.error_status(ErrorType.CORRECT)
