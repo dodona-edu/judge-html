@@ -147,21 +147,11 @@ Signature:
 def validate_html(allow_warnings: bool = True) -> Check
 ```
 
-<table>
-    <caption>Parameters</caption>
-    <tr>
-        <th>name</th>
-        <th>description</th>
-        <th>required</th>
-        <th>default</th>
-    </tr>
-    <tr>
-        <td>allow_warnings</td>
-        <td>Boolean that indicates that the check should <i>not</i> be marked incorrect if any warnings arise.</td>
-        <td></td>
-        <td>True</td>
-    </tr>
-</table>
+Parameters:
+
+| name | description | required | default |
+:------|:------------|:--------:|:--------|
+| allow_warnings | Boolean that indicates that the check should *not* be marked incorrect if any warnings arise. |  | True |
 
 In case the `check_recommended` attribute for this class is `True` (default), this will also show the student warnings about missing recommended attributes (see [Attributes](#check-recommended-image)).
 
@@ -180,21 +170,11 @@ Signature:
 def document_matches(self, regex: Pattern[AnyStr]) -> Check
 ```
 
-<table>
-    <caption>Parameters</caption>
-    <tr>
-        <th>name</th>
-        <th>description</th>
-        <th>required</th>
-        <th>default</th>
-    </tr>
-    <tr>
-        <td>regex</td>
-        <td>The pattern to match the student's code against.</td>
-        <td>X</td>
-        <td></td>
-    </tr>
-</table>
+Parameters:
+
+| name | description | required | default |
+:------|:------------|:--------:|:--------|
+| regex | The pattern to match the student's code against. | X | |
 
 Example usage:
 
