@@ -13,6 +13,13 @@ This document lists and explains the built-in utility functions with examples. T
 
 The `all_of` function takes a list of `Check`s, and will only pass if all of these checks passed too. Once one check fails, all other checks in the list will no longer be evaluated.
 
+#### Signature:
+```python
+def all_of(checks: List[Check]) -> Check
+```
+
+#### Example usage:
+
 The example below will fail because there is no `<table>` inside the `<body>`.
 
 ```python
@@ -29,6 +36,13 @@ all_of([body_element.exists(), table_element.exists()])
 ## any_of
 
 The `any_of` function takes a list of checks, and will pass if at least one of these checks passes as well. Once one check passes, all other checks in the list will no longer evaluated.
+
+#### Signature:
+```python
+def any_of(checks: List[Check]) -> Check
+```
+
+#### Example usage:
 
 The example below will pass because `<body>` exists, even if `<head>` doesn't. It will also pass if `<head>` exists while `<body>`  doesn't, and if both exist. This last scenario, however, will not be evaluated (as stated above).
 
@@ -47,6 +61,13 @@ any_of([body_element.exists(), head_element.exists()])
 
 The `at_least` function takes two arguments: the first being the amount of checks required, and the second list of checks to evaluate. The function will pass once at least `amount` checks have passed, and further checks will no longer be evaluated.
 
+#### Signature:
+```python
+def at_least(amount: int, checks: List[Check]) -> Check
+```
+
+#### Example usage:
+
 The example below will pass because the first two checks have passed, and only two were required.
 
 ```python
@@ -64,6 +85,13 @@ at_least(2, [head_element.exists(), body_element.exists(), div_element.exists()]
 ## fail_if
 
 The `fail_if` function takes a check, and will fail if the check passes. This is equivalent to the `NOT`-operator.
+
+#### Signature:
+```python
+def fail_if(check: Check) -> Check
+```
+
+#### Example usage:
 
 ```python
 document = "<html><body></body></html>"

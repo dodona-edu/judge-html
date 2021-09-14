@@ -21,7 +21,6 @@ class Check:
     """Class that represents a single check
 
     Attributes:
-        message     Message to display to the user in the checklist.
         callback    The function to run in order to perform this test.
         on_success  A list of checks that will only be performed in case this
                     check succeeds. An example of how this could be useful is to
@@ -29,9 +28,6 @@ class Check:
                     on its attributes and/or children. This avoids unnecessary spam
                     to the user, because an element that doesn't exist never has
                     the correct specifications.
-        hidden      Indicate that the message from this check should NOT be shown
-                    in the final checklist. Again avoids unnecessary spam and can
-                    help hide checks that would reveal the answer to the student.
     """
     callback: Callable[[BeautifulSoup], bool]
     on_success: List["Check"] = field(default_factory=list)

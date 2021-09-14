@@ -6,7 +6,7 @@ A `TestSuite` contains a checklist of all checks that should be performed on the
 - [Attributes](#attributes)
 - [TestSuites on Dodona](#testsuites-on-dodona)
 - [Referencing (specific) HTML elements](#referencing-specific-html-elements)
-- [Adding checks](#adding-checks)
+- [Adding checks](#adding-items-to-the-checklist)
 - [Built-in Checks](#built-in-checks)
     - [validate_html](#validate_html)
     - [document_matches](#document_matches)
