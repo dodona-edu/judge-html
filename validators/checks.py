@@ -534,9 +534,6 @@ class TestSuite:
     def __post_init__(self):
         self._bs = BeautifulSoup(self.content, "html.parser")
 
-        # TODO don't require this anymore
-        self._root = self._bs.html
-
     def create_validator(self, config: DodonaConfig):
         """Create the HTML validator from outside the Suite
         The Suite is created in the evaluation file by teachers, so we
@@ -567,15 +564,13 @@ class TestSuite:
 
         return Check(_inner)
 
-    def element(self, tag: str, from_root=True, **kwargs) -> Element:
+    def element(self, tag: str, from_root=False, **kwargs) -> Element:
         """Create a reference to an HTML element
         :param tag:         the name of the HTML tag to search for
         :param from_root:   find the element as a child of the root node instead of anywhere
                             in the document
         """
-        start: Union[BeautifulSoup, Tag] = self._root if from_root else self._bs
-
-        element = start.find(tag, **kwargs)
+        element = self._bs.find(tag, recursive=not from_root, **kwargs)
         return Element(tag, kwargs.get("id", None), element)
 
     def evaluate(self, translator: Translator) -> int:
