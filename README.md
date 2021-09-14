@@ -110,3 +110,12 @@ If these settings are not defined, the default value is chosen.
 ````
 
 ## Testing
+
+
+## Contributors
+* S. De Clercq
+* Q. Vervynck
+* T. Ramlot
+* B. Willems
+
+*Development funded by the Faculty of Engineering and Architecture ([Ghent University](https://www.ugent.be/en))*
