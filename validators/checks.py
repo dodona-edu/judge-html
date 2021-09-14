@@ -6,7 +6,7 @@ from bs4.element import Tag
 from copy import deepcopy
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Deque, List, Optional, Callable, Union
+from typing import Deque, List, Optional, Callable, Union, AnyStr, Pattern
 
 from dodona.dodona_command import Context, TestCase, Message, MessageFormat
 from dodona.dodona_config import DodonaConfig
@@ -266,7 +266,7 @@ class Element:
 
         return Check(_inner)
 
-    def attribute_matches(self, attr: str, regex: re.Pattern):
+    def attribute_matches(self, attr: str, regex: Pattern[AnyStr]):
         """Check that the value of an attribute matches a regex pattern"""
         def _inner(_: BeautifulSoup) -> bool:
             attribute = self._get_attribute(attr)
@@ -546,7 +546,7 @@ class TestSuite:
         """
         self._validator = HtmlValidator(config.translator, recommended=self.check_recommended)
 
-    def validate_html(self, allow_warnings=True) -> Check:
+    def validate_html(self, allow_warnings: bool = True) -> Check:
         """Check that the HTML is valid
         This is done in here so that all errors and warnings can be sent to
         Dodona afterwards by reading them out of here
@@ -569,8 +569,8 @@ class TestSuite:
 
         return Check(_inner)
 
-    def document_matches(self, regex: re.Pattern) -> Check:
-        """Check that the document matches a regex expression"""
+    def document_matches(self, regex: Pattern[AnyStr]) -> Check:
+        """Check that the document matches a regex"""
         def _inner(_: BeautifulSoup) -> bool:
             return re.match(regex, self.content) is not None
 

@@ -7,6 +7,9 @@ A `TestSuite` contains a checklist of all checks that should be performed on the
 - [TestSuites on Dodona](#testsuites-on-dodona)
 - [Referencing (specific) HTML elements](#referencing-specific-html-elements)
 - [Adding checks](#adding-checks)
+- [Built-in Checks](#built-in-checks)
+    - [validate_html](#validate_html)
+    - [document_matches](#document_matches)
 
 ## Attributes
 
@@ -14,7 +17,7 @@ A `TestSuite` contains a checklist of all checks that should be performed on the
 :------|:------------|:--------:|:--------|
 | name | The name of this TestSuite, used as the name of the Tab on Dodona (see [TestSuites on Dodona](#testsuites-on-dodona)) | X | |
 | content | A string that contains the student's submission. This is passed as an argument into the `create_suites` method. | X | |
-| check_recommended | A boolean that indicates if the student should see warnings about missing recommended attributes.<br /><br /> <a id="check-recommended-image"/> <img src="../media/warnings-dodona.png" alt="image: warnings on Dodona."> These warnings do **not** cause their submission to be marked incorrect, and are purely informational.<br /><br /> | | True |
+| check_recommended | <a id="check-recommended-image"/> A boolean that indicates if the student should see warnings about missing recommended attributes.<br /><br /><img src="../media/warnings-dodona.png" alt="image: warnings on Dodona."> These warnings do **not** cause their submission to be marked incorrect, and are purely informational.<br /><br /> | | True |
 
 ## TestSuites on Dodona
 
@@ -139,4 +142,65 @@ The TestSuite class comes with a few Checks that you can use, and they are docum
 
 Check that the student's submitted code is valid HTML without syntax errors. The errors will not be reported to the student as to not reveal the answer.
 
-In case the `check_recommended` attribute for this class is `True` (default), this will show the student warnings about missing recommended attributes (see [Attributes](#check-recommended-image)).
+Signature:
+```python
+def validate_html(allow_warnings: bool = True) -> Check
+```
+
+<table>
+    <caption>Parameters</caption>
+    <tr>
+        <th>name</th>
+        <th>description</th>
+        <th>required</th>
+        <th>default</th>
+    </tr>
+    <tr>
+        <td>allow_warnings</td>
+        <td>Boolean that indicates that the check should <i>not</i> be marked incorrect if any warnings arise.</td>
+        <td></td>
+        <td>True</td>
+    </tr>
+</table>
+
+In case the `check_recommended` attribute for this class is `True` (default), this will also show the student warnings about missing recommended attributes (see [Attributes](#check-recommended-image)).
+
+Example usage:
+```python
+suite = TestSuite("HTML", content)
+valid_html = ChecklistItem("The HTML is valid.", suite.validate_html())
+```
+
+### document_matches
+
+Check that the student's submitted code matches a `regex string`.
+
+Signature:
+```python
+def document_matches(self, regex: Pattern[AnyStr]) -> Check
+```
+
+<table>
+    <caption>Parameters</caption>
+    <tr>
+        <th>name</th>
+        <th>description</th>
+        <th>required</th>
+        <th>default</th>
+    </tr>
+    <tr>
+        <td>regex</td>
+        <td>The pattern to match the student's code against.</td>
+        <td>X</td>
+        <td></td>
+    </tr>
+</table>
+
+Example usage:
+
+```python
+suite = TestSuite("HTML", content)
+
+pattern = r".*<[^>]+/>.*"
+valid_html = ChecklistItem("The document contains at least one self-closing tag.", suite.document_matches(pattern))
+```
