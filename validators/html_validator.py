@@ -125,6 +125,11 @@ class HtmlValidator(HTMLParser):
         """handles the data between tags, like <p>this is the data</p>"""
         pass  # we don't need to ook at data
 
+    def handle_comment(self, data):
+        print(f"Location of the comment: {self.tag_stack}, {self.getpos()}")
+        print(f"The comment: {data}")
+        pass
+
     def _validate_corresponding_tag(self, tag: str):
         """validate that each tag that opens has a corresponding closing tag
         """
@@ -187,3 +192,7 @@ class HtmlValidator(HTMLParser):
             elif prev_tag is not None and prev_tag not in tag_info[PERMITTED_PARENTS_KEY]:
                 self.error(UnexpectedTagError(translator=self.translator, tag_location=self.tag_stack,
                                               position=self.getpos(), tag=tag))
+
+
+HtmlValidator(Translator(Translator.Language.EN))\
+    .validate_content("<html lang='en'><body><div><!--THIS IS A COMMENT IN HTML - BODY - DIV--></div></body></html>")
