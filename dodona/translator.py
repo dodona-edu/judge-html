@@ -32,6 +32,7 @@ class Translator:
         # html exceptions
         MISSING_CLOSING_TAG = auto()
         INVALID_TAG = auto()
+        NO_SELF_CLOSING_TAG = auto()
         UNEXPECTED_TAG = auto()
         INVALID_ATTRIBUTE = auto()
         MISSING_REQUIRED_ATTRIBUTE = auto()
@@ -125,6 +126,7 @@ class Translator:
             # html exceptions
             Text.MISSING_CLOSING_TAG: "Missing closing html-tag for",
             Text.INVALID_TAG: "Invalid html-tag",
+            Text.NO_SELF_CLOSING_TAG: "The following tag is not a self-closing html-tag",
             Text.UNEXPECTED_TAG: "Unexpected html-tag",
             Text.INVALID_ATTRIBUTE: "Invalid attribute for",
             Text.MISSING_REQUIRED_ATTRIBUTE: "Missing required attribute(s) for",
@@ -148,10 +150,11 @@ class Translator:
             # html exceptions
             Text.MISSING_CLOSING_TAG: "Ontbrekende sluitende html-tag voor",
             Text.INVALID_TAG: "Ongeldige html-tag",
+            Text.NO_SELF_CLOSING_TAG: "De volgende html-tag is geen zelf-afsluitende html-tag",
             Text.UNEXPECTED_TAG: "Onverwachte html-tag",
             Text.INVALID_ATTRIBUTE: "Ongeldig attribuut voor",
             Text.MISSING_REQUIRED_ATTRIBUTE: "Ontbrekende vereiste attributen voor",
-            Text.MISSING_RECOMMENDED_ATTRIBUTE: "Ontbrekende vereiste attributen voor",
+            Text.MISSING_RECOMMENDED_ATTRIBUTE: "Ontbrekende aanbevolen attributen voor",
             # normal text
             Text.ERRORS: "Fout(en)",
             Text.WARNINGS: "Waarschuwing(en)",

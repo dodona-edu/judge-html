@@ -50,7 +50,7 @@ class DoubleCharsValidator:
                 char = stack.pop()
                 pos = pos_stack.pop()
                 if char in self.opening:
-                    errors.add(MissingClosingCharError(self.translator, char, pos))
+                    errors.add(MissingClosingCharError(translator=self.translator, position=pos, char=char))
                 else:
-                    errors.add(MissingOpeningCharError(self.translator, char, pos))
+                    errors.add(MissingOpeningCharError(translator=self.translator, position=pos, char=char))
             raise errors

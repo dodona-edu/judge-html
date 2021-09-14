@@ -12,7 +12,8 @@ from dodona.dodona_command import Context, TestCase, Message, MessageFormat
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from validators.html_validator import HtmlValidator
-from exceptions.html_exceptions import EvaluationAborted, Warnings, HtmlValidationError
+from exceptions.html_exceptions import Warnings, HtmlValidationError
+from exceptions.utils import EvaluationAborted
 
 
 @dataclass

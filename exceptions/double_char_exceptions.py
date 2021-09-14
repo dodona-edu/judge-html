@@ -1,4 +1,5 @@
 from dodona.translator import Translator
+from exceptions.utils import DelayedExceptions
 
 
 class DoubleCharError(Exception):
@@ -58,27 +59,11 @@ class MissingClosingCharError(MissingCharError):
         return f"{self.translator.translate(Translator.Text.MISSING_CLOSING_CHARACTER)} '{self.char}' {self.location()}"
 
 
-class MultipleMissingCharsError(Exception):
-    """class made to gather multiple missing chars errors"""
+class MultipleMissingCharsError(DelayedExceptions):
     def __init__(self, translator: Translator):
+        super(MultipleMissingCharsError, self).__init__()
         self.translator = translator
-        self.errors: [MissingCharError] = []
-
-    def __len__(self):
-        return len(self.errors)
-
-    def __bool__(self):
-        return bool(self.errors)
-
-    def add(self, error: MissingCharError):
-        self.errors.append(error)
-
-    def clear(self):
-        self.errors.clear()
 
     def __str__(self):
-        self.errors.sort()
-        return f"{self.translator.translate(Translator.Text.ERRORS)} ({len(self)}):\n{self._print_errors()}"
-
-    def _print_errors(self):
-        return "\n".join([str(x) for x in self.errors])
+        self.exceptions.sort()
+        return f"{self.translator.translate(Translator.Text.ERRORS)} ({len(self)}):\n{self._print_exceptions()}"
