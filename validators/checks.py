@@ -148,8 +148,7 @@ class Element:
             # Filter out string content
             matches = list(filter(lambda x: isinstance(x, Tag), matches))
 
-        elements = list(map(lambda x: Element(x.name, x.get("id", None), x), matches))
-        return ElementContainer(elements)
+        return ElementContainer.from_tags(matches)
 
     def exists(self) -> Check:
         """Check that this element was found"""
@@ -424,6 +423,12 @@ class ElementContainer:
     def __len__(self):
         return self._size
 
+    @classmethod
+    def from_tags(cls, tags: List[Tag]) -> "ElementContainer":
+        """Construct a container from a list of bs4 Tag instances"""
+        elements = list(map(lambda x: Element(x.name, x.get("id", None), x), tags))
+        return ElementContainer(elements)
+
     def get(self, index: int) -> Element:
         """Get an item at a given index, same as []-operator"""
         return self[index]
@@ -580,6 +585,12 @@ class TestSuite:
         """
         element = self._bs.find(tag, recursive=not from_root, **kwargs)
         return Element(tag, kwargs.get("id", None), element)
+
+    # TODO allow path to be passed using html > body > ... notation instead of only tags
+    def all_elements(self, tag: str, from_root=False, **kwargs) -> ElementContainer:
+        """Get references to ALL HTML elements that match a query"""
+        elements = self._bs.find_all(tag, recursive=not from_root, **kwargs)
+        return ElementContainer.from_tags(elements)
 
     def evaluate(self, translator: Translator) -> int:
         """Run the test suite, and print the Dodona output
