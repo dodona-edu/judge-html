@@ -118,4 +118,4 @@ If these settings are not defined, the default value is chosen.
 * T. Ramlot
 * B. Willems
 
-*Development funded by the Faculty of Engineering and Architecture ([Ghent University](https://www.ugent.be/en))*
+*Development funded by the [Faculty of Engineering and Architecture](https://www.ugent.be/ea/en) of [Ghent University](https://www.ugent.be/en)*
