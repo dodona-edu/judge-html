@@ -10,7 +10,11 @@ A `TestSuite` contains a checklist of all checks that should be performed on the
 
 ## Attributes
 
-TODO
+| name | description | required | default |
+:------|:------------|:--------:|:--------|
+| name | The name of this TestSuite, used as the name of the Tab on Dodona (see [TestSuites on Dodona](#testsuites-on-dodona)) | X | |
+| content | A string that contains the student's submission. This is passed as an argument into the `create_suites` method. | X | |
+| check_recommended | A boolean that indicates if the student should see warnings about missing recommended attributes.<br /><br /> <img src="../media/warnings-dodona.png" alt="image: warnings on Dodona."> These warnings do **not** cause their submission to be marked incorrect, and are purely informational.<br /><br /> | | True |
 
 ## TestSuites on Dodona
 
@@ -19,7 +23,7 @@ TestSuites are displayed as `tabs` on Dodona, and the `name` attribute will be t
 ```python
 from validators.checks import TestSuite
 
-def create_suite(content: str):
+def create_suites(content: str):
     html_suite = TestSuite("HTML", content)
     css_suite = TestSuite("CSS", content)
     return [html_suite, css_suite]
@@ -35,8 +39,16 @@ You can get a specific HTML element by tag using `suite.element(tag)` in the for
 
 The example below shows how to get the `<html>` tag:
 
+```html
+<html lang="en">
+    <body>
+        ...
+    </body>
+</html>
+```
+
 ```python
-suite = TestSuite("HTML", "<html><body>...</body></html>")
+suite = TestSuite("HTML", content)
 html_tag = suite.element("html")
 ```
 
@@ -44,17 +56,20 @@ Searching will start from the root element, and work in a breadth-first way recu
 
 The example below shows how to get the `<div>` at the root of the tree, and not the one that comes first in the file but is nested deeper.
 
+```html
+<span>
+    <!-- We don't want this div -->
+    <div>
+        ...
+    </div>
+</span>
+<!-- We want THIS div -->
+<div>
+    ...
+</div>
+```
+
 ```python
-content =   """
-            <span>
-                <div>   <!-- We don't want this div -->
-                    ...
-                </div>
-            </span>
-            <div>       <!-- We want THIS div -->
-                ...
-            </div>
-            """
 suite = TestSuite("HTML", content)
 root_div = suite.element("div", from_root=True)
 ```
@@ -63,26 +78,44 @@ Extra filters, such as id's and attributes, can be passed as `kwargs`. You can p
 
 The example below shows how to get the `<tr>` with id "row_one", and the `<th>` with attribute `colspan` equal to `2`.
 
+```html
+<table>
+    <!-- We don't want this tr -->
+    <tr id="header">
+        <!-- We don't want this th -->
+        <th>Wrong Header</th>
+        
+        <!-- We want THIS th -->
+        <th colspan="2">Correct Header</th>
+    </tr>
+     <!-- We want THIS tr -->
+    <tr id="row_one">
+        ...
+    </tr>
+</table>
+```
+
 ```python
-content =   """
-            <table>
-                <tr id="header">    <!-- We don't want this tr -->
-                    <th>Wrong Header</th>
-                    <th colspan="2">Correct Header</th>
-                </tr>
-                <tr id="row_one">   <!-- We want THIS tr -->
-                    ...
-                </tr>
-            </table>
-            """
 suite = TestSuite("HTML", content)
 tr_one = suite.element("tr", id="row_one")
 th_colspan = suite.element("th", colspan="2")
 ```
 
-## Adding checks
+Remember that values should be `strings`.
 
-In order to add checks, you can either set the entire checklist at once, or add separate `ChecklistItem`s one by one.
+In case an attribute only has to *exist*, and the value doesn't matter, set the value to `True`. In the example above, this would mean that you request the students have at least one `<th>` with a `colspan` attribute, no matter how big it may be. The code for this would be `suite.element("th", colspan=True)`
+
+## Referencing multiple HTML elements
+
+In case you want to get a list of all elements (optionally matching filters), use `suite.all_elements` instead. This method takes the exact same arguments as `elements`, and thus the same filters can be applied.
+
+Note that this method returns an instance of `ElementContainer`, which can be used like a regular Python `list`:
+
+More info on `ElementContainer`s can be found in the respective documentation page (TODO).
+
+## Adding items to the checklist
+
+In order to add ChecklistItems, you can either set the entire checklist at once, or add separate ChecklistItems one by one.
 
 ```python
 suite = TestSuite("HTML", content)
@@ -97,3 +130,13 @@ suite.checklist = [first_item, second_item]
 suite.checklist.append(first_item)
 suite.checklist.append(second_item)
 ```
+
+## Built-in Checks
+
+The TestSuite class comes with a few Checks that you can use, and they are documented below. More Checks can be found in different classes.
+
+### validate_html
+
+Check that the student's submitted code is valid HTML without syntax errors. The errors will not be reported to the student as to not reveal the answer.
+
+In case the `check_recommended` attribute for this class is `True` (default), this will show the student warnings about missing recommended attributes (see here TODO).

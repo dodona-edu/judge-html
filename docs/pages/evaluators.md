@@ -2,11 +2,6 @@
 
 This file contains information on how to write your own evaluators.
 
-## Table of Contents
-
-- [Required format](#required-format)
-- [ChecklistItem class](#checklistitem-class) 
-
 ## Required format
 
 All evaluators should follow a strict interface: the file should always be called `evaluator.py`, and in addition has to follow these rules:
