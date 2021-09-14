@@ -47,7 +47,9 @@ class TestHtmlValidator(unittest.TestCase):
         self.setup(True, True, False, False)
         # correct attribute test
         self.validator.validate_content("<html lang='en'></html>")
-        # there is no incorrect attribute checking
+        # incorrect attribute test
+        with self.assertRaises(InvalidAttributeError):
+            self.validator.validate_content("<html style=''></html>")
 
     def test_missing_required_attribute(self):
         self.setup(True, False, False, False)

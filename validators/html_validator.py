@@ -26,6 +26,7 @@ class HtmlValidator(HTMLParser):
           for example a head tag has the html tag as permitted parent but nothing else
       * required attributes (to be completed in the json)
       * recommended attributes (to be completed in the json)
+      * invalid attributes (style attribute is not allowed)
     """
 
     def __init__(self, translator: Translator, **kwargs):
@@ -123,12 +124,11 @@ class HtmlValidator(HTMLParser):
 
     def handle_data(self, data: str):
         """handles the data between tags, like <p>this is the data</p>"""
-        pass  # we don't need to ook at data
-
-    def handle_comment(self, data):
-        print(f"Location of the comment: {self.tag_stack}, {self.getpos()}")
-        print(f"The comment: {data}")
-        pass
+        if self.tag_stack and self.tag_stack[-1] == "style":
+            # this is the valid internal css data
+            #  for now we do nothing
+            pass
+        # we don't need to ook at other data
 
     def _validate_corresponding_tag(self, tag: str):
         """validate that each tag that opens has a corresponding closing tag
@@ -158,6 +158,11 @@ class HtmlValidator(HTMLParser):
             check whether all required attributes are there, if not, raise an error
             check whether all recommended attributes are there, if not, add a warning
         """
+        # no inline css allowed
+        if "style" in attributes:
+            self.error(InvalidAttributeError(translator=self.translator, tag_location=self.tag_stack,
+                                             position=self.getpos(), tag=tag, attribute="style"))
+
         tag_info = self.valid_dict[tag]
 
         if self.check_required:
@@ -192,7 +197,3 @@ class HtmlValidator(HTMLParser):
             elif prev_tag is not None and prev_tag not in tag_info[PERMITTED_PARENTS_KEY]:
                 self.error(UnexpectedTagError(translator=self.translator, tag_location=self.tag_stack,
                                               position=self.getpos(), tag=tag))
-
-
-HtmlValidator(Translator(Translator.Language.EN))\
-    .validate_content("<html lang='en'><body><div><!--THIS IS A COMMENT IN HTML - BODY - DIV--></div></body></html>")
