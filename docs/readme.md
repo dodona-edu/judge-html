@@ -8,3 +8,4 @@ This directory contains the documentation for the testing library included with 
 - [TestSuite Class](pages/testsuite-class.md)
 - [ChecklistItem Class](pages/checklistitem-class.md)
 - [Utility Functions](pages/utility-functions.md)
+- [Writing custom Checks](pages/custom-checks.md)

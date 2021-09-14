@@ -142,12 +142,12 @@ The TestSuite class comes with a few Checks that you can use, and they are docum
 
 Check that the student's submitted code is valid HTML without syntax errors. The errors will not be reported to the student as to not reveal the answer.
 
-Signature:
+#### Signature:
 ```python
 def validate_html(allow_warnings: bool = True) -> Check
 ```
 
-Parameters:
+#### Parameters:
 
 | name | description | required | default |
 :------|:------------|:--------:|:--------|
@@ -155,28 +155,28 @@ Parameters:
 
 In case the `check_recommended` attribute for this class is `True` (default), this will also show the student warnings about missing recommended attributes (see [Attributes](#check-recommended-image)).
 
-Example usage:
+#### Example usage:
 ```python
 suite = TestSuite("HTML", content)
-valid_html = ChecklistItem("The HTML is valid.", suite.validate_html())
+self_closing = ChecklistItem("The HTML is valid.", suite.validate_html())
 ```
 
 ### document_matches
 
 Check that the student's submitted code matches a `regex string`.
 
-Signature:
+#### Signature:
 ```python
 def document_matches(self, regex: Pattern[AnyStr]) -> Check
 ```
 
-Parameters:
+#### Parameters:
 
 | name | description | required | default |
 :------|:------------|:--------:|:--------|
 | regex | The pattern to match the student's code against. | X | |
 
-Example usage:
+#### Example usage:
 
 ```python
 suite = TestSuite("HTML", content)
