@@ -14,7 +14,7 @@ A `TestSuite` contains a checklist of all checks that should be performed on the
 :------|:------------|:--------:|:--------|
 | name | The name of this TestSuite, used as the name of the Tab on Dodona (see [TestSuites on Dodona](#testsuites-on-dodona)) | X | |
 | content | A string that contains the student's submission. This is passed as an argument into the `create_suites` method. | X | |
-| check_recommended | A boolean that indicates if the student should see warnings about missing recommended attributes.<br /><br /> <img src="../media/warnings-dodona.png" alt="image: warnings on Dodona."> These warnings do **not** cause their submission to be marked incorrect, and are purely informational.<br /><br /> | | True |
+| check_recommended | <a id="test" /> A boolean that indicates if the student should see warnings about missing recommended attributes.<br /><br /> <img src="../media/warnings-dodona.png" alt="image: warnings on Dodona."> These warnings do **not** cause their submission to be marked incorrect, and are purely informational.<br /><br /> | | True |
 
 ## TestSuites on Dodona
 
@@ -139,4 +139,4 @@ The TestSuite class comes with a few Checks that you can use, and they are docum
 
 Check that the student's submitted code is valid HTML without syntax errors. The errors will not be reported to the student as to not reveal the answer.
 
-In case the `check_recommended` attribute for this class is `True` (default), this will show the student warnings about missing recommended attributes (see here TODO).
+In case the `check_recommended` attribute for this class is `True` (default), this will show the student warnings about missing recommended attributes (see [here](#test)).
