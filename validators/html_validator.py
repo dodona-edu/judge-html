@@ -59,6 +59,15 @@ class HtmlValidator(HTMLParser):
     def set_check_void(self, b: bool):
         self.check_void = b
 
+    def error(self, error: HtmlValidationError):  # make exception classes and throw these instead
+        raise error
+
+    def warning(self, warning: MissingRecommendedAttributesWarning):
+        """gathers the warnings,
+            these will be thrown at the end if no Errors occur
+        """
+        self.warnings.add(warning)
+
     def validate_file(self, source_filepath: str):
         self._validate(html_loader(source_filepath, shorted=False))
 
@@ -74,22 +83,15 @@ class HtmlValidator(HTMLParser):
         self._valid_double_chars(text)
         # check html syntax
         self.feed(text)
-        while self.tag_stack:  # clear tag stack
-            if not self._is_omittable(self.tag_stack[-1]):
+        # clear tag stack
+        while self.tag_stack:
+            if not self._is_void_tag(self.tag_stack[-1]):
                 raise MissingClosingTagError(translator=self.translator, tag_location=self.tag_stack,
                                              position=self.getpos(), tag=self.tag_stack.pop())
             self.tag_stack.pop()
+        # show warnings if any
         if self.warnings:
             raise self.warnings
-
-    def error(self, error: HtmlValidationError):  # make exception classes and throw these instead
-        raise error
-
-    def warning(self, warning: MissingRecommendedAttributesWarning):
-        """gathers the warnings,
-            these will be thrown at the end if no Errors occur
-        """
-        self.warnings.add(warning)
 
     def _valid_double_chars(self, text):
         """check whether every opening char has a corresponding closing char"""
@@ -99,31 +101,25 @@ class HtmlValidator(HTMLParser):
         """handles a html tag that opens, like <body>
             attributes hold the (name, value) of the attributes supplied in the tag"""
         self._valid_tag(tag)
-        # already append, because the tag is valid,
-        #  this way the tag stack is updated for a more accurate location of the error messages
         if self.check_nesting:
             self._valid_nesting(tag)
-        self.tag_stack.append(tag)
+        if not (self.check_void and self._is_void_tag(tag)):
+            self.tag_stack.append(tag)
         self._valid_attributes(tag, set(a[0] for a in attributes))
 
     def handle_endtag(self, tag: str):
-        """handles a html tag that closes, like </body>"""
+        """handles a html tag that closes, like <body/>"""
         self._validate_corresponding_tag(tag)
         self.tag_stack.pop()
 
     def handle_startendtag(self, tag, attrs):
-        if not self.check_void:
-            self.handle_starttag(tag, attrs)
-            self.handle_endtag(tag)
-            return
-
-        tag_info = self.valid_dict[tag]
-        if VOID_KEY in tag_info and tag_info[VOID_KEY]:
-            self.handle_starttag(tag, attrs)
-            self.handle_endtag(tag)
-        else:
+        """handles a html tag that opens and instantly closes, like <meta/>"""
+        if self.check_void and not self._is_void_tag(tag):
             self.error(NoSelfClosingTagError(translator=self.translator, tag_location=self.tag_stack,
                                              position=self.getpos(), tag=tag))
+        else:
+            self.handle_starttag(tag, attrs)
+            self.handle_endtag(tag)
 
     def handle_data(self, data: str):
         """handles the data between tags, like <p>this is the data</p>"""
@@ -135,22 +131,21 @@ class HtmlValidator(HTMLParser):
         if not self.tag_stack:
             self.error(MissingClosingTagError(translator=self.translator, tag_location=self.tag_stack,
                                               position=self.getpos(), tag=tag))
-
         if tag != self.tag_stack[-1]:
-            while self._is_omittable(self.tag_stack[-1]):
+            while self._is_void_tag(self.tag_stack[-1]):
                 self.tag_stack.pop()
             if tag != self.tag_stack[-1]:
                 self.error(MissingClosingTagError(translator=self.translator, tag_location=self.tag_stack,
                                                   position=self.getpos(), tag=tag))
 
-    def _is_omittable(self, tag: str) -> bool:
+    def _is_void_tag(self, tag: str) -> bool:
         """indicates whether the tag its corresponding closing tag is omittable or not"""
         return VOID_KEY in self.valid_dict[tag] and self.valid_dict[tag][VOID_KEY]
 
     def _valid_tag(self, tag: str):
         """validate that a tag is a valid HTML tag (if a tag isn't allowed, this wil also raise an exception"""
         if tag not in self.valid_dict:
-            self.error(InvalidTagError(translator=self.translator,tag_location=self.tag_stack, position=self.getpos(),
+            self.error(InvalidTagError(translator=self.translator, tag_location=self.tag_stack, position=self.getpos(),
                                        tag=tag))
 
     def _valid_attributes(self, tag: str, attributes: set[str]):

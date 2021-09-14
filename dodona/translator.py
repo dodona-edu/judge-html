@@ -154,7 +154,7 @@ class Translator:
             Text.UNEXPECTED_TAG: "Onverwachte html-tag",
             Text.INVALID_ATTRIBUTE: "Ongeldig attribuut voor",
             Text.MISSING_REQUIRED_ATTRIBUTE: "Ontbrekende vereiste attributen voor",
-            Text.MISSING_RECOMMENDED_ATTRIBUTE: "Ontbrekende vereiste attributen voor",
+            Text.MISSING_RECOMMENDED_ATTRIBUTE: "Ontbrekende aanbevolen attributen voor",
             # normal text
             Text.ERRORS: "Fout(en)",
             Text.WARNINGS: "Waarschuwing(en)",
