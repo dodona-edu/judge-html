@@ -564,6 +564,14 @@ class TestSuite:
 
         return Check(_inner)
 
+    def document_matches(self, regex: re.Pattern) -> Check:
+        """Check that the document matches a regex expression"""
+        def _inner(_: BeautifulSoup) -> bool:
+            return re.match(regex, self.content) is not None
+
+        return Check(_inner)
+
+    # TODO allow path to be passed using html > body > ... notation instead of only tags
     def element(self, tag: str, from_root=False, **kwargs) -> Element:
         """Create a reference to an HTML element
         :param tag:         the name of the HTML tag to search for
