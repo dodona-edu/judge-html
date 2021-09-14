@@ -1,9 +1,9 @@
 {
 "html": {"recommended_attributes":["lang"], "permitted_parents": []},
-"base": {"closing_tag_omission":true, "permitted_parents": ["head"], "void_tag": true},
+"base": {"permitted_parents": ["head"], "void_tag": true},
 "head": {"permitted_parents": ["html"]},
 "link": {"void_tag": true},
-"meta": {"closing_tag_omission":true, "permitted_parents":  ["head"], "void_tag": true},
+"meta": {"permitted_parents":  ["head"], "void_tag": true},
 "style": {},
 "title": {"permitted_parents":  ["head"]},
 "body": {"permitted_parents": ["html"]},

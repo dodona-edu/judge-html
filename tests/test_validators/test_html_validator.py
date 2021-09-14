@@ -2,7 +2,8 @@ import unittest
 
 from dodona.translator import Translator
 from validators.html_validator import HtmlValidator
-from exceptions.html_exceptions import MissingClosingTagError, InvalidTagError, UnexpectedTagError, MissingRequiredAttributeError, Warnings
+from exceptions.html_exceptions import MissingClosingTagError, InvalidTagError, UnexpectedTagError, \
+    MissingRequiredAttributesError, Warnings
 
 
 class TestHtmlValidator(unittest.TestCase):
@@ -10,13 +11,14 @@ class TestHtmlValidator(unittest.TestCase):
         super().__init__(*args, **kwargs)
         self.validator = HtmlValidator(Translator(Translator.Language.EN))
 
-    def setup(self, required, recommended, nesting):
+    def setup(self, required, recommended, nesting, void):
         self.validator.set_check_required(required)
         self.validator.set_check_recommended(recommended)
         self.validator.set_check_nesting(nesting)
+        self.validator.set_check_void(void)
 
     def test_missing_closing_tag(self):
-        self.setup(False, False, False)
+        self.setup(False, False, False, False)
         # correct tag closing test
         self.validator.validate_content("<div></div>")
         self.validator.validate_content("<body><div></div></body>")
@@ -31,7 +33,7 @@ class TestHtmlValidator(unittest.TestCase):
         self.validator.validate_content("<body><meta></body>")
 
     def test_invalid_tag(self):
-        self.setup(False, False, False)
+        self.setup(False, False, False, False)
         # correct tag test
         self.validator.validate_content("<body></body>")
         # incorrect tag test
@@ -44,24 +46,24 @@ class TestHtmlValidator(unittest.TestCase):
             self.validator.validate_content("<noscript>")
 
     def test_invalid_attribute(self):
-        self.setup(True, True, False)
+        self.setup(True, True, False, False)
         # correct attribute test
         self.validator.validate_content("<html lang='en'></html>")
         # there is no incorrect attribute checking
 
     def test_missing_required_attribute(self):
-        self.setup(True, False, False)
+        self.setup(True, False, False, False)
         # correct attributes test
         self.validator.validate_content("<img src='' />")
         pass
         # incorrect (missing) required attributes test
-        with self.assertRaises(MissingRequiredAttributeError):
+        with self.assertRaises(MissingRequiredAttributesError):
             self.validator.validate_content("<img/>")
-        with self.assertRaises(MissingRequiredAttributeError):
+        with self.assertRaises(MissingRequiredAttributesError):
             self.validator.validate_content("<body><img/></body>")
 
     def test_missing_recommended_attribute(self):
-        self.setup(False, True, False)
+        self.setup(False, True, False, False)
         # correct recommended attribute test
         self.validator.validate_content("<html lang='en'></html>")
         # incorrect (missing) recommended attribute test
@@ -71,7 +73,7 @@ class TestHtmlValidator(unittest.TestCase):
             self.validator.validate_content("<html><html><html></html></html></html>")
 
     def test_nesting(self):
-        self.setup(False, False, True)
+        self.setup(False, False, True, False)
         # correct nesting (partial html is also valid, wrapping everything in <html> and <body> is not needed)
         self.validator.validate_content("<html><head/><body/></html>")
         #   partial html

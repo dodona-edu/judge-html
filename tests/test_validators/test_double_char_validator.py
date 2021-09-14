@@ -2,7 +2,7 @@ import unittest
 
 from dodona.translator import Translator
 from validators.double_chars_validator import DoubleCharsValidator
-from exceptions.double_char_exceptions import MissingOpeningCharError, MissingClosingCharError, MultipleMissingCharsError
+from exceptions.double_char_exceptions import MultipleMissingCharsError
 
 
 class TestHtmlValidator(unittest.TestCase):

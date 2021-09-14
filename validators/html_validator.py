@@ -9,7 +9,6 @@ base_path = path.dirname(__file__)
 # keynames for the json
 REQUIRED_ATR_KEY = "required_attributes"
 RECOMMENDED_ATR_KEY = "recommended_attributes"
-CLOSING_TAG_OMISSION_KEY = "closing_tag_omission"
 PERMITTED_PARENTS_KEY = "permitted_parents"
 VOID_KEY = "void_tag"
 
@@ -35,6 +34,7 @@ class HtmlValidator(HTMLParser):
         * required: whether or not to check required arguments
         * recommended: whether or not to check recommended arguments
         * nesting: whether or not to check the nesting of tags
+        * void: whether or not to check the self-closing & omission of closing
         """
         super().__init__()
         self.translator = translator
@@ -44,7 +44,8 @@ class HtmlValidator(HTMLParser):
         self.valid_dict = json_loader(path.abspath(path.join(base_path, "html_tags_attributes.json")))
         self.check_required = kwargs.get("required", True)
         self.check_recommended = kwargs.get("recommended", True)
-        self.check_nesting = kwargs.get('nesting', True)
+        self.check_nesting = kwargs.get("nesting", True)
+        self.check_void = kwargs.get("void", True)
 
     def set_check_required(self, b: bool):
         self.check_required = b
@@ -54,6 +55,9 @@ class HtmlValidator(HTMLParser):
 
     def set_check_nesting(self, b: bool):
         self.check_nesting = b
+
+    def set_check_void(self, b: bool):
+        self.check_void = b
 
     def validate_file(self, source_filepath: str):
         self._validate(html_loader(source_filepath, shorted=False))
@@ -107,6 +111,11 @@ class HtmlValidator(HTMLParser):
         self.tag_stack.pop()
 
     def handle_startendtag(self, tag, attrs):
+        if not self.check_void:
+            self.handle_starttag(tag, attrs)
+            self.handle_endtag(tag)
+            return
+
         tag_info = self.valid_dict[tag]
         if VOID_KEY in tag_info and tag_info[VOID_KEY]:
             self.handle_starttag(tag, attrs)
@@ -132,8 +141,7 @@ class HtmlValidator(HTMLParser):
 
     def _is_omittable(self, tag: str) -> bool:
         """indicates whether the tag its corresponding closing tag is omittable or not"""
-        return CLOSING_TAG_OMISSION_KEY in self.valid_dict[tag] \
-            and self.valid_dict[tag][CLOSING_TAG_OMISSION_KEY]
+        return VOID_KEY in self.valid_dict[tag] and self.valid_dict[tag][VOID_KEY]
 
     def _valid_tag(self, tag: str):
         """validate that a tag is a valid HTML tag (if a tag isn't allowed, this wil also raise an exception"""
@@ -150,8 +158,8 @@ class HtmlValidator(HTMLParser):
         if self.check_required:
             required = set(tag_info[REQUIRED_ATR_KEY]) if REQUIRED_ATR_KEY in tag_info else set()
             if missing_req := (required - attributes):
-                self.error(MissingRequiredAttributeError(self.translator, tag, ", ".join(missing_req),
-                                                         self.tag_stack, self.getpos()))
+                self.error(MissingRequiredAttributesError(self.translator, tag, ", ".join(missing_req),
+                                                          self.tag_stack, self.getpos()))
 
         if self.check_recommended:
             recommended = set(tag_info[RECOMMENDED_ATR_KEY]) if RECOMMENDED_ATR_KEY in tag_info else set()
@@ -174,7 +182,3 @@ class HtmlValidator(HTMLParser):
                     self.error(UnexpectedTagError(self.translator, tag, self.tag_stack, self.getpos()))
             elif prev_tag is not None and prev_tag not in tag_info[PERMITTED_PARENTS_KEY]:
                 self.error(UnexpectedTagError(self.translator, tag, self.tag_stack, self.getpos()))
-
-
-v = HtmlValidator(Translator(Translator.Language.EN))
-v.validate_content("<body/>")
