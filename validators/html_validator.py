@@ -11,6 +11,7 @@ REQUIRED_ATR_KEY = "required_attributes"
 RECOMMENDED_ATR_KEY = "recommended_attributes"
 CLOSING_TAG_OMISSION_KEY = "closing_tag_omission"
 PERMITTED_PARENTS_KEY = "permitted_parents"
+VOID_KEY = "void_tag"
 
 
 class HtmlValidator(HTMLParser):
@@ -105,6 +106,14 @@ class HtmlValidator(HTMLParser):
         self._validate_corresponding_tag(tag)
         self.tag_stack.pop()
 
+    def handle_startendtag(self, tag, attrs):
+        tag_info = self.valid_dict[tag]
+        if VOID_KEY in tag_info and tag_info[VOID_KEY]:
+            self.handle_starttag(tag, attrs)
+            self.handle_endtag(tag)
+        else:
+            self.error(NoSelfClosingTagError(self.translator, tag, self.tag_stack, self.getpos()))
+
     def handle_data(self, data: str):
         """handles the data between tags, like <p>this is the data</p>"""
         pass  # we don't need to ook at data
@@ -165,3 +174,7 @@ class HtmlValidator(HTMLParser):
                     self.error(UnexpectedTagError(self.translator, tag, self.tag_stack, self.getpos()))
             elif prev_tag is not None and prev_tag not in tag_info[PERMITTED_PARENTS_KEY]:
                 self.error(UnexpectedTagError(self.translator, tag, self.tag_stack, self.getpos()))
+
+
+v = HtmlValidator(Translator(Translator.Language.EN))
+v.validate_content("<body/>")

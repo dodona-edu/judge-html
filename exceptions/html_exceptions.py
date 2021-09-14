@@ -46,6 +46,15 @@ class InvalidTagError(LocatableHtmlValidationError):
         return f"{self.translator.translate(Translator.Text.INVALID_TAG)}: <{self.invalid_tag}> ({self.tag_location()})"
 
 
+class NoSelfClosingTagError(LocatableHtmlValidationError):
+    def __init__(self, translator: Translator, tag: str, tag_location: [str], position: (int, int)):
+        super(NoSelfClosingTagError, self).__init__(translator, tag_location, position)
+        self.tag = tag
+
+    def __str__(self):
+        return f"{self.translator.translate(Translator.Text.NO_SELF_CLOSING_TAG)}: <{self.tag}> ({self.tag_location()})"
+
+
 class UnexpectedTagError(LocatableHtmlValidationError):
     """Exception that indicates that a certain tag was not expected
         ex: you don't expect a <html> tag inside of a <body> tag
