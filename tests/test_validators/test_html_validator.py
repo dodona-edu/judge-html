@@ -2,8 +2,7 @@ import unittest
 
 from dodona.translator import Translator
 from validators.html_validator import HtmlValidator
-from exceptions.html_exceptions import MissingClosingTagError, InvalidTagError, UnexpectedTagError, \
-    MissingRequiredAttributesError, Warnings
+from exceptions.html_exceptions import *
 
 
 class TestHtmlValidator(unittest.TestCase):
@@ -89,3 +88,15 @@ class TestHtmlValidator(unittest.TestCase):
             self.validator.validate_content("<body><html/></body>")
         with self.assertRaises(UnexpectedTagError):
             self.validator.validate_content("<html><html></html></html>")
+
+    def test_void_tags(self):
+        self.setup(False, False, False, True)
+        # correct
+        self.validator.validate_content("<base>")
+        self.validator.validate_content("<meta>")
+        self.validator.validate_content("<body><meta></body>")
+        # incorrect
+        with self.assertRaises(NoSelfClosingTagError):
+            self.validator.validate_content("<head/>")
+        with self.assertRaises(NoSelfClosingTagError):
+            self.validator.validate_content("<html><body/></html>")
