@@ -1,12 +1,12 @@
 # Writing custom Checks
 
-In case you want to do something that our library doesn't support, you can always create your own checks. This document will try to explain how to do so.
+In case you want to do something that our library doesn't support, you can always create your own checks. This document will explain how to do so.
 
 ## Check structure
 
-A Check takes one argument, being the callable that gets executed when the Check is evaluated. This callable may only take one argument as well, a `BeautifulSoup` instance of the student's submission, and returns a `bool`.
+A Check takes one argument, being the callable that gets executed when the check is evaluated. This callable may only take one argument as well, a `BeautifulSoup` instance of the student's submission, and returns a `bool`.
 
-It's suggested to wrap this Check inside a function that returns it, to allow extra arguments to be passed into it.
+It's suggested to wrap this check inside a function that returns it, to allow extra arguments to be passed into it.
 
 Below is the boilerplate to create your own Check:
 
@@ -24,7 +24,7 @@ def my_custom_check() -> Check:
     return Check(_inner)
 ```
 
-Remember that, as these return Check instances, your custom Checks can use all methods available to the built-in Checks. For example, you can abort testing if your custom Check fails:
+Remember that, as these return Check instances, your custom checks can use all methods available to the built-in checks. For example, you can abort testing if your custom check fails:
 
 ```python
 checklist_item = ChecklistItem("Custom check", my_custom_check().or_abort())
@@ -34,7 +34,7 @@ checklist_item = ChecklistItem("Custom check", my_custom_check().or_abort())
 
 ### Between [min, max] checks passed
 
-This example shows a Check that makes sure at least `minimum` Checks pass, and at most `maximum`.
+This example shows a check that makes sure at least `minimum` and at most `maximum` checks pass.
 
 ```python
 from bs4 import BeautifulSoup
@@ -45,9 +45,9 @@ def interval_passed(minimum: int, maximum: int, checks: List[Check]) -> Check:
     def _inner(bs: BeautifulSoup) -> bool:
         passed_checks = 0
         
-        # Run every Check
+        # Run every check
         for check in checks:
-            # If it passed, increase the counter
+            # If the current Check passed, increase the counter
             if check.callback(bs):
                 passed_checks += 1
 
@@ -74,9 +74,9 @@ checklist_item = ChecklistItem("At least 1 and at most 2 checks passed",
 
 ### Element has a list of attributes
 
-This example creates a Check that makes sure an HTML element has at least the attributes provided in a list.
+This example creates a check that makes sure an HTML element has at least the attributes provided in a list.
 
-Note that this can already be achieved with built-in methods (using `utilities.all_of` and `Element.has_attribute`). The main purpose of this example is to show that you can also **simplify** specific use cases instead of inventing completely new Checks.
+Note that this can already be achieved with built-in methods (using `utilities.all_of` and `Element.has_attribute`). The main purpose of this example is to show that you can also **simplify** specific use cases instead of inventing completely new checks.
 
 ```python
 from bs4 import BeautifulSoup
