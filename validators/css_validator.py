@@ -29,16 +29,67 @@ class Css:
     """
 
     def __init__(self, stylesheet):
-        self.stylesheet: [] = tinycss2.parse_stylesheet(stylesheet, skip_whitespace=True)
-        self.make_paths()
+        self.rules = tinycss2.parse_stylesheet(stylesheet, skip_whitespace=True)
+        self.flatten_rules()
+        # self.make_paths()
+
+    def flatten_rules(self):
+        """css selectors can be grouped
+            ex:
+                h1, h2, p {
+                    text-align: center;
+                    color: red;
+                }
+            this method separates the group-rule to individual-rules
+            (with each the same content in between curly brackets off course)
+        """
+        def strip(ls: []):
+            """strips leading & trailing whitespace tokens"""
+            while ls and ls[0].type == WhitespaceToken.type:
+                ls.pop(0)
+            while ls and ls[-1].type == WhitespaceToken.type:
+                ls.pop()
+            return ls
+
+        def split_on_comma(prelude: [], start=0) -> [[]]:
+            """splits a list on LiteralToken with a value of a comma"""
+            ps = []
+            index = start
+            while index < len(prelude):
+                if prelude[index].type == LiteralToken.type and prelude[index].value == ",":
+                    ps.append(strip(prelude[start:index]))
+                    start = index + 1  # +1 because we skip the comma
+                index += 1
+            if start < len(prelude):
+                ps.append(strip(prelude[start: len(prelude)]))
+            return ps
+
+        new_rules = []  # the new rules list
+        for qr in self.rules:
+            if qr.type == QualifiedRule.type:
+                qr: QualifiedRule
+                flat_selectors = split_on_comma(qr.prelude)
+                for s in flat_selectors:
+                    new_rules.append(QualifiedRule(qr.source_line, qr.source_column, s, qr.content))
+            elif qr.type == AtRule.type:
+                print("atrule encountered")  # don't know what this type of rule is
+            elif qr.type == Comment.type:
+                pass
+            elif qr.type == ParseError.type:
+                raise CssParsingError()
+        print(self.rules)
+        print(new_rules)
+
+
+
 
     def make_paths(self):
         selector: []
-        for selector in [x.prelude for x in self.stylesheet]:
+        for selector in [x.prelude for x in self.rules]:
 
             paths = []
 
-            first, last = [0, len(selector)-1]
+            first, last = [0, len(selector) - 1]
             # remove leading & trailing whitespace
             while selector[first].type == WhitespaceToken.type:
                 first += 1
@@ -64,7 +115,7 @@ class Css:
                 FunctionBlock.type: self._handle_function,
                 Comment.type: self._handle_comment
             }
-            for i in range(first, last+1):
+            for i in range(first, last + 1):
                 node = selector[i]
                 if node.type in handlers:
                     handlers[node.type](node)
@@ -122,9 +173,6 @@ class Css:
 
 
 css = Css("""
-#header .callout {
+a, b, #h2 {
 }
 """)
-
-print(str(LiteralTypes.ID))
-
