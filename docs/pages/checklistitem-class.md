@@ -5,8 +5,9 @@
 There is **no** message telling the user which checks failed, as this would allow them to slowly puzzle the solution together. The only message they can see is the one you pass into the ChecklistItem when creating it. The image below shows what this would look like on Dodona:
 
 ```python
-item_1 = ChecklistItem("This is the first item", [check1, check2, ...])
-item_2 = ChecklistItem("This is the second item", [check3, check4, ...])
+item_1 = ChecklistItem("This is the first item", check1)
+item_2 = ChecklistItem("This is the second item", [check2, check3, ...])
 ```
 
-# TODO image
+<img src="../media/checklistitems-dodona.png" alt="image: ChecklistItems visualized on Dodona.">
+

@@ -114,7 +114,7 @@ In case you want to get a list of all elements (optionally matching filters), us
 
 Note that this method returns an instance of `ElementContainer`, which can be used like a regular Python `list`:
 
-More info on `ElementContainer`s can be found in the respective documentation page (TODO).
+More info on `ElementContainer`s can be found in the respective [documentation page](elementcontainer-class.md).
 
 ## Adding items to the checklist
 
