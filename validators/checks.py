@@ -6,12 +6,13 @@ from bs4.element import Tag
 from copy import deepcopy
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Deque, List, Optional, Callable, Union
+from typing import Deque, List, Optional, Callable, Union, AnyStr, Pattern
 
 from dodona.dodona_command import Context, TestCase, Message, MessageFormat
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from validators.html_validator import HtmlValidator
+from exceptions.utils import DelayedExceptions
 from exceptions.html_exceptions import Warnings, HtmlValidationError
 from exceptions.utils import EvaluationAborted
 
@@ -21,7 +22,6 @@ class Check:
     """Class that represents a single check
 
     Attributes:
-        message     Message to display to the user in the checklist.
         callback    The function to run in order to perform this test.
         on_success  A list of checks that will only be performed in case this
                     check succeeds. An example of how this could be useful is to
@@ -29,9 +29,6 @@ class Check:
                     on its attributes and/or children. This avoids unnecessary spam
                     to the user, because an element that doesn't exist never has
                     the correct specifications.
-        hidden      Indicate that the message from this check should NOT be shown
-                    in the final checklist. Again avoids unnecessary spam and can
-                    help hide checks that would reveal the answer to the student.
     """
     callback: Callable[[BeautifulSoup], bool]
     on_success: List["Check"] = field(default_factory=list)
@@ -148,8 +145,7 @@ class Element:
             # Filter out string content
             matches = list(filter(lambda x: isinstance(x, Tag), matches))
 
-        elements = list(map(lambda x: Element(x.name, x.get("id", None), x), matches))
-        return ElementContainer(elements)
+        return ElementContainer.from_tags(matches)
 
     def exists(self) -> Check:
         """Check that this element was found"""
@@ -164,7 +160,7 @@ class Element:
 
         :param tag:     the tag to search for
         :param direct:  indicate that only direct children should be considered,
-                        no elements of children
+                        not children of children
         """
 
         def _inner(_: BeautifulSoup) -> bool:
@@ -202,20 +198,9 @@ class Element:
 
         return Check(_inner)
 
-    def count_children(self, tag: str, amount: int, direct: bool = True, **kwargs) -> Check:
-        """Check that this element has exactly [amount] children matching the requirements"""
-
-        def _inner(_: BeautifulSoup) -> bool:
-            if self._element is None:
-                return False
-
-            return len(self._element.find_all(tag, recursive=not direct, **kwargs)) == amount
-
-        return Check(_inner)
-
     def _has_tag(self, tag: str) -> bool:
         """Internal function that checks if this element has the required tag"""
-        return self._element is not None and self._element.name == tag
+        return self._element is not None and self._element.name.lower() == tag.lower()
 
     def has_tag(self, tag: str) -> Check:
         """Check that this element has the required tag"""
@@ -234,10 +219,11 @@ class Element:
 
         return attribute
 
-    def has_attribute(self, attr: str, value: Optional[str] = None) -> Check:
+    def attribute_exists(self, attr: str, value: Optional[str] = None, case_insensitive: bool = False) -> Check:
         """Check that this element has the required attribute, optionally with a value
-        :param attr:    The name of the attribute to check.
-        :param value:   The value to check. If no value is passed, this will not be checked.
+        :param attr:                The name of the attribute to check.
+        :param value:               The value to check. If no value is passed, this will not be checked.
+        :param case_insensitive:    Indicate that the casing of the attribute does not matter.
         """
         def _inner(_: BeautifulSoup) -> bool:
             attribute = self._get_attribute(attr)
@@ -250,11 +236,14 @@ class Element:
             if value is None:
                 return True
 
+            if case_insensitive:
+                return attribute.lower() == value.lower()
+
             return attribute == value
 
         return Check(_inner)
 
-    def attribute_contains(self, attr: str, substr: str) -> Check:
+    def attribute_contains(self, attr: str, substr: str, case_insensitive: bool = False) -> Check:
         """Check that the value of this attribute contains a substring"""
         def _inner(_: BeautifulSoup) -> bool:
             attribute = self._get_attribute(attr)
@@ -263,11 +252,14 @@ class Element:
             if attribute is None:
                 return False
 
+            if case_insensitive:
+                return substr.lower() in attribute.lower()
+
             return substr in attribute
 
         return Check(_inner)
 
-    def attribute_matches(self, attr: str, regex: re.Pattern):
+    def attribute_matches(self, attr: str, regex: Pattern[AnyStr], flags: Union[int, re.RegexFlag] = 0) -> Check:
         """Check that the value of an attribute matches a regex pattern"""
         def _inner(_: BeautifulSoup) -> bool:
             attribute = self._get_attribute(attr)
@@ -276,7 +268,7 @@ class Element:
             if attribute is None:
                 return False
 
-            return re.match(regex, attribute) is not None
+            return re.match(regex, attribute, flags) is not None
 
         return Check(_inner)
 
@@ -424,6 +416,12 @@ class ElementContainer:
     def __len__(self):
         return self._size
 
+    @classmethod
+    def from_tags(cls, tags: List[Tag]) -> "ElementContainer":
+        """Construct a container from a list of bs4 Tag instances"""
+        elements = list(map(lambda x: Element(x.name, x.get("id", None), x), tags))
+        return ElementContainer(elements)
+
     def get(self, index: int) -> Element:
         """Get an item at a given index, same as []-operator"""
         return self[index]
@@ -534,9 +532,6 @@ class TestSuite:
     def __post_init__(self):
         self._bs = BeautifulSoup(self.content, "html.parser")
 
-        # TODO don't require this anymore
-        self._root = self._bs.html
-
     def create_validator(self, config: DodonaConfig):
         """Create the HTML validator from outside the Suite
         The Suite is created in the evaluation file by teachers, so we
@@ -544,7 +539,13 @@ class TestSuite:
         """
         self._validator = HtmlValidator(config.translator, recommended=self.check_recommended)
 
-    def validate_html(self, allow_warnings=True) -> Check:
+    def add_check(self, check: ChecklistItem):
+        """Add an item to the checklist
+        This is a shortcut to suite.checklist.append()
+        """
+        self.checklist.append(check)
+
+    def validate_html(self, allow_warnings: bool = True) -> Check:
         """Check that the HTML is valid
         This is done in here so that all errors and warnings can be sent to
         Dodona afterwards by reading them out of here
@@ -558,7 +559,7 @@ class TestSuite:
             except Warnings as war:
                 with Message(description=str(war), format=MessageFormat.CODE):
                     return allow_warnings
-            except HtmlValidationError as err:
+            except (HtmlValidationError, DelayedExceptions) as err:
                 with Message(description=str(err), format=MessageFormat.CODE):
                     return False
 
@@ -567,16 +568,28 @@ class TestSuite:
 
         return Check(_inner)
 
-    def element(self, tag: str, from_root=True, **kwargs) -> Element:
+    def document_matches(self, regex: Pattern[AnyStr]) -> Check:
+        """Check that the document matches a regex"""
+        def _inner(_: BeautifulSoup) -> bool:
+            return re.match(regex, self.content) is not None
+
+        return Check(_inner)
+
+    # TODO allow path to be passed using html > body > ... notation instead of only tags
+    def element(self, tag: str, from_root=False, **kwargs) -> Element:
         """Create a reference to an HTML element
         :param tag:         the name of the HTML tag to search for
         :param from_root:   find the element as a child of the root node instead of anywhere
                             in the document
         """
-        start: Union[BeautifulSoup, Tag] = self._root if from_root else self._bs
-
-        element = start.find(tag, **kwargs)
+        element = self._bs.find(tag, recursive=not from_root, **kwargs)
         return Element(tag, kwargs.get("id", None), element)
+
+    # TODO allow path to be passed using html > body > ... notation instead of only tags
+    def all_elements(self, tag: str, from_root=False, **kwargs) -> ElementContainer:
+        """Get references to ALL HTML elements that match a query"""
+        elements = self._bs.find_all(tag, recursive=not from_root, **kwargs)
+        return ElementContainer.from_tags(elements)
 
     def evaluate(self, translator: Translator) -> int:
         """Run the test suite, and print the Dodona output
@@ -606,7 +619,7 @@ class TestSuite:
                     # Warnings don't cause the test to fail, but must still be printed
                     with Message(description=str(war), format=MessageFormat.CODE):  # code preserves spaces & newlines
                         test_case.accepted = True
-                except HtmlValidationError as err:
+                except (HtmlValidationError, DelayedExceptions) as err:
                     with Message(description=str(err), format=MessageFormat.CODE):  # code preserves spaces & newlines
                         pass
                 except EvaluationAborted:
