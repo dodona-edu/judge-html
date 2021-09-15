@@ -101,20 +101,26 @@ class HtmlValidator(HTMLParser):
     def handle_starttag(self, tag: str, attributes: [(str, str)]):
         """handles a html tag that opens, like <body>
             attributes hold the (name, value) of the attributes supplied in the tag"""
+        tag = tag.lower()
+
         self._valid_tag(tag)
         if self.check_nesting:
             self._valid_nesting(tag)
         if not (self.check_void and self._is_void_tag(tag)):
             self.tag_stack.append(tag)
-        self._valid_attributes(tag, set(a[0] for a in attributes))
+        self._valid_attributes(tag, set(a[0].lower() for a in attributes))
 
     def handle_endtag(self, tag: str):
         """handles a html tag that closes, like <body/>"""
+        tag = tag.lower()
+
         self._validate_corresponding_tag(tag)
         self.tag_stack.pop()
 
     def handle_startendtag(self, tag, attrs):
         """handles a html tag that opens and instantly closes, like <meta/>"""
+        tag = tag.lower()
+
         if self.check_void and not self._is_void_tag(tag):
             self.error(NoSelfClosingTagError(translator=self.translator, tag_location=self.tag_stack,
                                              position=self.getpos(), tag=tag))
