@@ -167,7 +167,7 @@ Check that the student's submitted code matches a `regex string`.
 
 #### Signature:
 ```python
-def document_matches(self, regex: Pattern[AnyStr]) -> Check
+def document_matches(regex: Pattern[AnyStr]) -> Check
 ```
 
 #### Parameters:

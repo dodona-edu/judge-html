@@ -83,16 +83,17 @@ from bs4 import BeautifulSoup
 from typing import List
 from validators.checks import Check, Element
 
+
 # The function takes the element and the list of attributes as arguments
 def has_all_attributes(element: Element, attributes: List[str]) -> Check:
     def _inner(bs: BeautifulSoup) -> bool:
         # Iterate over every attribute
         for attr in attributes:
             # has_attribute is a Check itself, so we have to run it as well
-            if not element.has_attribute(attr).callback(bs):
+            if not element.attribute_exists(attr).callback(bs):
                 # Element didn't have this attribute, so return False
                 return False
-        
+
         # Element has all of the required attributes, so we can return True
         return True
 

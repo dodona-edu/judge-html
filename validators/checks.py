@@ -159,7 +159,7 @@ class Element:
 
         :param tag:     the tag to search for
         :param direct:  indicate that only direct children should be considered,
-                        no elements of children
+                        not children of children
         """
 
         def _inner(_: BeautifulSoup) -> bool:
@@ -197,17 +197,6 @@ class Element:
 
         return Check(_inner)
 
-    def count_children(self, tag: str, amount: int, direct: bool = True, **kwargs) -> Check:
-        """Check that this element has exactly [amount] children matching the requirements"""
-
-        def _inner(_: BeautifulSoup) -> bool:
-            if self._element is None:
-                return False
-
-            return len(self._element.find_all(tag, recursive=not direct, **kwargs)) == amount
-
-        return Check(_inner)
-
     def _has_tag(self, tag: str) -> bool:
         """Internal function that checks if this element has the required tag"""
         return self._element is not None and self._element.name == tag
@@ -229,10 +218,11 @@ class Element:
 
         return attribute
 
-    def has_attribute(self, attr: str, value: Optional[str] = None) -> Check:
+    def attribute_exists(self, attr: str, value: Optional[str] = None, case_insensitive: bool = False) -> Check:
         """Check that this element has the required attribute, optionally with a value
-        :param attr:    The name of the attribute to check.
-        :param value:   The value to check. If no value is passed, this will not be checked.
+        :param attr:                The name of the attribute to check.
+        :param value:               The value to check. If no value is passed, this will not be checked.
+        :param case_insensitive:    Indicate that the casing of the attribute does not matter.
         """
         def _inner(_: BeautifulSoup) -> bool:
             attribute = self._get_attribute(attr)
@@ -245,11 +235,14 @@ class Element:
             if value is None:
                 return True
 
+            if case_insensitive:
+                return attribute.lower() == value.lower()
+
             return attribute == value
 
         return Check(_inner)
 
-    def attribute_contains(self, attr: str, substr: str) -> Check:
+    def attribute_contains(self, attr: str, substr: str, case_insensitive: bool = False) -> Check:
         """Check that the value of this attribute contains a substring"""
         def _inner(_: BeautifulSoup) -> bool:
             attribute = self._get_attribute(attr)
@@ -258,11 +251,14 @@ class Element:
             if attribute is None:
                 return False
 
+            if case_insensitive:
+                return substr.lower() in attribute.lower()
+
             return substr in attribute
 
         return Check(_inner)
 
-    def attribute_matches(self, attr: str, regex: Pattern[AnyStr]):
+    def attribute_matches(self, attr: str, regex: Pattern[AnyStr], flags: Union[int, re.RegexFlag] = 0) -> Check:
         """Check that the value of an attribute matches a regex pattern"""
         def _inner(_: BeautifulSoup) -> bool:
             attribute = self._get_attribute(attr)
@@ -271,7 +267,7 @@ class Element:
             if attribute is None:
                 return False
 
-            return re.match(regex, attribute) is not None
+            return re.match(regex, attribute, flags) is not None
 
         return Check(_inner)
 
