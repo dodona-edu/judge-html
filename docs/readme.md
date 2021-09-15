@@ -10,5 +10,7 @@ Note that examples in these files often leave some repetitive information out be
 - [TestSuite Class](pages/testsuite-class.md)
 - [ChecklistItem Class](pages/checklistitem-class.md)
 - [Check Class](pages/check-class.md)
+- [Element Class](pages/element-class.md)
+- [ElementContainer Class](pages/elementcontainer-class.md)
 - [Utility Functions](pages/utility-functions.md)
 - [Writing custom Checks](pages/custom-checks.md)
