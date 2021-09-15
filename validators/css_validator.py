@@ -29,9 +29,14 @@ class Css:
     """
 
     def __init__(self, stylesheet):
+        print(f"Input:{stylesheet}")
         self.rules = tinycss2.parse_stylesheet(stylesheet, skip_whitespace=True)
         self.flatten_rules()
-        # self.make_paths()
+        self.split_important_rules()
+
+    def __str__(self):
+        return f"Important rules  : {tinycss2.serialize(self.rules[0])}\n" \
+               f"Normal rules     : {tinycss2.serialize(self.rules[1])}"
 
     def flatten_rules(self):
         """css selectors can be grouped
@@ -43,13 +48,6 @@ class Css:
             this method separates the group-rule to individual-rules
             (with each the same content in between curly brackets off course)
         """
-        def strip(ls: []):
-            """strips leading & trailing whitespace tokens"""
-            while ls and ls[0].type == WhitespaceToken.type:
-                ls.pop(0)
-            while ls and ls[-1].type == WhitespaceToken.type:
-                ls.pop()
-            return ls
 
         def split_on_comma(prelude: [], start=0) -> [[]]:
             """splits a list on LiteralToken with a value of a comma"""
@@ -57,122 +55,68 @@ class Css:
             index = start
             while index < len(prelude):
                 if prelude[index].type == LiteralToken.type and prelude[index].value == ",":
-                    ps.append(strip(prelude[start:index]))
+                    ps.append(self.strip(prelude[start:index]))
                     start = index + 1  # +1 because we skip the comma
                 index += 1
             if start < len(prelude):
-                ps.append(strip(prelude[start: len(prelude)]))
-            return ps
+                ps.append(self.strip(prelude[start: len(prelude)]))
+            return [x for x in ps if x]  # remove empty sublist(s) and return
 
         new_rules = []  # the new rules list
         for qr in self.rules:
             if qr.type == QualifiedRule.type:
                 qr: QualifiedRule
                 flat_selectors = split_on_comma(qr.prelude)
+                content = self.strip(qr.content)
                 for s in flat_selectors:
-                    new_rules.append(QualifiedRule(qr.source_line, qr.source_column, s, qr.content))
+                    new_rules.append(QualifiedRule(qr.source_line, qr.source_column, s, content))
             elif qr.type == AtRule.type:
                 print("atrule encountered")  # don't know what this type of rule is
             elif qr.type == Comment.type:
                 pass
             elif qr.type == ParseError.type:
                 raise CssParsingError()
-        print(self.rules)
-        print(new_rules)
+        self.rules = new_rules
 
+    def split_important_rules(self) -> ([], []):
+        qr: QualifiedRule
+        important_rules, normal_rules = [], []
+        for qr in self.rules:
+            qr.content = tinycss2.parse_declaration_list(qr.content, skip_whitespace=True)
+            d: Declaration
+            important, normal = [], []
+            for d in qr.content:
+                print(d)
+                important.append(d) if d.type == Declaration.type and d.important else normal.append(d)
+            if normal:
+                normal_rules.append(QualifiedRule(qr.source_line, qr.source_column, qr.prelude, normal))
+            if important:
+                important_rules.append(QualifiedRule(qr.source_line, qr.source_column, qr.prelude, important))
+        self.rules = (important_rules, normal_rules)
 
+    def find(self, path: []):
+        """
+        path:
+            [h1]: the h1 selector
+        """
 
-
-    def make_paths(self):
-        selector: []
-        for selector in [x.prelude for x in self.rules]:
-
-            paths = []
-
-            first, last = [0, len(selector) - 1]
-            # remove leading & trailing whitespace
-            while selector[first].type == WhitespaceToken.type:
-                first += 1
-            while selector[last].type == WhitespaceToken.type:
-                last -= 1
-
-            handlers = {
-                ParseError.type: self._handle_error,
-                WhitespaceToken.type: self._handle_whitespace,
-                LiteralToken.type: self._handle_literal,
-                IdentToken.type: self._handle_ident,
-                AtKeywordToken.type: self._handle_at_keyword,
-                HashToken.type: self._handle_hash,
-                StringToken.type: self._handle_string,
-                URLToken.type: self._handle_url,
-                NumberToken.type: self._handle_number,
-                PercentageToken.type: self._handle_percentage,
-                DimensionToken.type: self._handle_dimension,
-                UnicodeRangeToken.type: self._handle_unicode_range,
-                ParenthesesBlock.type: self._handle_parentheses,
-                SquareBracketsBlock.type: self._handle_square_brackets,
-                CurlyBracketsBlock.type: self._handle_curly_brackets,
-                FunctionBlock.type: self._handle_function,
-                Comment.type: self._handle_comment
-            }
-            for i in range(first, last + 1):
-                node = selector[i]
-                if node.type in handlers:
-                    handlers[node.type](node)
-
-    def _handle_error(self, node):
-        raise CssParsingError()
-
-    def _handle_whitespace(self, node: WhitespaceToken):
-        print("whitespace")
-
-    def _handle_literal(self, node: LiteralToken):
-        print("literal " + node.value)
-
-    def _handle_ident(self, node: IdentToken):
-        print("ident " + node.value)
-
-    def _handle_at_keyword(self, node: AtKeywordToken):
-        pass
-
-    def _handle_hash(self, node: HashToken):
-        print("hash " + node.value)
-
-    def _handle_string(self, node: StringToken):
-        pass
-
-    def _handle_url(self, node: URLToken):
-        pass
-
-    def _handle_number(self, node: NumberToken):
-        pass
-
-    def _handle_percentage(self, node: PercentageToken):
-        pass
-
-    def _handle_dimension(self, node: DimensionToken):
-        pass
-
-    def _handle_unicode_range(self, node: UnicodeRangeToken):
-        pass
-
-    def _handle_parentheses(self, node: ParenthesesBlock):
-        pass
-
-    def _handle_square_brackets(self, node: SquareBracketsBlock):
-        pass
-
-    def _handle_curly_brackets(self, node: CurlyBracketsBlock):
-        pass
-
-    def _handle_function(self, node: FunctionBlock):
-        pass
-
-    def _handle_comment(self, node: Comment):
-        pass
+    def strip(self, ls: []):
+        """strips leading & trailing whitespace tokens"""
+        while ls and ls[0].type == WhitespaceToken.type:
+            ls.pop(0)
+        while ls and ls[-1].type == WhitespaceToken.type:
+            ls.pop()
+        return ls
 
 
 css = Css("""
-a, b, #h2 {
+a, {
+color: green !important;
+margin: 2px;
+}
+b, #h2 {
+color: red;
 }
 """)
+print("------------------------Parsed------------------------")
+print(css)
