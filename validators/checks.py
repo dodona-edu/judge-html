@@ -199,7 +199,7 @@ class Element:
 
     def _has_tag(self, tag: str) -> bool:
         """Internal function that checks if this element has the required tag"""
-        return self._element is not None and self._element.name == tag
+        return self._element is not None and self._element.name.lower() == tag.lower()
 
     def has_tag(self, tag: str) -> Check:
         """Check that this element has the required tag"""

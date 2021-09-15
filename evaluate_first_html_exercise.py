@@ -52,10 +52,10 @@ def create_suites(content: str) -> List[checks.TestSuite]:
     ci_third_row_is_correct = checks.ChecklistItem("The third row contains the required data",
                                                    table_rows[2].table_row_has_content(third_row))
 
-    # Item 9: the fouth row is correct
-    fouth_row = ["Ronald Weasley", "Cho Chang", "Susan Bones", "Gregory Goyle"]
+    # Item 9: the fourth row is correct
+    fourth_row = ["Ronald Weasley", "Cho Chang", "Susan Bones", "Gregory Goyle"]
     ci_fourth_row_is_correct = checks.ChecklistItem("The fourth row contains the required data",
-                                                    table_rows[3].table_row_has_content(fouth_row)
+                                                    table_rows[3].table_row_has_content(fourth_row)
                                                     )
 
     # Create checklist
