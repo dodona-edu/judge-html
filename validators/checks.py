@@ -539,6 +539,12 @@ class TestSuite:
         """
         self._validator = HtmlValidator(config.translator, recommended=self.check_recommended)
 
+    def add_check(self, check: ChecklistItem):
+        """Add an item to the checklist
+        This is a shortcut to suite.checklist.append()
+        """
+        self.checklist.append(check)
+
     def validate_html(self, allow_warnings: bool = True) -> Check:
         """Check that the HTML is valid
         This is done in here so that all errors and warnings can be sent to

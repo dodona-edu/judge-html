@@ -120,6 +120,8 @@ More info on `ElementContainer`s can be found in the respective [documentation p
 
 In order to add ChecklistItems, you can either set the entire checklist at once, or add separate ChecklistItems one by one.
 
+Adding items one by one can either be done by adding them to the internal checklist (`TestSuite.checklist.append(item)`) or by using the shortcut `TestSuite.add_check(item)`.
+
 ```python
 suite = TestSuite("HTML", content)
 
@@ -131,7 +133,8 @@ suite.checklist = [first_item, second_item]
 
 # Adding the items one by one
 suite.checklist.append(first_item)
-suite.checklist.append(second_item)
+# TestSuite.add_check is a shortcut to TestSuite.checklist.append()
+suite.add_check(second_item)
 ```
 
 ## Built-in Checks
