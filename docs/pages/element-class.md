@@ -56,14 +56,14 @@ This method finds ALL child elements, optionally with tag `tag` and extra filter
 
 #### Signature:
 ```python
-def get_children(tag: str = "", direct: bool = True, **kwargs) -> ElementContainer
+def get_children(tag: Optional[str] = None, direct: bool = True, **kwargs) -> ElementContainer
 ```
 
 #### Parameters:
 
 | name | description | required | default |
 :------|:------------|:--------:|:--------|
-| tag | The tag to search for | | Empty string, which will result in all children being returned.  |
+| tag | The tag to search for | | None, which will result in no tag-filter being applied.  |
 | direct | Boolean that indicates only *direct* children should be searched, so not nested elements. | | True |
 
 Extra `kwargs` can be passed to filter the results down even more. For example, to find all children with a given `attribute` use `get_children(attribute="some_value")`.
@@ -87,7 +87,7 @@ Check that this element has a given attribute, and that the attribute contains a
 
 #### Signature:
 ```python
-def attribute_contains(attribute: str, substr: str, case_insensitive: bool = False) -> Check
+def attribute_contains(attr: str, substr: str, case_insensitive: bool = False) -> Check
 ```
 
 #### Parameters:
@@ -116,7 +116,7 @@ Check that this element has a given attribute, optionally matching a specific va
 
 #### Signature:
 ```python
-def attribute_exists(attribute: str, value: Optional[str] = None, case_insensitive: bool = False) -> Check
+def attribute_exists(attr: str, value: Optional[str] = None, case_insensitive: bool = False) -> Check
 ```
 
 #### Parameters:
@@ -147,7 +147,7 @@ Check if an attribute exists, and if its value matches a regular expression. If 
 
 #### Signature:
 ```python
-def attribute_matches(attribute: str, regex: Pattern[AnyStr], flags: Union[int, re.RegexFlag] = 0) -> Check
+def attribute_matches(attr: str, regex: Pattern[AnyStr], flags: Union[int, re.RegexFlag] = 0) -> Check
 ```
 
 #### Parameters:

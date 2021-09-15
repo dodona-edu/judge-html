@@ -178,6 +178,7 @@ def document_matches(regex: Pattern[AnyStr]) -> Check
 | name | description | required | default |
 :------|:------------|:--------:|:--------|
 | regex | The pattern to match the student's code against. | X | |
+| flags | Extra `RegexFlag`s to use when comparing. | | 0, meaning no flags will be applied. |
 
 #### Example usage:
 
