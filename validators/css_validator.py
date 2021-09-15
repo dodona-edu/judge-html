@@ -2,10 +2,15 @@ from enum import Enum
 
 import tinycss2
 from tinycss2.ast import *
+from lxml.etree import fromstring, ElementBase
 
-
-# https://pythonhosted.org/tinycss2/
-# https://pythonhosted.org/tinycss2/#term-component-values
+"""
+tinycss2 docs
+    https://pythonhosted.org/tinycss2/
+    https://pythonhosted.org/tinycss2/#term-component-values
+lxml docs
+    https://lxml.de/api/
+"""
 
 
 class CssParsingError(Exception):
@@ -16,6 +21,20 @@ class LiteralTypes(Enum):
     ID = "#"
     CLASS = "."
     GROUPING = ","
+
+
+class Match:
+    def __init__(self, rule: QualifiedRule, element: ElementBase):
+        self.rule = rule
+        self.element = element
+
+    def __str__(self):
+        return f"\nMATCH:\n" \
+               f"\tRULE: {tinycss2.serialize(self.rule.prelude)}\n" \
+               f"\tELEMENT: {self.element.tag} {self.element.keys()} {self.element.values()}\n"
+
+    def __repr__(self):
+        return str(self)
 
 
 class Css:
@@ -33,10 +52,14 @@ class Css:
         self.rules = tinycss2.parse_stylesheet(stylesheet, skip_whitespace=True)
         self.flatten_rules()
         self.split_important_rules()
+        xpaths = self.selectors_to_xpaths()
+        self.rules = (list(zip(xpaths[0], self.rules[0])), list(zip(xpaths[1], self.rules[1])))
 
     def __str__(self):
-        return f"Important rules  : {tinycss2.serialize(self.rules[0])}\n" \
-               f"Normal rules     : {tinycss2.serialize(self.rules[1])}"
+        return f"Important rules  : {tinycss2.serialize([x[1] for x in self.rules[0]])}\n" \
+               f"  selectors      : {[x[0] for x in self.rules[0]]}\n" \
+               f"Normal rules     : {tinycss2.serialize([x[1] for x in self.rules[1]])}\n" \
+               f"  selectors      : {[x[0] for x in self.rules[1]]}"
 
     def flatten_rules(self):
         """css selectors can be grouped
@@ -86,7 +109,6 @@ class Css:
             d: Declaration
             important, normal = [], []
             for d in qr.content:
-                print(d)
                 important.append(d) if d.type == Declaration.type and d.important else normal.append(d)
             if normal:
                 normal_rules.append(QualifiedRule(qr.source_line, qr.source_column, qr.prelude, normal))
@@ -94,11 +116,20 @@ class Css:
                 important_rules.append(QualifiedRule(qr.source_line, qr.source_column, qr.prelude, important))
         self.rules = (important_rules, normal_rules)
 
-    def find(self, path: []):
-        """
-        path:
-            [h1]: the h1 selector
-        """
+    def selectors_to_xpaths(self):
+        from cssselect import GenericTranslator, SelectorError
+
+        def do(rs):
+            r: QualifiedRule
+            ns: [str] = []  # new selectors (xpaths)
+            for r in rs:
+                try:
+                    ns.append(GenericTranslator().css_to_xpath(tinycss2.serialize(r.prelude)))
+                except SelectorError:
+                    raise CssParsingError()
+            return ns
+
+        return do(self.rules[0]), do(self.rules[1])
 
     def strip(self, ls: []):
         """strips leading & trailing whitespace tokens"""
@@ -108,15 +139,36 @@ class Css:
             ls.pop()
         return ls
 
+    def find_matches(self, path: str, html_content: str) -> [Match]:
+        """
+        path:
+            [h1]: the h1 selector
+        searches first in the important rules, if not found, search backwards in the other rules
+        """
+        matches_imp = []
+        matches_nor = []
+        document = fromstring(html_content)
+        for x in self.rules[0]:
+            matches_imp += [Match(x[1], e) for e in document.xpath(x[0])]
+        for x in self.rules[1]:
+            matches_nor += [Match(x[1], e) for e in document.xpath(x[0])]
+        matches = (matches_imp, matches_nor)
+        return matches
+
+
+
 
 css = Css("""
-a, {
-color: green !important;
-margin: 2px;
-}
-b, #h2 {
-color: red;
+div #inner, #outer{
+color: red
 }
 """)
-print("------------------------Parsed------------------------")
-print(css)
+print("------------------------Matches------------------------")
+ms = css.find_matches("", '''
+           <div id="outer">
+             <div id="inner" class="content body">text</div>
+           </div>
+         ''')
+# print matches
+print(ms[0])  # important
+print(ms[1])  # normal
