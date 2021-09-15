@@ -12,6 +12,7 @@ from dodona.dodona_command import Context, TestCase, Message, MessageFormat
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from validators.html_validator import HtmlValidator
+from exceptions.utils import DelayedExceptions
 from exceptions.html_exceptions import Warnings, HtmlValidationError
 from exceptions.utils import EvaluationAborted
 
@@ -552,7 +553,7 @@ class TestSuite:
             except Warnings as war:
                 with Message(description=str(war), format=MessageFormat.CODE):
                     return allow_warnings
-            except HtmlValidationError as err:
+            except (HtmlValidationError, DelayedExceptions) as err:
                 with Message(description=str(err), format=MessageFormat.CODE):
                     return False
 
@@ -612,7 +613,7 @@ class TestSuite:
                     # Warnings don't cause the test to fail, but must still be printed
                     with Message(description=str(war), format=MessageFormat.CODE):  # code preserves spaces & newlines
                         test_case.accepted = True
-                except HtmlValidationError as err:
+                except (HtmlValidationError, DelayedExceptions) as err:
                     with Message(description=str(err), format=MessageFormat.CODE):  # code preserves spaces & newlines
                         pass
                 except EvaluationAborted:
