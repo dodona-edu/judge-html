@@ -12,7 +12,7 @@ class TestTestSuite(unittest.TestCase):
         # Check that the document has a self-closing tag
         self.assertTrue(suite.document_matches(r"<[^>]+/>").callback(suite._bs))
 
-        # Check that the document starts with "<!doctype" (which fails)
+        # Check that the document starts with "<!doctype"
         self.assertFalse(suite.document_matches(r"^<!doctype").callback(suite._bs))
 
         # Check that the document starts with "<!doctype", but with the IGNORECASE flag

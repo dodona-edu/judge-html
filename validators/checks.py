@@ -215,7 +215,7 @@ class Element:
         if self._element is None:
             return None
 
-        attribute = self._element.get(attr)
+        attribute = self._element.get(attr.lower())
 
         return attribute
 
