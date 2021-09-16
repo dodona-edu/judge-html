@@ -1,6 +1,3 @@
-from dodona.translator import Translator
-
-
 class EvaluationAborted(RuntimeError):
     """Exception raised when evaluation is aborted because a crucial test did not pass"""
     def __init__(self, *args):
