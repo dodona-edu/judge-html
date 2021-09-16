@@ -32,11 +32,11 @@ def get_child(tag: str, index: int = 0, direct: bool = True, **kwargs) -> Elemen
 
 #### Parameters:
 
-| Name | Description | Required? | Default |
-|:-----|:------------|:---------:|:--------|
-| `tag`    | The tag to search for | ✔ | |
-| `index`  | In case multiple children match your query, choose which match should be chosen. | | 0 (first match) |
-| `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements. | | `True` |
+| Name     | Description                                                                                                                                           | Required? | Default         |
+:------|:------------|:--------:|:--------|
+| `tag`    | The tag to search for                                                                                                                                 |     ✔     |                 |
+| `index`  | In case multiple children match your query, choose which match should be chosen. If the index goes out of range, the first match is returned instead. |           | 0 (first match) |
+| `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements.                                                             |           | `True`          |
 
 Extra `kwargs` can be passed to filter the results down even more. For example, to find the child with a given `id` use `get_child(tag, id="some_id")`.
 
@@ -147,7 +147,7 @@ Check if an attribute exists, and if its value matches a regular expression. If 
 
 #### Signature:
 ```python
-def attribute_matches(attr: str, regex: Pattern[AnyStr], flags: Union[int, re.RegexFlag] = 0) -> Check
+def attribute_matches(attr: str, regex: str, flags: Union[int, re.RegexFlag] = 0) -> Check
 ```
 
 #### Parameters:
@@ -168,8 +168,9 @@ body = suite.element("body")
 img_element = body.get_child("img")
 
 # Check if the src of the image starts with "https://", contains "dodona", and ends on ".png", case-insensitive.
+pattern = r"^https://.*dodona.*\.png$"
 img_attributes = ChecklistItem("The image has the correct attributes.", [
-  img_element.attribute_matches("src", "dodona", re.IGNORECASE),
+  img_element.attribute_matches("src", pattern, re.IGNORECASE),
 ])
 ```
 

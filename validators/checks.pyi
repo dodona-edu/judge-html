@@ -2,7 +2,7 @@ from re import RegexFlag
 
 from bs4 import BeautifulSoup
 from bs4.element import Tag
-from typing import Callable, List, Optional, Pattern, AnyStr, Union
+from typing import Callable, List, Optional, Union
 
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
@@ -54,7 +54,7 @@ class Element:
 
     def attribute_contains(self, attr: str, substr: str, case_insensitive: bool = ...) -> Check: ...
 
-    def attribute_matches(self, attr: str, regex: Pattern[AnyStr], flags: Union[int, RegexFlag] = ...) -> Check: ...
+    def attribute_matches(self, attr: str, regex: str, flags: Union[int, RegexFlag] = ...) -> Check: ...
 
     def has_table_header(self, header: List[str]) -> Check: ...
 
@@ -121,7 +121,7 @@ class TestSuite:
 
     def validate_html(self, allow_warnings: bool = ...) -> Check: ...
 
-    def document_matches(self, regex: Pattern[AnyStr], flags: Union[int, RegexFlag] = ...) -> Check: ...
+    def document_matches(self, regex: str, flags: Union[int, RegexFlag] = ...) -> Check: ...
 
     def element(self, tag: str, from_root: bool = ..., **kwargs) -> Element: ...
 
