@@ -320,6 +320,10 @@ class Element:
                 if not trs:
                     return False
 
+            # Incorrect amount of rows
+            if len(trs) != len(rows):
+                return False
+
             # Compare tds (actual data)
             for i in range(len(rows)):
                 data = trs[i].find_all("td")
@@ -575,6 +579,7 @@ class TestSuite:
         return Check(_inner)
 
     # TODO allow path to be passed using html > body > ... notation instead of only tags
+    # TODO allow index here as well
     def element(self, tag: str, from_root: bool = False, **kwargs) -> Element:
         """Create a reference to an HTML element
         :param tag:         the name of the HTML tag to search for

@@ -17,6 +17,9 @@ def html_loader(file: str) -> str:
 class UnitTestSuite(TestSuite):
     """TestSuite with extra utility stuff for unittests"""
 
+    def __init__(self, file: str, **kwargs):
+        super().__init__(name="TEST", content=html_loader(file), **kwargs)
+
     def check(self, c: Check) -> bool:
         return c.callback(self._bs)
 

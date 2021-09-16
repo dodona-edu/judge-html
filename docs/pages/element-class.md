@@ -32,11 +32,11 @@ def get_child(tag: str, index: int = 0, direct: bool = True, **kwargs) -> Elemen
 
 #### Parameters:
 
-| Name | Description | Required? | Default |
-|:-----|:------------|:---------:|:--------|
-| `tag`    | The tag to search for | ✔ | |
-| `index`  | In case multiple children match your query, choose which match should be chosen. | | 0 (first match) |
-| `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements. | | `True` |
+| Name     | Description                                                                                                                                           | Required? | Default         |
+:------|:------------|:--------:|:--------|
+| `tag`    | The tag to search for                                                                                                                                 |     ✔     |                 |
+| `index`  | In case multiple children match your query, choose which match should be chosen. If the index goes out of range, the first match is returned instead. |           | 0 (first match) |
+| `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements.                                                             |           | `True`          |
 
 Extra `kwargs` can be passed to filter the results down even more. For example, to find the child with a given `id` use `get_child(tag, id="some_id")`.
 
