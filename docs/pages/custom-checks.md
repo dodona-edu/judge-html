@@ -4,7 +4,7 @@ In case you want to do something that our library doesn't support, you can alway
 
 ## Check structure
 
-A Check takes one argument, being the callable that gets executed when the check is evaluated. This callable may only take one argument as well, a `BeautifulSoup` instance of the student's submission, and returns a `bool`.
+A `Check` takes one argument, being the callable that gets executed when the check is evaluated. This callable may only take one argument as well, a `BeautifulSoup` instance of the student's submission, and returns a `bool`.
 
 It's suggested to wrap this check inside a function that returns it, to allow extra arguments to be passed into it.
 
@@ -24,7 +24,7 @@ def my_custom_check() -> Check:
     return Check(_inner)
 ```
 
-Remember that, as these return Check instances, your custom checks can use all methods available to the built-in checks. For example, you can abort testing if your custom check fails:
+Remember that, as these return `Check` instances, your custom checks can use all methods available to the built-in checks. For example, you can abort testing if your custom check fails:
 
 ```python
 checklist_item = ChecklistItem("Custom check", my_custom_check().or_abort())

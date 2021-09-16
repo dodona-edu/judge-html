@@ -1,6 +1,6 @@
 # TestSuite Class
 
-A `TestSuite` contains a checklist of all checks that should be performed on the student's code. An exercise is only marked as correct once every check in every TestSuite has passed.
+A `TestSuite` contains a checklist of all checks that should be performed on the student's code. An exercise is only marked as correct once every check in every `TestSuite` has passed.
 
 ## Table of Contents
 - [Attributes](#attributes)
@@ -13,15 +13,15 @@ A `TestSuite` contains a checklist of all checks that should be performed on the
 
 ## Attributes
 
-| name | description | required | default |
+| Name | Description | Required? | Default |
 :------|:------------|:--------:|:--------|
-| name | The name of this TestSuite, used as the name of the Tab on Dodona (see [TestSuites on Dodona](#testsuites-on-dodona)) | X | |
-| content | A string that contains the student's submission. This is passed as an argument into the `create_suites` method. | X | |
-| check_recommended | <a id="check-recommended-image"/> A boolean that indicates if the student should see warnings about missing recommended attributes.<br /><br /><img src="../media/warnings-dodona.png" alt="image: warnings on Dodona."> These warnings do **not** cause their submission to be marked incorrect, and are purely informational.<br /><br /> | | True |
+| `name` | The name of this `TestSuite`, used as the name of the Tab on Dodona (see [`TestSuites` on Dodona](#testsuites-on-dodona)) | ✔ | |
+| `content` | A string that contains the student's submission. This is passed as an argument into the `create_suites` method. | ✔ | |
+| `check_recommended` | <a id="check-recommended-image"/> A boolean that indicates if the student should see warnings about missing recommended attributes.<br /><br /><img src="../media/warnings-dodona.png" alt="image: warnings on Dodona."> These warnings do **not** cause their submission to be marked incorrect, and are purely informational.<br /><br /> | | `True` |
 
-## TestSuites on Dodona
+## `TestSuites` on Dodona
 
-TestSuites are displayed as `tabs` on Dodona, and the `name` attribute will be the name of the tab. The names can be whatever you want them to be, but the examples here will always use "HTML" and "CSS" for consistency. The image below shows what this would look like for two suites named `HTML` and `CSS`:
+`TestSuites` are displayed as **tabs** on Dodona, and the `name` attribute will be the name of the tab. The names can be whatever you want them to be, but the examples here will always use "HTML" and "CSS" for consistency. The image below shows what this would look like for two suites named `HTML` and `CSS`:
 
 ```python
 from validators.checks import TestSuite
@@ -32,9 +32,9 @@ def create_suites(content: str):
     return [html_suite, css_suite]
 ```
 
-<img src="../media/tabs.png" alt="image: TestSuites visualized on Dodona.">
+![image: TestSuites visualized on Dodona](../media/tabs.png)
 
-The image also shows a `1` next to the `HTML` tab, indicating that 1 test failed. This instantly allows users to see which part of their code caused the exercise to be incorrect, and which parts are already finished.
+The image also shows a `1` next to the **HTML** tab, indicating that 1 test failed. This instantly allows users to see which part of their code caused the exercise to be incorrect, and which parts are already finished.
 
 ## Referencing (specific) HTML elements
 
@@ -77,9 +77,9 @@ suite = TestSuite("HTML", content)
 root_div = suite.element("div", from_root=True)
 ```
 
-Extra filters, such as id's and attributes, can be passed as `kwargs`. You can pass as many filters as you want to.
+Extra filters, such as id's and attributes, can be passed as _kwargs_. You can pass as many filters as you want to.
 
-The example below shows how to get the `<tr>` with id "row_one", and the `<th>` with attribute `colspan` equal to `2`.
+The example below shows how to get the `<tr>` with id `row_one`, and the `<th>` with attribute `colspan` equal to `2`.
 
 ```html
 <table>
@@ -118,7 +118,7 @@ More info on `ElementContainer`s can be found in the respective [documentation p
 
 ## Adding items to the checklist
 
-In order to add ChecklistItems, you can either set the entire checklist at once, or add separate ChecklistItems one by one.
+In order to add `ChecklistItem`s, you can either set the entire checklist at once, or add separate `ChecklistItem`s one by one.
 
 Adding items one by one can either be done by adding them to the internal checklist (`TestSuite.checklist.append(item)`) or by using the shortcut `TestSuite.add_check(item)`.
 
@@ -139,9 +139,9 @@ suite.add_check(second_item)
 
 ## Built-in Checks
 
-The TestSuite class comes with a few Checks that you can use, and they are documented below. More Checks can be found in different classes.
+The `TestSuite` class comes with a few Checks that you can use, and they are documented below. More Checks can be found in different classes.
 
-### validate_html
+### `validate_html`
 
 Check that the student's submitted code is valid HTML without syntax errors. The errors will not be reported to the student as to not reveal the answer.
 
@@ -152,9 +152,9 @@ def validate_html(allow_warnings: bool = True) -> Check
 
 #### Parameters:
 
-| name | description | required | default |
+| Name | Description | Required | Default |
 :------|:------------|:--------:|:--------|
-| allow_warnings | Boolean that indicates that the check should *not* be marked incorrect if any warnings arise. |  | True |
+| `allow_warnings` | Boolean that indicates that the check should *not* be marked incorrect if any warnings arise. | ❌ | `True` |
 
 In case the `check_recommended` attribute for this class is `True` (default), this will also show the student warnings about missing recommended attributes (see [Attributes](#check-recommended-image)).
 
@@ -164,7 +164,7 @@ suite = TestSuite("HTML", content)
 self_closing = ChecklistItem("The HTML is valid.", suite.validate_html())
 ```
 
-### document_matches
+### `document_matches`
 
 Check that the student's submitted code matches a `regex string`.
 
@@ -175,10 +175,10 @@ def document_matches(regex: Pattern[AnyStr]) -> Check
 
 #### Parameters:
 
-| name | description | required | default |
+| Name | Description | Required? | Default |
 :------|:------------|:--------:|:--------|
-| regex | The pattern to match the student's code against. | X | |
-| flags | Extra `RegexFlag`s to use when comparing. | | 0, meaning no flags will be applied. |
+| `regex` | The pattern to match the student's code against. | ✔ | |
+| `flags` | Extra `RegexFlag`s to use when comparing. | | 0, meaning no flags will be applied. |
 
 #### Example usage:
 

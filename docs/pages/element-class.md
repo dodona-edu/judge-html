@@ -32,11 +32,11 @@ def get_child(tag: str, index: int = 0, direct: bool = True, **kwargs) -> Elemen
 
 #### Parameters:
 
-| name | description | required | default |
+| Name | Description | Required? | Default |
 :------|:------------|:--------:|:--------|
-| tag | The tag to search for | X | |
-| index | In case multiple children match your query, choose which match should be chosen. | | 0 (first match)|
-| direct | Boolean that indicates only *direct* children should be searched, so not nested elements. | | True |
+| `tag` | The tag to search for | ✔ | |
+| `index` | In case multiple children match your query, choose which match should be chosen. | | 0 (first match)|
+| `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements. | | `True` |
 
 Extra `kwargs` can be passed to filter the results down even more. For example, to find the child with a given `id` use `get_child(tag, id="some_id")`.
 
@@ -50,7 +50,7 @@ body = suite.element("body")
 img_element = body.get_child("img", index=1, direct=False, height="500")
 ```
 
-### get_children
+### `get_children`
 
 This method finds ALL child elements, optionally with tag `tag` and extra filters. This returns an instance of `ElementContainer`, which can be used as a list of elements.
 
@@ -61,7 +61,7 @@ def get_children(tag: Optional[str] = None, direct: bool = True, **kwargs) -> El
 
 #### Parameters:
 
-| name | description | required | default |
+| Name | Description | Required? | Default |
 :------|:------------|:--------:|:--------|
 | tag | The tag to search for | | None, which will result in no tag-filter being applied.  |
 | direct | Boolean that indicates only *direct* children should be searched, so not nested elements. | | True |
@@ -81,7 +81,7 @@ p_elements = body.get_children("p", direct=False, title="Example")
 
 The following methods are Checks that can be used on HTML elements, in order to create specific requirements for your students to pass the exercise. All of these methods return an instance of the `Check` class.
 
-### attribute_contains
+### `attribute_contains`
 
 Check that this element has a given attribute, and that the attribute contains a substring. If the element doesn't exist, this check will fail as well. This means it's *not* required to use `attribute_exists` before `attribute_contains`.
 
@@ -92,11 +92,11 @@ def attribute_contains(attr: str, substr: str, case_insensitive: bool = False) -
 
 #### Parameters:
 
-| name | description | required | default |
+| Name | Description | Required? | Default |
 :------|:------------|:--------:|:--------|
-| attribute | The attribute to check for. | X | |
-| substr | The substring that should be in the attribute's value. | X | |
-| case_insensitive |Indicate that the casing of the value does not matter when checking. | | False |
+| `attribute` | The attribute to check for. | X | |
+| `substr` | The substring that should be in the attribute's value. | X | |
+| `case_insensitive` |Indicate that the casing of the value does not matter when checking. | | `False` |
 
 #### Example usage:
 ```python
@@ -121,11 +121,11 @@ def attribute_exists(attr: str, value: Optional[str] = None, case_insensitive: b
 
 #### Parameters:
 
-| name | description | required | default |
+| Name | Description | Required? | Default |
 :------|:------------|:--------:|:--------|
-| attribute | The attribute to check for. | X | |
-| value | The value to compare against. | | None, which will make any value pass. This means the check only makes sure the attribute *exists*. |
-| case_insensitive | Indicate that the casing of the value does not matter when checking. | | False |
+| `attribute` | The attribute to check for. | ✔ | |
+| `value` | The value to compare against. | | None, which will make any value pass. This means the check only makes sure the attribute *exists*. |
+| `case_insensitive` | Indicate that the casing of the value does not matter when checking. | | `False` |
 
 #### Example usage:
 ```python
@@ -141,7 +141,7 @@ img_attributes = ChecklistItem("The image has the correct attributes.", [
 ])
 ```
 
-### attribute_matches
+### `attribute_matches`
 
 Check if an attribute exists, and if its value matches a regular expression. If the element doesn't exist, this check will fail as well. This means it's *not* required to use `attribute_exists` before `attribute_matches`.
 
@@ -152,11 +152,11 @@ def attribute_matches(attr: str, regex: Pattern[AnyStr], flags: Union[int, re.Re
 
 #### Parameters:
 
-| name | description | required | default |
+| Name | Description | Required? | Default |
 :------|:------------|:--------:|:--------|
-| attribute | The attribute to check for. | X | |
-| regex | The regex pattern to match the attribute's value against. | X | |
-| flags | Extra `RegexFlag`s to use when comparing. | | 0, meaning no flags will be applied. |
+| `attribute` | The attribute to check for. | ✔ | |
+| `regex` | The regex pattern to match the attribute's value against. | ✔ | |
+| `flags` | Extra `RegexFlag`s to use when comparing. | | 0, meaning no flags will be applied. |
 
 #### Example usage:
 
@@ -173,7 +173,7 @@ img_attributes = ChecklistItem("The image has the correct attributes.", [
 ])
 ```
 
-### exists
+### `exists`
 
 Check that an element exists, and is not empty. This is equivalent to verifying that an element was found in the student's code.
 
@@ -190,7 +190,7 @@ body = suite.element("body")
 body_exists = ChecklistItem("The document has a <body>", body.exists())
 ```
 
-### has_child
+### `has_child`
 
 Check that the element has a child that meets the specifications. This is a shortcut to combining `get_child()` and `exists()`.
 
@@ -201,10 +201,10 @@ def has_child(tag: str, direct: bool = True, **kwargs) -> Check
 
 #### Parameters:
 
-| name | description | required | default |
+| Name | Description | Required? | Default |
 :------|:------------|:--------:|:--------|
-| tag | The tag to search for. | X | |
-| direct | Boolean that indicates only *direct* children should be searched, so not nested elements. | | True |
+| `tag` | The tag to search for. | ✔ | |
+| `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements. | | True |
 
 Extra `kwargs` can be passed to filter the results down even more. For example, to check that an element has a child with a given `id` use `has_child(tag, id="some_id")`.
 
@@ -220,7 +220,7 @@ body_has_div = ChecklistItem("The body has a div", body.has_child("div"))
 body_has_div = ChecklistItem("The body has a div", body.get_child("div").exists())
 ```
 
-### has_content
+### `has_content`
 
 Check that the element has specific content, or any content at all.
 
@@ -231,7 +231,7 @@ def has_content(text: Optional[str] = None) -> Check
 
 #### Parameters:
 
-| name | description | required | default |
+| Name | Description | Required? | Default |
 :------|:------------|:--------:|:--------|
 | text | The text to compare the element's content to. | | None, which will make any content pass and just checks if the content is not empty. |
 
@@ -251,7 +251,7 @@ paragraphs_exist = ChecklistItem("The body has two paragraphs that meet the requ
 ])
 ```
 
-### has_tag
+### `has_tag`
 
 Check that this element has the required tag.
 
@@ -261,9 +261,9 @@ def has_tag(tag: str) -> Check
 ```
 #### Parameters:
 
-| name | description | required | default |
+| Name | Description | Required? | Default |
 :------|:------------|:--------:|:--------|
-| tag | The tag to check for. | X | |
+| tag | The tag to check for. | ✔ | |
 
 #### Example usage
 ```python

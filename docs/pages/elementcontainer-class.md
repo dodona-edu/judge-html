@@ -11,7 +11,7 @@ The main purpose of `ElementContainers` is verification of a document's structur
     - [at_most](#at_most)
     - [exactly](#exactly)
 
-## get
+## `get`
 
 Get the `Element` at a specific index of the container. In case there aren't enough elements in the container this returns an empty element instead.
 
@@ -24,9 +24,9 @@ def get(index: int) -> Element
 
 #### Parameters:
 
-| name | description | required | default |
+| Name | Description | Required? | Default |
 :------|:------------|:--------:|:--------|
-| index | The index at which to look for an element. | X | |
+| index | The index at which to look for an element. | ✔ | |
 
 #### Example usage:
 Let's say we want to perform checks on two `<div>`s inside of the `<body>`. That means we first have to get references to those `<div>`s, which means they should exist.
@@ -64,7 +64,7 @@ second_div.attribute_exists("something")
 
 The `ElementContainer` comes with a few checks relating to the amount of elements found.
 
-### at_least
+### `at_least`
 
 Check that a container has at least a certain amount of elements.
 
@@ -75,9 +75,9 @@ def at_least(amount: int) -> Check
 
 #### Parameters:
 
-| name | description | required | default |
+| Name | Description | Required? | Default |
 :------|:------------|:--------:|:--------|
-| amount | The minimum amount of elements allowed. | X | |
+| amount | The minimum amount of elements allowed. | ✔ | |
 
 ### Example usage:
 ```python
@@ -92,7 +92,7 @@ all_trs = table.get_children("tr")
 all_trs.at_least(4)
 ```
 
-### at_most
+### `at_most`
 
 Check that a container has at most a certain amount of elements.
 
@@ -103,9 +103,9 @@ def at_most(amount: int) -> Check
 
 #### Parameters:
 
-| name | description | required | default |
+| Name | Description | Required? | Default |
 :------|:------------|:--------:|:--------|
-| amount | The maximum amount of elements allowed. | X | |
+| `amount` | The maximum amount of elements allowed. | ✔ | |
 
 ### Example usage:
 ```python
@@ -119,7 +119,7 @@ all_divs = body.get_children("div")
 all_divs.at_most(5)
 ```
 
-### exactly
+### `exactly`
 
 Check that a container has exactly a certain amount of elements.
 
@@ -130,9 +130,9 @@ def exactly(amount: int) -> Check
 
 #### Parameters:
 
-| name | description | required | default |
+| Name | Description | Required? | Default |
 :------|:------------|:--------:|:--------|
-| amount | The exact amount of elements allowed. | X | |
+| `amount` | The exact amount of elements allowed. | ✔ | |
 
 ### Example usage:
 ```python

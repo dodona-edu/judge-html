@@ -9,7 +9,7 @@ This document lists and explains the built-in utility functions with examples. T
 - [at_least](#at_least)
 - [fail_if](#fail_if)
 
-## all_of
+## `all_of`
 
 The `all_of` function takes a list of `Check`s, and will only pass if all of these checks passed too. Once one check fails, all other checks in the list will no longer be evaluated.
 
@@ -33,7 +33,7 @@ table_element = body.get_child("table")
 all_of([body_element.exists(), table_element.exists()])
 ```
 
-## any_of
+## `any_of`
 
 The `any_of` function takes a list of checks, and will pass if at least one of these checks passes as well. Once one check passes, all other checks in the list will no longer evaluated.
 
@@ -57,7 +57,7 @@ body_element = suite.element("body")
 any_of([body_element.exists(), head_element.exists()])
 ```
 
-## at_least
+## `at_least`
 
 The `at_least` function takes two arguments: the first being the amount of checks required, and the second list of checks to evaluate. The function will pass once at least `amount` checks have passed, and further checks will no longer be evaluated.
 
@@ -82,7 +82,7 @@ div_element = body.get_child("div")  # Doesn't exist
 at_least(2, [head_element.exists(), body_element.exists(), div_element.exists()])
 ```
 
-## fail_if
+## `fail_if`
 
 The `fail_if` function takes a check, and will fail if the check passes. This is equivalent to the `NOT`-operator.
 

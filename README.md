@@ -113,8 +113,8 @@ If these settings are not defined, the default value is chosen.
 
 
 ## Contributors
-* S. De Clercq
-* Q. Vervynck
+* **S. De Clercq**
+* **Q. Vervynck**
 * T. Ramlot
 * B. Willems
 
