@@ -5,11 +5,11 @@ The `ElementContainer` is a container for `Elements` (...), and can be used as a
 The main purpose of `ElementContainers` is verification of a document's structure. If your solution wants to check if the second `<div>` contains something, and the student's submission only has one `<div>`, then this would cause an IndexError. When getting indexes that go out of bounds, the ElementContainer will return an empty element instead. Empty elements will make *checks* fail, and rightfully so because the element doesn't exist even though it should, but the suite itself won't crash.
 
 ## Methods
-- [get](#get)
+- [`get`](#get)
 - [Built-in Checks](#built-in-checks)
-    - [at_least](#at_least)
-    - [at_most](#at_most)
-    - [exactly](#exactly)
+  - [`at_least`](#at_least)
+  - [`at_most`](#at_most)
+  - [`exactly`](#exactly)
 
 ## `get`
 
@@ -24,9 +24,9 @@ def get(index: int) -> Element
 
 #### Parameters:
 
-| Name | Description | Required? | Default |
+| Name  | Description                                | Required? | Default |
 :------|:------------|:--------:|:--------|
-| index | The index at which to look for an element. | ✔ | |
+| index | The index at which to look for an element. |     ✔     |         |
 
 #### Example usage:
 Let's say we want to perform checks on two `<div>`s inside of the `<body>`. That means we first have to get references to those `<div>`s, which means they should exist.
@@ -75,9 +75,9 @@ def at_least(amount: int) -> Check
 
 #### Parameters:
 
-| Name | Description | Required? | Default |
+| Name   | Description                             | Required? | Default |
 :------|:------------|:--------:|:--------|
-| amount | The minimum amount of elements allowed. | ✔ | |
+| amount | The minimum amount of elements allowed. |     ✔     |         |
 
 ### Example usage:
 ```python
@@ -103,9 +103,9 @@ def at_most(amount: int) -> Check
 
 #### Parameters:
 
-| Name | Description | Required? | Default |
+| Name     | Description                             | Required? | Default |
 :------|:------------|:--------:|:--------|
-| `amount` | The maximum amount of elements allowed. | ✔ | |
+| `amount` | The maximum amount of elements allowed. |     ✔     |         |
 
 ### Example usage:
 ```python
@@ -130,9 +130,9 @@ def exactly(amount: int) -> Check
 
 #### Parameters:
 
-| Name | Description | Required? | Default |
+| Name     | Description                           | Required? | Default |
 :------|:------------|:--------:|:--------|
-| `amount` | The exact amount of elements allowed. | ✔ | |
+| `amount` | The exact amount of elements allowed. |     ✔     |         |
 
 ### Example usage:
 ```python

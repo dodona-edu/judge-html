@@ -9,5 +9,4 @@ item_1 = ChecklistItem("This is the first item.", check1)
 item_2 = ChecklistItem("This is the second item.", [check2, check3, ...])
 ```
 
-<img src="../media/checklistitems-dodona.png" alt="image: ChecklistItems visualized on Dodona.">
-
+![image: ChecklistItems visualized on Dodona.](../media/checklistitems-dodona.png)

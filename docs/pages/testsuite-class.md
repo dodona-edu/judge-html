@@ -4,20 +4,21 @@ A `TestSuite` contains a checklist of all checks that should be performed on the
 
 ## Table of Contents
 - [Attributes](#attributes)
-- [TestSuites on Dodona](#testsuites-on-dodona)
+- [`TestSuites` on Dodona](#testsuites-on-dodona)
 - [Referencing (specific) HTML elements](#referencing-specific-html-elements)
-- [Adding checks](#adding-items-to-the-checklist)
+- [Referencing multiple HTML elements](#referencing-multiple-html-elements)
+- [Adding items to the checklist](#adding-items-to-the-checklist)
 - [Built-in Checks](#built-in-checks)
-    - [validate_html](#validate_html)
-    - [document_matches](#document_matches)
+  - [`validate_html`](#validate_html)
+  - [`document_matches`](#document_matches)
 
 ## Attributes
 
-| Name | Description | Required? | Default |
+| Name                | Description                                                                                                                                                                                                                                                                                                                                 | Required? | Default |
 :------|:------------|:--------:|:--------|
-| `name` | The name of this `TestSuite`, used as the name of the Tab on Dodona (see [`TestSuites` on Dodona](#testsuites-on-dodona)) | ✔ | |
-| `content` | A string that contains the student's submission. This is passed as an argument into the `create_suites` method. | ✔ | |
-| `check_recommended` | <a id="check-recommended-image"/> A boolean that indicates if the student should see warnings about missing recommended attributes.<br /><br /><img src="../media/warnings-dodona.png" alt="image: warnings on Dodona."> These warnings do **not** cause their submission to be marked incorrect, and are purely informational.<br /><br /> | | `True` |
+| `name`              | The name of this `TestSuite`, used as the name of the Tab on Dodona (see [`TestSuites` on Dodona](#testsuites-on-dodona))                                                                                                                                                                                                                   |     ✔     |         |
+| `content`           | A string that contains the student's submission. This is passed as an argument into the `create_suites` method.                                                                                                                                                                                                                             |     ✔     |         |
+| `check_recommended` | <a id="check-recommended-image"/> A boolean that indicates if the student should see warnings about missing recommended attributes.<br /><br /><img src="../media/warnings-dodona.png" alt="image: warnings on Dodona."> These warnings do **not** cause their submission to be marked incorrect, and are purely informational.<br /><br /> |           | `True`  |
 
 ## `TestSuites` on Dodona
 
@@ -152,7 +153,7 @@ def validate_html(allow_warnings: bool = True) -> Check
 
 #### Parameters:
 
-| Name | Description | Required | Default |
+| Name             | Description                                                                                   | Required | Default |
 :------|:------------|:--------:|:--------|
 | `allow_warnings` | Boolean that indicates that the check should *not* be marked incorrect if any warnings arise. | ❌ | `True` |
 
@@ -175,10 +176,10 @@ def document_matches(regex: Pattern[AnyStr]) -> Check
 
 #### Parameters:
 
-| Name | Description | Required? | Default |
+| Name    | Description                                      | Required? | Default                              |
 :------|:------------|:--------:|:--------|
-| `regex` | The pattern to match the student's code against. | ✔ | |
-| `flags` | Extra `RegexFlag`s to use when comparing. | | 0, meaning no flags will be applied. |
+| `regex` | The pattern to match the student's code against. |     ✔     |                                      |
+| `flags` | Extra `RegexFlag`s to use when comparing.        |           | 0, meaning no flags will be applied. |
 
 #### Example usage:
 

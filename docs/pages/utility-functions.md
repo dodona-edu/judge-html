@@ -4,10 +4,10 @@ This document lists and explains the built-in utility functions with examples. T
 
 ## Table of Contents
 
-- [all_of](#all_of)
-- [any_of](#any_of)
-- [at_least](#at_least)
-- [fail_if](#fail_if)
+- [`all_of`](#all_of)
+- [`any_of`](#any_of)
+- [`at_least`](#at_least)
+- [`fail_if`](#fail_if)
 
 ## `all_of`
 

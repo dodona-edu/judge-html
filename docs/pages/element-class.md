@@ -5,23 +5,23 @@ The `Element` class contains a reference to an HTML element in the student's cod
 This class is **not** meant for you to instantiate manually, but instances are returned by the library instead.
 
 ## Table of Contents
-- [HTML-related Methods](#html-related-methods)
-  - [get_child](#get_child)
-  - [get_children](#get_children)
+- [HTML-related methods](#html-related-methods)
+  - [`get_child`](#get_child)
+  - [`get_children`](#get_children)
 - [Built-in Checks](#built-in-checks)
-  - [attribute_contains](#attribute_contains)
-  - [attribute_exists](#attribute_exists)
-  - [attribute_matches](#attribute_matches)
-  - [exists](#exists)
-  - [has_child](#has_child)
-  - [has_content](#has_content)
-  - [has_tag](#has_tag)
+  - [`attribute_contains`](#attribute_contains)
+  - [`attribute_exists`](#attribute_exists)
+  - [`attribute_matches`](#attribute_matches)
+  - [`exists`](#exists)
+  - [`has_child`](#has_child)
+  - [`has_content`](#has_content)
+  - [`has_tag`](#has_tag)
 
 ## HTML-related methods
 
 The following methods can be used to obtain references to extra HTML elements starting from another one.
 
-### get_child
+### `get_child`
 
 This method finds a child element with tag `tag`, optionally with extra filters.
 
@@ -32,11 +32,11 @@ def get_child(tag: str, index: int = 0, direct: bool = True, **kwargs) -> Elemen
 
 #### Parameters:
 
-| Name | Description | Required? | Default |
+| Name     | Description                                                                               | Required? | Default         |
 :------|:------------|:--------:|:--------|
-| `tag` | The tag to search for | ✔ | |
-| `index` | In case multiple children match your query, choose which match should be chosen. | | 0 (first match)|
-| `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements. | | `True` |
+| `tag`    | The tag to search for                                                                     |     ✔     |                 |
+| `index`  | In case multiple children match your query, choose which match should be chosen.          |           | 0 (first match) |
+| `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements. |           | `True`          |
 
 Extra `kwargs` can be passed to filter the results down even more. For example, to find the child with a given `id` use `get_child(tag, id="some_id")`.
 
@@ -61,10 +61,10 @@ def get_children(tag: Optional[str] = None, direct: bool = True, **kwargs) -> El
 
 #### Parameters:
 
-| Name | Description | Required? | Default |
+| Name   | Description                                                                               | Required? | Default                                                 |
 :------|:------------|:--------:|:--------|
-| tag | The tag to search for | | None, which will result in no tag-filter being applied.  |
-| direct | Boolean that indicates only *direct* children should be searched, so not nested elements. | | True |
+| tag    | The tag to search for                                                                     |           | None, which will result in no tag-filter being applied. |
+| direct | Boolean that indicates only *direct* children should be searched, so not nested elements. |           | True                                                    |
 
 Extra `kwargs` can be passed to filter the results down even more. For example, to find all children with a given `attribute` use `get_children(attribute="some_value")`.
 
@@ -92,11 +92,11 @@ def attribute_contains(attr: str, substr: str, case_insensitive: bool = False) -
 
 #### Parameters:
 
-| Name | Description | Required? | Default |
+| Name               | Description                                                          | Required? | Default |
 :------|:------------|:--------:|:--------|
-| `attribute` | The attribute to check for. | X | |
-| `substr` | The substring that should be in the attribute's value. | X | |
-| `case_insensitive` |Indicate that the casing of the value does not matter when checking. | | `False` |
+| `attribute`        | The attribute to check for.                                          |     X     |         |
+| `substr`           | The substring that should be in the attribute's value.               |     X     |         |
+| `case_insensitive` | Indicate that the casing of the value does not matter when checking. |           | `False` |
 
 #### Example usage:
 ```python
@@ -110,7 +110,7 @@ img_attributes = ChecklistItem("The image's src contains \"dodona\".", [
 ])
 ```
 
-### attribute_exists
+### `attribute_exists`
 
 Check that this element has a given attribute, optionally matching a specific value.
 
@@ -121,11 +121,11 @@ def attribute_exists(attr: str, value: Optional[str] = None, case_insensitive: b
 
 #### Parameters:
 
-| Name | Description | Required? | Default |
+| Name               | Description                                                          | Required? | Default                                                                                            |
 :------|:------------|:--------:|:--------|
-| `attribute` | The attribute to check for. | ✔ | |
-| `value` | The value to compare against. | | None, which will make any value pass. This means the check only makes sure the attribute *exists*. |
-| `case_insensitive` | Indicate that the casing of the value does not matter when checking. | | `False` |
+| `attribute`        | The attribute to check for.                                          |     ✔     |                                                                                                    |
+| `value`            | The value to compare against.                                        |           | None, which will make any value pass. This means the check only makes sure the attribute *exists*. |
+| `case_insensitive` | Indicate that the casing of the value does not matter when checking. |           | `False`                                                                                            |
 
 #### Example usage:
 ```python
@@ -152,11 +152,11 @@ def attribute_matches(attr: str, regex: Pattern[AnyStr], flags: Union[int, re.Re
 
 #### Parameters:
 
-| Name | Description | Required? | Default |
+| Name        | Description                                               | Required? | Default                              |
 :------|:------------|:--------:|:--------|
-| `attribute` | The attribute to check for. | ✔ | |
-| `regex` | The regex pattern to match the attribute's value against. | ✔ | |
-| `flags` | Extra `RegexFlag`s to use when comparing. | | 0, meaning no flags will be applied. |
+| `attribute` | The attribute to check for.                               |     ✔     |                                      |
+| `regex`     | The regex pattern to match the attribute's value against. |     ✔     |                                      |
+| `flags`     | Extra `RegexFlag`s to use when comparing.                 |           | 0, meaning no flags will be applied. |
 
 #### Example usage:
 
@@ -201,10 +201,10 @@ def has_child(tag: str, direct: bool = True, **kwargs) -> Check
 
 #### Parameters:
 
-| Name | Description | Required? | Default |
+| Name     | Description                                                                               | Required? | Default |
 :------|:------------|:--------:|:--------|
-| `tag` | The tag to search for. | ✔ | |
-| `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements. | | True |
+| `tag`    | The tag to search for.                                                                    |     ✔     |         |
+| `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements. |           | True    |
 
 Extra `kwargs` can be passed to filter the results down even more. For example, to check that an element has a child with a given `id` use `has_child(tag, id="some_id")`.
 
@@ -231,9 +231,9 @@ def has_content(text: Optional[str] = None) -> Check
 
 #### Parameters:
 
-| Name | Description | Required? | Default |
+| Name | Description                                   | Required? | Default                                                                             |
 :------|:------------|:--------:|:--------|
-| text | The text to compare the element's content to. | | None, which will make any content pass and just checks if the content is not empty. |
+| text | The text to compare the element's content to. |           | None, which will make any content pass and just checks if the content is not empty. |
 
 #### Example usage
 ```python
@@ -261,9 +261,9 @@ def has_tag(tag: str) -> Check
 ```
 #### Parameters:
 
-| Name | Description | Required? | Default |
+| Name | Description           | Required? | Default |
 :------|:------------|:--------:|:--------|
-| tag | The tag to check for. | ✔ | |
+| tag  | The tag to check for. |     ✔     |         |
 
 #### Example usage
 ```python
