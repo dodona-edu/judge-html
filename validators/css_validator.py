@@ -1,12 +1,8 @@
-from enum import Enum
-
 import tinycss2
 from bs4 import BeautifulSoup
 from bs4 import Tag
 from tinycss2.ast import *
-from lxml.etree import ElementBase
 from lxml.etree import fromstring, ElementBase
-# from lxml.html.soupparser import fromstring
 from cssselect import GenericTranslator, SelectorError
 
 """
@@ -66,10 +62,10 @@ class CssParsingError(Exception):
     pass
 
 
-def _get_xpath(qr: QualifiedRule) -> str:
+def _get_xpath(ls: []) -> str:
     try:
         # todo filter out pseudo-elements (like or ::after)
-        return GenericTranslator().css_to_xpath(tinycss2.serialize(qr.prelude))
+        return GenericTranslator().css_to_xpath(tinycss2.serialize(ls))
     except SelectorError as e:
         raise CssParsingError()
 
@@ -82,6 +78,7 @@ class Rule:
         self.name = content.name
         self.value = strip(content.value)
         self.important = content.important
+        print(self.important)
 
     def __repr__(self):
         return f"(Rule: {self.selector_str} | {self.name} {self.value} {'important' if self.important else ''})"
@@ -121,7 +118,7 @@ class Rules:
         # ignore pseudo-elements
         return a, b, c
 
-    def find(self, root: ElementBase, solution_element: ElementBase, key: str, value: str = "") -> [None, Rule]:
+    def find(self, root: ElementBase, solution_element: ElementBase, key: str) -> [None, Rule]:
         rs: [Rule] = []
         r: Rule
         # find all rules defined for the solution element for the specified key
@@ -130,7 +127,6 @@ class Rules:
                 for element in root.xpath(r.xpath):
                     if element == solution_element:
                         rs.append(r)
-
         # no rules found
         if not rs:
             return None
@@ -153,7 +149,7 @@ class Rules:
                 dom_rule = r
                 dom_specificity = r_specificity
 
-        return dom_rule
+        return tinycss2.serialize(dom_rule.value)
 
 
 def _parse_css(css_content: str) -> Rules:
@@ -181,11 +177,10 @@ def _parse_css(css_content: str) -> Rules:
         nrs = []
         for x in rules:
             if x.type == QualifiedRule.type:
-                xpath = _get_xpath(x)
                 selector = x.prelude
                 content = tinycss2.parse_declaration_list(x.content)
                 # flatten rules -> grouped selectors are seperated and then grouped rules are seperated
-                nrs += [Rule(xpath, s, c) for s in split_on_comma(selector) for c in content if
+                nrs += [Rule(_get_xpath(s), s, c) for s in split_on_comma(selector) for c in content if
                         c.type == Declaration.type]
             elif x.type == ParseError.type:
                 raise CssParsingError
@@ -195,7 +190,9 @@ def _parse_css(css_content: str) -> Rules:
 
 
 css = """
-p{color:red;}
+p:nth-child(odd) {
+  color: red;
+}
 """
 html = """<!DOCTYPE html>
 <html>
@@ -214,24 +211,15 @@ class AmbiguousXpath(Exception):
     pass
 
 
-class Matcher:
+class CssValidator:
     def __init__(self, html, css):
         self.root: ElementBase = fromstring(html)
         self.rules = _parse_css(css)
 
-    def find(self, element: Tag, key: str, value: str = ""):
+    def find(self, element: Tag, key: str):
         xpath_solution = xpath_soup(element)
         sols = self.root.xpath(xpath_solution)
         if not len(sols) == 1:
             raise AmbiguousXpath()
         solution_element = sols[0]
-        return self.rules.find(self.root, solution_element, key, value)
-
-
-print("------------------------------------")
-bs: BeautifulSoup = BeautifulSoup(html, "html.parser")
-m = Matcher(html, css)
-res = m.find(bs.find("p", attrs={"id": "para1"}), "color")  # yellow
-print(res)
-
-r = Rules([])
+        return self.rules.find(self.root, solution_element, key)
