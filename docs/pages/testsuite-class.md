@@ -171,7 +171,7 @@ Check that the student's submitted code matches a `regex string`.
 
 #### Signature:
 ```python
-def document_matches(regex: Pattern[AnyStr], flags: Union[int, re.RegexFlag] = 0) -> Check
+def document_matches(regex: str, flags: Union[int, re.RegexFlag] = 0) -> Check
 ```
 
 #### Parameters:
