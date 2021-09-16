@@ -1,4 +1,6 @@
 from html.parser import HTMLParser
+
+from dodona.translator import Translator
 from exceptions.html_exceptions import *
 from os import path
 from utils.file_loaders import json_loader, html_loader

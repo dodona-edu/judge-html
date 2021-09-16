@@ -129,7 +129,7 @@ class Element:
 
         return Element(tag, child.get("id", None), child)
 
-    def get_children(self, tag: str = "", direct: bool = True, **kwargs) -> "ElementContainer":
+    def get_children(self, tag: Optional[str] = None, direct: bool = True, **kwargs) -> "ElementContainer":
         """Get all children of this element that match the requested input"""
         # This element doesn't exist so it has no children
         if self._element is None:
@@ -137,7 +137,7 @@ class Element:
 
         # If a tag was specified, only search for those
         # Otherwise, use all children instead
-        if tag:
+        if tag is not None:
             matches = self._element.find_all(tag, recursive=not direct, **kwargs)
         else:
             matches = self._element.children if direct else self._element.descendants
@@ -526,7 +526,6 @@ class TestSuite:
     check_recommended: bool = True
     checklist: List[ChecklistItem] = field(default_factory=list)
     _bs: BeautifulSoup = field(init=False)
-    _root: Tag = field(init=False)
     _validator: HtmlValidator = field(init=False)
 
     def __post_init__(self):
@@ -568,15 +567,15 @@ class TestSuite:
 
         return Check(_inner)
 
-    def document_matches(self, regex: Pattern[AnyStr]) -> Check:
+    def document_matches(self, regex: Pattern[AnyStr], flags: Union[int, re.RegexFlag] = 0) -> Check:
         """Check that the document matches a regex"""
         def _inner(_: BeautifulSoup) -> bool:
-            return re.match(regex, self.content) is not None
+            return re.match(regex, self.content, flags) is not None
 
         return Check(_inner)
 
     # TODO allow path to be passed using html > body > ... notation instead of only tags
-    def element(self, tag: str, from_root=False, **kwargs) -> Element:
+    def element(self, tag: str, from_root: bool = False, **kwargs) -> Element:
         """Create a reference to an HTML element
         :param tag:         the name of the HTML tag to search for
         :param from_root:   find the element as a child of the root node instead of anywhere
@@ -586,7 +585,7 @@ class TestSuite:
         return Element(tag, kwargs.get("id", None), element)
 
     # TODO allow path to be passed using html > body > ... notation instead of only tags
-    def all_elements(self, tag: str, from_root=False, **kwargs) -> ElementContainer:
+    def all_elements(self, tag: str, from_root: bool = False, **kwargs) -> ElementContainer:
         """Get references to ALL HTML elements that match a query"""
         elements = self._bs.find_all(tag, recursive=not from_root, **kwargs)
         return ElementContainer.from_tags(elements)
