@@ -171,7 +171,7 @@ Check that the student's submitted code matches a `regex string`.
 
 #### Signature:
 ```python
-def document_matches(regex: Pattern[AnyStr]) -> Check
+def document_matches(regex: Pattern[AnyStr], flags: Union[int, re.RegexFlag] = 0) -> Check
 ```
 
 #### Parameters:
@@ -184,6 +184,8 @@ def document_matches(regex: Pattern[AnyStr]) -> Check
 #### Example usage:
 
 ```python
+import re
+
 suite = TestSuite("HTML", content)
 
 pattern = r".*<[^>]+/>.*"

@@ -147,7 +147,7 @@ Check if an attribute exists, and if its value matches a regular expression. If 
 
 #### Signature:
 ```python
-def attribute_matches(attr: str, regex: Pattern[AnyStr], flags: Union[int, re.RegexFlag] = 0) -> Check
+def attribute_matches(attr: str, regex: str, flags: Union[int, re.RegexFlag] = 0) -> Check
 ```
 
 #### Parameters:
@@ -168,8 +168,9 @@ body = suite.element("body")
 img_element = body.get_child("img")
 
 # Check if the src of the image starts with "https://", contains "dodona", and ends on ".png", case-insensitive.
+pattern = r"^https://.*dodona.*\.png$"
 img_attributes = ChecklistItem("The image has the correct attributes.", [
-  img_element.attribute_matches("src", "dodona", re.IGNORECASE),
+  img_element.attribute_matches("src", pattern, re.IGNORECASE),
 ])
 ```
 

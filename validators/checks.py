@@ -6,7 +6,7 @@ from bs4.element import Tag
 from copy import deepcopy
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Deque, List, Optional, Callable, Union, AnyStr, Pattern
+from typing import Deque, List, Optional, Callable, Union
 
 from dodona.dodona_command import Context, TestCase, Message, MessageFormat
 from dodona.dodona_config import DodonaConfig
@@ -259,7 +259,7 @@ class Element:
 
         return Check(_inner)
 
-    def attribute_matches(self, attr: str, regex: Pattern[AnyStr], flags: Union[int, re.RegexFlag] = 0) -> Check:
+    def attribute_matches(self, attr: str, regex: str, flags: Union[int, re.RegexFlag] = 0) -> Check:
         """Check that the value of an attribute matches a regex pattern"""
         def _inner(_: BeautifulSoup) -> bool:
             attribute = self._get_attribute(attr)
@@ -268,7 +268,7 @@ class Element:
             if attribute is None:
                 return False
 
-            return re.match(regex, attribute, flags) is not None
+            return re.search(regex, attribute, flags) is not None
 
         return Check(_inner)
 
@@ -567,10 +567,10 @@ class TestSuite:
 
         return Check(_inner)
 
-    def document_matches(self, regex: Pattern[AnyStr], flags: Union[int, re.RegexFlag] = 0) -> Check:
+    def document_matches(self, regex: str, flags: Union[int, re.RegexFlag] = 0) -> Check:
         """Check that the document matches a regex"""
         def _inner(_: BeautifulSoup) -> bool:
-            return re.match(regex, self.content, flags) is not None
+            return re.search(regex, self.content, flags) is not None
 
         return Check(_inner)
 
