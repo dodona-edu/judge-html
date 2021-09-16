@@ -25,7 +25,7 @@ def get(index: int) -> Element
 #### Parameters:
 
 | Name  | Description                                | Required? | Default |
-:------|:------------|:--------:|:--------|
+| :---- | :----------------------------------------- | :-------: | :------ |
 | index | The index at which to look for an element. |     ✔     |         |
 
 #### Example usage:
@@ -76,7 +76,7 @@ def at_least(amount: int) -> Check
 #### Parameters:
 
 | Name   | Description                             | Required? | Default |
-:------|:------------|:--------:|:--------|
+| :----- | :-------------------------------------- | :-------: | :------ |
 | amount | The minimum amount of elements allowed. |     ✔     |         |
 
 ### Example usage:
@@ -104,7 +104,7 @@ def at_most(amount: int) -> Check
 #### Parameters:
 
 | Name     | Description                             | Required? | Default |
-:------|:------------|:--------:|:--------|
+| :------- | :-------------------------------------- | :-------: | :------ |
 | `amount` | The maximum amount of elements allowed. |     ✔     |         |
 
 ### Example usage:
@@ -131,7 +131,7 @@ def exactly(amount: int) -> Check
 #### Parameters:
 
 | Name     | Description                           | Required? | Default |
-:------|:------------|:--------:|:--------|
+| :------- | :------------------------------------ | :-------: | :------ |
 | `amount` | The exact amount of elements allowed. |     ✔     |         |
 
 ### Example usage:
