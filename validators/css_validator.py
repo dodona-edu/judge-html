@@ -84,6 +84,31 @@ class Rule:
         return f"(Rule: {self.selector_str} | {self.name} {self.value} {'important' if self.important else ''})"
 
 
+def calc_specifity(r: Rule):  # see https://specificity.keegan.st/
+    # count selectors: ID
+    a = len([x for x in r.selector if x.type == HashToken.type])
+    # count selectors: CLASSES & PSEUDO-CLASSES & ATTRIBUTES
+    b = 0
+    prev = ""
+    for x in r.selector_str:
+        if x == "." or x == "[":
+            b += 1
+        elif x == ":" and prev != ":":
+            b += 1
+        prev = x
+    # count selectors: ELEMENTS PSEUDO-ELEMENTS
+    c = 0
+    prev = ""
+    for x in r.selector_str:
+        if x.isalpha() and prev not in ".[:=\"'":
+            c += 1
+        elif x == ":" and prev == ":":
+            c += 1
+        prev = x
+    # ignore pseudo-elements
+    return a, b, c
+
+
 class Rules:
     def __init__(self, rules: [Rule]):
         self.rules = rules
@@ -93,30 +118,6 @@ class Rules:
 
     def __len__(self):
         return len(self.rules)
-
-    def calc_specifity(self, r: Rule):
-        # count selectors: ID
-        a = len([x for x in r.selector if x.type == HashToken.type])
-        # count selectors: CLASSES & PSEUDO-CLASSES & ATTRIBUTES
-        b = 0
-        prev = ""
-        for x in r.selector_str:
-            if x == "." or x == "[":
-                b += 1
-            elif x == ":" and prev != ":":
-                b += 1
-            prev = x
-        # count selectors: ELEMENTS PSEUDO-ELEMENTS
-        c = 0
-        prev = ""
-        for x in r.selector_str:
-            if x.isalpha() and prev not in ".[:=\"'":
-                c += 1
-            elif x == ":" and prev == ":":
-                c += 1
-            prev = x
-        # ignore pseudo-elements
-        return a, b, c
 
     def find(self, root: ElementBase, solution_element: ElementBase, key: str) -> [None, Rule]:
         rs: [Rule] = []
@@ -136,12 +137,12 @@ class Rules:
         if imp:
             rs = imp
 
-        # get the most specific rule or the one that was defined the latest
+        # get the most specific rule or the one that was defined the latest if multiple with the same specificity
         dom_rule = rs.pop()  # the dominating rule
-        dom_specificity = self.calc_specifity(dom_rule)
+        dom_specificity = calc_specifity(dom_rule)
         while rs:
             r = rs.pop()
-            r_specificity = self.calc_specifity(r)
+            r_specificity = calc_specifity(r)
             # if   less  than: r is overruled by dom_rule because dom_rule has a higher specificity
             # if  equal  than: r is overruled by dom_rule because dom_rule was defined after r
             # if greater than: r overrules dom_rules because of higher specificity
@@ -187,24 +188,6 @@ def _parse_css(css_content: str) -> Rules:
         return nrs
 
     return Rules(to_rules(tinycss2.parse_stylesheet(css_content, skip_whitespace=True)))
-
-
-css = """
-p:nth-child(odd) {
-  color: red;
-}
-"""
-html = """<!DOCTYPE html>
-<html>
-<body>
-
-<p id="nav">Every paragraph will be affected by the style.</p>
-<p id="para1">Me too!</p>
-<p>And me!</p>
-
-</body>
-</html>
-"""
 
 
 class AmbiguousXpath(Exception):
