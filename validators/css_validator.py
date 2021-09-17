@@ -1,5 +1,6 @@
 import tinycss2
-from bs4 import Tag, BeautifulSoup
+from bs4 import BeautifulSoup
+from bs4.element import Tag
 from tinycss2.ast import *
 from lxml.etree import fromstring, ElementBase
 from cssselect import GenericTranslator, SelectorError
