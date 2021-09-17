@@ -1,14 +1,13 @@
 import unittest
-
 from bs4 import BeautifulSoup
 
 from validators.css_validator import CssValidator
 
 css = """
-.test_important {color:green!important;}
-.test_important {color:red;}
-* {color:red}
-.test_order {color:red}
+.test_important {color:green!important;margin:2px!important;}
+.test_important {color:red;margin:3px}
+* {color:red;margin:3px}
+.test_order {color:red;margin:3px}
 
  .test_classname,
  .test_multiple_classname.test_multiple_classname2,
@@ -31,7 +30,7 @@ css = """
   div[test_element_with_attribute_contains_substring_value*=value],
   .test_most_precise,
   .test_order
-  {color: green;}
+  {color: green;margin:2px;}
 
 """
 
@@ -110,21 +109,12 @@ html = """<!DOCTYPE html>
 </html>
 """
 
-CORRECT = "green"
-
 
 class TestHtmlValidator(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.validator = CssValidator(html, css)
         self.bs: BeautifulSoup = BeautifulSoup(html, "html.parser")
-
-    def get_sol(self, classnames: str):
-        return self.bs.find("div", attrs={"class": classnames})
-
-    def green_test(self, classnames: str):
-        sol_el = self.get_sol(classnames)
-        self.assertEqual(CORRECT, self.validator.find(sol_el, "color"), classnames)
 
     def test_green_tests(self):
         test_classes = [
@@ -152,5 +142,27 @@ class TestHtmlValidator(unittest.TestCase):
             "test_order",
             "test_important"
         ]
-        for green_class in test_classes:
-            self.green_test(green_class)
+
+        for _ in range(125):
+            for green_class in test_classes:
+                sol_el = self.bs.find("div", attrs={"class": green_class})
+                self.assertEqual("green", self.validator.find(sol_el, "color"), green_class)
+        for _ in range(125):
+            for green_class in test_classes:
+                sol_el = self.bs.find("div", attrs={"class": green_class})
+                self.assertEqual("2px", self.validator.find(sol_el, "margin"), green_class)
+
+
+
+"""
+timings:
+ORIGINAL (250)
+9.9
+9.8
+9.75
+10.2
+10.3
+
+IMPROVED
+
+"""
