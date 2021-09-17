@@ -112,7 +112,7 @@ class Rules:
         self.rules: [] = []
         self.map: {} = {}
 
-        def split_on_comma(prelude: [], start=0) -> [[]]:
+        def split_on_comma(prelude: [], start: int = 0) -> [[]]:
             """splits a list on LiteralToken with a value of a comma"""
             ps = []
             index = start
@@ -202,14 +202,14 @@ class CssValidator:
         self.rules.root = self.root
         self.xpaths = {}
 
-    def get_xpath_soup(self, element) -> str:
+    def get_xpath_soup(self, element: Tag) -> str:
         # memorization of the xpath_soup method
         if id(element) not in self.xpaths:
             self.xpaths.update({id(element): self._get_xpath_soup(element)})
         return self.xpaths[id(element)]
 
     # 6250 -> 50 calls
-    def _get_xpath_soup(self, element) -> str:
+    def _get_xpath_soup(self, element: Tag) -> str:
         """converts an element from bs4 soup to an xpath expression"""
         components = []
         child = element if element.name else element.parent
