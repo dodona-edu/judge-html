@@ -2,7 +2,8 @@ import tinycss2
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 from tinycss2.ast import *
-from lxml.etree import fromstring, ElementBase
+from lxml.html import fromstring
+from lxml.etree import ElementBase
 from cssselect import GenericTranslator, SelectorError
 from typing import Optional
 
@@ -143,6 +144,8 @@ class Rules:
     def __len__(self):
         return len(self.rules)
 
+    # TODO ask if this is an incorrect typehint and if the rule can somehow be returned instead
+    # of doing serialize() at the end, to access the !important property
     def find(self, root: ElementBase, solution_element: ElementBase, key: str) -> Optional[Rule]:
         """find the css rule for key (ex: color) for the solution_element,
             root is the root of the html-document (etree)"""

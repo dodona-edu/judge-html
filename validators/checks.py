@@ -604,7 +604,7 @@ class TestSuite:
 
     def __post_init__(self):
         self._bs = BeautifulSoup(self.content, "html.parser")
-        self._validated = False
+        self._html_validated = False
 
         try:
             self._css_validator = CssValidator(self.content)
