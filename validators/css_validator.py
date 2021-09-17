@@ -40,7 +40,7 @@ USAGE:
 """
 
 
-def strip(ls: []):
+def strip(ls: []) -> []:
     """strips leading & trailing whitespace tokens"""
     while ls and ls[0].type == WhitespaceToken.type:
         ls.pop(0)
@@ -78,7 +78,7 @@ class Rule:
         return f"(Rule: {self.selector_str} | {self.name} {self.value} {'important' if self.important else ''})"
 
 
-def calc_specificity(selector_str: str):  # see https://specificity.keegan.st/
+def calc_specificity(selector_str: str) -> (int, int, int):  # see https://specificity.keegan.st/
     # count selectors: ID
     a = selector_str.count("#")
     # count selectors: CLASSES & PSEUDO-CLASSES & ATTRIBUTES
@@ -202,14 +202,14 @@ class CssValidator:
         self.rules.root = self.root
         self.xpaths = {}
 
-    def get_xpath_soup(self, element):
+    def get_xpath_soup(self, element) -> str:
         # memorization of the xpath_soup method
         if id(element) not in self.xpaths:
             self.xpaths.update({id(element): self._get_xpath_soup(element)})
         return self.xpaths[id(element)]
 
     # 6250 -> 50 calls
-    def _get_xpath_soup(self, element):
+    def _get_xpath_soup(self, element) -> str:
         """converts an element from bs4 soup to an xpath expression"""
         components = []
         child = element if element.name else element.parent
