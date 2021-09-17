@@ -3,41 +3,9 @@ from bs4 import BeautifulSoup
 
 from validators.css_validator import CssValidator
 
-css = """
-.test_important {color:green!important;margin:2px!important;}
-.test_important {color:red;margin:3px}
-* {color:red;margin:3px}
-.test_order {color:red;margin:3px}
-
- .test_classname,
- .test_multiple_classname.test_multiple_classname2,
- .test_class_descendant2 .test_class_descendant,
-  #test_id,
-  .test_select_all *,
-  .test_element div,
-  div.test_element_with_classname,
-  .test_element_comma_element,
-  .test_element_space_element2 div div,
-  .test_element_gt_element_ div>div,
-  .test_element_plus_element_ div+div,
-  .test_element_tilde_element_ div~div,
-  [test_attribute],
-  [test_attribute_equals_value=value],
-  [test_attribute_contains_value~=value],
-  [test_attribute_equals_or_startswith_value_1|=value],
-  div[test_element_with_attribute_startswith_value^=value],
-  div[test_element_with_attribute_endswith_value$=value],
-  div[test_element_with_attribute_contains_substring_value*=value],
-  .test_most_precise,
-  .test_order
-  {color: green;margin:2px;}
-
-"""
-
 html = """<!DOCTYPE html>
 <html lang="en">
 <head>
-<<<<<<< HEAD
     <style>
         .test_important {color:green!important;margin:2px!important;}
 .test_important {color:red;margin:3px}
@@ -67,12 +35,8 @@ html = """<!DOCTYPE html>
   .test_order
   {color: green;margin:2px;}
 
-    </style>
-=======
-<style>
 
 </style>
->>>>>>> prepend css-selectors with id of the div that the html was wrapped in
 </head>
 <body>
 
@@ -152,7 +116,7 @@ class TestHtmlValidator(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bs: BeautifulSoup = BeautifulSoup(html, "html.parser")
-        self.validator = CssValidator(self.bs)
+        self.validator = CssValidator(html)
 
     def test_green_tests(self):
         test_classes = [
@@ -193,17 +157,3 @@ class TestHtmlValidator(unittest.TestCase):
             for green_class in test_classes:
                 sol_el = self.bs.find("div", attrs={"class": green_class})
                 self.assertEqual("2px", self.validator.find(sol_el, "margin"), green_class)
-
-
-"""
-timings:
-ORIGINAL (250)
-9.9
-9.8
-9.75
-10.2
-10.3
-
-IMPROVED
-
-"""

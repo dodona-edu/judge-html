@@ -169,11 +169,15 @@ class AmbiguousXpath(Exception):
 
 
 class CssValidator:
-    def __init__(self, document: BeautifulSoup):
-        html = str(document)
-        css = document.find("style").contents[0]
-
+    def __init__(self, html: str):
         self.root: ElementBase = fromstring(html)
+
+        try:
+            style: ElementBase = self.root.find(".//style")
+            css = style.text
+        except Exception:
+            css = ""
+
         self.rules = Rules(css)
         self.rules.root = self.root
         self.xpaths = {}
@@ -200,7 +204,7 @@ class CssValidator:
         components.reverse()
         return '/%s' % '/'.join(components)
 
-    def find(self, element: Tag, key: str):
+    def find(self, element: Tag, key: str) -> Optional[Rule]:
         xpath_solution = self.get_xpath_soup(element)
         sols = self.root.xpath(xpath_solution)
         if not len(sols) == 1:
