@@ -131,7 +131,7 @@ class Rules:
     def __len__(self):
         return len(self.rules)
 
-    def find(self, root: ElementBase, solution_element: ElementBase, key: str) -> [None, Rule]:
+    def find(self, root: ElementBase, solution_element: ElementBase, key: str) -> Optional[Rule]:
         rs: [Rule] = []
         imp: [Rule] = []
         r: Rule
