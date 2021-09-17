@@ -112,7 +112,7 @@ html = """<!DOCTYPE html>
 """
 
 
-class TestHtmlValidator(unittest.TestCase):
+class TestCssValidator(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bs: BeautifulSoup = BeautifulSoup(html, "html.parser")

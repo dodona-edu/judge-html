@@ -1,9 +1,13 @@
 import bs4
-import tinycss2
 from validators.css_validator import Rules, Rule
 
 
 def prep_render(html_content: str) -> str:
+    """prepares the html for randering:
+        a body and a style tag must be present, if not returns the input html
+        if both are present:
+        * wraps the contents of body in a div with id='solution_rendering'
+        * prepends '#solution_rendering ' to every css rule, so that every rule applies to descendants of the div"""
     try:
         soup = bs4.BeautifulSoup(html_content, "html.parser")
 
