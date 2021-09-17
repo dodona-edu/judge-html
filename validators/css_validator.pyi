@@ -51,7 +51,7 @@ class AmbiguousXpath(Exception):
 
 
 class CssValidator:
-    root: ElementBase
+    root: Optional[ElementBase]
     rules: Rules
     xpaths: {}
 

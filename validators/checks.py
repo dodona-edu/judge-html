@@ -594,10 +594,12 @@ class TestSuite:
     _bs: BeautifulSoup = field(init=False)
     _html_validator: HtmlValidator = field(init=False)
     _css_validator: CssValidator = field(init=False)
+    _validated: bool = field(init=False)
 
     def __post_init__(self):
         self._bs = BeautifulSoup(self.content, "html.parser")
         self._css_validator = CssValidator(self.content)
+        self._validated = False
 
     def create_validator(self, config: DodonaConfig):
         """Create the HTML validator from outside the Suite
@@ -605,6 +607,12 @@ class TestSuite:
         avoid passing extra arguments into the constructor as much as we can.
         """
         self._html_validator = HtmlValidator(config.translator, recommended=self.check_recommended)
+
+    def was_validated(self) -> bool:
+        """Return whether or not the HTML has been validated
+        Avoids private property access
+        """
+        return self._validated
 
     def add_check(self, check: ChecklistItem):
         """Add an item to the checklist
@@ -625,12 +633,14 @@ class TestSuite:
                 self._html_validator.validate_content(self.content)
             except Warnings as war:
                 with Message(description=str(war), format=MessageFormat.CODE):
+                    self._validated = allow_warnings
                     return allow_warnings
             except (HtmlValidationError, DelayedExceptions) as err:
                 with Message(description=str(err), format=MessageFormat.CODE):
                     return False
 
             # If no validation errors were raised, the HTML is valid
+            self._validated = True
             return True
 
         return Check(_inner)
