@@ -14,3 +14,4 @@ Note that examples in these files often leave some repetitive information out be
 - [ElementContainer Class](pages/elementcontainer-class.md)
 - [Utility Functions](pages/utility-functions.md)
 - [Writing custom Checks](pages/custom-checks.md)
+- [Rendering HTML and CSS on Dodona](pages/rendering-on-dodona.md)
