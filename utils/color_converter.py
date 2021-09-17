@@ -2,6 +2,15 @@
 elements formatted: colors[colorname] = CONSTANT"""
 from collections import namedtuple, OrderedDict
 
+"""
+from util.color_converter import colors, RGB
+
+>>> colors['aliceblue'].hex_format()
+#F0F8FF
+
+"""
+
+
 Color = namedtuple('RGB', 'red, green, blue')
 colors = {}  # dict of colors
 
