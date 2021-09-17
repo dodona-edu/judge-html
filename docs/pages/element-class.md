@@ -16,6 +16,7 @@ This class is **not** meant for you to instantiate manually, but instances are r
   - [`has_child`](#has_child)
   - [`has_content`](#has_content)
   - [`has_tag`](#has_tag)
+  - [`url_has_fragment`](#url_has_fragment)
 
 ## HTML-related methods
 
@@ -33,7 +34,7 @@ def get_child(tag: str, index: int = 0, direct: bool = True, **kwargs) -> Elemen
 #### Parameters:
 
 | Name     | Description                                                                                                                                           | Required? | Default         |
-:------|:------------|:--------:|:--------|
+:----------|:------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:----------------|
 | `tag`    | The tag to search for                                                                                                                                 |     ✔     |                 |
 | `index`  | In case multiple children match your query, choose which match should be chosen. If the index goes out of range, the first match is returned instead. |           | 0 (first match) |
 | `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements.                                                             |           | `True`          |
@@ -252,6 +253,34 @@ paragraphs_exist = ChecklistItem("The body has two paragraphs that meet the requ
 ])
 ```
 
+### `has_styling`
+
+Check that this element is matched by a CSS selector to give it a particular styling. A value can be passed to match the value of the styling exactly.
+
+#### Signature:
+```python
+def has_styling(self, attr: str, value: Optional[str] = None) -> Check
+```
+#### Parameters:
+
+| Name      | Description                                | Required? | Default                                                                                       |
+|:----------|:-------------------------------------------|:---------:|:----------------------------------------------------------------------------------------------|
+| attr      | The name of the CSS attribute to look for. |     ✔     |                                                                                               |
+| value     | A value to match the attribute against.    |           | None, which will make any value pass and only checks if the element has this style attribute. |
+
+#### Example usage
+```python
+suite = TestSuite("HTML", content)
+body = suite.element("body")
+div_tag = body.get_child("div")
+
+# Check that the div has any background colour at all
+div_tag.has_styling("background-color")
+
+# Check that the div has a horizontal margin of exactly 3px
+div_tag.has_styling("margin", "3px")
+```
+
 ### `has_tag`
 
 Check that this element has the required tag.
@@ -262,8 +291,8 @@ def has_tag(tag: str) -> Check
 ```
 #### Parameters:
 
-| Name | Description | Required? | Default |
-|:-----|:------------|:---------:|:--------|
+| Name | Description           | Required? | Default |
+|:-----|:----------------------|:---------:|:--------|
 | tag  | The tag to check for. |     ✔     |         |
 
 #### Example usage
@@ -278,4 +307,30 @@ body_structure = ChecklistItem("The body has a table followed by a div.", [
   body_children[0].has_tag("table"),
   body_children[1].has_tag("div")
 ])
+```
+
+### `url_has_fragment`
+
+Check that this element has a url with a fragment (`#`), optionally comparing the fragment to a `string` that it should match exactly.
+
+In case the element is not an `<a>`-tag or does not have an `href` attribute, this will also return `False`. 
+
+#### Signature:
+```python
+def url_has_fragment(fragment: Optional[str] = None) -> Check
+```
+#### Parameters:
+
+| Name      | Description                                     | Required? | Default                                           |
+|:----------|:------------------------------------------------|:---------:|:--------------------------------------------------|
+| fragment  | An optional fragment that should match exactly. |           | None, which will make any non-empty fragment pass.|
+
+#### Example usage
+```python
+suite = TestSuite("HTML", content)
+body = suite.element("body")
+# href=True means the child should have an href attribute, no matter the value
+a_tag = body.get_child("a", href=True)
+
+a_tag.url_has_fragment()
 ```

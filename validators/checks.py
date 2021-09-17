@@ -13,7 +13,7 @@ from dodona.dodona_command import Context, TestCase, Message, MessageFormat
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from validators.html_validator import HtmlValidator
-from validators.css_validator import CssValidator
+from validators.css_validator import CssValidator, CssParsingError
 from exceptions.utils import DelayedExceptions
 from exceptions.html_exceptions import Warnings, HtmlValidationError
 from exceptions.utils import EvaluationAborted
@@ -594,12 +594,18 @@ class TestSuite:
     _bs: BeautifulSoup = field(init=False)
     _html_validator: HtmlValidator = field(init=False)
     _css_validator: CssValidator = field(init=False)
-    _validated: bool = field(init=False)
+    _html_validated: bool = field(init=False)
+    _css_validated: bool = field(init=False)
 
     def __post_init__(self):
         self._bs = BeautifulSoup(self.content, "html.parser")
-        self._css_validator = CssValidator(self.content)
         self._validated = False
+
+        try:
+            self._css_validator = CssValidator(self.content)
+            self._css_validated = True
+        except CssParsingError:
+            self._css_validated = False
 
     def create_validator(self, config: DodonaConfig):
         """Create the HTML validator from outside the Suite
@@ -608,11 +614,17 @@ class TestSuite:
         """
         self._html_validator = HtmlValidator(config.translator, recommended=self.check_recommended)
 
-    def was_validated(self) -> bool:
+    def html_is_valid(self) -> bool:
         """Return whether or not the HTML has been validated
         Avoids private property access
         """
-        return self._validated
+        return self._html_validated
+
+    def css_is_valid(self) -> bool:
+        """Return if the CSS was valid
+        Avoids private property access
+        """
+        return self._css_validated
 
     def add_check(self, check: ChecklistItem):
         """Add an item to the checklist
@@ -633,15 +645,22 @@ class TestSuite:
                 self._html_validator.validate_content(self.content)
             except Warnings as war:
                 with Message(description=str(war), format=MessageFormat.CODE):
-                    self._validated = allow_warnings
+                    self._html_validated = allow_warnings
                     return allow_warnings
             except (HtmlValidationError, DelayedExceptions) as err:
                 with Message(description=str(err), format=MessageFormat.CODE):
                     return False
 
             # If no validation errors were raised, the HTML is valid
-            self._validated = True
+            self._html_validated = True
             return True
+
+        return Check(_inner)
+
+    def validate_css(self) -> Check:
+        """Check that CSS was valid"""
+        def _inner(_: BeautifulSoup) -> bool:
+            return self._css_validated
 
         return Check(_inner)
 

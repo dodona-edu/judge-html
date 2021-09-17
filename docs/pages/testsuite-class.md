@@ -9,6 +9,7 @@ A `TestSuite` contains a checklist of all checks that should be performed on the
 - [Referencing multiple HTML elements](#referencing-multiple-html-elements)
 - [Adding items to the checklist](#adding-items-to-the-checklist)
 - [Built-in Checks](#built-in-checks)
+  - [`validate_css`](#validate_css)
   - [`validate_html`](#validate_html)
   - [`document_matches`](#document_matches)
 
@@ -142,6 +143,21 @@ suite.add_check(second_item)
 
 The `TestSuite` class comes with a few Checks that you can use, and they are documented below. More Checks can be found in different classes.
 
+### `validate_css`
+
+Check that the code between the `<style>`-tag of the submission is valid CSS. If no style tag is present, this Check will also pass.
+
+#### Signature:
+```python
+def validate_css() -> Check
+```
+
+#### Example usage:
+```python
+suite = TestSuite("CSS", content)
+css_valid = ChecklistItem("The CSS is valid.", suite.validate_css())
+```
+
 ### `validate_html`
 
 Check that the student's submitted code is valid HTML without syntax errors. The errors will not be reported to the student as to not reveal the answer.
@@ -162,7 +178,7 @@ In case the `check_recommended` attribute for this class is `True` (default), th
 #### Example usage:
 ```python
 suite = TestSuite("HTML", content)
-self_closing = ChecklistItem("The HTML is valid.", suite.validate_html())
+html_valid = ChecklistItem("The HTML is valid.", suite.validate_html())
 ```
 
 ### `document_matches`
@@ -189,5 +205,5 @@ import re
 suite = TestSuite("HTML", content)
 
 pattern = r".*<[^>]+/>.*"
-valid_html = ChecklistItem("The document contains at least one self-closing tag.", suite.document_matches(pattern))
+self_closing = ChecklistItem("The document contains at least one self-closing tag.", suite.document_matches(pattern))
 ```
