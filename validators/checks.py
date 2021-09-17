@@ -597,7 +597,7 @@ class TestSuite:
 
     def __post_init__(self):
         self._bs = BeautifulSoup(self.content, "html.parser")
-        self._css_validator = CssValidator(self._bs)
+        self._css_validator = CssValidator(self.content)
 
     def create_validator(self, config: DodonaConfig):
         """Create the HTML validator from outside the Suite
