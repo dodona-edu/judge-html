@@ -25,7 +25,7 @@ def prep_render(html_content: str) -> str:
 
         new_style = ""
         for r in rs.rules:
-            new_style += f"{r.selector_str}" + "{" + f"{r.name}:{tinycss2.serialize(r.value)}{'!important' if r.important else ''}" + ";}\n   "
+            new_style += f"{r.selector_str}" + "{" + f"{r.name}:{r.value_str}{'!important' if r.important else ''}" + ";}\n   "
 
         style.string = new_style
 
