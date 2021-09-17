@@ -12,6 +12,7 @@ from dodona.dodona_command import Context, TestCase, Message, MessageFormat
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from validators.html_validator import HtmlValidator
+from validators.css_validator import CssValidator
 from exceptions.utils import DelayedExceptions
 from exceptions.html_exceptions import Warnings, HtmlValidationError
 from exceptions.utils import EvaluationAborted
@@ -96,6 +97,7 @@ class Element:
 
         return f"<{self.tag}>"
 
+    # HTML utilities
     def get_child(self, tag: str, index: int = 0, direct: bool = True, **kwargs) -> "Element":
         """Find the child element with the given tag
 
@@ -147,6 +149,7 @@ class Element:
 
         return ElementContainer.from_tags(matches)
 
+    # HTML checks
     def exists(self) -> Check:
         """Check that this element was found"""
 
@@ -361,6 +364,21 @@ class Element:
                     return False
 
             return True
+
+        return Check(_inner)
+
+    # CSS checks
+    def has_styling(self, attr: str, value: Optional[str]) -> Check:
+        """Check that this element has a CSS attribute
+        :param attr:    the required CSS attribute to check
+        :param value:   an optional value to add that must be checked against,
+                        in case nothing is supplied any value will pass
+        """
+        def _inner(_: BeautifulSoup) -> bool:
+            if self._element is None:
+                return False
+
+            validator = CssValidator()
 
         return Check(_inner)
 
