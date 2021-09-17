@@ -30,10 +30,17 @@ Example: compare #nav ul li a:hover to #nav ul li.active a::after
 count the number of id selectors: there is one for each (#nav)
 count the number of class selectors: there is one for each (:hover and .active)
 count the number of element selectors: there are 3 (ul li a) for the first and 4 for the second (ul li a ::after), thus the second combined selector is more specific.
+
+USAGE:
+>>> validator = CssValidator(html_content)
+>>> import bs4
+>>> element = BeautifulSoup(html_content, "html.parser").find("div", attrs={"id":"div_you_want_to_query_on"})
+>>> validator.find(element, "color")  # will return None if no rules for "color" are defined for that element
+"green"
 """
 
 
-def strip(ls: []):
+def strip(ls: []) -> []:
     """strips leading & trailing whitespace tokens"""
     while ls and ls[0].type == WhitespaceToken.type:
         ls.pop(0)
@@ -47,6 +54,7 @@ class CssParsingError(Exception):
 
 
 def _get_xpath(selector: str) -> str:
+    """converts a css selector string to an xpath string"""
     try:
         # todo filter out pseudo-elements (like or ::after)
         return GenericTranslator().css_to_xpath(selector)
@@ -55,6 +63,7 @@ def _get_xpath(selector: str) -> str:
 
 
 class Rule:
+    """represents a single css rule"""
     def __init__(self, selector: [], content: Declaration):
         self.selector = strip(selector)
         self.selector_str = tinycss2.serialize(self.selector)
@@ -69,7 +78,7 @@ class Rule:
         return f"(Rule: {self.selector_str} | {self.name} {self.value} {'important' if self.important else ''})"
 
 
-def calc_specificity(selector_str: str):  # see https://specificity.keegan.st/
+def calc_specificity(selector_str: str) -> (int, int, int):  # see https://specificity.keegan.st/
     # count selectors: ID
     a = selector_str.count("#")
     # count selectors: CLASSES & PSEUDO-CLASSES & ATTRIBUTES
@@ -95,14 +104,15 @@ def calc_specificity(selector_str: str):  # see https://specificity.keegan.st/
 
 
 class Rules:
+    """represents a set of css rules"""
     root: ElementBase
 
     def __init__(self, css_content: str):
-        """parses css to Rules"""
+        """parses css to individual Rules"""
         self.rules: [] = []
         self.map: {} = {}
 
-        def split_on_comma(prelude: [], start=0) -> [[]]:
+        def split_on_comma(prelude: [], start: int = 0) -> [[]]:
             """splits a list on LiteralToken with a value of a comma"""
             ps = []
             index = start
@@ -133,6 +143,8 @@ class Rules:
         return len(self.rules)
 
     def find(self, root: ElementBase, solution_element: ElementBase, key: str) -> Optional[Rule]:
+        """find the css rule for key (ex: color) for the solution_element,
+            root is the root of the html-document (etree)"""
         rs: [Rule] = []
         imp: [Rule] = []
         r: Rule
@@ -169,23 +181,36 @@ class AmbiguousXpath(Exception):
 
 
 class CssValidator:
-    def __init__(self, document: BeautifulSoup):
-        html = str(document)
-        css = document.find("style").contents[0]
-
+    """interface for using the classes / functions defined above
+    USAGE (html_content is a string containing the html itself):
+>>> validator = CssValidator(html_content)
+>>> import bs4
+>>> element = BeautifulSoup(html_content, "html.parser").find("div", attrs={"id":"div_you_want_to_query_on"})
+>>> validator.find(element, "color")  # will return None if no rules for "color" are defined for that element
+"green"
+    """
+    def __init__(self, html: str):
         self.root: ElementBase = fromstring(html)
+
+        try:
+            style: ElementBase = self.root.find(".//style")
+            css = style.text
+        except Exception:
+            css = ""
+
         self.rules = Rules(css)
         self.rules.root = self.root
         self.xpaths = {}
 
-    def get_xpath_soup(self, element):
+    def get_xpath_soup(self, element: Tag) -> str:
         # memorization of the xpath_soup method
         if id(element) not in self.xpaths:
             self.xpaths.update({id(element): self._get_xpath_soup(element)})
         return self.xpaths[id(element)]
 
     # 6250 -> 50 calls
-    def _get_xpath_soup(self, element):
+    def _get_xpath_soup(self, element: Tag) -> str:
+        """converts an element from bs4 soup to an xpath expression"""
         components = []
         child = element if element.name else element.parent
         for parent in child.parents:
@@ -200,7 +225,9 @@ class CssValidator:
         components.reverse()
         return '/%s' % '/'.join(components)
 
-    def find(self, element: Tag, key: str):
+    def find(self, element: Tag, key: str) -> Optional[Rule]:
+        """find the css rule for key (ex: color) for the solution_element
+        the element should be a BeautifulSoup Tag"""
         xpath_solution = self.get_xpath_soup(element)
         sols = self.root.xpath(xpath_solution)
         if not len(sols) == 1:
