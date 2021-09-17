@@ -37,6 +37,7 @@ css = """
 html = """<!DOCTYPE html>
 <html lang="en">
 <head>
+<<<<<<< HEAD
     <style>
         .test_important {color:green!important;margin:2px!important;}
 .test_important {color:red;margin:3px}
@@ -67,6 +68,11 @@ html = """<!DOCTYPE html>
   {color: green;margin:2px;}
 
     </style>
+=======
+<style>
+
+</style>
+>>>>>>> prepend css-selectors with id of the div that the html was wrapped in
 </head>
 <body>
 

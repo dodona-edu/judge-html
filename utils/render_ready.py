@@ -1,5 +1,6 @@
 import bs4
-from bs4 import Tag, PageElement
+import tinycss2
+from validators.css_validator import Rules, Rule
 
 
 def prep_render(html_content: str) -> str:
@@ -15,6 +16,17 @@ def prep_render(html_content: str) -> str:
 
     # edit the css-rules
     style = soup.find("style")
+    # print(style.string)
+    rs = Rules(style.string)
+    x: Rule
+    for x in rs.rules:
+        x.selector_str = f"#solution_rendering {x.selector_str}"
+
+    new_style = ""
+    for r in rs.rules:
+        new_style += f"{r.selector_str}" + "{" + f"{r.name}:{tinycss2.serialize(r.value)}{'!important' if r.important else ''}" + ";}\n   "
+
+    style.string = new_style
 
     return str(soup.prettify())
 
@@ -25,10 +37,10 @@ html = """
 <html>
   <head>
 <style>
-    #solution_rendering body {
+    body {
         color:red;
     }
-    #solution_rendering div {
+    div {
         color: green;
         background_color: green;
     }
@@ -40,4 +52,4 @@ html = """
 </html>
 """
 
-# print(prep_render(html))
+#print(prep_render(html))
