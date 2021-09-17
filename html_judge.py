@@ -38,7 +38,8 @@ def main():
 
         # Has HTML been validated at least once?
         # Same HTML is used every time so once is enough
-        validated_once: bool = False
+        html_validated: bool = False
+        css_validated: bool = False
 
         # Run all test suites
         for suite in test_suites:
@@ -48,13 +49,17 @@ def main():
                 failed_tests += suite.evaluate(config.translator)
 
             # This suite validated the HTML
-            if suite.was_validated():
-                validated_once = True
+            if suite.html_is_valid():
+                html_validated = True
+
+            # This suite validated the CSS
+            if suite.css_is_valid():
+                css_validated = True
 
         # Only render out valid HTML on Dodona
-        if validated_once:
+        if html_validated:
             with Tab("Rendered"):
-                with Message(format=MessageFormat.HTML, description=prep_render(html_content)):
+                with Message(format=MessageFormat.HTML, description=prep_render(html_content, render_css=css_validated)):
                     pass
 
         status = ErrorType.CORRECT_ANSWER if failed_tests == 0 else ErrorType.WRONG_ANSWER

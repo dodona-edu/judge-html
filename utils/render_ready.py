@@ -2,8 +2,8 @@ import bs4
 from validators.css_validator import Rules, Rule
 
 
-def prep_render(html_content: str) -> str:
-    """prepares the html for randering:
+def prep_render(html_content: str, render_css: bool) -> str:
+    """prepares the html for rendering:
         a body and a style tag must be present, if not returns the input html
         if both are present:
         * wraps the contents of body in a div with id='solution_rendering'
@@ -19,19 +19,24 @@ def prep_render(html_content: str) -> str:
         body.unwrap()
         div.wrap(soup.new_tag("body", attrs=attrs))
 
-        # edit the css-rules
         style = soup.find("style")
-        # print(style.string)
-        rs = Rules(style.string)
-        x: Rule
-        for x in rs.rules:
-            x.selector_str = f"#solution_rendering {x.selector_str}"
 
-        new_style = ""
-        for r in rs.rules:
-            new_style += f"{r.selector_str}" + "{" + f"{r.name}:{r.value_str}{'!important' if r.important else ''}" + ";}\n   "
+        # Css should not be rendered, remove it from the tree
+        if not render_css:
+            style.decompose()
+        else:
+            # edit the css-rules
+            # print(style.string)
+            rs = Rules(style.string)
+            x: Rule
+            for x in rs.rules:
+                x.selector_str = f"#solution_rendering {x.selector_str}"
 
-        style.string = new_style
+            new_style = ""
+            for r in rs.rules:
+                new_style += f"{r.selector_str}" + "{" + f"{r.name}:{r.value_str}{'!important' if r.important else ''}" + ";}\n   "
+
+            style.string = new_style
 
         return str(soup.prettify())
     except Exception:
