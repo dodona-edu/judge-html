@@ -1,5 +1,5 @@
 import tinycss2
-from bs4 import Tag
+from bs4 import Tag, BeautifulSoup
 from tinycss2.ast import *
 from lxml.etree import fromstring, ElementBase
 from cssselect import GenericTranslator, SelectorError
@@ -63,6 +63,7 @@ class Rule:
         self.value = strip(content.value)
         self.important = content.important
         self.specificity = calc_specificity(self.selector_str)
+        self.value_str = tinycss2.serialize(self.value)
 
     def __repr__(self):
         return f"(Rule: {self.selector_str} | {self.name} {self.value} {'important' if self.important else ''})"
@@ -168,7 +169,10 @@ class AmbiguousXpath(Exception):
 
 
 class CssValidator:
-    def __init__(self, html, css):
+    def __init__(self, document: BeautifulSoup):
+        html = str(document)
+        css = document.find("style").contents[0]
+
         self.root: ElementBase = fromstring(html)
         self.rules = Rules(css)
         self.rules.root = self.root
