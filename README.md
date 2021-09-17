@@ -3,8 +3,9 @@
 ## Judge features
 
 * Feedback in language of user (Dutch or English)
-* Checklist
+* Checklist (correct, fail, warning)
 * HTML (TODO &CSS) render of student submission
+* Partial exercises (exercises that focus on one tag)
 * Extensive [customization possible in `config.json`](#optional-evaluation-settings-in-configjson)
 * Elaborate [feedback](#feedback)
 
@@ -12,20 +13,22 @@
 * Tags are case-insensitive
 * Inline CSS is not allowed
 * `<script>` and `<noscript>` tag are not allowed
+* Self-closing tags are not allowed
+* TestSuite for HTML and/or CSS (in different tabs)
 
-### Feedback
+## Feedback
 
-#### HTML&CSS
+### HTML&CSS
 * Syntax errors
-  * Check if symbols open and close (`"(", "<", "{", "[", "'", '"'`)
+  * Check if brackets/quotes open and close (`"(", "<", "{", "[", "'", '"'`)
   * Each tag that opens must have a corresponding closing tag
   * Checks if all tags are valid
 
-#### HTML
+### HTML
 * Check if required attributes are present
 * Warning if recommended attributes are missing
 
-#### CSS
+### CSS
 
 
 
