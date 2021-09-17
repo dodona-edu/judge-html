@@ -259,14 +259,15 @@ Check that this element is matched by a CSS selector to give it a particular sty
 
 #### Signature:
 ```python
-def has_styling(self, attr: str, value: Optional[str] = None) -> Check
+def has_styling(self, attr: str, value: Optional[str] = None, important: Optional[bool] = None) -> Check
 ```
 #### Parameters:
 
-| Name      | Description                                | Required? | Default                                                                                       |
-|:----------|:-------------------------------------------|:---------:|:----------------------------------------------------------------------------------------------|
-| attr      | The name of the CSS attribute to look for. |     ✔     |                                                                                               |
-| value     | A value to match the attribute against.    |           | None, which will make any value pass and only checks if the element has this style attribute. |
+| Name      | Description                                                                                               | Required? | Default                                                                                       |
+|:----------|:----------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------------------------------------------------------------|
+| attr      | The name of the CSS attribute to look for.                                                                |     ✔     |                                                                                               |
+| value     | A value to match the attribute against.                                                                   |           | None, which will make any value pass and only checks if the element has this style attribute. |
+| important | A boolean indicating that this element should (or may not be) marked as important using **`!important`**. |           | None, which won't check this.                                                                 |
 
 #### Example usage
 ```python
@@ -277,8 +278,8 @@ div_tag = body.get_child("div")
 # Check that the div has any background colour at all
 div_tag.has_styling("background-color")
 
-# Check that the div has a horizontal margin of exactly 3px
-div_tag.has_styling("margin", "3px")
+# Check that the div has a horizontal margin of exactly 3px marked as !important
+div_tag.has_styling("margin", "3px", important=True)
 ```
 
 ### `has_tag`

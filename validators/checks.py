@@ -398,11 +398,12 @@ class Element:
         return Check(_inner)
 
     # CSS checks
-    def has_styling(self, attr: str, value: Optional[str] = None) -> Check:
+    def has_styling(self, attr: str, value: Optional[str] = None, important: Optional[bool] = None) -> Check:
         """Check that this element has a CSS attribute
-        :param attr:    the required CSS attribute to check
-        :param value:   an optional value to add that must be checked against,
-                        in case nothing is supplied any value will pass
+        :param attr:        the required CSS attribute to check
+        :param value:       an optional value to add that must be checked against,
+                            in case nothing is supplied any value will pass
+        :param important:   indicate that this must (or may not be) marked as important
         """
         def _inner(_: BeautifulSoup) -> bool:
             if self._element is None:
@@ -412,10 +413,14 @@ class Element:
             if self._css_validator is None:
                 return False
 
-            attribute = self._css_validator.find(self._element, attr)
+            attribute = self._css_validator.find(self._element, attr.lower())
 
             # Attribute not found
             if attribute is None:
+                return False
+
+            # !important modifier is incorrect
+            if important is not None and attribute.important != important:
                 return False
 
             # Value doesn't matter
