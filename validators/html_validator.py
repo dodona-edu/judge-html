@@ -61,6 +61,7 @@ class HtmlValidator(HTMLParser):
         self.check_nesting = b
 
     def error(self, error: HtmlValidationError):  # make exception classes and throw these instead
+        """raises an error"""
         raise error
 
     def warning(self, warning: MissingRecommendedAttributesWarning):
@@ -70,9 +71,11 @@ class HtmlValidator(HTMLParser):
         self.warnings.add(warning)
 
     def validate_file(self, source_filepath: str):
+        """validate the content of a html-file"""
         self._validate(html_loader(source_filepath, shorted=False))
 
     def validate_content(self, content: str):
+        """validate the content"""
         self._validate(content)
 
     def _validate(self, text: str):
