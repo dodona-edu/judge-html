@@ -20,6 +20,7 @@ class DoubleCharsValidator:
         self.convert = dict((key, val) for key, val in [*zip(self.opening, self.closing), *zip(self.closing, self.opening)])
 
     def validate_content(self, text: str):
+        """checks the text"""
         text = list(text)
         stack = []
         pos_stack = []

@@ -52,6 +52,7 @@ def strip(ls: []) -> []:
 
 
 class CssParsingError(Exception):
+    """Thrown when the css is not in a correct format"""
     pass
 
 
@@ -81,6 +82,7 @@ class Rule:
 
 
 def calc_specificity(selector_str: str) -> (int, int, int):  # see https://specificity.keegan.st/
+    """calculates how specific a css-selector is"""
     # count selectors: ID
     a = selector_str.count("#")
     # count selectors: CLASSES & PSEUDO-CLASSES & ATTRIBUTES
@@ -180,6 +182,7 @@ class Rules:
 
 
 class AmbiguousXpath(Exception):
+    """Thrown when an xpath can select multiple elements when it should only select one element"""
     pass
 
 
@@ -211,6 +214,8 @@ class CssValidator:
         self.xpaths = {}
 
     def get_xpath_soup(self, element: Tag) -> str:
+        """converts an element from bs4 soup to an xpath expression
+        this is the memorization of the private function (makes it a lot faster)"""
         # memorization of the xpath_soup method
         if id(element) not in self.xpaths:
             self.xpaths.update({id(element): self._get_xpath_soup(element)})
