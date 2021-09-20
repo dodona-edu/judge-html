@@ -13,14 +13,25 @@ class DoubleCharsValidator:
         * ' '
         * " "
     """
+
     def __init__(self, translator: Translator):
         self.translator = translator
         self.opening = ["(", "<", "{", "[", "'", '"']
         self.closing = [")", ">", "}", "]", "'", '"']
-        self.convert = dict((key, val) for key, val in [*zip(self.opening, self.closing), *zip(self.closing, self.opening)])
+        self.convert = dict(
+            (key, val) for key, val in [*zip(self.opening, self.closing), *zip(self.closing, self.opening)])
 
     def validate_content(self, text: str):
         """checks the text"""
+        # delete html comments
+        while (i := text.find("<!--")) != -1:
+            j = text.find("-->", i)
+            text = text[0:i] + text[j+3:]
+        # delete css comments
+        while (i := text.find("/*")) != -1:
+            j = text.find("*/", i)
+            text = text[0:i] + text[j+2:]
+
         text = list(text)
         stack = []
         pos_stack = []
