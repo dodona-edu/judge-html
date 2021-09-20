@@ -6,6 +6,7 @@ from bs4.element import Tag
 from copy import deepcopy
 from collections import deque
 from dataclasses import dataclass, field
+from urllib.parse import urlsplit
 from typing import Deque, List, Optional, Callable, Union
 
 from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation
@@ -15,6 +16,7 @@ from validators.html_validator import HtmlValidator
 from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
 from exceptions.html_exceptions import Warnings, LocatableHtmlValidationError, HtmlValidationError
 from exceptions.utils import EvaluationAborted, DelayedExceptions
+from validators.css_validator import CssValidator, CssParsingError
 
 
 @dataclass
@@ -89,6 +91,7 @@ class Element:
     tag: str
     id: Optional[str] = None
     _element: Optional[Tag] = None
+    _css_validator: Optional[CssValidator] = None
 
     def __str__(self):
         if self.id is not None:
@@ -96,6 +99,7 @@ class Element:
 
         return f"<{self.tag}>"
 
+    # HTML utilities
     def get_child(self, tag: str, index: int = 0, direct: bool = True, **kwargs) -> "Element":
         """Find the child element with the given tag
 
@@ -106,7 +110,7 @@ class Element:
         """
         # This element was not found, so the children don't exist either
         if self._element is None:
-            return Element(tag, kwargs.get("id", None), None)
+            return EmptyElement()
 
         # No index specified, first child requested
         if index == 0:
@@ -127,7 +131,7 @@ class Element:
         if child is None:
             return EmptyElement()
 
-        return Element(tag, child.get("id", None), child)
+        return Element(tag, child.get("id", None), child, self._css_validator)
 
     def get_children(self, tag: Optional[str] = None, direct: bool = True, **kwargs) -> "ElementContainer":
         """Get all children of this element that match the requested input"""
@@ -145,8 +149,9 @@ class Element:
             # Filter out string content
             matches = list(filter(lambda x: isinstance(x, Tag), matches))
 
-        return ElementContainer.from_tags(matches)
+        return ElementContainer.from_tags(matches, self._css_validator)
 
+    # HTML checks
     def exists(self) -> Check:
         """Check that this element was found"""
 
@@ -364,12 +369,74 @@ class Element:
 
         return Check(_inner)
 
+    def url_has_fragment(self, fragment: Optional[str] = None) -> Check:
+        """Check if a url has a fragment
+        If no fragment is passed, any non-empty fragment will do
+        """
+        def _inner(_: BeautifulSoup) -> bool:
+            if self._element is None or self.tag.lower() != "a":
+                return False
+
+            url = self._get_attribute("href")
+
+            # No url present
+            if url is None:
+                return False
+
+            split = urlsplit(url)
+
+            # No fragment present
+            if not split.fragment:
+                return False
+
+            # No value required
+            if fragment is None:
+                return True
+
+            return fragment == split.fragment
+
+        return Check(_inner)
+
+    # CSS checks
+    def has_styling(self, attr: str, value: Optional[str] = None, important: Optional[bool] = None) -> Check:
+        """Check that this element has a CSS attribute
+        :param attr:        the required CSS attribute to check
+        :param value:       an optional value to add that must be checked against,
+                            in case nothing is supplied any value will pass
+        :param important:   indicate that this must (or may not be) marked as important
+        """
+        def _inner(_: BeautifulSoup) -> bool:
+            if self._element is None:
+                return False
+
+            # This shouldn't happen if the element exists, but just in case
+            if self._css_validator is None:
+                return False
+
+            attribute = self._css_validator.find(self._element, attr.lower())
+
+            # Attribute not found
+            if attribute is None:
+                return False
+
+            # !important modifier is incorrect
+            if important is not None and attribute.important != important:
+                return False
+
+            # Value doesn't matter
+            if value is None:
+                return True
+
+            return attribute.value_str == value
+
+        return Check(_inner)
+
 
 @dataclass
 class EmptyElement(Element):
     """Class that represents an element that could not be found"""
     def __init__(self):
-        super().__init__("", None, None)
+        super().__init__("", None, None, None)
 
 
 @dataclass
@@ -421,9 +488,9 @@ class ElementContainer:
         return self._size
 
     @classmethod
-    def from_tags(cls, tags: List[Tag]) -> "ElementContainer":
+    def from_tags(cls, tags: List[Tag], css_validator: CssValidator) -> "ElementContainer":
         """Construct a container from a list of bs4 Tag instances"""
-        elements = list(map(lambda x: Element(x.name, x.get("id", None), x), tags))
+        elements = list(map(lambda x: Element(x.name, x.get("id", None), x, css_validator), tags))
         return ElementContainer(elements)
 
     def get(self, index: int) -> Element:
@@ -530,17 +597,39 @@ class TestSuite:
     check_recommended: bool = True
     checklist: List[ChecklistItem] = field(default_factory=list)
     _bs: BeautifulSoup = field(init=False)
-    _validator: HtmlValidator = field(init=False)
+    _html_validator: HtmlValidator = field(init=False)
+    _css_validator: CssValidator = field(init=False)
+    _html_validated: bool = field(init=False)
+    _css_validated: bool = field(init=False)
 
     def __post_init__(self):
         self._bs = BeautifulSoup(self.content, "html.parser")
+        self._html_validated = False
+
+        try:
+            self._css_validator = CssValidator(self.content)
+            self._css_validated = True
+        except CssParsingError:
+            self._css_validated = False
 
     def create_validator(self, config: DodonaConfig):
         """Create the HTML validator from outside the Suite
         The Suite is created in the evaluation file by teachers, so we
         avoid passing extra arguments into the constructor as much as we can.
         """
-        self._validator = HtmlValidator(config.translator, recommended=self.check_recommended)
+        self._html_validator = HtmlValidator(config.translator, recommended=self.check_recommended)
+
+    def html_is_valid(self) -> bool:
+        """Return whether or not the HTML has been validated
+        Avoids private property access
+        """
+        return self._html_validated
+
+    def css_is_valid(self) -> bool:
+        """Return if the CSS was valid
+        Avoids private property access
+        """
+        return self._css_validated
 
     def add_check(self, check: ChecklistItem):
         """Add an item to the checklist
@@ -558,12 +647,13 @@ class TestSuite:
 
         def _inner(_: BeautifulSoup) -> bool:
             try:
-                self._validator.validate_content(self.content)
+                self._html_validator.validate_content(self.content)
             except Warnings as war:
                 with Message(description=str(war), format=MessageFormat.CODE):
                     for exc in war.exceptions:
                         with Annotation(row=exc.position[0], text=str(exc), type="warning"):
                             pass
+                    self._html_validated = allow_warnings
                     return allow_warnings
             except LocatableHtmlValidationError as err:
                 with Message(description=str(err), format=MessageFormat.CODE):
@@ -578,7 +668,15 @@ class TestSuite:
                             pass
                     return False
             # If no validation errors were raised, the HTML is valid
+            self._html_validated = True
             return True
+
+        return Check(_inner)
+
+    def validate_css(self) -> Check:
+        """Check that CSS was valid"""
+        def _inner(_: BeautifulSoup) -> bool:
+            return self._css_validated
 
         return Check(_inner)
 
@@ -598,13 +696,13 @@ class TestSuite:
                             in the document
         """
         element = self._bs.find(tag, recursive=not from_root, **kwargs)
-        return Element(tag, kwargs.get("id", None), element)
+        return Element(tag, kwargs.get("id", None), element, self._css_validator)
 
     # TODO allow path to be passed using html > body > ... notation instead of only tags
     def all_elements(self, tag: str, from_root: bool = False, **kwargs) -> ElementContainer:
         """Get references to ALL HTML elements that match a query"""
         elements = self._bs.find_all(tag, recursive=not from_root, **kwargs)
-        return ElementContainer.from_tags(elements)
+        return ElementContainer.from_tags(elements, self._css_validator)
 
     def evaluate(self, translator: Translator) -> int:
         """Run the test suite, and print the Dodona output

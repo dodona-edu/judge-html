@@ -5,7 +5,7 @@
 * Checklist (correct, fail, warning)
 * Feedback in language of user (Dutch or English)
 * HTML (TODO &CSS) render of student submission
-* Partial exercises (exercises that focus on one tag)
+* Support for partial exercises (exercises that focus on one tag)
 * Extensive [customization possible in `config.json`](#optional-evaluation-settings-in-configjson)
 * Elaborate [feedback](#feedback)
 
@@ -13,7 +13,7 @@
 * Tags are case-insensitive
 * Inline CSS is not allowed (internal CSS is)
 * `<script>` and `<noscript>` tag are not allowed
-* Self-closing tags are not allowed
+* Self-closing (non-void) tags are not allowed (e.g. `<p/>`, `<div/>`)
 * TestSuite for HTML and/or CSS (in different tabs)
 
 ## Feedback

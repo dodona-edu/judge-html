@@ -7,6 +7,9 @@ This document lists and explains the built-in utility functions with examples. T
 - [`all_of`](#all_of)
 - [`any_of`](#any_of)
 - [`at_least`](#at_least)
+- [`Element.has_table_content`](#elementhas_table_content)
+- [`Element.has_table_header`](#elementhas_table_header)
+- [`Element.table_row_has_content`](#elementtable_row_has_content)
 - [`fail_if`](#fail_if)
 
 ## `all_of`
@@ -80,6 +83,127 @@ div_element = body.get_child("div")  # Doesn't exist
 
 # Check if at least two of [<head>, <body>, <div>] exist
 at_least(2, [head_element.exists(), body_element.exists(), div_element.exists()])
+```
+
+## `Element.has_table_content`
+
+This method checks if an `Element` with tag `table` has rows with the required content, **excluding the header**.
+
+#### Signature:
+```python
+def has_table_content(rows: List[List[str]], has_header: bool = True) -> Check
+```
+
+#### Parameters:
+
+| Name | Description | Required? | Default |
+|:-----|:------------|:---------:|:--------|
+| `rows` | A 2D `list` of `strings` that represents the content that the rows should match exactly. | ✔ |  |
+| `has_header` | Boolean that indicates this table should have a `header`, in which case the first `<tr>` will be ignored.  |  | True |
+
+#### Example usage:
+
+```html
+<table>
+    <tr>
+        <th>Header 1</th>
+        <th>Header 2</th>
+    </tr>
+    <tr>
+        <td>Row 1 Col 1</td>
+        <td>Row 1 Col 2</td>
+    </tr>
+    <tr>
+        <td>Row 2 Col 1</td>
+        <td>Row 2 Col 2</td>
+    </tr>
+</table>
+```
+```python
+suite = TestSuite("HTML", document)
+table_element = suite.element("table")
+
+rows = [
+    ["Row 1 Col 1", "Row 1 Col 2"],
+    ["Row 2 Col 1", "Row 2 Col 2"]
+]
+table_element.has_table_content(rows, has_header=True)
+```
+
+## `Element.has_table_header`
+
+This method checks if an `Element` with tag `table` has a header with content that matches a list of strings. This avoids having to use `all_of` combined with a *LOT* of `has_content`s.
+
+#### Signature:
+```python
+def has_table_header(header: List[str]) -> Check
+```
+
+#### Parameters:
+
+| Name | Description | Required? | Default |
+|:-----|:------------|:---------:|:--------|
+| `header` | `List` of `strings` that represents the content that the header should match exactly. | ✔ |  |
+
+#### Example usage:
+
+```html
+<table>
+    <tr>
+        <th>Header 1</th>
+        <th>Header 2</th>
+        <th>Header 3</th>
+        <th>Header 4</th>
+    </tr>
+</table>
+```
+```python
+suite = TestSuite("HTML", document)
+table_element = suite.element("table")
+
+header = ["Header 1", "Header 2", "Header 3", "Header 4"]
+table_element.has_table_header(header)
+```
+
+## `Element.table_row_has_content`
+
+This method checks if an `Element` with tag `tr` has the required content. This is the same as [`Element.has_table_content`](#elementhas_table_content) but for one row, and applied on a `<tr>` instead of a `<table>`.
+
+#### Signature:
+```python
+def table_row_has_content(self, row: List[str]) -> Check
+```
+
+#### Parameters:
+
+| Name | Description | Required? | Default |
+|:-----|:------------|:---------:|:--------|
+| `row` | A `list` of `strings` that represents the content that the row should match exactly. | ✔ |  |
+
+#### Example usage:
+
+```html
+<table>
+    <tr>
+        <td>Row 1 Col 1</td>
+        <td>Row 1 Col 2</td>
+    </tr>
+    <tr>
+        <td>Row 2 Col 1</td>
+        <td>Row 2 Col 2</td>
+    </tr>
+</table>
+```
+```python
+suite = TestSuite("HTML", document)
+table_element = suite.element("table")
+rows = table_element.get_children("tr")
+
+row1 = ["Row 1 Col 1", "Row 1 Col 2"]
+row2 = ["Row 2 Col 1", "Row 2 Col 2"]
+
+rows[0].table_row_has_content(row1)
+rows[1].table_row_has_content(row2)
 ```
 
 ## `fail_if`

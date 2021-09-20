@@ -107,5 +107,5 @@ class Warnings(DelayedExceptions):
         self.exceptions: LocatableHtmlValidationError  # makes them sortable
 
     def __str__(self):
-        self.exceptions.sort()
+        self.exceptions.sort(key=lambda x: x.position)
         return f"{self.translator.translate(Translator.Text.WARNINGS)} ({len(self)}):\n{self._print_exceptions()}"
