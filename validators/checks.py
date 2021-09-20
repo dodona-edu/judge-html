@@ -1,23 +1,22 @@
 """Basic checking library to create evaluation tests for exercises"""
 import re
+from collections import deque
+from copy import deepcopy
+from dataclasses import dataclass, field
+from typing import Deque, List, Optional, Callable, Union, Dict
+from urllib.parse import urlsplit
 
 from bs4 import BeautifulSoup
 from bs4.element import Tag
-from copy import deepcopy
-from collections import deque
-from dataclasses import dataclass, field
-from urllib.parse import urlsplit
-from typing import Deque, List, Optional, Callable, Union, Dict
 
-from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation, DodonaException, ErrorType, \
-    MessagePermission
+from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation, MessagePermission
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
-from validators.html_validator import HtmlValidator
 from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
-from exceptions.html_exceptions import Warnings, LocatableHtmlValidationError, HtmlValidationError
-from exceptions.utils import EvaluationAborted, DelayedExceptions, InvalidTranslation
+from exceptions.html_exceptions import Warnings, LocatableHtmlValidationError
+from exceptions.utils import EvaluationAborted, InvalidTranslation
 from validators.css_validator import CssValidator, CssParsingError
+from validators.html_validator import HtmlValidator
 
 
 @dataclass
