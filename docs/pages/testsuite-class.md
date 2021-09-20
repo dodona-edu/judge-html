@@ -8,6 +8,7 @@ A `TestSuite` contains a checklist of all checks that should be performed on the
 - [Referencing (specific) HTML elements](#referencing-specific-html-elements)
 - [Referencing multiple HTML elements](#referencing-multiple-html-elements)
 - [Adding items to the checklist](#adding-items-to-the-checklist)
+- [Adding multiple languages](#adding-multiple-languages)
 - [Built-in Checks](#built-in-checks)
   - [`validate_css`](#validate_css)
   - [`validate_html`](#validate_html)
@@ -138,6 +139,33 @@ suite.checklist.append(first_item)
 # TestSuite.add_check is a shortcut to TestSuite.checklist.append()
 suite.add_check(second_item)
 ```
+
+## Adding multiple languages
+
+It's possible that your course might have students from different countries, and you'd like to give feedback in more than one language. You can do this by using the `translations` attribute.
+
+`translations` is a `dict` that maps a `Language`s to a `list` of `string`s. In case the student's own language was not found in the `dict`, the message that you pass to the `ChecklistItem` will be used as the default.
+
+```python
+from dodona.translator import Translator
+from validators.checks import TestSuite, ChecklistItem
+
+def create_suites(content: str):
+    html_suite = TestSuite("HTML", content)
+
+    # Check that the HTML is valid, the default message is in English here
+    valid_check = ChecklistItem("The HTML is valid.", html_suite.validate_html())
+    html_suite.add_check(valid_check)
+    
+    # Add Dutch translation
+    html_suite.translations[Translator.Language.NL] = [
+      "De HTML is geldig."
+    ]
+    
+    return [html_suite]
+```
+
+It's important to note that a translation should always be the **same length as the checklist**, as every item needs a translation. In case the lists differ, evaluation will crash and show an error message to tell you one of the translations doesn't match.
 
 ## Built-in Checks
 

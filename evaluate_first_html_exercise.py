@@ -1,5 +1,5 @@
+from dodona.translator import Translator
 from typing import List
-
 from validators import checks
 
 
@@ -49,12 +49,12 @@ def create_suites(content: str) -> List[checks.TestSuite]:
 
     # Item 8: the third row is correct
     third_row = ["Harry Potter", "Luna Lovegood", "Hannah Longbottom", "Pansy Parkinson"]
-    ci_third_row_is_correct = checks.ChecklistItem("The third row contains the required data",
+    ci_third_row_is_correct = checks.ChecklistItem("The third row contains the required data.",
                                                    table_rows[2].table_row_has_content(third_row))
 
     # Item 9: the fourth row is correct
     fourth_row = ["Ronald Weasley", "Cho Chang", "Susan Bones", "Gregory Goyle"]
-    ci_fourth_row_is_correct = checks.ChecklistItem("The fourth row contains the required data",
+    ci_fourth_row_is_correct = checks.ChecklistItem("The fourth row contains the required data.",
                                                     table_rows[3].table_row_has_content(fourth_row)
                                                     )
 
@@ -69,6 +69,19 @@ def create_suites(content: str) -> List[checks.TestSuite]:
         ci_second_row_is_correct,
         ci_third_row_is_correct,
         ci_fourth_row_is_correct
+    ]
+
+    # Add Dutch translation
+    suite.translations[Translator.Language.NL] = [
+        "De HTML is geldig.",
+        "De body bevat een tabel.",
+        "De tabel heeft een caption.",
+        "De caption bevat de correcte tekst.",
+        "De tabel heeft rijen.",
+        "De eerste rij is een header met de vereiste inhoud.",
+        "De tweede rij bevat de vereiste inhoud.",
+        "De derde rij bevat de vereiste inhoud.",
+        "De vierde rij bevat de vereiste inhoud."
     ]
 
     return [suite]
