@@ -9,7 +9,7 @@ from utils.evaluation_module import EvaluationModule
 from utils.file_loaders import html_loader
 from validators.checks import TestSuite
 from utils.render_ready import prep_render
-from utils.messages import invalid_suite, invalid_evaluator_file
+from utils.messages import invalid_suites, invalid_evaluator_file
 
 
 def main():
@@ -28,35 +28,31 @@ def main():
         config.sanity_check()
         # Initiate translator
         config.translator = Translator.from_str(config.natural_language)
-
-        # Compile evaluator code
-        try:
-            evaluator: Optional[EvaluationModule] = EvaluationModule.build(config)
-        except Exception as e:
-            invalid_evaluator_file(e)
-            invalid_suite(judge, config)
-            return
-
-        # An error message is shown for this in build(), stop evaluating
-        if evaluator is None:
-            # TODO later allow this to run against the solution file instead
-            invalid_suite(judge, config)
-            return
-
         # Load HTML
         html_content: str = html_loader(config.source, shorted=False)
 
+        # Compile evaluator code & create test suites
+        # If anything goes wrong, show a detailed error message to the teacher
+        # and a short message to the student
         try:
+            evaluator: Optional[EvaluationModule] = EvaluationModule.build(config)
+
+            # An error message is shown for this in build(), stop evaluating
+            if evaluator is None:
+                invalid_suites(judge, config)
+                # TODO later allow this to run against the solution file instead
+                return
+
             test_suites: List[TestSuite] = evaluator.create_suites(html_content)
         except NotImplementedError:
             # Evaluator.py file doesn't implement create_suites
             # Tell students why evaluation failed
-            invalid_suite(judge, config)
+            invalid_suites(judge, config)
             return
         except Exception as e:
-            # Something else is wrong in the create_suites function
+            # Something else went wrong
             invalid_evaluator_file(e)
-            invalid_suite(judge, config)
+            invalid_suites(judge, config)
             return
 
         # Has HTML been validated at least once?
@@ -74,11 +70,7 @@ def main():
                     failed_tests += suite.evaluate(config.translator)
                 except InvalidTranslation:
                     # One of the translations was invalid
-                    with Message(
-                        description=config.translator.translate(Translator.Text.INVALID_TESTSUITE_STUDENTS),
-                        format=MessageFormat.TEXT
-                    ):
-                        pass
+                    invalid_suites(judge, config)
 
                     aborted = True
                     continue

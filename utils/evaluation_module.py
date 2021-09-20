@@ -2,9 +2,10 @@ from os import path
 from types import ModuleType
 from typing import List, Optional
 
-from dodona.dodona_command import DodonaException, ErrorType, MessagePermission, MessageFormat, Message
+from dodona.dodona_command import MessagePermission, MessageFormat, Message
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
+from utils.messages import missing_evaluator_file
 from validators.checks import TestSuite
 
 
@@ -44,15 +45,9 @@ class EvaluationModule(ModuleType):
         # Create filepath
         custom_evaluator_path = path.join(config.resources, "./evaluator.py")
 
-        # Evaluator doesn't exist, throw an exception
+        # Evaluator doesn't exist, show an exception
         if not path.exists(custom_evaluator_path):
-            with Message(
-                    permission=MessagePermission.STAFF,
-                    description=config.translator.translate(Translator.Text.MISSING_EVALUATION_FILE),
-                    format=MessageFormat.TEXT
-            ):
-                pass
-
+            missing_evaluator_file(config.translator)
             return None
 
         # Read raw content of .py file

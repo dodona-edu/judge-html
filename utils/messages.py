@@ -6,7 +6,8 @@ from dodona.translator import Translator
 import traceback
 
 
-def invalid_suite(judge: SimpleNamespace, config: DodonaConfig):
+def invalid_suites(judge: SimpleNamespace, config: DodonaConfig):
+    """Show the students a message saying that the suites were invalid"""
     with Message(
             description=config.translator.translate(Translator.Text.INVALID_TESTSUITE_STUDENTS),
             format=MessageFormat.TEXT
@@ -17,9 +18,20 @@ def invalid_suite(judge: SimpleNamespace, config: DodonaConfig):
 
 
 def invalid_evaluator_file(exception: Exception):
+    """Show the teacher a message saying that their evaluator file is invalid"""
     with Message(
             permission=MessagePermission.STAFF,
             description=traceback.format_exc(),
             format=MessageFormat.CODE
+    ):
+        pass
+
+
+def missing_evaluator_file(translator: Translator):
+    """Show the teacher a message saying that the evaluator file is missing"""
+    with Message(
+            permission=MessagePermission.STAFF,
+            description=translator.translate(Translator.Text.MISSING_EVALUATION_FILE),
+            format=MessageFormat.TEXT
     ):
         pass
