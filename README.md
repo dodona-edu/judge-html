@@ -5,7 +5,7 @@
 * Checklist (correct, fail, warning)
 * Feedback in language of user (Dutch or English)
 * HTML (TODO &CSS) render of student submission
-* Partial exercises (exercises that focus on one tag)
+* Support for partial exercises (exercises that focus on one tag)
 * Extensive [customization possible in `config.json`](#optional-evaluation-settings-in-configjson)
 * Elaborate [feedback](#feedback)
 
