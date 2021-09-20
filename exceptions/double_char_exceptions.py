@@ -36,8 +36,8 @@ class LocatableDoubleCharError(DoubleCharError):
         return f"{self.translator.translate(Translator.Text.LOCATED_AT)}: {self.fpos()}"
 
     def fpos(self) -> str:
-        return f"{self.translator.translate(Translator.Text.LINE)} {self.position[0]} " \
-               f"{self.translator.translate(Translator.Text.POSITION)} {self.position[1]} "
+        return f"{self.translator.translate(Translator.Text.LINE)} {self.position[0] + 1} " \
+               f"{self.translator.translate(Translator.Text.POSITION)} {self.position[1] + 1} "
 
 
 class MissingCharError(LocatableDoubleCharError):
@@ -61,8 +61,9 @@ class MissingClosingCharError(MissingCharError):
 
 class MultipleMissingCharsError(DelayedExceptions):
     def __init__(self, translator: Translator):
-        super(MultipleMissingCharsError, self).__init__()
+        super().__init__()
         self.translator = translator
+        self.exceptions: [LocatableDoubleCharError]
 
     def __str__(self):
         self.exceptions.sort()

@@ -9,14 +9,14 @@ from dataclasses import dataclass, field
 from urllib.parse import urlsplit
 from typing import Deque, List, Optional, Callable, Union
 
-from dodona.dodona_command import Context, TestCase, Message, MessageFormat
+from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from validators.html_validator import HtmlValidator
+from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
+from exceptions.html_exceptions import Warnings, LocatableHtmlValidationError, HtmlValidationError
+from exceptions.utils import EvaluationAborted, DelayedExceptions
 from validators.css_validator import CssValidator, CssParsingError
-from exceptions.utils import DelayedExceptions
-from exceptions.html_exceptions import Warnings, HtmlValidationError
-from exceptions.utils import EvaluationAborted
 
 
 @dataclass
@@ -650,12 +650,23 @@ class TestSuite:
                 self._html_validator.validate_content(self.content)
             except Warnings as war:
                 with Message(description=str(war), format=MessageFormat.CODE):
+                    for exc in war.exceptions:
+                        with Annotation(row=exc.position[0], text=str(exc), type="warning"):
+                            pass
                     self._html_validated = allow_warnings
                     return allow_warnings
-            except (HtmlValidationError, DelayedExceptions) as err:
+            except LocatableHtmlValidationError as err:
                 with Message(description=str(err), format=MessageFormat.CODE):
+                    with Annotation(row=err.position[0], text=str(err), type="error"):
+                        pass
                     return False
-
+            except MultipleMissingCharsError as errs:
+                with Message(description=str(errs), format=MessageFormat.CODE):
+                    err: LocatableDoubleCharError
+                    for err in errs.exceptions:
+                        with Annotation(row=err.position[0], text=str(err), type="error"):
+                            pass
+                    return False
             # If no validation errors were raised, the HTML is valid
             self._html_validated = True
             return True
@@ -717,13 +728,6 @@ class TestSuite:
                 # Can't set items on tuples so overwrite it
                 try:
                     test_case.accepted = item.evaluate(self._bs)
-                except Warnings as war:
-                    # Warnings don't cause the test to fail, but must still be printed
-                    with Message(description=str(war), format=MessageFormat.CODE):  # code preserves spaces & newlines
-                        test_case.accepted = True
-                except (HtmlValidationError, DelayedExceptions) as err:
-                    with Message(description=str(err), format=MessageFormat.CODE):  # code preserves spaces & newlines
-                        pass
                 except EvaluationAborted:
                     # Crucial test failed, stop evaluation and let the next tests
                     # all be marked as wrong

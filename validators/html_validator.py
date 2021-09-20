@@ -41,6 +41,7 @@ class HtmlValidator(HTMLParser):
         * nesting: whether or not to check the nesting of tags
 µ        """
         super().__init__()
+        self.lineno = 0  # override the default starting at 1 instead of 0
         self.translator = translator
         self.warnings = Warnings(self.translator)
         self.tag_stack = []
@@ -79,6 +80,7 @@ class HtmlValidator(HTMLParser):
         self.tag_stack.clear()
         self.warnings.clear()
         self.reset()
+        self.lineno = 0  # self.reset() is also from a superclass and resets lineno to 1 instead of 0
         # check brackets and stuff ( '(', '"', '{', '[', '<')
         self._valid_double_chars(text)
         # check html syntax
