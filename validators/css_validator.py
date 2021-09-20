@@ -1,7 +1,9 @@
 import tinycss2
-from bs4 import Tag, BeautifulSoup
+from bs4 import BeautifulSoup
+from bs4.element import Tag
 from tinycss2.ast import *
-from lxml.etree import fromstring, ElementBase
+from lxml.html import fromstring
+from lxml.etree import ElementBase
 from cssselect import GenericTranslator, SelectorError
 from typing import Optional
 
@@ -142,6 +144,7 @@ class Rules:
     def __len__(self):
         return len(self.rules)
 
+    # of doing serialize() at the end, to access the !important property
     def find(self, root: ElementBase, solution_element: ElementBase, key: str) -> Optional[Rule]:
         """find the css rule for key (ex: color) for the solution_element,
             root is the root of the html-document (etree)"""
@@ -173,7 +176,7 @@ class Rules:
             if r.specificity > dom_rule.specificity:
                 dom_rule = r
 
-        return tinycss2.serialize(dom_rule.value)
+        return dom_rule
 
 
 class AmbiguousXpath(Exception):
@@ -190,16 +193,21 @@ class CssValidator:
 "green"
     """
     def __init__(self, html: str):
-        self.root: ElementBase = fromstring(html)
+        # Invalid HTML makes fromstring() crash so it can be None
+        self.root: Optional[ElementBase] = None
 
         try:
+            self.root = fromstring(html)
             style: ElementBase = self.root.find(".//style")
             css = style.text
         except Exception:
             css = ""
 
         self.rules = Rules(css)
-        self.rules.root = self.root
+
+        if self.root is not None:
+            self.rules.root = self.root
+
         self.xpaths = {}
 
     def get_xpath_soup(self, element: Tag) -> str:
@@ -228,6 +236,10 @@ class CssValidator:
     def find(self, element: Tag, key: str) -> Optional[Rule]:
         """find the css rule for key (ex: color) for the solution_element
         the element should be a BeautifulSoup Tag"""
+        # Tree couldn't be parsed so can't perform searching
+        if self.root is None:
+            return None
+
         xpath_solution = self.get_xpath_soup(element)
         sols = self.root.xpath(xpath_solution)
         if not len(sols) == 1:

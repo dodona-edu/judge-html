@@ -152,8 +152,8 @@ class TestCssValidator(unittest.TestCase):
         for _ in range(num_tests):
             for green_class in test_classes:
                 sol_el = self.bs.find("div", attrs={"class": green_class})
-                self.assertEqual("green", self.validator.find(sol_el, "color"), green_class)
+                self.assertEqual("green", self.validator.find(sol_el, "color").value_str, green_class)
         for _ in range(num_tests):
             for green_class in test_classes:
                 sol_el = self.bs.find("div", attrs={"class": green_class})
-                self.assertEqual("2px", self.validator.find(sol_el, "margin"), green_class)
+                self.assertEqual("2px", self.validator.find(sol_el, "margin").value_str, green_class)
