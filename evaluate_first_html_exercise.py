@@ -71,6 +71,7 @@ def create_suites(content: str) -> List[checks.TestSuite]:
         ci_fourth_row_is_correct
     ]
 
+    # Add Dutch translation
     suite.translations[Translator.Language.NL] = [
         "De HTML is geldig.",
         "De body bevat een tabel.",
