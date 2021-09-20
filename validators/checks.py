@@ -711,7 +711,7 @@ class TestSuite:
         for k, v in self.translations.items():
             if len(v) != len(self.checklist):
                 description = translator.translate(Translator.Text.INVALID_LANGUAGE_TRANSLATION,
-                                                   language=translator.language.name,
+                                                   language=k.name,
                                                    translation=len(v),
                                                    checklist=len(self.checklist)
                                                    )
