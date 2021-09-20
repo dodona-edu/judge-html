@@ -363,4 +363,53 @@ def rgba_to_name(rgb_str: str):
     return None
 
 
-print(rgba_to_name("rgba(255, 0, 0, 1)"))
+class Color:
+    as_name: str
+    as_hex: str
+    as_rgb: str
+    as_rgba: str
+
+    def __init__(self, value_str):
+        if value_str.startswith("#"):
+            self._from_hex(value_str)
+        elif value_str.startswith("rgba("):
+            self._from_rgba(value_str)
+        elif value_str.startswith("rgb("):
+            self._from_rgb(value_str)
+        else:
+            self._from_name(value_str)
+
+    def __repr__(self):
+        return f"<Color: {self.as_name}>"
+
+    def __eq__(self, other):
+        if not isinstance(other, Color):
+            return False
+        return self.values() == other.values()
+
+    def values(self) -> (str, str, str, str):
+        return self.as_name, self.as_hex, self.as_rgb, self.as_rgba
+
+    def _from_name(self, name: str):
+        self.as_name = name
+        self.as_hex = name_to_hex(name)
+        self.as_rgb = name_to_rgb(name)
+        self.as_rgba = name_to_rgba(name)
+
+    def _from_hex(self, hex_str: str):
+        self.as_name = hex_to_name(hex_str)
+        self.as_hex = hex_str
+        self.as_rgb = rgb_to_name(self.as_name)
+        self.as_rgba = name_to_rgba(self.as_name)
+
+    def _from_rgb(self, rgb_str: str):
+        self.as_name = rgb_to_name(rgb_str)
+        self.as_hex = name_to_hex(self.as_name)
+        self.as_rgb = rgb_str
+        self.as_rgba = name_to_rgba(self.as_name)
+
+    def _from_rgba(self, rgba_str: str):
+        self.as_name = rgba_to_name(rgba_str)
+        self.as_hex = name_to_hex(self.as_name)
+        self.as_rgb = name_to_rgb(self.as_name)
+        self.as_rgba = rgba_str

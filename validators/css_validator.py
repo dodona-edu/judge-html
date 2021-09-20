@@ -7,6 +7,8 @@ from lxml.etree import ElementBase
 from cssselect import GenericTranslator, SelectorError
 from typing import Optional
 
+from utils.color_converter import Color
+
 """
 tinycss2 docs
     https://pythonhosted.org/tinycss2/
@@ -79,10 +81,10 @@ class Rule:
     def __repr__(self):
         return f"(Rule: {self.selector_str} | {self.name} {self.value} {'important' if self.important else ''})"
 
-    def color_RGB(self):
-        if self.name == "color" and self.value[0].type == IdentToken.type:
-            from utils.color_converter import colors
-            return colors[self.value[0].value]
+    def get_color(self) -> Optional[Color]:
+        if self.name == "color":
+            return Color(self.value_str)
+        return None
 
 
 def calc_specificity(selector_str: str) -> (int, int, int):  # see https://specificity.keegan.st/
@@ -256,9 +258,9 @@ val = CssValidator("""
 <html>
     <head>
         <style>
-            body {color:RED;}
+            body {color:rgb(0,0,0);}
         </style>
     </head>
 </html>""")
 r: Rule = val.rules.rules[0]
-print(r.color_RGB())
+print(r.get_color())
