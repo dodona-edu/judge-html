@@ -82,6 +82,7 @@ class Rule:
         return f"(Rule: {self.selector_str} | {self.name} {self.value} {'important' if self.important else ''})"
 
     def get_color(self) -> Optional[Color]:
+        """Return the Color instance of this Rule in case it's a color"""
         if self.name == "color":
             return Color(self.value_str)
         return None
