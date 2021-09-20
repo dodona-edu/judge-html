@@ -9,6 +9,7 @@ from utils.evaluation_module import EvaluationModule
 from utils.file_loaders import html_loader
 from validators.checks import TestSuite
 from validators.html_validator import HtmlValidator
+from utils.render_ready import prep_render
 
 
 def main():
@@ -40,6 +41,10 @@ def main():
 
             with Tab(suite.name):
                 failed_tests += suite.evaluate(config.translator)
+
+        # with Tab("Rendered"):
+            # with Message(format=MessageFormat.HTML, description=prep_render(html_content)):
+                # pass
 
         status = ErrorType.CORRECT_ANSWER if failed_tests == 0 else ErrorType.WRONG_ANSWER
         judge.status = config.translator.error_status(status, amount=failed_tests)
