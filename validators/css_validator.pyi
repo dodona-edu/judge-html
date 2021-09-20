@@ -4,6 +4,8 @@ from bs4.element import Tag
 from lxml.etree import ElementBase
 from tinycss2.ast import Declaration
 
+from utils.color_converter import Color
+
 
 def strip(ls: []) -> []: ...
 
@@ -28,6 +30,8 @@ class Rule:
     def __init__(self, selector: [], content: Declaration): ...
 
     def __repr__(self) -> str: ...
+
+    def get_color(self) -> Optional[Color]: ...
 
 
 def calc_specificity(selector_str: str) -> (int, int, int):  ...

@@ -14,7 +14,9 @@ This class is **not** meant for you to instantiate manually, but instances are r
   - [`attribute_matches`](#attribute_matches)
   - [`exists`](#exists)
   - [`has_child`](#has_child)
+  - [`has_color`](#has_color)
   - [`has_content`](#has_content)
+  - [`has_styling`](#has_styling)
   - [`has_tag`](#has_tag)
   - [`url_has_fragment`](#url_has_fragment)
 
@@ -222,6 +224,51 @@ body_has_div = ChecklistItem("The body has a div", body.has_child("div"))
 body_has_div = ChecklistItem("The body has a div", body.get_child("div").exists())
 ```
 
+### `has_color`
+
+Check that this element has a given color on a CSS property. This is a more flexible version of [`has_styling`](#has_styling) because it allows the value to be in multiple different formats (`RGB`, `hex`, ...).
+
+#### Signature:
+```python
+def has_color(prop: str, color: str, important: Optional[bool] = None) -> Check
+```
+
+#### Parameters:
+
+| Name      | Description                                                                                                            | Required? | Default                                                                                       |
+|:----------|:-----------------------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------------------------------------------------------------|
+| attr      | The name of the CSS attribute to look for.                                                                             |     ✔     |                                                                                               |
+| value     | A value to match the property against. This value may be in any of the accepted formats: `name`, `rgb`, `rgba`, `hex`. |     ✔     |                                                                                               |
+| important | A boolean indicating that this element should (or may not be) marked as important using **`!important`**.              |           | None, which won't check this.                                                                 |
+
+
+#### Example usage
+```html
+<html>
+<head>
+  <style>
+    div {
+      background-color: rgb(0, 0, 255);
+    }
+  </style>
+</head>
+<body>
+<div>
+  ...
+</div>
+</body>
+</html>
+```
+```python
+suite = TestSuite("HTML", content)
+div = suite.element("div")
+
+div.has_color("background-color", "blue")  # By name
+div.has_color("background-color", "rgb(0, 0, 255)")  # By rgb value
+div.has_color("background-color", "rgba(0, 0, 255, 1.0)")  # By rgba value
+div.has_color("background-color", "#0000FF")  # By hex value
+```
+
 ### `has_content`
 
 Check that the element has specific content, or any content at all.
@@ -259,14 +306,14 @@ Check that this element is matched by a CSS selector to give it a particular sty
 
 #### Signature:
 ```python
-def has_styling(self, attr: str, value: Optional[str] = None, important: Optional[bool] = None) -> Check
+def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None) -> Check
 ```
 #### Parameters:
 
 | Name      | Description                                                                                               | Required? | Default                                                                                       |
 |:----------|:----------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------------------------------------------------------------|
-| attr      | The name of the CSS attribute to look for.                                                                |     ✔     |                                                                                               |
-| value     | A value to match the attribute against.                                                                   |           | None, which will make any value pass and only checks if the element has this style attribute. |
+| prop      | The name of the CSS property to look for.                                                                 |     ✔     |                                                                                               |
+| value     | A value to match the property against.                                                                    |           | None, which will make any value pass and only checks if the element has this style property.  |
 | important | A boolean indicating that this element should (or may not be) marked as important using **`!important`**. |           | None, which won't check this.                                                                 |
 
 #### Example usage

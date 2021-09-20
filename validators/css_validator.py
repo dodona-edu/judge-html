@@ -7,6 +7,8 @@ from lxml.etree import ElementBase
 from cssselect import GenericTranslator, SelectorError
 from typing import Optional
 
+from utils.color_converter import Color
+
 """
 tinycss2 docs
     https://pythonhosted.org/tinycss2/
@@ -72,13 +74,19 @@ class Rule:
         self.selector_str = tinycss2.serialize(self.selector)
         self.xpath = _get_xpath(self.selector_str)
         self.name = content.name
-        self.value = strip(content.value)
+        self.value: [Node] = strip(content.value)
         self.important = content.important
         self.specificity = calc_specificity(self.selector_str)
         self.value_str = tinycss2.serialize(self.value)
 
     def __repr__(self):
         return f"(Rule: {self.selector_str} | {self.name} {self.value} {'important' if self.important else ''})"
+
+    def get_color(self) -> Optional[Color]:
+        """Return the Color instance of this Rule in case it's a color"""
+        if "color" in self.name.lower():
+            return Color(self.value_str)
+        return None
 
 
 def calc_specificity(selector_str: str) -> (int, int, int):  # see https://specificity.keegan.st/
@@ -189,10 +197,10 @@ class AmbiguousXpath(Exception):
 class CssValidator:
     """interface for using the classes / functions defined above
     USAGE (html_content is a string containing the html itself):
->>> validator = CssValidator(html_content)
->>> import bs4
->>> element = BeautifulSoup(html_content, "html.parser").find("div", attrs={"id":"div_you_want_to_query_on"})
->>> validator.find(element, "color")  # will return None if no rules for "color" are defined for that element
+    >> validator = CssValidator(html_content)
+    >> import bs4
+    >> element = BeautifulSoup(html_content, "html.parser").find("div", attrs={"id":"div_you_want_to_query_on"})
+    >> validator.find(element, "color")  # will return None if no rules for "color" are defined for that element
 "green"
     """
     def __init__(self, html: str):
