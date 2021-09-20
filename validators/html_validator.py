@@ -5,6 +5,7 @@ from exceptions.html_exceptions import *
 from os import path
 from utils.file_loaders import json_loader, html_loader
 from validators.double_chars_validator import DoubleCharsValidator
+from functools import lru_cache
 
 # Location of this test file
 base_path = path.dirname(__file__)
@@ -23,6 +24,7 @@ class HtmlValidator(HTMLParser):
       * each tag that opens must have a corresponding closing tag
         * tags starting with </ are omitted
         * tags that dont need a closing tag (see json) can bit omitted (like <meta>)
+        * tags that can self-close like <meta/>
       * is the tag a valid tag
       * does the tag have valid nesting (it checks the permitted parents)
           for example a head tag has the html tag as permitted parent but nothing else
@@ -37,8 +39,7 @@ class HtmlValidator(HTMLParser):
         * required: whether or not to check required arguments
         * recommended: whether or not to check recommended arguments
         * nesting: whether or not to check the nesting of tags
-        * void: whether or not to check the self-closing & omission of closing
-        """
+µ        """
         super().__init__()
         self.translator = translator
         self.warnings = Warnings(self.translator)
@@ -48,7 +49,6 @@ class HtmlValidator(HTMLParser):
         self.check_required = kwargs.get("required", True)
         self.check_recommended = kwargs.get("recommended", True)
         self.check_nesting = kwargs.get("nesting", True)
-        self.check_void = kwargs.get("void", True)
 
     def set_check_required(self, b: bool):
         self.check_required = b
@@ -58,9 +58,6 @@ class HtmlValidator(HTMLParser):
 
     def set_check_nesting(self, b: bool):
         self.check_nesting = b
-
-    def set_check_void(self, b: bool):
-        self.check_void = b
 
     def error(self, error: HtmlValidationError):  # make exception classes and throw these instead
         raise error
@@ -87,11 +84,9 @@ class HtmlValidator(HTMLParser):
         # check html syntax
         self.feed(text)
         # clear tag stack
-        while self.tag_stack:
-            if not self._is_void_tag(self.tag_stack[-1]):
-                raise MissingClosingTagError(translator=self.translator, tag_location=self.tag_stack,
-                                             position=self.getpos(), tag=self.tag_stack.pop())
-            self.tag_stack.pop()
+        if self.tag_stack:
+            raise MissingClosingTagError(translator=self.translator, tag_location=self.tag_stack,
+                                         position=self.getpos(), tag=self.tag_stack.pop())
         # show warnings if any
         if self.warnings:
             raise self.warnings
@@ -104,57 +99,42 @@ class HtmlValidator(HTMLParser):
         """handles a html tag that opens, like <body>
             attributes hold the (name, value) of the attributes supplied in the tag"""
         tag = tag.lower()
-
         self._valid_tag(tag)
         if self.check_nesting:
             self._valid_nesting(tag)
-        if not (self.check_void and self._is_void_tag(tag)):
+        if not self._is_void_tag(tag):
             self.tag_stack.append(tag)
         self._valid_attributes(tag, set(a[0].lower() for a in attributes))
 
     def handle_endtag(self, tag: str):
         """handles a html tag that closes, like <body/>"""
         tag = tag.lower()
-
         self._validate_corresponding_tag(tag)
-        self.tag_stack.pop()
+        if not self._is_void_tag(tag):
+            self.tag_stack.pop()
 
     def handle_startendtag(self, tag, attrs):
         """handles a html tag that opens and instantly closes, like <meta/>"""
         tag = tag.lower()
-
-        if self.check_void and not self._is_void_tag(tag):
+        if not self._is_void_tag(tag):
             self.error(NoSelfClosingTagError(translator=self.translator, tag_location=self.tag_stack,
                                              position=self.getpos(), tag=tag))
         else:
             self.handle_starttag(tag, attrs)
-            self.handle_endtag(tag)
-
-    def handle_data(self, data: str):
-        """handles the data between tags, like <p>this is the data</p>"""
-        if self.tag_stack and self.tag_stack[-1] == "style":
-            # this is the valid internal css data
-            #  for now we do nothing
-            pass
-        # we don't need to ook at other data
 
     def _validate_corresponding_tag(self, tag: str):
         """validate that each tag that opens has a corresponding closing tag
         """
-        if not self.tag_stack:
+        if not (self.tag_stack and self.tag_stack[-1] == tag):
             self.error(MissingClosingTagError(translator=self.translator, tag_location=self.tag_stack,
                                               position=self.getpos(), tag=tag))
-        if tag != self.tag_stack[-1]:
-            while self._is_void_tag(self.tag_stack[-1]):
-                self.tag_stack.pop()
-            if tag != self.tag_stack[-1]:
-                self.error(MissingClosingTagError(translator=self.translator, tag_location=self.tag_stack,
-                                                  position=self.getpos(), tag=tag))
 
+    @lru_cache()
     def _is_void_tag(self, tag: str) -> bool:
         """indicates whether the tag its corresponding closing tag is omittable or not"""
         return VOID_KEY in self.valid_dict[tag] and self.valid_dict[tag][VOID_KEY]
 
+    @lru_cache()
     def _valid_tag(self, tag: str):
         """validate that a tag is a valid HTML tag (if a tag isn't allowed, this wil also raise an exception"""
         if tag not in self.valid_dict:
