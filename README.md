@@ -147,7 +147,13 @@ If these settings are not defined, the default value is chosen.
   >     return [html_suite, css_suite]
   > ```
 
-4. Select the desired element
+3. Check if the HTML and/or CSS is valid
+
+```python
+html_valid = ChecklistItem("The HTML is valid.", suite.validate_html().or_abort())
+```
+
+5. Select the desired element
 
 TODO: add example
 
@@ -155,7 +161,11 @@ TODO: add example
 
 TODO: add example
 
-6. Add ChecklistItem to suite.checklist
+6. Combine several ChecklistItems in one check
+
+
+
+8. Add ChecklistItem to suite.checklist
 
 TODO: add example
 
