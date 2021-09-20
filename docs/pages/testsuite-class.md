@@ -144,10 +144,11 @@ suite.add_check(second_item)
 
 It's possible that your course might have students from different countries, and you'd like to give feedback in more than one language. You can do this by using the `translations` attribute.
 
-`translations` is a `dict` that maps a `Language`s to a `list` of `string`s. In case the student's own language was not found in the `dict`, the message that you pass to the `ChecklistItem` will be used as the default.
+`translations` is a `dict` that maps a two-letter language code (`string`, **lowercase**) to a `list` of `string`s. In case the student's own language was not found in the `dict`, the message that you pass to the `ChecklistItem` will be used as the default.
+
+Accepted languages are currently `nl` and `en`.
 
 ```python
-from dodona.translator import Translator
 from validators.checks import TestSuite, ChecklistItem
 
 def create_suites(content: str):
@@ -158,7 +159,7 @@ def create_suites(content: str):
     html_suite.add_check(valid_check)
     
     # Add Dutch translation
-    html_suite.translations[Translator.Language.NL] = [
+    html_suite.translations["nl"] = [
       "De HTML is geldig."
     ]
     

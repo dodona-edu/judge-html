@@ -648,7 +648,7 @@ class TestSuite:
     content: str
     check_recommended: bool = True
     checklist: List[ChecklistItem] = field(default_factory=list)
-    translations: Dict[Translator.Language, List[str]] = field(default_factory=dict)
+    translations: Dict[str, List[str]] = field(default_factory=dict)
     _bs: BeautifulSoup = field(init=False)
     _html_validator: HtmlValidator = field(init=False)
     _css_validator: CssValidator = field(init=False)
@@ -762,7 +762,7 @@ class TestSuite:
         for k, v in self.translations.items():
             if len(v) != len(self.checklist):
                 description = translator.translate(Translator.Text.INVALID_LANGUAGE_TRANSLATION,
-                                                   language=k.name,
+                                                   language=k,
                                                    translation=len(v),
                                                    checklist=len(self.checklist)
                                                    )
@@ -787,12 +787,14 @@ class TestSuite:
         aborted = -1
         failed_tests = 0
 
+        lang_abr = translator.language.name.lower()
+
         # Run all items on the checklist & mark them as successful if they pass
         for i, item in enumerate(self.checklist):
             # Get translated version if possible, else use the message in the item
             message: str = item.message \
-                if translator.language not in self.translations \
-                else self.translations[translator.language][i]
+                if lang_abr not in self.translations \
+                else self.translations[lang_abr][i]
 
             with Context(), TestCase(message) as test_case:
                 # Make it False by default so crashing doesn't make it default to True

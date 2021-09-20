@@ -1,4 +1,3 @@
-from dodona.translator import Translator
 from typing import List
 from validators import checks
 
@@ -72,7 +71,7 @@ def create_suites(content: str) -> List[checks.TestSuite]:
     ]
 
     # Add Dutch translation
-    suite.translations[Translator.Language.NL] = [
+    suite.translations["nl"] = [
         "De HTML is geldig.",
         "De body bevat een tabel.",
         "De tabel heeft een caption.",
