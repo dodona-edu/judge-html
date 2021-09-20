@@ -1,6 +1,7 @@
 """Provide RGB color constants and a colors dictionary with
 elements formatted: colors[colorname] = CONSTANT"""
 from collections import namedtuple, OrderedDict
+from typing import Optional
 
 """
 from util.color_converter import colors, RGB
@@ -317,21 +318,21 @@ hex_name = {name_hex[k]: k for k in name_hex}
 rgb_name = {name_rgb[k]: k for k in name_rgb}
 
 
-def name_to_hex(name_str: str):
+def name_to_hex(name_str: str) -> Optional[str]:
     name_str = name_str.lower()
     if name_str in name_hex:
         return name_hex[name_str]
     return None
 
 
-def name_to_rgb(name_str: str):
+def name_to_rgb(name_str: str) -> Optional[str]:
     name_str = name_str.lower()
     if name_str in name_rgb:
         return f"rgb({name_rgb[name_str]})"
     return None
 
 
-def name_to_rgba(name_str: str):
+def name_to_rgba(name_str: str) -> Optional[str]:
     name_str = name_str.lower()
     if name_str == "transparent":
         return "rgba(0, 0, 0, 0)"
@@ -340,21 +341,21 @@ def name_to_rgba(name_str: str):
     return None
 
 
-def hex_to_name(hex_str: str):
+def hex_to_name(hex_str: str) -> Optional[str]:
     hex_str = hex_str.lower()
     if hex_str in hex_name:
         return hex_name[hex_str]
     return None
 
 
-def rgb_to_name(rgb_str: str):
+def rgb_to_name(rgb_str: str) -> Optional[str]:
     rgb_str = ", ".join(rgb_str.lower().replace(" ", "").removeprefix("rgb(").removesuffix(")").split(","))
     if rgb_str in rgb_name:
         return rgb_name[rgb_str]
     return None
 
 
-def rgba_to_name(rgb_str: str):
+def rgba_to_name(rgb_str: str) -> Optional[str]:
     rgb_str = ", ".join(rgb_str.lower().replace(" ", "").removeprefix("rgba(").removesuffix(")").split(","))
     if rgb_str == "0, 0, 0, 0":
         return "transparent"
