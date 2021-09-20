@@ -4,6 +4,9 @@ from typing import List
 class EvaluationAborted(RuntimeError):
     def __init__(self, *args): ...
 
+class InvalidTranslation(ValueError):
+    def __init__(self, *args): ...
+
 
 class DelayedExceptions(Exception):
     exceptions: List[Exception]

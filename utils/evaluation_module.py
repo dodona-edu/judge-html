@@ -1,8 +1,8 @@
 from os import path
 from types import ModuleType
-from typing import List
+from typing import List, Optional
 
-from dodona.dodona_command import DodonaException, ErrorType, MessagePermission, MessageFormat
+from dodona.dodona_command import DodonaException, ErrorType, MessagePermission, MessageFormat, Message
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from validators.checks import TestSuite
@@ -29,27 +29,31 @@ class EvaluationModule(ModuleType):
                                 Does NOT raise a NotImplementedError() so that it can be
                                 displayed nicely on Dodona.
         """
-        raise DodonaException(
-            self.config.translator.error_status(ErrorType.INTERNAL_ERROR),
-            permission=MessagePermission.STAFF,
-            description=self.config.translator.translate(Translator.Text.MISSING_CREATE_SUITE),
-            format=MessageFormat.TEXT,
-        )
+        with Message(
+                permission=MessagePermission.STAFF,
+                description=self.config.translator.translate(Translator.Text.MISSING_CREATE_SUITE),
+                format=MessageFormat.TEXT
+        ):
+            pass
+
+        raise NotImplementedError
 
     @classmethod
-    def build(cls, config: DodonaConfig) -> "EvaluationModule":
+    def build(cls, config: DodonaConfig) -> Optional["EvaluationModule"]:
         """Create a new EvaluationModule from a DodonaConfig configuration"""
         # Create filepath
         custom_evaluator_path = path.join(config.resources, "./evaluator.py")
 
         # Evaluator doesn't exist, throw an exception
         if not path.exists(custom_evaluator_path):
-            raise DodonaException(
-                config.translator.error_status(ErrorType.INTERNAL_ERROR),
-                permission=MessagePermission.STAFF,
-                description=config.translator.translate(Translator.Text.MISSING_EVALUATION_FILE),
-                format=MessageFormat.TEXT,
-            )
+            with Message(
+                    permission=MessagePermission.STAFF,
+                    description=config.translator.translate(Translator.Text.MISSING_EVALUATION_FILE),
+                    format=MessageFormat.TEXT
+            ):
+                pass
+
+            return None
 
         # Read raw content of .py file
         with open(custom_evaluator_path, "r") as fp:

@@ -16,7 +16,7 @@ from dodona.translator import Translator
 from validators.html_validator import HtmlValidator
 from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
 from exceptions.html_exceptions import Warnings, LocatableHtmlValidationError, HtmlValidationError
-from exceptions.utils import EvaluationAborted, DelayedExceptions
+from exceptions.utils import EvaluationAborted, DelayedExceptions, InvalidTranslation
 from validators.css_validator import CssValidator, CssParsingError
 
 
@@ -715,12 +715,16 @@ class TestSuite:
                                                    translation=len(v),
                                                    checklist=len(self.checklist)
                                                    )
-                raise DodonaException(
-                    translator.error_status(ErrorType.INTERNAL_ERROR),
-                    permission=MessagePermission.STAFF,
-                    description=description,
-                    format=MessageFormat.TEXT,
-                )
+
+                # Show the teacher a message
+                with Message(
+                        permission=MessagePermission.STAFF,
+                        description=description,
+                        format=MessageFormat.TEXT
+                ):
+                    pass
+
+                raise InvalidTranslation
 
     def evaluate(self, translator: Translator) -> int:
         """Run the test suite, and print the Dodona output
