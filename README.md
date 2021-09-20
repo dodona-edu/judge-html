@@ -129,8 +129,55 @@ If these settings are not defined, the default value is chosen.
 }
 ````
 
-## Testing
+## Teacher manual to evaluate with `evaluator.py` script
 
+1. For autocomplete you need to add the folder `validator` with the `checks.pyi` at the root of your project in which you write the evaluators.
+2. Create an `evaluator.py` file in the `evaluation` folder with the following code:
+  
+  > `evaluator.py`
+  >
+  > ```python
+  > from validators import checks
+  > 
+  > 
+  > def create_suites(content: str) -> list[checks.TestSuite]:
+  >     html_suite = checks.TestSuite("HTML", content)
+  >     css_suite = checks.TestSuite("CSS", content)
+  > 
+  >     return [html_suite, css_suite]
+  > ```
+
+4. Select the desired element
+
+TODO: add example
+
+5. Make a ChecklistItem
+
+TODO: add example
+
+6. Add ChecklistItem to suite.checklist
+
+TODO: add example
+
+7. *Optional*: Add translations for the checklist just before the `return` keyword. Available languages: `nl` (Dutch, **n**eder**l**ands) and `en` (English, **en**glish). Language code needs to be lower case.
+
+  ```python
+  # Add Dutch translation
+  your_suite.translations["nl"] = [
+      "YOUR FIRST CHECKLIST ITEM DESCRIPTION",
+      "YOUR SECOND CHECKLIST ITEM DESCRIPTION",
+      "YOUR THIRD CHECKLIST ITEM DESCRIPTION"
+      ]
+  ```
+
+8. *Optional*: Add boilerplate HTML to the boilerplate file. The contents of this file is loaded automatically in the submission text area of the users. You can use this to provide some starting code or structure to your students.
+
+**Final checks:**
+
+1. Make sure at least one TestSuite is returned (HTML and/or CSS).
+2. Don't use `print()` in the `evaluator.py` file!
+
+## Testing
 
 ## Contributors
 * **S. De Clercq**
