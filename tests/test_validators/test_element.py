@@ -108,4 +108,8 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(div.has_color("color", "red")))
         self.assertTrue(suite.check(div.has_color("color", "rgb(255, 0, 0)")))
         self.assertTrue(suite.check(div.has_color("color", "rgb(255,0,0)")))
+        self.assertTrue(suite.check(div.has_color("color", "rgba(255, 0, 0, 1.0)")))
+        self.assertTrue(suite.check(div.has_color("color", "rgba(255, 0, 0, 1)")))
+        self.assertTrue(suite.check(div.has_color("color", "rgba(255,0,0,1.0)")))
+        self.assertTrue(suite.check(div.has_color("color", "rgba(255,0,0,1)")))
         self.assertTrue(suite.check(div.has_color("color", "#FF0000")))

@@ -432,12 +432,13 @@ class Element:
 
         return Check(_inner)
 
-    def has_color(self, prop: str, color: str) -> Check:
+    def has_color(self, prop: str, color: str, important: Optional[bool] = None) -> Check:
         """Check that this element has a given color
         More flexible version of has_styling because it also allows RGB(r, g, b), hex format, ...
 
         :param prop:        the required CSS property to check (background-color, color, ...)
         :param color:       the color to check this property's value against, in any format
+        :param important:   indicate that this must (or may not be) marked as important
         """
         def _inner(_: BeautifulSoup) -> bool:
             if self._element is None or self._css_validator is None:
@@ -452,13 +453,27 @@ class Element:
             if color_arg.startswith("rgb"):
                 color_arg = color_arg.replace(" ", "")
 
-            prop_value = self._css_validator.find(self._element, prop.lower())
+            # If rgba, ast alpha to a float to remove trailing 0's
+            # and add a '.' if not present
+            if color_arg.startswith("rgba"):
+                rgba_parts = color_arg.removeprefix("rgba(").removesuffix(")").split(",")
+
+                rgba_parts[-1] = str(float(rgba_parts[-1]))
+                color_arg = f"rgba({','.join(rgba_parts)})"
+
+            # Find the CSS Rule
+            prop_rule = self._css_validator.find(self._element, prop.lower())
 
             # Property not found
-            if prop_value is None:
+            if prop_rule is None:
                 return False
 
-            prop_color: Optional[Color] = prop_value.get_color()
+            # !important modifier is incorrect
+            if important is not None and prop_rule.important != important:
+                return False
+
+            # Try casting the value to a color
+            prop_color: Optional[Color] = prop_rule.get_color()
 
             # Property was not a color
             if prop_color is None:

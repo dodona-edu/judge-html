@@ -349,11 +349,14 @@ def rgb_to_name(rgb_str: str) -> Optional[str]:
     return rgb_name.get(rgb_str, None)
 
 
-def rgba_to_name(rgb_str: str) -> Optional[str]:
-    rgb_str = ", ".join(rgb_str.lower().replace(" ", "").removeprefix("rgba(").removesuffix(")").split(","))
-    if rgb_str == "0, 0, 0, 0":
+def rgba_to_name(rgba_str: str) -> Optional[str]:
+    if rgba_str == "0, 0, 0, 0.0":
         return "transparent"
-    return rgb_name.get(rgb_str[:-3], None)
+
+    # Cut off transparency
+    rgb_part = ", ".join(rgba_str.split(", ")[:-1])
+
+    return rgb_name.get(rgb_part, None)
 
 
 class Color:
@@ -378,6 +381,11 @@ class Color:
 
         if self.as_rgba is not None:
             self.as_rgba = self.as_rgba.replace(" ", "")
+
+            # Make alpha a float
+            parts = self.as_rgba.removesuffix(")").split(",")
+            parts[-1] = str(float(parts[-1]))
+            self.as_rgba = (",".join(parts)) + ")"
 
     def __repr__(self):
         return f"<Color: {self.as_name}>"
@@ -409,6 +417,14 @@ class Color:
         self.as_rgba = name_to_rgba(self.as_name)
 
     def _from_rgba(self, rgba_str: str):
+        # Split string into r, g, b, and a
+        rgba_parts = rgba_str.lower().replace(" ", "").removeprefix("rgba(").removesuffix(")").split(",")
+
+        # Cut off trailing 0's
+        rgba_parts[-1] = str(float(rgba_parts[-1]))
+
+        rgba_str = ", ".join(rgba_parts)
+
         self.as_name = rgba_to_name(rgba_str)
         self.as_hex = name_to_hex(self.as_name)
         self.as_rgb = name_to_rgb(self.as_name)
