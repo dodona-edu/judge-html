@@ -320,9 +320,7 @@ rgb_name = {name_rgb[k]: k for k in name_rgb}
 
 def name_to_hex(name_str: str) -> Optional[str]:
     name_str = name_str.lower()
-    if name_str in name_hex:
-        return name_hex[name_str]
-    return None
+    return name_hex.get(name_str, None)
 
 
 def name_to_rgb(name_str: str) -> Optional[str]:
@@ -343,32 +341,26 @@ def name_to_rgba(name_str: str) -> Optional[str]:
 
 def hex_to_name(hex_str: str) -> Optional[str]:
     hex_str = hex_str.lower()
-    if hex_str in hex_name:
-        return hex_name[hex_str]
-    return None
+    return hex_name.get(hex_str, None)
 
 
 def rgb_to_name(rgb_str: str) -> Optional[str]:
     rgb_str = ", ".join(rgb_str.lower().replace(" ", "").removeprefix("rgb(").removesuffix(")").split(","))
-    if rgb_str in rgb_name:
-        return rgb_name[rgb_str]
-    return None
+    return rgb_name.get(rgb_str, None)
 
 
 def rgba_to_name(rgb_str: str) -> Optional[str]:
     rgb_str = ", ".join(rgb_str.lower().replace(" ", "").removeprefix("rgba(").removesuffix(")").split(","))
     if rgb_str == "0, 0, 0, 0":
         return "transparent"
-    if rgb_str[:-3] in rgb_name:
-        return rgb_name[rgb_str[:-3]]
-    return None
+    return rgb_name.get(rgb_str[:-3], None)
 
 
 class Color:
-    as_name: str
-    as_hex: str
-    as_rgb: str
-    as_rgba: str
+    as_name: Optional[str]
+    as_hex: Optional[str]
+    as_rgb: Optional[str]
+    as_rgba: Optional[str]
 
     def __init__(self, value_str):
         if value_str.startswith("#"):
@@ -379,6 +371,13 @@ class Color:
             self._from_rgb(value_str)
         else:
             self._from_name(value_str)
+
+        # Remove spaces in rgb & rgba
+        if self.as_rgb is not None:
+            self.as_rgb = self.as_rgb.replace(" ", "")
+
+        if self.as_rgba is not None:
+            self.as_rgba = self.as_rgba.replace(" ", "")
 
     def __repr__(self):
         return f"<Color: {self.as_name}>"

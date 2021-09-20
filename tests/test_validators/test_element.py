@@ -100,3 +100,12 @@ class TestElement(unittest.TestCase):
         self.assertFalse(suite.check(rows[0].table_row_has_content(["Column 1", "Column 2", "Column 3"])))
         self.assertTrue(suite.check(rows[1].table_row_has_content(["Value 1", "Value 2", "Value 3"])))
         self.assertTrue(suite.check(rows[2].table_row_has_content(["Value 4", "Value 5", "Value 6"])))
+
+    def test_has_color(self):
+        suite = UnitTestSuite("css_1")
+        div = suite.element("div")
+
+        self.assertTrue(suite.check(div.has_color("color", "red")))
+        self.assertTrue(suite.check(div.has_color("color", "rgb(255, 0, 0)")))
+        self.assertTrue(suite.check(div.has_color("color", "rgb(255,0,0)")))
+        self.assertTrue(suite.check(div.has_color("color", "#FF0000")))

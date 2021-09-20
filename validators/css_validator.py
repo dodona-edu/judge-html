@@ -83,7 +83,7 @@ class Rule:
 
     def get_color(self) -> Optional[Color]:
         """Return the Color instance of this Rule in case it's a color"""
-        if self.name == "color":
+        if "color" in self.name.lower():
             return Color(self.value_str)
         return None
 
@@ -253,15 +253,3 @@ class CssValidator:
         if not len(sols) == 1:
             raise AmbiguousXpath()
         return self.rules.find(self.root, sols[0], key)
-
-
-val = CssValidator("""
-<html>
-    <head>
-        <style>
-            body {color:rgb(0,0,0);}
-        </style>
-    </head>
-</html>""")
-r: Rule = val.rules.rules[0]
-print(r.get_color())

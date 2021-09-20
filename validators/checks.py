@@ -15,6 +15,7 @@ from dodona.translator import Translator
 from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
 from exceptions.html_exceptions import Warnings, LocatableHtmlValidationError
 from exceptions.utils import EvaluationAborted, InvalidTranslation
+from utils.color_converter import Color
 from validators.css_validator import CssValidator, CssParsingError
 from validators.html_validator import HtmlValidator
 
@@ -398,9 +399,9 @@ class Element:
         return Check(_inner)
 
     # CSS checks
-    def has_styling(self, attr: str, value: Optional[str] = None, important: Optional[bool] = None) -> Check:
-        """Check that this element has a CSS attribute
-        :param attr:        the required CSS attribute to check
+    def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None) -> Check:
+        """Check that this element has a CSS property
+        :param prop:        the required CSS property to check
         :param value:       an optional value to add that must be checked against,
                             in case nothing is supplied any value will pass
         :param important:   indicate that this must (or may not be) marked as important
@@ -413,21 +414,57 @@ class Element:
             if self._css_validator is None:
                 return False
 
-            attribute = self._css_validator.find(self._element, attr.lower())
+            prop_value = self._css_validator.find(self._element, prop.lower())
 
-            # Attribute not found
-            if attribute is None:
+            # Property not found
+            if prop_value is None:
                 return False
 
             # !important modifier is incorrect
-            if important is not None and attribute.important != important:
+            if important is not None and prop_value.important != important:
                 return False
 
             # Value doesn't matter
             if value is None:
                 return True
 
-            return attribute.value_str == value
+            return prop_value.value_str == value
+
+        return Check(_inner)
+
+    def has_color(self, prop: str, color: str) -> Check:
+        """Check that this element has a given color
+        More flexible version of has_styling because it also allows RGB(r, g, b), hex format, ...
+
+        :param prop:        the required CSS property to check (background-color, color, ...)
+        :param color:       the color to check this property's value against, in any format
+        """
+        def _inner(_: BeautifulSoup) -> bool:
+            if self._element is None or self._css_validator is None:
+                return False
+
+            # Using "color" here made PyCharm freak out for some reason
+            # this seems to fix it
+            # Make color case insensitive
+            color_arg = color.lower()
+
+            # Remove unnecessary spaces in rgb(a) color as it makes no difference
+            if color_arg.startswith("rgb"):
+                color_arg = color_arg.replace(" ", "")
+
+            prop_value = self._css_validator.find(self._element, prop.lower())
+
+            # Property not found
+            if prop_value is None:
+                return False
+
+            prop_color: Optional[Color] = prop_value.get_color()
+
+            # Property was not a color
+            if prop_color is None:
+                return False
+
+            return color_arg in prop_color.values()
 
         return Check(_inner)
 
