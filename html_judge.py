@@ -9,7 +9,7 @@ from utils.evaluation_module import EvaluationModule
 from utils.file_loaders import html_loader
 from validators.checks import TestSuite
 from utils.render_ready import prep_render
-from utils.messages import invalid_suites, invalid_evaluator_file
+from utils.messages import invalid_suites, invalid_evaluator_file, missing_create_suite
 
 
 def main():
@@ -46,7 +46,7 @@ def main():
             test_suites: List[TestSuite] = evaluator.create_suites(html_content)
         except NotImplementedError:
             # Evaluator.py file doesn't implement create_suites
-            # Tell students why evaluation failed
+            missing_create_suite(config.translator)
             invalid_suites(judge, config)
             return
         except Exception as e:

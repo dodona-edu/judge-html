@@ -35,3 +35,12 @@ def missing_evaluator_file(translator: Translator):
             format=MessageFormat.TEXT
     ):
         pass
+
+
+def missing_create_suite(translator: Translator):
+    with Message(
+            permission=MessagePermission.STAFF,
+            description=translator.translate(Translator.Text.MISSING_CREATE_SUITE),
+            format=MessageFormat.TEXT
+    ):
+        pass

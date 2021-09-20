@@ -30,13 +30,6 @@ class EvaluationModule(ModuleType):
                                 Does NOT raise a NotImplementedError() so that it can be
                                 displayed nicely on Dodona.
         """
-        with Message(
-                permission=MessagePermission.STAFF,
-                description=self.config.translator.translate(Translator.Text.MISSING_CREATE_SUITE),
-                format=MessageFormat.TEXT
-        ):
-            pass
-
         raise NotImplementedError
 
     @classmethod
