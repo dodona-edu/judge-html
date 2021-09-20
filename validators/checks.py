@@ -717,13 +717,6 @@ class TestSuite:
                 # Can't set items on tuples so overwrite it
                 try:
                     test_case.accepted = item.evaluate(self._bs)
-                except Warnings as war:
-                    # Warnings don't cause the test to fail, but must still be printed
-                    with Message(description=str(war), format=MessageFormat.CODE):  # code preserves spaces & newlines
-                        test_case.accepted = True
-                except (HtmlValidationError, DelayedExceptions) as err:
-                    with Message(description=str(err), format=MessageFormat.CODE):  # code preserves spaces & newlines
-                        pass
                 except EvaluationAborted:
                     # Crucial test failed, stop evaluation and let the next tests
                     # all be marked as wrong
