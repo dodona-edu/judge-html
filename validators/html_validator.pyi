@@ -15,7 +15,6 @@ class HtmlValidator(HTMLParser):
     check_required: bool
     check_recommended: bool
     check_nesting: bool
-    check_void: bool
 
     def __init__(self, translator: Translator, **kwargs): ...
 
@@ -25,7 +24,6 @@ class HtmlValidator(HTMLParser):
 
     def set_check_nesting(self, b: bool): ...
 
-    def set_check_void(self, b: bool): ...
 
     def error(self, error: HtmlValidationError): ...
 
