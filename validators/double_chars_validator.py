@@ -23,7 +23,7 @@ class DoubleCharsValidator:
         text = list(text)
         stack = []
         pos_stack = []
-        i, line, pos, end = [0, 1, 1, len(text)]
+        i, line, pos, end = [0, 0, 0, len(text)]
         # loop text
         while i < end:
             char = text[i]
@@ -39,7 +39,7 @@ class DoubleCharsValidator:
             # update position
             if char == "\n":
                 line += 1
-                pos = 1
+                pos = 0
             else:
                 pos += 1
 

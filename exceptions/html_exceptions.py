@@ -23,8 +23,8 @@ class LocatableHtmlValidationError(HtmlValidationError):
             return f"{self.translator.translate(Translator.Text.LOCATED_AT)}: {self.fpos()}"
 
     def fpos(self) -> str:
-        return f"{self.translator.translate(Translator.Text.LINE)} {self.position[0]} " \
-               f"{self.translator.translate(Translator.Text.POSITION)} {self.position[1]}"
+        return f"{self.translator.translate(Translator.Text.LINE)} {self.position[0] + 1} " \
+               f"{self.translator.translate(Translator.Text.POSITION)} {self.position[1] + 1}"
 
 
 """
@@ -102,7 +102,7 @@ class MissingRecommendedAttributesWarning(TagAttributeError):
 
 class Warnings(DelayedExceptions):
     def __init__(self, translator: Translator):
-        super(Warnings, self).__init__()
+        super().__init__()
         self.translator = translator
         self.exceptions: LocatableHtmlValidationError  # makes them sortable
 
