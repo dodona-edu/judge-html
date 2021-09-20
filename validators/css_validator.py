@@ -144,7 +144,6 @@ class Rules:
     def __len__(self):
         return len(self.rules)
 
-    # TODO ask if this is an incorrect typehint and if the rule can somehow be returned instead
     # of doing serialize() at the end, to access the !important property
     def find(self, root: ElementBase, solution_element: ElementBase, key: str) -> Optional[Rule]:
         """find the css rule for key (ex: color) for the solution_element,
@@ -177,7 +176,7 @@ class Rules:
             if r.specificity > dom_rule.specificity:
                 dom_rule = r
 
-        return tinycss2.serialize(dom_rule.value)
+        return dom_rule
 
 
 class AmbiguousXpath(Exception):
