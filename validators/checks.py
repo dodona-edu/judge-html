@@ -7,9 +7,10 @@ from copy import deepcopy
 from collections import deque
 from dataclasses import dataclass, field
 from urllib.parse import urlsplit
-from typing import Deque, List, Optional, Callable, Union
+from typing import Deque, List, Optional, Callable, Union, Dict
 
-from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation
+from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation, DodonaException, ErrorType, \
+    MessagePermission
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from validators.html_validator import HtmlValidator
@@ -596,6 +597,7 @@ class TestSuite:
     content: str
     check_recommended: bool = True
     checklist: List[ChecklistItem] = field(default_factory=list)
+    translations: Dict[Translator.Language, List[str]] = field(default_factory=dict)
     _bs: BeautifulSoup = field(init=False)
     _html_validator: HtmlValidator = field(init=False)
     _css_validator: CssValidator = field(init=False)
@@ -704,17 +706,40 @@ class TestSuite:
         elements = self._bs.find_all(tag, recursive=not from_root, **kwargs)
         return ElementContainer.from_tags(elements, self._css_validator)
 
+    def _validate_translations(self, translator: Translator):
+        """Check that the set translations are valid"""
+        for k, v in self.translations.items():
+            if len(v) != len(self.checklist):
+                description = translator.translate(Translator.Text.INVALID_LANGUAGE_TRANSLATION,
+                                                   language=translator.language.name,
+                                                   translation=len(v),
+                                                   checklist=len(self.checklist)
+                                                   )
+                raise DodonaException(
+                    translator.error_status(ErrorType.INTERNAL_ERROR),
+                    permission=MessagePermission.STAFF,
+                    description=description,
+                    format=MessageFormat.TEXT,
+                )
+
     def evaluate(self, translator: Translator) -> int:
         """Run the test suite, and print the Dodona output
         :returns:   the amount of failed tests
         :rtype:     int
         """
+        self._validate_translations(translator)
+
         aborted = -1
         failed_tests = 0
 
         # Run all items on the checklist & mark them as successful if they pass
         for i, item in enumerate(self.checklist):
-            with Context(), TestCase(item.message) as test_case:
+            # Get translated version if possible, else use the message in the item
+            message: str = item.message \
+                if translator.language not in self.translations \
+                else self.translations[translator.language][i]
+
+            with Context(), TestCase(message) as test_case:
                 # Make it False by default so crashing doesn't make it default to True
                 test_case.accepted = False
 

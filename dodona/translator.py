@@ -26,6 +26,7 @@ class Translator:
         TESTCASE_ABORTED = auto()
         TESTCASE_NO_LONGER_EVALUATED = auto()
         FAILED_TESTS = auto()
+        INVALID_LANGUAGE_TRANSLATION = auto()
         # double char exceptions
         MISSING_OPENING_CHARACTER = auto()
         MISSING_CLOSING_CHARACTER = auto()
@@ -120,6 +121,7 @@ class Translator:
             Text.TESTCASE_ABORTED: "Evaluation was aborted because this test failed. All subsequent tests were not executed.",
             Text.TESTCASE_NO_LONGER_EVALUATED: "This test was not evaluated.",
             Text.FAILED_TESTS: "{amount} test(s) failed.",
+            Text.INVALID_LANGUAGE_TRANSLATION: "Translation for language {language} does not contain the same amount of items as the checklist ({translation} instead of {checklist}).",
             # double char exceptions
             Text.MISSING_OPENING_CHARACTER: "Missing opening character for",
             Text.MISSING_CLOSING_CHARACTER: "Missing closing character for",
@@ -144,6 +146,7 @@ class Translator:
             Text.TESTCASE_ABORTED: "Het evalueren is onderbroken omdat deze test faalde. De hierop volgende tests werden niet uitgevoerd.",
             Text.TESTCASE_NO_LONGER_EVALUATED: "Deze test werd niet uitgevoerd.",
             Text.FAILED_TESTS: "{amount} test(en) gefaald.",
+            Text.INVALID_LANGUAGE_TRANSLATION: "De vertaling voor {language} bevat niet hetzelfde aantal elementen als de checklist ({translation} in plaats van {checklist}).",
             # double char exceptions
             Text.MISSING_OPENING_CHARACTER: "Ontbrekend openend karakter voor",
             Text.MISSING_CLOSING_CHARACTER: "Ontbrekend sluited karakter voor",
