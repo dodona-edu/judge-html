@@ -85,8 +85,9 @@ def main():
 
         # Only render out valid HTML on Dodona
         if html_validated:
-            with Tab("Rendered"):
-                with Message(format=MessageFormat.HTML, description=prep_render(html_content, render_css=css_validated)):
+            title, html = prep_render(html_content, render_css=css_validated)
+            with Tab(f"Rendered{f': {title}' if title else ''}"):
+                with Message(format=MessageFormat.HTML, description=html):
                     pass
 
         if aborted:
