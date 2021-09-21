@@ -1,5 +1,4 @@
 from dodona.translator import Translator
-from validators.html_validator import HtmlValidator
 from lxml.html import fromstring, HtmlElement
 
 
@@ -10,7 +9,7 @@ class NotTheSame(Exception):
         self.trans = trans
 
     def __repr__(self):
-        return f"{self.msg} {self.trans.translate(Translator.Text.AT_LINE)} {self.line}"
+        return f"{self.msg} {self.trans.translate(Translator.Text.AT_LINE)} {self.line + 1}"
 
     def __str__(self):
         return self.__repr__()
@@ -23,13 +22,13 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
     * minimal_attributes: (default: False) check whether at least the attributes in solution are supplied in the submission
     * contents: (default: False) check whether the contents of each tag in the solution are exactly the same as in the submission
     Raises a NotTheSame exception if the solution and the submission are not alike
+
+    the submission html should be valid html
     """
     # structure is always checked
     check_attributes = kwargs.get("attributes", False)
     check_minimal_attributes = kwargs.get("minimal_attributes", False)
     check_contents = kwargs.get("contents", False)
-    html_validator = HtmlValidator(trans)
-    html_validator.validate_content(submission)
 
     solution: HtmlElement = fromstring(solution)
     submission: HtmlElement = fromstring(submission)

@@ -19,6 +19,7 @@ from utils.html_navigation import find_child, compare_content
 from utils.color_converter import Color
 from validators.css_validator import CssValidator, CssParsingError
 from validators.html_validator import HtmlValidator
+from validators.structure_validator import NotTheSame
 
 
 @dataclass
@@ -774,6 +775,19 @@ class TestSuite:
         def _inner(_: BeautifulSoup) -> bool:
             return self._css_validated
 
+        return Check(_inner)
+
+    def compare_to_solution(self, solution: str, translator: Translator, **kwargs):
+        """Compare the submission to the solution html."""
+        def _inner(_: BeautifulSoup):
+            from validators.structure_validator import compare, NotTheSame
+            try:
+                compare(solution, self.content, translator, **kwargs)
+            except NotTheSame as err:
+                with Annotation(err.line, str(err)):
+                    with Message(str(err)):
+                        return False
+            return True
         return Check(_inner)
 
     def document_matches(self, regex: str, flags: Union[int, re.RegexFlag] = 0) -> Check:

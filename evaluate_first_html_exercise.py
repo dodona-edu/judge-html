@@ -71,9 +71,22 @@ def create_suites(content: str) -> List[checks.TestSuite]:
         "De caption bevat de correcte tekst.",
         "De tabel heeft rijen.",
         "De eerste rij is een header met de vereiste inhoud.",
-        "De tweede rij bevat de vereiste inhoud.",
+    "De tweede rij bevat de vereiste inhoud.",
         "De derde rij bevat de vereiste inhoud.",
         "De vierde rij bevat de vereiste inhoud."
     ]
 
     return [suite]
+
+
+"""
+                solution = html_loader(os.path.join(config.resources, "./solution.html"))
+                if not solution:
+                    invalid_suites(judge, config)
+                # TODO: create testsuite with html validation and add a checklistitem that compares to the solution.html 
+                # compare(sol, html_content, config.translator) 
+                suite = checks.TestSuite("Compare", html_content)
+                suite.add_check(checks.ChecklistItem("The HTML is valid.", suite.validate_html().or_abort()))
+                suite.add_check((checks.ChecklistItem("The submission resembles the solution", suite.compare_to_solution(solution))))
+                
+"""
