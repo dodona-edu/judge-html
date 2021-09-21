@@ -47,10 +47,10 @@ class EvaluationModule(ModuleType):
             # Compile the code into bytecode
             evaluator_script = compile(fp.read(), "<string>", "exec")
 
-        # Create a new module
-        evaluator_module = cls("evaluation", config)
+            # Create a new module
+            evaluator_module = cls("evaluation", config)
 
-        # Build the bytecode & add to the new module
-        exec(evaluator_script, evaluator_module.__dict__)
+            # Build the bytecode & add to the new module
+            exec(evaluator_script, evaluator_module.__dict__)
 
-        return evaluator_module
+            return evaluator_module
