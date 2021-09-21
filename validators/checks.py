@@ -605,7 +605,7 @@ class ChecklistItem:
                 self._checks.append(item)
             elif isinstance(item, list):
                 # Group the list into one main check and add that one
-                self._checks.append(all_of(item))
+                self._checks.append(all_of(*item))
 
     def evaluate(self, bs: BeautifulSoup) -> bool:
         """Evaluate all checks inside of this item"""
@@ -675,7 +675,7 @@ class TestSuite:
         self.checklist.append(check)
 
     def make_item(self, message: str, *args: Check):
-        """Shortcut for suite.checklist.append(ChecklistItem(message, checks))"""
+        """Shortcut for suite.checklist.append(ChecklistItem(message, check))"""
         self.checklist.append(ChecklistItem(message, list(args)))
 
     def validate_html(self, allow_warnings: bool = True) -> Check:
