@@ -131,8 +131,9 @@ class HtmlValidator(HTMLParser):
         """validate that each tag that opens has a corresponding closing tag
         """
         if not (self.tag_stack and self.tag_stack[-1] == tag):
+            missing_closing = self.tag_stack.pop()
             self.error(MissingClosingTagError(translator=self.translator, tag_location=self.tag_stack,
-                                              position=self.getpos(), tag=tag))
+                                              position=self.getpos(), tag=missing_closing))
 
     @lru_cache()
     def _is_void_tag(self, tag: str) -> bool:
