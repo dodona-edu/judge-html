@@ -43,6 +43,21 @@ The image also shows a `1` next to the **HTML** tab, indicating that 1 test fail
 
 You can get a specific HTML element by tag using `suite.element(tag)` in the form of an instance of the `Element` class (explained later). Afterwards, you can use this reference to create extra checks based off of it.
 
+#### Signature:
+```python
+def element(tag: str, index: int = 0, from_root: bool = False, **kwargs) -> Element
+```
+
+#### Parameters:
+
+| Name     | Description                                                                                                                                           | Required? | Default         |
+:----------|:------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:----------------|
+| `tag`    | The tag to search for                                                                                                                                 |     ✔     |                 |
+| `index`  | In case multiple children match your query, choose which match should be chosen. If the index goes out of range, the first match is returned instead. |           | 0 (first match) |
+| `from_root` | Boolean that indicates only children of the root element should be searched.                                                                       |           | False           |
+
+#### Example usage
+
 The example below shows how to get the `<html>` tag:
 
 ```html
@@ -60,7 +75,7 @@ html_tag = suite.element("html")
 
 Searching will start from the root element, and work in a breadth-first way recursively. In case you want to disable this and only search the root of the tree, you can pass `from_root=True` into the function.
 
-The example below shows how to get the `<div>` at the root of the tree, and not the one that comes first in the file but is nested deeper.
+The example below shows how to get the `<div>` at the root of the tree, not the one that comes first in the file but is nested deeper.
 
 ```html
 <span>
@@ -77,7 +92,37 @@ The example below shows how to get the `<div>` at the root of the tree, and not 
 
 ```python
 suite = TestSuite("HTML", content)
+
+# from_root=True: only check children of the root node, so ignore the very first (nested) <div>
 root_div = suite.element("div", from_root=True)
+```
+
+In case multiple elements were matched, you can specify which one should be chosen using the `index` parameter.
+
+The example below shows how to get the third `<tr>`.
+
+```html
+<tbody>
+<!-- We don't want this tr -->
+<tr>
+  ...
+</tr>
+<!-- We don't want this tr -->
+<tr>
+  ...
+</tr>
+<!-- We want THIS tr -->
+<tr>
+  ...
+</tr>
+</tbody>
+```
+
+```python
+suite = TestSuite("HTML", content)
+
+# index=2: take the third element in case it exists
+root_div = suite.element("div", index=2)
 ```
 
 Extra filters, such as id's and attributes, can be passed as _kwargs_. You can pass as many filters as you want to.
@@ -103,6 +148,7 @@ The example below shows how to get the `<tr>` with id `row_one`, and the `<th>` 
 
 ```python
 suite = TestSuite("HTML", content)
+
 tr_one = suite.element("tr", id="row_one")
 th_colspan = suite.element("th", colspan="2")
 ```
