@@ -216,7 +216,9 @@ class Element:
 
             for child in children:
                 # Child is a text instance which is not allowed
-                if isinstance(child, NavigableString):
+                # Empty tags shouldn't count as text, but for some reason bs4
+                # still picks these up so they're filtered out as well
+                if isinstance(child, NavigableString) and child.text.strip():
                     return False
 
             return True
