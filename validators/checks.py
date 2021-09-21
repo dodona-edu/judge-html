@@ -579,7 +579,7 @@ def _flatten_queue(queue: List) -> List[Check]:
     return flattened
 
 
-@dataclass
+@dataclass(init=False)
 class ChecklistItem:
     """An item to add to the checklist
 
@@ -589,20 +589,18 @@ class ChecklistItem:
                     to be marked as passed/successful on the final list
     """
     message: str
-    # People can pass nested lists into this, so the type is NOT List[Check] yet
-    checks: Union[List, Check] = field(default_factory=list)
     _checks: List[Check] = field(init=False)
 
-    def __post_init__(self):
+    def __init__(self, message: str, *checks: Union[List, Check]):
+        self.message = message
         self._checks = []
 
-        # Only one check was passed
-        if isinstance(self.checks, Check):
-            self._checks.append(self.checks)
+        if isinstance(checks, Check):
+            self._checks.append(checks)
             return
 
         # Flatten the list of checks and store in internal list
-        for item in self.checks:
+        for item in checks:
             if isinstance(item, Check):
                 self._checks.append(item)
             elif isinstance(item, list):
@@ -675,6 +673,10 @@ class TestSuite:
         This is a shortcut to suite.checklist.append()
         """
         self.checklist.append(check)
+
+    def make_item(self, message: str, *args: Check):
+        """Shortcut for suite.checklist.append(ChecklistItem(message, checks))"""
+        self.checklist.append(ChecklistItem(message, list(args)))
 
     def validate_html(self, allow_warnings: bool = True) -> Check:
         """Check that the HTML is valid
@@ -814,13 +816,13 @@ class TestSuite:
         return failed_tests
 
 
-def all_of(args: List[Check]) -> Check:
-    """Perform an AND-statement on a list of Checks
+def all_of(*args: Check) -> Check:
+    """Perform an AND-statement on a series of Checks
     Creates a new Check that requires every single one of the checks to pass,
     otherwise returns False.
     """
     # Flatten list of checks
-    flattened = _flatten_queue(deepcopy(args))
+    flattened = _flatten_queue(deepcopy(list(args)))
     queue: Deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:
@@ -840,13 +842,13 @@ def all_of(args: List[Check]) -> Check:
     return Check(_inner)
 
 
-def any_of(args: List[Check]) -> Check:
-    """Perform an OR-statement on a list of Checks
+def any_of(*args: Check) -> Check:
+    """Perform an OR-statement on a series of Checks
     Returns True if at least one of the tests succeeds, and stops
     evaluating the rest at that point.
     """
     # Flatten list of checks
-    flattened = _flatten_queue(deepcopy(args))
+    flattened = _flatten_queue(deepcopy(list(args)))
     queue: Deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:
@@ -866,10 +868,10 @@ def any_of(args: List[Check]) -> Check:
     return Check(_inner)
 
 
-def at_least(amount: int, args: List[Check]) -> Check:
+def at_least(amount: int, *args: Check) -> Check:
     """Check that at least [amount] checks passed"""
     # Flatten list of checks
-    flattened = _flatten_queue(deepcopy(args))
+    flattened = _flatten_queue(deepcopy(list(args)))
     queue: Deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:

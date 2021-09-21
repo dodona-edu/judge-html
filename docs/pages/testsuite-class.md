@@ -169,13 +169,13 @@ More info on `ElementContainer`s can be found in the respective [documentation p
 
 In order to add `ChecklistItem`s, you can either set the entire checklist at once, or add separate `ChecklistItem`s one by one.
 
-Adding items one by one can either be done by adding them to the internal checklist (`TestSuite.checklist.append(item)`) or by using the shortcut `TestSuite.add_check(item)`.
+Adding items one by one can either be done by adding them to the internal checklist (`TestSuite.checklist.append(item)`) or by using the shortcuts `TestSuite.add_check(item)` and `TestSuite.make_item(message, checks)`. Just like the constructor of `ChecklistItem`, `make_check` can take both a variable amount of `Checks` and a `List` of `Check`s.
 
 ```python
 suite = TestSuite("HTML", content)
 
-first_item = ChecklistItem("Item 1", ...)
-second_item = ChecklistItem("Item 2", ...)
+first_item = ChecklistItem("Item 1", check1)
+second_item = ChecklistItem("Item 2", check2, check3)
 
 # Directly setting the list content
 suite.checklist = [first_item, second_item]
@@ -184,6 +184,10 @@ suite.checklist = [first_item, second_item]
 suite.checklist.append(first_item)
 # TestSuite.add_check is a shortcut to TestSuite.checklist.append()
 suite.add_check(second_item)
+
+# TestSuite.make_item is a shortcut to create a ChecklistItem inline
+# The line below is equal to suite.add_check(ChecklistItem("Item 3", check1, check2, check3))
+suite.make_item("Item 3", check1, check2, check3)
 ```
 
 ## Adding multiple languages
