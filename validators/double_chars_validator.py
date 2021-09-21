@@ -23,30 +23,36 @@ class DoubleCharsValidator:
 
     def validate_content(self, text: str):
         """checks the text"""
-        # delete html comments
-        while (i := text.find("<!--")) != -1:
-            j = text.find("-->", i)
-            text = text[0:i] + text[j+3:]
-        # delete css comments
-        while (i := text.find("/*")) != -1:
-            j = text.find("*/", i)
-            text = text[0:i] + text[j+2:]
-
-        text = list(text)
+        text_ls = list(text)
         stack = []
         pos_stack = []
-        i, line, pos, end = [0, 0, 0, len(text)]
+        i, line, pos, end, inside_comment, length, c_line, c_pos = [0, 0, 0, len(text_ls), None, len(text), 0, 0]
         # loop text
         while i < end:
-            char = text[i]
-            # closing
-            if stack and self.convert[stack[-1]] == char:
-                stack.pop()
-                pos_stack.pop()
-            # not closing
-            elif char in self.convert:
-                stack.append(char)
-                pos_stack.append((line, pos))  # humans count from 1 not from 0
+            char = text_ls[i]
+            # comment?
+            if not inside_comment:
+                if char == "<" and i + 4 < length and text[i:i + 4] == "<!--":  # html comment
+                    inside_comment = "-->"
+                    c_line = line
+                    c_pos = pos
+                if char == "/" and i + 2 < length and text[i:i + 2] == "/*":  # css comment
+                    inside_comment = "*/"
+                    c_line = line
+                    c_pos = pos
+            if inside_comment:  # check with previous char
+                if text_ls[i - 1] == inside_comment[-1]:
+                    if i - 1 - len(inside_comment) >= 0 and text[i - len(inside_comment):i] == inside_comment:
+                        inside_comment = None
+            if not inside_comment:
+                # closing
+                if stack and self.convert[stack[-1]] == char:
+                    stack.pop()
+                    pos_stack.pop()
+                # not closing
+                elif char in self.convert:
+                    stack.append(char)
+                    pos_stack.append((line, pos))  # humans count from 1 not from 0
             i += 1
             # update position
             if char == "\n":
@@ -56,8 +62,11 @@ class DoubleCharsValidator:
                 pos += 1
 
         # the stack should be empty, if not print remaining things
+        errors = MultipleMissingCharsError(self.translator)
+
+        if inside_comment:
+            errors.add(MissingClosingCharError(translator=self.translator, position=(c_line, c_pos), char=("<!--" if inside_comment == "-->" else "/*")))
         if stack:
-            errors = MultipleMissingCharsError(self.translator)
             while stack:
                 char = stack.pop()
                 pos = pos_stack.pop()
