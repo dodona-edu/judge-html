@@ -15,6 +15,7 @@ from dodona.translator import Translator
 from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
 from exceptions.html_exceptions import Warnings, LocatableHtmlValidationError
 from exceptions.utils import EvaluationAborted, InvalidTranslation
+from utils.html_navigation import find_child
 from utils.color_converter import Color
 from validators.css_validator import CssValidator, CssParsingError
 from validators.html_validator import HtmlValidator
@@ -109,30 +110,12 @@ class Element:
                         if not enough children were found, still return the first
         :param direct:  indicate that only direct children should be considered
         """
-        # This element was not found, so the children don't exist either
-        if self._element is None:
-            return EmptyElement()
-
-        # No index specified, first child requested
-        if index == 0:
-            child = self._element.find(tag, recursive=not direct, **kwargs)
-        else:
-            all_children = self._element.find_all(tag, recursive=not direct, **kwargs)
-
-            # No children found
-            if len(all_children) == 0:
-                child = None
-            else:
-                # Not enough children found (index out of range)
-                if index >= len(all_children):
-                    index = 0
-
-                child = all_children[index]
+        child = find_child(self._element, tag=tag, index=index, from_root=direct, **kwargs)
 
         if child is None:
             return EmptyElement()
 
-        return Element(tag, child.get("id", None), child, self._css_validator)
+        return Element(child.name, child.get("id", None), child, self._css_validator)
 
     def get_children(self, tag: Optional[str] = None, direct: bool = True, **kwargs) -> "ElementContainer":
         """Get all children of this element that match the requested input"""
@@ -740,18 +723,20 @@ class TestSuite:
 
         return Check(_inner)
 
-    # TODO allow path to be passed using html > body > ... notation instead of only tags
-    # TODO allow index here as well
-    def element(self, tag: str, from_root: bool = False, **kwargs) -> Element:
+    def element(self, tag: str, index: int = 0, from_root: bool = False, **kwargs) -> Element:
         """Create a reference to an HTML element
         :param tag:         the name of the HTML tag to search for
+        :param index:       in case multiple elements match, specify which should be chosen
         :param from_root:   find the element as a child of the root node instead of anywhere
                             in the document
         """
-        element = self._bs.find(tag, recursive=not from_root, **kwargs)
-        return Element(tag, kwargs.get("id", None), element, self._css_validator)
+        element = find_child(self._bs, tag=tag, index=index, from_root=from_root, **kwargs)
 
-    # TODO allow path to be passed using html > body > ... notation instead of only tags
+        if element is None:
+            return EmptyElement()
+
+        return Element(element.name, kwargs.get("id", None), element, self._css_validator)
+
     def all_elements(self, tag: str, from_root: bool = False, **kwargs) -> ElementContainer:
         """Get references to ALL HTML elements that match a query"""
         elements = self._bs.find_all(tag, recursive=not from_root, **kwargs)
