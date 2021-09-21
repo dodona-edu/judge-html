@@ -182,7 +182,7 @@ class TestSuite:
 
     def html_is_valid(self) -> bool: ...
 
-    def add_check(self, check: ChecklistItem):
+    def add_item(self, check: ChecklistItem):
         """Shortcut for TestSuite.checklist.append(item)"""
         ...
 

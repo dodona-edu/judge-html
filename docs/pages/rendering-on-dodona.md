@@ -11,7 +11,7 @@ valid = ChecklistItem("The HTML and CSS are valid.", [
     suite.validate_html(),
     suite.validate_css()
 ])
-suite.add_check(valid)
+suite.add_item(valid)
 ```
 
 Keep in mind that there may be artifacts from Dodona's own CSS that are applied onto the student's submission. This _can_ result in the rendering not being 100% accurate, but has no influence on the tests being correct or not.

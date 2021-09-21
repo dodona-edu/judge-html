@@ -691,14 +691,15 @@ class TestSuite:
         """
         return self._css_validated
 
-    def add_check(self, check: ChecklistItem):
+    def add_item(self, check: ChecklistItem):
         """Add an item to the checklist
-        This is a shortcut to suite.checklist.append()
+        This is a shortcut to suite.checklist.append(item)
         """
         self.checklist.append(check)
 
     def make_item(self, message: str, *args: Check):
-        """Shortcut for suite.checklist.append(ChecklistItem(message, check))"""
+        """Create a new ChecklistItem
+        This is a shortcut for suite.checklist.append(ChecklistItem(message, check))"""
         self.checklist.append(ChecklistItem(message, list(args)))
 
     def validate_html(self, allow_warnings: bool = True) -> Check:
