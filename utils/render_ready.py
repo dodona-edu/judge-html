@@ -18,8 +18,7 @@ def prep_render(html_content: str, render_css: bool) -> (str, str):
         title: Tag = soup.find("title")
         if title is not None:
             title_str = title.text
-            title.contents = []  # bc unwrapping just leaves the content behind
-            title.unwrap()
+            title.decompose()
         else:
             title_str = ''
 
