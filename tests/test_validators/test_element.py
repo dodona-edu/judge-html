@@ -40,6 +40,7 @@ class TestElement(unittest.TestCase):
 
         self.assertTrue(suite.check(paragraph.has_content()))
         self.assertTrue(suite.check(paragraph.has_content("Some text.")))
+        self.assertTrue(suite.check(paragraph.has_content("Some  \t        text.")))
         self.assertFalse(suite.check(paragraph.has_content("Other text")))
 
     def test_attribute_exists(self):
@@ -81,8 +82,8 @@ class TestElement(unittest.TestCase):
         table_elements = suite.all_elements("table")
 
         content = [
-            ["Value 1", "Value 2", "Value 3"],
-            ["Value 4", "Value 5", "Value 6"]
+            ["Value     1", "Value 2", "Value\t 3"],
+            ["Value  4", "Value \n\t\n 5", "Value 6"]
         ]
 
         self.assertTrue(suite.check(table_elements[0].has_table_content(content, has_header=True)))
@@ -98,8 +99,8 @@ class TestElement(unittest.TestCase):
 
         # Only for td's, not for headers
         self.assertFalse(suite.check(rows[0].table_row_has_content(["Column 1", "Column 2", "Column 3"])))
-        self.assertTrue(suite.check(rows[1].table_row_has_content(["Value 1", "Value 2", "Value 3"])))
-        self.assertTrue(suite.check(rows[2].table_row_has_content(["Value 4", "Value 5", "Value 6"])))
+        self.assertTrue(suite.check(rows[1].table_row_has_content(["Value \n1", "Value 2", "Value 3"])))
+        self.assertTrue(suite.check(rows[2].table_row_has_content(["Value 4", "Value \t5", "Value      6"])))
 
     def test_has_color(self):
         suite = UnitTestSuite("css_1")

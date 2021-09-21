@@ -271,7 +271,20 @@ div.has_color("background-color", "#0000FF")  # By hex value
 
 ### `has_content`
 
-Check that the element has specific content, or any content at all.
+Check that the element has specific content, or any content at all. 
+
+This check **ignores** leading and trailing whitespace, and replaces all other whitespace by a single space. The reason behind this is that HTML does the same, so these spaces shouldn't matter.
+
+This means that
+
+```python
+x = "this text" 
+```
+and
+```python
+y = "    \t\n     this \t\n\n\t                text           "
+```
+are considered to be **equal**.
 
 #### Signature:
 ```python
