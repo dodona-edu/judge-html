@@ -1,6 +1,7 @@
 # Evaluating by comparing
 
-Another way of evaluating an exercise is by comparing it to the `solution.html file`. This is the default if no `evaluator.py` file is present.
+Another way of evaluating an exercise is by comparing it to the `solution.html file`.\
+This is the default if no `evaluator.py` file is present.
 
 ## Options
 
@@ -44,7 +45,6 @@ And this as the submission
 <p>Lorem ipsum</p>
 ```
 Then the submission will be accepted. Remember that contents will only be compared if you set `contents` to `true` in the config.json.
-
 
 #### Example 2 (attribute values)
 
