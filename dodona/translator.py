@@ -39,6 +39,13 @@ class Translator:
         INVALID_ATTRIBUTE = auto()
         MISSING_REQUIRED_ATTRIBUTE = auto()
         MISSING_RECOMMENDED_ATTRIBUTE = auto()
+        # comparer text
+        TAGS_DIFFER = auto()
+        ATTRIBUTES_DIFFER = auto()
+        NOT_ALL_ATTRIBUTES_PRESENT = auto()
+        CONTENTS_DIFFER = auto()
+        AMOUNT_CHILDREN_DIFFER = auto()
+        AT_LINE = auto()
         # normal text
         ERRORS = auto()
         WARNINGS = auto()
@@ -135,6 +142,13 @@ class Translator:
             Text.INVALID_ATTRIBUTE: "Invalid attribute for",
             Text.MISSING_REQUIRED_ATTRIBUTE: "Missing required attribute(s) for",
             Text.MISSING_RECOMMENDED_ATTRIBUTE: "Missing recommended attribute(s) for",
+            # comparer text
+            Text.TAGS_DIFFER: "Tags differ",
+            Text.ATTRIBUTES_DIFFER: "Attributes differ",
+            Text.NOT_ALL_ATTRIBUTES_PRESENT: "Not all minimal required attributes are present",
+            Text.CONTENTS_DIFFER: "Contents differ",
+            Text.AMOUNT_CHILDREN_DIFFER: "Amount of children differs",
+            Text.AT_LINE: "At line",
             # normal text
             Text.ERRORS: "Error(s)",
             Text.WARNINGS: "Warning(s)",
@@ -161,6 +175,13 @@ class Translator:
             Text.INVALID_ATTRIBUTE: "Ongeldig attribuut voor",
             Text.MISSING_REQUIRED_ATTRIBUTE: "Ontbrekende vereiste attributen voor",
             Text.MISSING_RECOMMENDED_ATTRIBUTE: "Ontbrekende aanbevolen attributen voor",
+            # comparer text
+            Text.TAGS_DIFFER: "Tags verschillen",
+            Text.ATTRIBUTES_DIFFER: "Attributen verschillen",
+            Text.NOT_ALL_ATTRIBUTES_PRESENT: "Niet alle minimaal vereiste attributen zijn aanwezig",
+            Text.CONTENTS_DIFFER: "Inhoud (text) verschilt",
+            Text.AMOUNT_CHILDREN_DIFFER: "Aantal kinderen verschilt",
+            Text.AT_LINE: "Bij regel",
             # normal text
             Text.ERRORS: "Fout(en)",
             Text.WARNINGS: "Waarschuwing(en)",
