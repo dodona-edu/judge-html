@@ -226,3 +226,17 @@ script_element = suite.element("script")
 # Check that there are no script tags
 fail_if(script_element.exists())
 ```
+
+It is **very** important to note that non-existing HTML elements will cause checks to fail by default, so `fail_if` can make them pass unintentionally. When using an `Element`, you should always check if it **exists** first (using the `Element.exists()` Check).
+
+The example below makes sure that the url doesn't contain a fragment. If the url doesn't exist, this will pass as well!
+
+```python
+a_tag = suite.element("a")
+
+# If <a> doesn't exist, this will succeed, and the check will pass!
+fail_if(a_tag.url_has_fragment())
+
+# Solution: first check if it exists, THEN perform the check
+ChecklistItem("The anchor tag does not contain a fragment", a_tag.exists(), fail_if(a_tag.url_has_fragment()))
+```

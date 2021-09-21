@@ -7,7 +7,7 @@ from typing import Deque, List, Optional, Callable, Union, Dict
 from urllib.parse import urlsplit
 
 from bs4 import BeautifulSoup
-from bs4.element import Tag
+from bs4.element import Tag, NavigableString
 
 from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation, MessagePermission
 from dodona.dodona_config import DodonaConfig
@@ -199,6 +199,27 @@ class Element:
 
         def _inner(_: BeautifulSoup) -> bool:
             return self._has_tag(tag)
+
+        return Check(_inner)
+
+    def no_loose_text(self) -> Check:
+        """Check that there is no content floating around in this tag"""
+        def _inner(_: BeautifulSoup) -> bool:
+            # Even though a non-existent element has no text,
+            # so it may seem as this should always pass,
+            # the standard behaviour is that Checks for these elements
+            # should always fail
+            if self._element is None:
+                return False
+
+            children = self._element.children
+
+            for child in children:
+                # Child is a text instance which is not allowed
+                if isinstance(child, NavigableString):
+                    return False
+
+            return True
 
         return Check(_inner)
 

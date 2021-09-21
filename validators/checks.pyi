@@ -69,6 +69,10 @@ class Element:
         """Check that this element has the required tag."""
         ...
 
+    def no_loose_text(self) -> Check:
+        """Check that there is no content floating around in this tag"""
+        ...
+
     def _get_attribute(self, attr: str) -> Optional[str]: ...
 
     def attribute_exists(self, attr: str, value: Optional[str] = ..., case_insensitive: bool = ...) ->Check:

@@ -18,6 +18,7 @@ This class is **not** meant for you to instantiate manually, but instances are r
   - [`has_content`](#has_content)
   - [`has_styling`](#has_styling)
   - [`has_tag`](#has_tag)
+  - [`no_loose_text`](#no_loose_text)
   - [`url_has_fragment`](#url_has_fragment)
 
 ## HTML-related methods
@@ -368,6 +369,24 @@ body_structure = ChecklistItem("The body has a table followed by a div.", [
   body_children[0].has_tag("table"),
   body_children[1].has_tag("div")
 ])
+```
+
+### `no_loose_text`
+
+Check that this element has no text inside of it that is not inside of another element. Examples include random text floating around inside of a `<tr>` instead of a `<td>`.
+
+#### Signature:
+```python
+def no_loose_text() -> Check
+```
+
+#### Example usage
+```python
+suite = TestSuite("HTML", content)
+table_element = suite.element("table")
+
+# Verify that the table doesn't have any text inside of it
+table_element.no_loose_text()
 ```
 
 ### `url_has_fragment`
