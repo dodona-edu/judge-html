@@ -1,3 +1,4 @@
+import re
 from typing import Optional, Union
 from bs4 import BeautifulSoup
 from bs4.element import Tag
@@ -32,3 +33,16 @@ def find_child(element: Optional[Union[BeautifulSoup, Tag]],
             index = 0
 
         return all_children[index]
+
+
+def compare_content(first: str, second: str) -> bool:
+    """Check if content of two strings is equal, ignoring all whitespace"""
+    # Remove all leading/trailing whitespace, and replace all other whitespace by single spaces
+    # in both argument and content
+    element_text = first.strip()
+    arg_text = second.strip()
+
+    element_text = re.sub(r"\s+", " ", element_text, re.MULTILINE)
+    arg_text = re.sub(r"\s+", " ", arg_text, re.MULTILINE)
+
+    return element_text == arg_text

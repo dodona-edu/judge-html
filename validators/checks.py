@@ -15,7 +15,7 @@ from dodona.translator import Translator
 from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
 from exceptions.html_exceptions import Warnings, LocatableHtmlValidationError
 from exceptions.utils import EvaluationAborted, InvalidTranslation
-from utils.html_navigation import find_child
+from utils.html_navigation import find_child, compare_content
 from utils.color_converter import Color
 from validators.css_validator import CssValidator, CssParsingError
 from validators.html_validator import HtmlValidator
@@ -180,10 +180,13 @@ class Element:
             if self._element is None:
                 return False
 
-            if text is not None:
-                return self._element.text == text
+            if self._element.text is None:
+                return text is None
 
-            return len(self._element.text) > 0
+            if text is not None:
+                return compare_content(self._element.text, text)
+
+            return len(self._element.text.strip()) > 0
 
         return Check(_inner)
 
@@ -277,7 +280,7 @@ class Element:
 
             # Check if all headers have the same content in the same order
             for i in range(len(header)):
-                if header[i] != ths[i].text:
+                if not compare_content(header[i], ths[i].text):
                     return False
 
             return True
@@ -324,7 +327,7 @@ class Element:
                 # Compare content
                 for j in range(len(rows[i])):
                     # Content doesn't match
-                    if data[j].text != rows[i][j]:
+                    if not compare_content(data[j].text, rows[i][j]):
                         return False
 
             return True
@@ -346,7 +349,7 @@ class Element:
 
             for i in range(len(row)):
                 # Text doesn't match
-                if row[i] != tds[i].text:
+                if not compare_content(row[i], tds[i].text):
                     return False
 
             return True
