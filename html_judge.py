@@ -92,7 +92,7 @@ def main():
         if aborted:
             judge.status = config.translator.error_status(ErrorType.RUNTIME_ERROR)
         else:
-            status = ErrorType.CORRECT_ANSWER if failed_tests == 0 else ErrorType.WRONG_ANSWER
+            status = ErrorType.CORRECT_ANSWER if failed_tests == 0 else ErrorType.WRONG if failed_tests == 1 else ErrorType.WRONG_ANSWER
             judge.status = config.translator.error_status(status, amount=failed_tests)
 
 
