@@ -866,10 +866,15 @@ class HTMLSuite(BoilerplateTestSuite):
     """TestSuite that does HTML validation by default"""
     allow_warnings: bool
 
-    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True):
+    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True):
         super().__init__("HTML", content, check_recommended)
 
-        self._default_checks = [ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings).or_abort())]
+        # Only abort if necessary
+        if abort:
+            self._default_checks = [ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings).or_abort())]
+        else:
+            self._default_checks = [ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings))]
+
         self._default_translations = {"en": ["The HTML is valid."], "nl": ["De HTML is geldig."]}
 
         self.allow_warnings = allow_warnings
@@ -879,12 +884,19 @@ class CssSuite(BoilerplateTestSuite):
     """TestSuite that does HTML and CSS validation by default"""
     allow_warnings: bool
 
-    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True):
+    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True):
         super().__init__("CSS", content, check_recommended)
 
-        self._default_checks = [ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings).or_abort()),
-                                ChecklistItem("The CSS is valid.", self.validate_css().or_abort())
-                                ]
+        # Only abort if necessary
+        if abort:
+            self._default_checks = [ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings).or_abort()),
+                                    ChecklistItem("The CSS is valid.", self.validate_css().or_abort())
+                                    ]
+        else:
+            self._default_checks = [ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings)),
+                                    ChecklistItem("The CSS is valid.", self.validate_css())
+                                    ]
+
         self._default_translations = {
             "en": ["The HTML is valid.", "The CSS is valid."],
             "nl": ["De HTML is geldig.", "De CSS is geldig."]

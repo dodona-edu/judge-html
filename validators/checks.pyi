@@ -225,13 +225,13 @@ class BoilerplateTestSuite(TestSuite):
 class HTMLSuite(BoilerplateTestSuite):
     allow_warnings: bool
 
-    def __init__(self, content: str, check_recommended: bool = ..., allow_warnings: bool = ...): ...
+    def __init__(self, content: str, check_recommended: bool = ..., allow_warnings: bool = ..., abort: bool = ...): ...
 
 
 class CssSuite(BoilerplateTestSuite):
     allow_warnings: bool
 
-    def __init__(self, content: str, check_recommended: bool = ..., allow_warnings: bool = ...): ...
+    def __init__(self, content: str, check_recommended: bool = ..., allow_warnings: bool = ..., abort: bool = ...): ...
 
 
 def all_of(*args: Check) -> Check:
