@@ -23,6 +23,8 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
     * attributes: (default: False) check whether attributes are exactly the same in solution and submission
     * minimal_attributes: (default: False) check whether at least the attributes in solution are supplied in the submission
     * contents: (default: False) check whether the contents of each tag in the solution are exactly the same as in the submission
+    * css: (default: True) if there are css rules defined in the solution, check if the submission can match these rules.
+            We don't compare the css rules itself, but rather whether every element in the submission has at least the css-rules defined in the solution.
     Raises a NotTheSame exception if the solution and the submission are not alike
 
     the submission html should be valid html
