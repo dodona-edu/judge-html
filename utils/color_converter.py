@@ -319,19 +319,25 @@ rgb_name = {name_rgb[k]: k for k in name_rgb}
 
 
 def name_to_hex(name_str: str) -> Optional[str]:
-    name_str = name_str.lower()
+    if not name_str:
+        return None
+    name_str = name_str.lower().strip()
     return name_hex.get(name_str, None)
 
 
 def name_to_rgb(name_str: str) -> Optional[str]:
-    name_str = name_str.lower()
+    if not name_str:
+        return None
+    name_str = name_str.lower().strip()
     if name_str in name_rgb:
         return f"rgb({name_rgb[name_str]})"
     return None
 
 
 def name_to_rgba(name_str: str) -> Optional[str]:
-    name_str = name_str.lower()
+    if not name_str:
+        return None
+    name_str = name_str.lower().strip()
     if name_str == "transparent":
         return "rgba(0, 0, 0, 0)"
     if name_str in name_rgb:
@@ -340,23 +346,29 @@ def name_to_rgba(name_str: str) -> Optional[str]:
 
 
 def hex_to_name(hex_str: str) -> Optional[str]:
-    hex_str = hex_str.lower()
+    if not hex_str:
+        return None
+    hex_str = hex_str.lower().strip()
     return hex_name.get(hex_str, None)
 
 
 def rgb_to_name(rgb_str: str) -> Optional[str]:
+    if not rgb_str:
+        return None
     rgb_str = ", ".join(rgb_str.lower().replace(" ", "").removeprefix("rgb(").removesuffix(")").split(","))
     return rgb_name.get(rgb_str, None)
 
 
 def rgba_to_name(rgba_str: str) -> Optional[str]:
-    if rgba_str == "0, 0, 0, 0.0":
+    if not rgba_str:
+        return None
+    rgba = rgba_str.replace(" ", "").split(",")
+    rgba[-1] = str(float(rgba[-1]))
+    if ", ".join(rgba) == "0, 0, 0, 0.0":
         return "transparent"
 
     # Cut off transparency
-    rgb_part = ", ".join(rgba_str.split(", ")[:-1])
-
-    return rgb_name.get(rgb_part, None)
+    return rgb_name.get(", ".join(rgba[:-1]), None)
 
 
 class Color:

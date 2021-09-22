@@ -205,6 +205,14 @@ class TestSuite:
         """Check that the code between the <style>-tag of the submission is valid CSS. If no style tag is present, this Check will also pass."""
         ...
 
+    def add_check_validate_css_if_present(self):
+        """Adds a check for CSS-validation only if there is some CSS supplied"""
+        ...
+
+    def compare_to_solution(self, solution: str, translator: Translator, **kwargs) -> Check:
+        """Compare the submission to the solution html."""
+        ...
+
     def document_matches(self, regex: str, flags: Union[int, RegexFlag] = ...) -> Check:
         """Check that the student's submitted code matches a regex string."""
         ...
@@ -239,6 +247,12 @@ class CssSuite(BoilerplateTestSuite):
     allow_warnings: bool
 
     def __init__(self, content: str, check_recommended: bool = ..., allow_warnings: bool = ..., abort: bool = ...): ...
+
+
+class _CompareSuite(HTMLSuite):
+
+    def __init__(self, content: str, solution: str, config: DodonaConfig, check_recommended: bool = True,
+                 allow_warnings: bool = True, abort: bool = True): ...
 
 
 def all_of(*args: Check) -> Check:

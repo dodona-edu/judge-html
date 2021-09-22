@@ -7,6 +7,7 @@ Note that examples in these files often leave some repetitive information out be
 ## Table of Contents
 
 - [Evaluators](pages/evaluators.md)
+- [Evaluating by comparing](pages/evaluating-by-comparing.md)
 - [Default TestSuites](pages/default-suites.md)
 - [TestSuite Class](pages/testsuite-class.md)
 - [ChecklistItem Class](pages/checklistitem-class.md)
