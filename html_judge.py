@@ -57,25 +57,6 @@ def main():
                                                       suite.compare_to_solution(solution, config.translator, **params))))
                 suite.translations["nl"] = ["De HTML is geldig.", "De ingediende code lijkt op die van de oplossing."]
                 test_suites: List[TestSuite] = [suite]
-            # An error message is shown for this in build(), stop evaluating
-            if evaluator is not None:
-                test_suites: List[TestSuite] = evaluator.create_suites(html_content)
-            else:
-                solution = html_loader(os.path.join(config.resources, "./solution.html"))
-                if not solution:
-                    invalid_suites(judge, config)
-                    return
-                # compare(sol, html_content, config.translator)
-                suite = checks.TestSuite(config.translator.translate(Translator.Text.SUBMISSION), html_content)
-                suite.add_check(checks.ChecklistItem("The HTML is valid.",
-                                                     suite.validate_html().or_abort()))
-                params = {"attributes": getattr(config, "attributes", False),
-                          "minimal_attributes": getattr(config, "minimal_attributes", False),
-                          "contents": getattr(config, "contents", False)}
-                suite.add_check((checks.ChecklistItem("The submission resembles the solution.",
-                                                      suite.compare_to_solution(solution, config.translator, **params))))
-                suite.translations["nl"] = ["De HTML is geldig.", "De ingediende code lijkt op die van de oplossing."]
-                test_suites: List[TestSuite] = [suite]
         except NotImplementedError:
             # Evaluator.py file doesn't implement create_suites
             missing_create_suite(config.translator)
