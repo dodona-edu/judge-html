@@ -56,5 +56,4 @@ And this as the submission
 ```html
 <html lang="en"></html>
 ```
-Then the submission will be accepted\
-(remember that attributes will only be compared if you set `attributes` or `minimal_attributes` to true in the config.json)
+Then the submission will be accepted. Remember that attributes will only be compared if you set `attributes` or `minimal_attributes` to `true` in the config.json.
