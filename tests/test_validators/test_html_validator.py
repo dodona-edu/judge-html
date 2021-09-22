@@ -105,3 +105,5 @@ class TestHtmlValidator(unittest.TestCase):
             self.validator.validate_content("<head/>")
         with self.assertRaises(NoSelfClosingTagError):
             self.validator.validate_content("<html><body/></html>")
+        with self.assertRaises(UnexpectedClosingTagError):
+            self.validator.validate_content("<body><img src='The picture of a cat' alt='cat.png'></img></body>")

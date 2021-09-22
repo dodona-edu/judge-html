@@ -42,6 +42,10 @@ class UnexpectedTagError(TagError):
     def __str__(self) -> str: ...
 
 
+class UnexpectedClosingTagError(TagError):
+    def __str__(self): ...
+
+
 class TagAttributeError(LocatableHtmlValidationError):
     tag: str
     attribute: str
