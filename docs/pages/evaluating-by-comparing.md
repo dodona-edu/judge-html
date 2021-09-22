@@ -69,7 +69,7 @@ And this as the submission
 
 </html>
 ```
-Then the submission will be accepted, even tho the solution and submission css rules differ quite a bit, they result in the same visual change and thus are accepted.
+Then the submission will be accepted, even though the solution and submission css rules differ quite a bit, they result in the same visual change and thus are accepted.
 
 ## Dummy values
 
