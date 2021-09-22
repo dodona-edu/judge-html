@@ -19,7 +19,6 @@ from utils.html_navigation import find_child, compare_content
 from utils.color_converter import Color
 from validators.css_validator import CssValidator, CssParsingError
 from validators.html_validator import HtmlValidator
-from validators.structure_validator import NotTheSame
 
 
 @dataclass
