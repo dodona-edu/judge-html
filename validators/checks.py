@@ -14,7 +14,7 @@ from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
 from exceptions.html_exceptions import Warnings, LocatableHtmlValidationError
-from exceptions.utils import EvaluationAborted, InvalidTranslation
+from exceptions.utils import EvaluationAborted
 from utils.html_navigation import find_child, compare_content
 from utils.color_converter import Color
 from validators.css_validator import CssValidator, CssParsingError
@@ -777,33 +777,11 @@ class TestSuite:
             if language not in self.translations:
                 self.translations[language] = []
 
-    def _validate_translations(self, translator: Translator):
-        """Check that the set translations are valid"""
-        for k, v in self.translations.items():
-            if len(v) != len(self.checklist):
-                description = translator.translate(Translator.Text.INVALID_LANGUAGE_TRANSLATION,
-                                                   language=k,
-                                                   translation=len(v),
-                                                   checklist=len(self.checklist)
-                                                   )
-
-                # Show the teacher a message
-                with Message(
-                        permission=MessagePermission.STAFF,
-                        description=description,
-                        format=MessageFormat.TEXT
-                ):
-                    pass
-
-                raise InvalidTranslation
-
     def evaluate(self, translator: Translator) -> int:
         """Run the test suite, and print the Dodona output
         :returns:   the amount of failed tests
         :rtype:     int
         """
-        self._validate_translations(translator)
-
         aborted = -1
         failed_tests = 0
 
@@ -813,7 +791,7 @@ class TestSuite:
         for i, item in enumerate(self.checklist):
             # Get translated version if possible, else use the message in the item
             message: str = item.message \
-                if lang_abr not in self.translations \
+                if lang_abr not in self.translations or i >= len(self.translations[lang_abr]) \
                 else self.translations[lang_abr][i]
 
             with Context(), TestCase(message) as test_case:
