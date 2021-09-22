@@ -45,6 +45,7 @@ And this as the submission
 ```
 Then the submission will be accepted. Remember that contents will only be compared if you set `contents` to `true` in the config.json.
 
+
 #### Example 2 (attribute values)
 
 If you have this as solution.html
