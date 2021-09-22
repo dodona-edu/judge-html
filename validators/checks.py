@@ -107,7 +107,7 @@ class Element:
 
         :param tag:     the tag to search for
         :param index:   in case multiple children are found, specify the index to fetch
-                        if not enough children were found, still return the first
+                        if not enough children were found, return an EmptyElement
         :param direct:  indicate that only direct children should be considered
         """
         child = find_child(self._element, tag=tag, index=index, from_root=direct, **kwargs)

@@ -19,7 +19,24 @@ def find_child(element: Optional[Union[BeautifulSoup, Tag]],
 
     # Doesn't match only text, so emmet syntax was used
     if tag and re.match(r"^[a-zA-Z]+$", tag) is None:
-        return _find_emmet(element, tag, from_root)
+        try:
+            emmet_match = find_emmet(element, tag, from_root, match_multiple=False)
+        except IndexError:
+            # IndexError can happen when negative indexes are supplied which are too
+            # small to fit in the list, and this is too ugly to check so just catch it here
+            return None
+
+        # Nothing found
+        if emmet_match is None or not emmet_match:
+            return None
+
+        # Not enough matches found
+        if len(emmet_match) < index:
+            return None
+
+        # Matches multiple elements
+        # If the list was empty or None, we returned above so no need to worry
+        return emmet_match[index]
 
     # Tags should be lowercase
     tag = tag.lower()
@@ -35,14 +52,13 @@ def find_child(element: Optional[Union[BeautifulSoup, Tag]],
         return None
     else:
         # Not enough children found (index out of range)
-        # Default to first
         if index >= len(all_children):
-            index = 0
+            return None
 
         return all_children[index]
 
 
-def _find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, from_root: bool = False) -> Optional[Tag]:
+def find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, from_root: bool = False, match_multiple: bool = False) -> Optional[List[Tag]]:
     """Find an element using emmet syntax"""
     if element is None:
         return None
@@ -50,7 +66,7 @@ def _find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, from_ro
     # Tag must always be in the beginning, otherwise we can't parse it out
     tag_regex = re.compile(r"^[a-zA-Z]+")
     id_regex = re.compile(r"#([a-zA-Z0-9_-]+)")
-    index_regex = re.compile(r"\[([0-9]+)\]$")
+    index_regex = re.compile(r"\[(-?)([0-9]+)\]$")
 
     # Cannot start with a digit, two hyphens or a hyphen followed by a number.
     illegal_class_regex = re.compile(r"\.([0-9]|--|-[0-9])")
@@ -58,6 +74,8 @@ def _find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, from_ro
 
     path_stack: List[str] = path.split(">")
 
+    # the from_root should only be done once, afterwards it's always True to support this syntax
+    moved = False
     current_element = element
 
     # Keep going until path is empty
@@ -74,37 +92,54 @@ def _find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, from_ro
             return None
 
         tag = tag_regex.search(current_entry)
-        id = id_regex.search(current_entry)
+        id_match = id_regex.search(current_entry)
         class_name = class_regex.search(current_entry)
         index = index_regex.search(current_entry)
+
+        # Kwargs to filter on
+        kwargs = {}
 
         # Parse matches out
         # Tag doesn't use a capture group so take match 0 instead of 1,
         # the others need to use 1
         if tag is not None:
-            tag = tag.group(0)
+            kwargs["name"] = tag.group(0)
 
-        if id is not None:
-            id = id.group(1)
+        if id_match is not None:
+            kwargs["id"] = id_match.group(1)
 
         if class_name is not None:
-            class_name = class_name.group(1)
+            kwargs["class"] = class_name.group(1)
 
         # Parse index out
+        # First match is an optional -
+        # Second match is the number
         if index is not None:
-            index = int(index.group(1))
+            sign = 1
+            if index.group(1):
+                sign = -1
+
+            index = int(index.group(2)) * sign
         else:
             index = 0
 
         # Apply filters & find a matching element
-        # None is ignored by bs4 by default which makes this a lot cleaner
-        matches = current_element.find_all(name=tag, id=id, class_=class_name)
+        # Only use from_root if we haven't moved at least once, otherwise never go recursive
+        matches = current_element.find_all(recursive=not from_root if not moved else False, **kwargs)
 
         # No matches found, or not enough
         if not matches or len(matches) <= index:
             return None
 
+        # End of path reached
+        if not path_stack:
+            if match_multiple:
+                return matches
+
+            return matches[index]
+
         current_element = matches[index]
+        moved = True
 
     return current_element
 
