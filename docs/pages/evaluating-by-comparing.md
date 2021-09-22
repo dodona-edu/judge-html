@@ -1,4 +1,4 @@
-# Evaluating by comparing
+# Evaluating by Comparing
 
 Another way of evaluating an exercise is by comparing it to the `solution.html file`. This is the default if no `evaluator.py` file is present.
 
