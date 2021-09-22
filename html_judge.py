@@ -48,14 +48,17 @@ def main():
                     return
                 # compare(sol, html_content, config.translator)
                 suite = checks.TestSuite(config.translator.translate(Translator.Text.SUBMISSION), html_content)
+                suite.translations["nl"] = []
                 suite.add_check(checks.ChecklistItem("The HTML is valid.",
                                                      suite.validate_html().or_abort()))
+                suite.translations["nl"].append("De HTML is geldig.")
+                suite.add_check_validate_css_if_present()
                 params = {"attributes": getattr(config, "attributes", False),
                           "minimal_attributes": getattr(config, "minimal_attributes", False),
                           "contents": getattr(config, "contents", False)}
                 suite.add_check((checks.ChecklistItem("The submission resembles the solution.",
                                                       suite.compare_to_solution(solution, config.translator, **params))))
-                suite.translations["nl"] = ["De HTML is geldig.", "De ingediende code lijkt op die van de oplossing."]
+                suite.translations["nl"].append("De ingediende code lijkt op die van de oplossing.")
                 test_suites: List[TestSuite] = [suite]
         except NotImplementedError:
             # Evaluator.py file doesn't implement create_suites

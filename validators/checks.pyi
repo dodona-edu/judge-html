@@ -205,6 +205,9 @@ class TestSuite:
         """Check that the code between the <style>-tag of the submission is valid CSS. If no style tag is present, this Check will also pass."""
         ...
 
+    def add_check_validate_css_if_present(self):
+        ...
+
     def compare_to_solution(self, solution: str, translator: Translator, **kwargs) -> Check:
         """Compare the submission to the solution html."""
         ...

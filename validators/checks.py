@@ -776,6 +776,12 @@ class TestSuite:
 
         return Check(_inner)
 
+    def add_check_validate_css_if_present(self):
+        """Check that CSS was valid"""
+        if self._css_validated and self._css_validator:
+            self.add_check(ChecklistItem("The css is valid.", self.validate_css()))
+            self.translations["nl"].append("De CSS is gelidg.")
+
     def compare_to_solution(self, solution: str, translator: Translator, **kwargs):
         """Compare the submission to the solution html."""
         def _inner(_: BeautifulSoup):

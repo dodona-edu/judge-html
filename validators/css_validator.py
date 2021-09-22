@@ -206,7 +206,6 @@ class CssValidator:
     def __init__(self, html: str):
         # Invalid HTML makes fromstring() crash so it can be None
         self.root: Optional[ElementBase] = None
-
         try:
             self.root = fromstring(html)
             style: ElementBase = self.root.find(".//style")
@@ -220,6 +219,9 @@ class CssValidator:
             self.rules.root = self.root
 
         self.xpaths = {}
+
+    def __bool__(self):
+        return bool(self.rules.rules)
 
     def get_xpath_soup(self, element: Tag) -> str:
         """converts an element from bs4 soup to an xpath expression
