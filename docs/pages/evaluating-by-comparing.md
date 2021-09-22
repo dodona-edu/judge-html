@@ -31,8 +31,7 @@ As an example we show how to compare when the solution.html contains the minimal
 
 ## Dummy values
 
-In a lot of cases you're going to want the students to write something or to give some value to an attribute, but you don't care what it is they write down.\
-For that you can use the `DUMMY` keyword for attribute values and for text.
+In a lot of cases you're going to want the students to write _something_ or to give _some value_ to an attribute, but you don't care what it is they write down. For that you can use the `DUMMY` keyword for attribute values and for text.
 
 #### Example 1 (text)
 
