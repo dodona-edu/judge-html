@@ -125,7 +125,7 @@ class Translator:
 
     text_translations = {
         Language.EN: {
-            Text.MISSING_EVALUATION_FILE: "The evaluator.py and solution.html files are missing",
+            Text.MISSING_EVALUATION_FILE: "The evaluator.py and solution.html files are missing.",
             Text.MISSING_CREATE_SUITE: "The evaluator.py file does not implement the 'create_suites(content)' method.",
             Text.TESTCASE_ABORTED: "Evaluation was aborted because this test failed. All subsequent tests were not executed.",
             Text.TESTCASE_NO_LONGER_EVALUATED: "This test was not evaluated.",
