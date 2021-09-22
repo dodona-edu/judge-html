@@ -53,4 +53,7 @@ div_element = suite.element("table", from_root=False)
 
 # With Emmet Syntax
 div_element = suite.element("table>tr[0]>td[3]>div[2]", from_root=False)
+
+# The first is chosen by default, so [0] is always obsolete
+div_element = suite.element("table>tr>td[3]>div[2]", from_root=False)
 ```
