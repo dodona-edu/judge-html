@@ -6,7 +6,7 @@ Another way of evaluating an exercise is by comparing it to the `solution.html f
 
 In the `config.json` file of the exercise you can give some options as to how the comparison should happen.
 - `attributes`: (default: False) check whether attributes are exactly the same in solution and submission
-- `minimal_attributes`: (default: False) check whether at least the attributes in solution are supplied in the submission
+- `minimal_attributes`: (default: False) check whether **at least** the attributes in the solution are supplied in the submission, extra attributes are **allowed**
 - `contents`: (default: False) check whether the contents of each tag in the solution are exactly the same as in the submission
 
 To do this, simply add `option`: true to the key-value pairs which are the values of the `evaluation` key.
