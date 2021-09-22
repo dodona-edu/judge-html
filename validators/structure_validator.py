@@ -58,6 +58,10 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
     queue = ([(solution, submission)])
     while queue:
         node_sol, node_sub = queue.pop()
+        node_sol.tag = node_sol.tag.lower()
+        node_sub.tag = node_sub.tag.lower()
+        node_sol.text = node_sol.text.strip() if node_sol.text is not None else ''
+        node_sub.text = node_sub.text.strip() if node_sub.text is not None else ''
         # check name of the node
         if node_sol.tag != node_sub.tag:
             raise NotTheSame(trans.translate(Translator.Text.TAGS_DIFFER), node_sub.sourceline, trans)
@@ -70,7 +74,7 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
                 raise NotTheSame(trans.translate(Translator.Text.NOT_ALL_ATTRIBUTES_PRESENT), node_sub.sourceline, trans)
         # check content if wanted
         if check_contents:
-            if node_sol.text.strip() != "DUMMY" and node_sol.text.strip() != node_sub.text.strip():
+            if node_sol.text != "DUMMY" and node_sol.text != node_sub.text:
                 raise NotTheSame(trans.translate(Translator.Text.CONTENTS_DIFFER), node_sub.sourceline, trans)
         # check children of the node
         if len(node_sol.getchildren()) != len(node_sub.getchildren()):
