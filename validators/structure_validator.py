@@ -44,7 +44,6 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
         except Exception:
             check_css = False
 
-
     solution: HtmlElement = fromstring(solution)
     submission: HtmlElement = fromstring(submission)
     # start checking structure
