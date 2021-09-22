@@ -206,6 +206,7 @@ class TestSuite:
         ...
 
     def add_check_validate_css_if_present(self):
+        """Adds a check for CSS-validation only if there is some CSS supplied"""
         ...
 
     def compare_to_solution(self, solution: str, translator: Translator, **kwargs) -> Check:

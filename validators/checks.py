@@ -484,42 +484,14 @@ class Element:
             if self._element is None or self._css_validator is None:
                 return False
 
-            # Using "color" here made PyCharm freak out for some reason
-            # this seems to fix it
-            # Make color case insensitive
-            color_arg = color.lower()
-
-            # Remove unnecessary spaces in rgb(a) color as it makes no difference
-            if color_arg.startswith("rgb"):
-                color_arg = color_arg.replace(" ", "")
-
-            # If rgba, ast alpha to a float to remove trailing 0's
-            # and add a '.' if not present
-            if color_arg.startswith("rgba"):
-                rgba_parts = color_arg.removeprefix("rgba(").removesuffix(")").split(",")
-
-                rgba_parts[-1] = str(float(rgba_parts[-1]))
-                color_arg = f"rgba({','.join(rgba_parts)})"
-
             # Find the CSS Rule
             prop_rule = self._css_validator.find(self._element, prop.lower())
-
-            # Property not found
-            if prop_rule is None:
-                return False
 
             # !important modifier is incorrect
             if important is not None and prop_rule.important != important:
                 return False
 
-            # Try casting the value to a color
-            prop_color: Optional[Color] = prop_rule.get_color()
-
-            # Property was not a color
-            if prop_color is None:
-                return False
-
-            return color_arg in prop_color.values()
+            return prop_rule.has_color(color)
 
         return Check(_inner)
 
@@ -777,10 +749,11 @@ class TestSuite:
         return Check(_inner)
 
     def add_check_validate_css_if_present(self):
-        """Check that CSS was valid"""
+        """Adds a check for CSS-validation only if there is some CSS supplied"""
         if self._css_validated and self._css_validator:
             self.add_check(ChecklistItem("The css is valid.", self.validate_css()))
-            self.translations["nl"].append("De CSS is gelidg.")
+            if self.translations["nl"]:
+                self.translations["nl"].append("De CSS is geldig.")
 
     def compare_to_solution(self, solution: str, translator: Translator, **kwargs):
         """Compare the submission to the solution html."""

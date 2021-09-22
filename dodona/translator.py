@@ -45,6 +45,7 @@ class Translator:
         NOT_ALL_ATTRIBUTES_PRESENT = auto()
         CONTENTS_DIFFER = auto()
         AMOUNT_CHILDREN_DIFFER = auto()
+        STYLES_DIFFER = auto()
         AT_LINE = auto()
         # normal text
         ERRORS = auto()
@@ -149,6 +150,7 @@ class Translator:
             Text.NOT_ALL_ATTRIBUTES_PRESENT: "Not all minimal required attributes are present",
             Text.CONTENTS_DIFFER: "Contents differ",
             Text.AMOUNT_CHILDREN_DIFFER: "Amount of children differs",
+            Text.STYLES_DIFFER: "CSS styling differs for element <{tag}>",
             Text.AT_LINE: "at line",
             # normal text
             Text.ERRORS: "Error(s)",
@@ -183,6 +185,7 @@ class Translator:
             Text.NOT_ALL_ATTRIBUTES_PRESENT: "Niet alle minimaal vereiste attributen zijn aanwezig",
             Text.CONTENTS_DIFFER: "Inhoud (text) verschilt",
             Text.AMOUNT_CHILDREN_DIFFER: "Aantal kinderen verschilt",
+            Text.STYLES_DIFFER: "CSS stijling verschilt voor element <{tag}>",
             Text.AT_LINE: "op regel",
             # normal text
             Text.ERRORS: "Fout(en)",

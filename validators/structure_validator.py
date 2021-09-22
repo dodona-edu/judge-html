@@ -1,6 +1,8 @@
 from dodona.translator import Translator
 from lxml.html import fromstring, HtmlElement
 
+from validators.css_validator import CssValidator
+
 
 class NotTheSame(Exception):
     def __init__(self, msg: str, line: int, trans: Translator):
@@ -29,6 +31,19 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
     check_attributes = kwargs.get("attributes", False)
     check_minimal_attributes = kwargs.get("minimal_attributes", False)
     check_contents = kwargs.get("contents", False)
+    check_css = kwargs.get("css", True)
+
+    sol_css = None
+    sub_css = None
+    if check_css:
+        try:
+            sol_css = CssValidator(solution)
+            sub_css = CssValidator(submission)
+            if not sol_css.rules:  # no rules in solution file
+                check_css = False
+        except Exception:
+            check_css = False
+
 
     solution: HtmlElement = fromstring(solution)
     submission: HtmlElement = fromstring(submission)
@@ -76,6 +91,15 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
         if check_contents:
             if node_sol.text != "DUMMY" and node_sol.text != node_sub.text:
                 raise NotTheSame(trans.translate(Translator.Text.CONTENTS_DIFFER), node_sub.sourceline, trans)
+        # check css
+        if check_css:
+            rs_sol = sol_css.rules.find_all(solution, node_sol)
+            rs_sub = sub_css.rules.find_all(submission, node_sub)
+            if rs_sol:
+                for r_key in rs_sol:
+                    if not (r_key in rs_sub and rs_sol[r_key].value_str == rs_sub[r_key].value_str):
+                        if not (rs_sol[r_key].is_color() and rs_sol[r_key].has_color(rs_sub[r_key].value_str)):
+                            raise NotTheSame(trans.translate(Translator.Text.STYLES_DIFFER, tag=node_sub.tag), node_sub.sourceline, trans)
         # check children of the node
         if len(node_sol.getchildren()) != len(node_sub.getchildren()):
             raise NotTheSame(trans.translate(Translator.Text.AMOUNT_CHILDREN_DIFFER), node_sub.sourceline, trans)
