@@ -11,7 +11,7 @@ from utils.file_loaders import html_loader
 from validators import checks
 from validators.checks import TestSuite
 from utils.render_ready import prep_render
-from utils.messages import invalid_suites, invalid_evaluator_file, missing_create_suite
+from utils.messages import invalid_suites, invalid_evaluator_file, missing_create_suite, missing_evaluator_file
 
 
 def main():
@@ -38,13 +38,12 @@ def main():
         # and a short message to the student
         try:
             evaluator: Optional[EvaluationModule] = EvaluationModule.build(config)
-
-            # An error message is shown for this in build(), stop evaluating
             if evaluator is not None:
                 test_suites: List[TestSuite] = evaluator.create_suites(html_content)
             else:
                 solution = html_loader(os.path.join(config.resources, "./solution.html"))
                 if not solution:
+                    missing_evaluator_file(config.translator)
                     invalid_suites(judge, config)
                     return
                 # compare(sol, html_content, config.translator)

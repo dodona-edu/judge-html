@@ -39,19 +39,18 @@ class EvaluationModule(ModuleType):
         custom_evaluator_path = path.join(config.resources, "./evaluator.py")
 
         # Evaluator doesn't exist, show an exception
-        if path.exists(custom_evaluator_path):
-            # Read raw content of .py file
-            with open(custom_evaluator_path, "r") as fp:
-                # Compile the code into bytecode
-                evaluator_script = compile(fp.read(), "<string>", "exec")
+        if not path.exists(custom_evaluator_path):
+            return None
 
-            # Create a new module
-            evaluator_module = cls("evaluation", config)
+        # Read raw content of .py file
+        with open(custom_evaluator_path, "r") as fp:
+            # Compile the code into bytecode
+            evaluator_script = compile(fp.read(), "<string>", "exec")
 
-            # Build the bytecode & add to the new module
-            exec(evaluator_script, evaluator_module.__dict__)
+        # Create a new module
+        evaluator_module = cls("evaluation", config)
 
-            return evaluator_module
-        elif not path.exists(path.join(config.resources, "./solution.html")):
-            missing_evaluator_file(config.translator)
-        return None
+        # Build the bytecode & add to the new module
+        exec(evaluator_script, evaluator_module.__dict__)
+
+        return evaluator_module
