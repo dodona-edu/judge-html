@@ -43,20 +43,22 @@ The image also shows a `1` next to the **HTML** tab, indicating that 1 test fail
 
 ## Referencing (specific) HTML elements
 
+**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter**
+
 You can get a specific HTML element by tag using `suite.element(tag)` in the form of an instance of the `Element` class (explained later). Afterwards, you can use this reference to create extra checks based off of it.
 
 #### Signature:
 ```python
-def element(tag: str, index: int = 0, from_root: bool = False, **kwargs) -> Element
+def element(tag: Optional[str] = None, index: int = 0, from_root: bool = False, **kwargs) -> Element
 ```
 
 #### Parameters:
 
-| Name     | Description                                                                                                                                            | Required? | Default         |
-:----------|:-------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:----------------|
-| `tag`    | The tag to search for                                                                                                                                  |     ✔     |                 |
-| `index`  | In case multiple children match your query, choose which match should be chosen. If the index goes out of range, an empty element is returned instead. |           | 0 (first match) |
-| `from_root` | Boolean that indicates only children of the root element should be searched.                                                                        |           | False           |
+| Name     | Description                                                                                                                                            | Required? | Default                                 |
+:----------|:-------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------|
+| `tag`    | The tag to search for                                                                                                                                  |           | None, which won't filter based on tags. |
+| `index`  | In case multiple children match your query, choose which match should be chosen. If the index goes out of range, an empty element is returned instead. |           | 0 (first match)                         |
+| `from_root` | Boolean that indicates only children of the root element should be searched.                                                                        |           | False                                   |
 
 #### Example usage
 
@@ -160,6 +162,8 @@ Remember that values should be `strings`.
 In case an attribute only has to *exist*, and the value doesn't matter, set the value to `True`. In the example above, this would mean that you request the students have at least one `<th>` with a `colspan` attribute, no matter how big it may be. The code for this would be `suite.element("th", colspan=True)`
 
 ## Referencing multiple HTML elements
+
+**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter**
 
 In case you want to get a list of all elements (optionally matching filters), use `suite.all_elements` instead. This method takes the exact same arguments as `elements`, and thus the same filters can be applied.
 

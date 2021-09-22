@@ -9,14 +9,13 @@ from urllib.parse import urlsplit
 from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
 
-from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation, MessagePermission
+from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
 from exceptions.html_exceptions import Warnings, LocatableHtmlValidationError
 from exceptions.utils import EvaluationAborted
-from utils.html_navigation import find_child, compare_content
-from utils.color_converter import Color
+from utils.html_navigation import find_child, compare_content, match_emmet, find_emmet
 from validators.css_validator import CssValidator, CssParsingError
 from validators.html_validator import HtmlValidator
 
@@ -102,8 +101,8 @@ class Element:
         return f"<{self.tag}>"
 
     # HTML utilities
-    def get_child(self, tag: str, index: int = 0, direct: bool = True, **kwargs) -> "Element":
-        """Find the child element with the given tag
+    def get_child(self, tag: Optional[str] = None, index: int = 0, direct: bool = True, **kwargs) -> "Element":
+        """Find the child element that matches the specifications
 
         :param tag:     the tag to search for
         :param index:   in case multiple children are found, specify the index to fetch
@@ -123,11 +122,18 @@ class Element:
         if self._element is None:
             return ElementContainer([])
 
-        # If a tag was specified, only search for those
-        # Otherwise, use all children instead
-        if tag is not None:
+        # Emmet syntax requested
+        if match_emmet(tag):
+            matches = find_emmet(self._element, tag, from_root=direct, match_multiple=True)
+
+            # Nothing found
+            if matches is None:
+                return ElementContainer([])
+        elif tag is not None:
+            # If a tag was specified, only search for those
             matches = self._element.find_all(tag, recursive=not direct, **kwargs)
         else:
+            # Otherwise, use all children instead
             matches = self._element.children if direct else self._element.descendants
 
             # Filter out string content
@@ -791,7 +797,7 @@ class TestSuite:
 
         return Check(_inner)
 
-    def element(self, tag: str, index: int = 0, from_root: bool = False, **kwargs) -> Element:
+    def element(self, tag: Optional[str] = None, index: int = 0, from_root: bool = False, **kwargs) -> Element:
         """Create a reference to an HTML element
         :param tag:         the name of the HTML tag to search for
         :param index:       in case multiple elements match, specify which should be chosen
@@ -805,9 +811,16 @@ class TestSuite:
 
         return Element(element.name, kwargs.get("id", None), element, self._css_validator)
 
-    def all_elements(self, tag: str, from_root: bool = False, **kwargs) -> ElementContainer:
+    def all_elements(self, tag: Optional[str] = None, from_root: bool = False, **kwargs) -> ElementContainer:
         """Get references to ALL HTML elements that match a query"""
-        elements = self._bs.find_all(tag, recursive=not from_root, **kwargs)
+        if match_emmet(tag):
+            elements = find_emmet(self._bs, tag, from_root=from_root, match_multiple=True)
+
+            if elements is None:
+                return ElementContainer([])
+        else:
+            elements = self._bs.find_all(tag, recursive=not from_root, **kwargs)
+
         return ElementContainer.from_tags(elements, self._css_validator)
 
     def _create_language_lists(self):

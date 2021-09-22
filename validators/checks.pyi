@@ -43,7 +43,7 @@ class Element:
 
     def __str__(self) -> str: ...
 
-    def get_child(self, tag: str, index: int = ..., direct: bool = ..., **kwargs) -> "Element":
+    def get_child(self, tag: Optional[str] = ..., index: int = ..., direct: bool = ..., **kwargs) -> "Element":
         """This method finds a child element with tag tag, optionally with extra filters."""
         ...
 
@@ -217,11 +217,11 @@ class TestSuite:
         """Check that the student's submitted code matches a regex string."""
         ...
 
-    def element(self, tag: str, from_root: bool = ..., **kwargs) -> Element:
+    def element(self, tag: Optional[str] = ..., from_root: bool = ..., **kwargs) -> Element:
         """Create a reference to an HTML element"""
         ...
 
-    def all_elements(self, tag: str, from_root: bool = ..., **kwargs) -> ElementContainer:
+    def all_elements(self, tag: Optional[str] = ..., from_root: bool = ..., **kwargs) -> ElementContainer:
         """Get references to ALL HTML elements that match a query"""
         ...
 

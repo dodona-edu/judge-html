@@ -4,8 +4,12 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag
 
 
+def match_emmet(tag: Optional[str]) -> bool:
+    return tag is not None and tag and re.match(r"^[a-zA-Z]+$", tag) is None
+
+
 def find_child(element: Optional[Union[BeautifulSoup, Tag]],
-               tag: str, index: int = 0, from_root: bool = False, **kwargs) -> Optional[Tag]:
+               tag: Optional[str], index: int = 0, from_root: bool = False, **kwargs) -> Optional[Tag]:
     """Shortcut to find a child node with a given tag
     :param element:     the parent element to start searching from
     :param tag:         the name of the HTML tag to search for
@@ -18,7 +22,7 @@ def find_child(element: Optional[Union[BeautifulSoup, Tag]],
         return None
 
     # Doesn't match only text, so emmet syntax was used
-    if tag and re.match(r"^[a-zA-Z]+$", tag) is None:
+    if match_emmet(tag):
         try:
             emmet_match = find_emmet(element, tag, from_root, match_multiple=False)
         except IndexError:
@@ -39,7 +43,8 @@ def find_child(element: Optional[Union[BeautifulSoup, Tag]],
         return emmet_match[index]
 
     # Tags should be lowercase
-    tag = tag.lower()
+    if tag is not None:
+        tag = tag.lower()
 
     # No index specified, first child requested
     if index == 0:
@@ -58,6 +63,9 @@ def find_child(element: Optional[Union[BeautifulSoup, Tag]],
         return all_children[index]
 
 
+# TODO support index to be passed in from get_ methods for the last result,
+#       emmet index gets priority if present
+# TODO allow kwargs to be passed in from get_ methods for the last result
 def find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, from_root: bool = False, match_multiple: bool = False) -> Optional[List[Tag]]:
     """Find an element using emmet syntax"""
     if element is None:
@@ -86,6 +94,10 @@ def find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, from_roo
         # Take first entry from stack
         current_entry = path_stack.pop(0)
 
+        # Element is empty, so return all children
+        if not current_entry:
+            return current_element.children
+
         # Illegal class name
         if illegal_class_regex.search(current_entry) is not None:
             # TODO raise exception to show an error message to the teacher?
@@ -103,7 +115,7 @@ def find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, from_roo
         # Tag doesn't use a capture group so take match 0 instead of 1,
         # the others need to use 1
         if tag is not None:
-            kwargs["name"] = tag.group(0)
+            kwargs["name"] = tag.group(0).lower()
 
         if id_match is not None:
             kwargs["id"] = id_match.group(1)
@@ -136,7 +148,7 @@ def find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, from_roo
             if match_multiple:
                 return matches
 
-            return matches[index]
+            return [matches[index]]
 
         current_element = matches[index]
         moved = True
