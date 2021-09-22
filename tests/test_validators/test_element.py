@@ -118,13 +118,13 @@ class TestElement(unittest.TestCase):
         self.assertFalse(suite.check(suite.element("div").no_loose_text()))
         self.assertTrue(suite.check(suite.element("table").no_loose_text()))
 
-    def test_url_has_fragment(self):
+    def test_has_url_with_fragment(self):
         suite = UnitTestSuite("links")
-        self.assertFalse(suite.check(suite.element("body").url_has_fragment()))
-        self.assertFalse(suite.check(suite.element("a", id="outgoing_link").url_has_fragment()))
-        self.assertTrue(suite.check(suite.element("a", id="fragmented_link").url_has_fragment()))
-        self.assertTrue(suite.check(suite.element("a", id="fragmented_link").url_has_fragment("_1-create-an-api-token")))
-        self.assertFalse(suite.check(suite.element("a", id="fragmented_link").url_has_fragment("some-other-fragment")))
+        self.assertFalse(suite.check(suite.element("body").has_url_with_fragment()))
+        self.assertFalse(suite.check(suite.element("a", id="outgoing_link").has_url_with_fragment()))
+        self.assertTrue(suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment()))
+        self.assertTrue(suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment("_1-create-an-api-token")))
+        self.assertFalse(suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment("some-other-fragment")))
 
     def test_has_outgoing_url(self):
         suite = UnitTestSuite("links")

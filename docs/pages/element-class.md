@@ -16,10 +16,11 @@ This class is **not** meant for you to instantiate manually, but instances are r
   - [`has_child`](#has_child)
   - [`has_color`](#has_color)
   - [`has_content`](#has_content)
+  - [`has_outgoing_url`](#has_outgoing_url)
   - [`has_styling`](#has_styling)
   - [`has_tag`](#has_tag)
+  - [`has_url_with_fragment`](#has_url_with_fragment)
   - [`no_loose_text`](#no_loose_text)
-  - [`url_has_fragment`](#url_has_fragment)
 
 ## HTML-related methods
 
@@ -314,6 +315,32 @@ paragraphs_exist = ChecklistItem("The body has two paragraphs that meet the requ
 ])
 ```
 
+### `has_outgoing_url`
+
+Check that this element has a url that doesn't go to another domain, optionally with a `list` of domains that you want to allow.
+
+In case the element is not an `<a>`-tag or does not have an `href` attribute, this will also return `False`. 
+
+#### Signature:
+```python
+def has_outgoing_url(allowed_domains: Optional[List[str]] = None) -> Check
+```
+#### Parameters:
+
+| Name      | Description                                     | Required? | Default                                           |
+|:----------|:------------------------------------------------|:---------:|:--------------------------------------------------|
+| allowed_domains  | An optional list of domains that should *not* be considered "outgoing". |           | None, which will default to `["dodona.ugent.be", "users.ugent.be"]`.|
+
+#### Example usage
+```python
+suite = TestSuite("HTML", content)
+body = suite.element("body")
+# href=True means the child should have an href attribute, no matter the value
+a_tag = body.get_child("a", href=True)
+
+a_tag.has_outgoing_link(allowed_domains=["ugent.be"])
+```
+
 ### `has_styling`
 
 Check that this element is matched by a CSS selector to give it a particular styling. A value can be passed to match the value of the styling exactly.
@@ -371,6 +398,33 @@ body_structure = ChecklistItem("The body has a table followed by a div.", [
 ])
 ```
 
+### `has_url_with_fragment`
+
+Check that this element has a url with a fragment (`#`), optionally comparing the fragment to a `string` that it should match exactly.
+
+In case the element is not an `<a>`-tag or does not have an `href` attribute, this will also return `False`. 
+
+#### Signature:
+```python
+def has_url_with_fragment(fragment: Optional[str] = None) -> Check
+```
+#### Parameters:
+
+| Name      | Description                                     | Required? | Default                                           |
+|:----------|:------------------------------------------------|:---------:|:--------------------------------------------------|
+| fragment  | An optional fragment that should match exactly. |           | None, which will make any non-empty fragment pass.|
+
+#### Example usage
+
+```python
+suite = TestSuite("HTML", content)
+body = suite.element("body")
+# href=True means the child should have an href attribute, no matter the value
+a_tag = body.get_child("a", href=True)
+
+a_tag.has_url_with_fragment()
+```
+
 ### `no_loose_text`
 
 Check that this element has no text inside of it that is not inside of another element. Examples include random text floating around inside of a `<tr>` instead of a `<td>`.
@@ -387,30 +441,4 @@ table_element = suite.element("table")
 
 # Verify that the table doesn't have any text inside of it
 table_element.no_loose_text()
-```
-
-### `url_has_fragment`
-
-Check that this element has a url with a fragment (`#`), optionally comparing the fragment to a `string` that it should match exactly.
-
-In case the element is not an `<a>`-tag or does not have an `href` attribute, this will also return `False`. 
-
-#### Signature:
-```python
-def url_has_fragment(fragment: Optional[str] = None) -> Check
-```
-#### Parameters:
-
-| Name      | Description                                     | Required? | Default                                           |
-|:----------|:------------------------------------------------|:---------:|:--------------------------------------------------|
-| fragment  | An optional fragment that should match exactly. |           | None, which will make any non-empty fragment pass.|
-
-#### Example usage
-```python
-suite = TestSuite("HTML", content)
-body = suite.element("body")
-# href=True means the child should have an href attribute, no matter the value
-a_tag = body.get_child("a", href=True)
-
-a_tag.url_has_fragment()
 ```

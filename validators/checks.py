@@ -379,7 +379,7 @@ class Element:
 
         return Check(_inner)
 
-    def url_has_fragment(self, fragment: Optional[str] = None) -> Check:
+    def has_url_with_fragment(self, fragment: Optional[str] = None) -> Check:
         """Check if a url has a fragment
         If no fragment is passed, any non-empty fragment will do
         """
