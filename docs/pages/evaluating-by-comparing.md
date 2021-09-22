@@ -44,8 +44,7 @@ And this as the submission
 ```html
 <p>Lorem ipsum</p>
 ```
-Then the submission will be accepted\
-(remember that contents will only be compared if you set `contents` to true in the config.json)
+Then the submission will be accepted. Remember that contents will only be compared if you set `contents` to `true` in the config.json.
 
 
 #### Example 2 (attribute values)
