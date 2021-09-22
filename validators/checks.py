@@ -957,11 +957,11 @@ class _CompareSuite(HTMLSuite):
         # Adds a check for CSS-validation only if there is some CSS supplied
         if self._css_validated and self._css_validator:
             if abort:
-                self._default_checks.append(ChecklistItem("The css is valid.", self.validate_css().or_abort()))
+                self._default_checks.append(ChecklistItem("The CSS is valid.", self.validate_css().or_abort()))
             else:
-                self._default_checks.append(ChecklistItem("The css is valid.", self.validate_css()))
+                self._default_checks.append(ChecklistItem("The CSS is valid.", self.validate_css()))
             # Translations
-            self._default_translations["en"].append("The css is valid.")
+            self._default_translations["en"].append("The CSS is valid.")
             self._default_translations["nl"].append("De CSS is geldig.")
 
         # Adds a check for comparing to solution
