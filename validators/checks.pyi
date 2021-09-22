@@ -103,6 +103,13 @@ class Element:
         """Check that this element has a url with a fragment (#), optionally comparing the fragment to a string that it should match exactly."""
         ...
 
+    def has_outgoing_url(self, allowed_domains: Optional[List[str]] = None) -> Check:
+        """Check if an <a>-tag has an outgoing link
+        :param allowed_domains: A list of domains that should not be considered "outgoing",
+                                defaults to ["dodona.ugent.be", "users.ugent.be"]
+        """
+        ...
+
     def has_styling(self, attr: str, value: Optional[str] = ..., important: Optional[bool] = ...) -> Check:
         """Check that this element is matched by a CSS selector to give it a particular styling. A value can be passed to match the value of the styling exactly."""
         ...
