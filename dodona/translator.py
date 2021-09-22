@@ -159,7 +159,7 @@ class Translator:
             Text.SUBMISSION: "Submission"
         },
         Language.NL: {
-            Text.MISSING_EVALUATION_FILE: "De evaluator.py en solution.html bestanden ontbreken",
+            Text.MISSING_EVALUATION_FILE: "De evaluator.py en solution.html bestanden ontbreken.",
             Text.MISSING_CREATE_SUITE: "Het evaluator.py-bestand bevat de 'create_suites(content)' methode niet.",
             Text.TESTCASE_ABORTED: "Het evalueren is onderbroken omdat deze test faalde. De hierop volgende tests werden niet uitgevoerd.",
             Text.TESTCASE_NO_LONGER_EVALUATED: "Deze test werd niet uitgevoerd.",
