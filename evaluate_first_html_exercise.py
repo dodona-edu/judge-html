@@ -71,7 +71,7 @@ def create_suites(content: str) -> List[checks.TestSuite]:
         "De caption bevat de correcte tekst.",
         "De tabel heeft rijen.",
         "De eerste rij is een header met de vereiste inhoud.",
-    "De tweede rij bevat de vereiste inhoud.",
+        "De tweede rij bevat de vereiste inhoud.",
         "De derde rij bevat de vereiste inhoud.",
         "De vierde rij bevat de vereiste inhoud."
     ]
