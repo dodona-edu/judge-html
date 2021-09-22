@@ -2,6 +2,8 @@
 
 A `TestSuite` contains a checklist of all checks that should be performed on the student's code. An exercise is only marked as correct once every check in every `TestSuite` has passed.
 
+**Note**: There are a few built-in implementations of TestSuites that already handle some common behaviour for you automatically. See [`Default TestSuites`](default-suites.md) for more information.
+
 ## Table of Contents
 - [Attributes](#attributes)
 - [`TestSuites` on Dodona](#testsuites-on-dodona)
@@ -194,7 +196,7 @@ suite.make_item("Item 3", check1, check2, check3)
 
 It's possible that your course might have students from different countries, and you'd like to give feedback in more than one language. You can do this by using the `translations` attribute.
 
-`translations` is a `dict` that maps a two-letter language code (`string`, **lowercase**) to a `list` of `string`s. In case the student's own language was not found in the `dict`, the message that you pass to the `ChecklistItem` will be used as the default.
+`translations` is a `dict` that maps a two-letter language code (`string`, **lowercase**) to a `list` of `string`s. In case the student's own language was not found in the `dict`, the message that you pass to the `ChecklistItem` will be used as the default. In case the list for the student's language doesn't contain *enough* elements, the remaining items will also use their default message. Excess elements are ignored.
 
 Accepted languages are currently `nl` and `en`.
 
