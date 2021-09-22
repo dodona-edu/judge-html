@@ -105,3 +105,11 @@ class TestHtmlValidator(unittest.TestCase):
             self.validator.validate_content("<head/>")
         with self.assertRaises(NoSelfClosingTagError):
             self.validator.validate_content("<html><body/></html>")
+
+    def test_double_ids(self):
+        self.setup(False, False, False)
+        # correct
+        self.validator.validate_content("<img id='img1'><img id='img2'>")
+        # incorrect
+        with self.assertRaises(DuplicateIdError):
+            self.validator.validate_content("<img id='img1'><img id='img1'>")

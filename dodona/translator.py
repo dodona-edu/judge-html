@@ -38,6 +38,7 @@ class Translator:
         UNEXPECTED_TAG = auto()
         INVALID_ATTRIBUTE = auto()
         MISSING_REQUIRED_ATTRIBUTE = auto()
+        DUPLICATE_ID = auto()
         MISSING_RECOMMENDED_ATTRIBUTE = auto()
         # comparer text
         TAGS_DIFFER = auto()
@@ -141,6 +142,7 @@ class Translator:
             Text.UNEXPECTED_TAG: "Unexpected html-tag",
             Text.INVALID_ATTRIBUTE: "Invalid attribute for",
             Text.MISSING_REQUIRED_ATTRIBUTE: "Missing required attribute(s) for",
+            Text.DUPLICATE_ID: "Id '{id} defined in tag <{tag}> is already defined",
             Text.MISSING_RECOMMENDED_ATTRIBUTE: "Missing recommended attribute(s) for",
             # comparer text
             Text.TAGS_DIFFER: "Tags differ",
@@ -174,6 +176,7 @@ class Translator:
             Text.UNEXPECTED_TAG: "Onverwachte html-tag",
             Text.INVALID_ATTRIBUTE: "Ongeldig attribuut voor",
             Text.MISSING_REQUIRED_ATTRIBUTE: "Ontbrekende vereiste attributen voor",
+            Text.DUPLICATE_ID: "Id '{id} gedefinieerd in tag <{tag}> is al gedefinieerd",
             Text.MISSING_RECOMMENDED_ATTRIBUTE: "Ontbrekende aanbevolen attributen voor",
             # comparer text
             Text.TAGS_DIFFER: "Tags verschillen",

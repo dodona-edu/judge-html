@@ -57,6 +57,10 @@ class MissingRequiredAttributesError(TagAttributeError):
     def __str__(self) -> str: ...
 
 
+class DuplicateIdError(TagAttributeError):
+    def __str__(self) -> str: ...
+
+
 class MissingRecommendedAttributesWarning(TagAttributeError):
     def __str__(self) -> str: ...
 

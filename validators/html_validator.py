@@ -50,6 +50,7 @@ class HtmlValidator(HTMLParser):
         self.check_required = kwargs.get("required", True)
         self.check_recommended = kwargs.get("recommended", True)
         self.check_nesting = kwargs.get("nesting", True)
+        self._id_set: set[str] = set()
 
     def set_check_required(self, b: bool):
         self.check_required = b
@@ -109,7 +110,7 @@ class HtmlValidator(HTMLParser):
             self._valid_nesting(tag)
         if not self._is_void_tag(tag):
             self.tag_stack.append(tag)
-        self._valid_attributes(tag, set(a[0].lower() for a in attributes))
+        self._valid_attributes(tag, {a[0].lower(): a[1] for a in attributes})
 
     def handle_endtag(self, tag: str):
         """handles a html tag that closes, like <body/>"""
@@ -147,7 +148,7 @@ class HtmlValidator(HTMLParser):
             self.error(InvalidTagError(translator=self.translator, tag_location=self.tag_stack, position=self.getpos(),
                                        tag=tag))
 
-    def _valid_attributes(self, tag: str, attributes: set[str]):
+    def _valid_attributes(self, tag: str, attributes: dict[str, str]):
         """validate attributes
             check whether all required attributes are there, if not, raise an error
             check whether all recommended attributes are there, if not, add a warning
@@ -157,6 +158,11 @@ class HtmlValidator(HTMLParser):
             self.error(InvalidAttributeError(translator=self.translator, tag_location=self.tag_stack,
                                              position=self.getpos(), tag=tag, attribute="style"))
 
+        if 'id' in attributes:
+            if attributes['id'] in self._id_set:
+                raise DuplicateIdError(self.translator, tag, self.tag_stack, self.getpos(), attributes['id'])
+            else:
+                self._id_set.add(attributes['id'])
         tag_info = self.valid_dict[tag]
 
         if self.check_required:

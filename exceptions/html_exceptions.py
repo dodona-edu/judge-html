@@ -90,6 +90,13 @@ class MissingRequiredAttributesError(TagAttributeError):
                f"{self.attribute} ({self.tag_location()})"
 
 
+class DuplicateIdError(TagAttributeError):
+    """Exception that indicates that an id is used twice"""
+    def __str__(self) -> str:
+        return f"{self.translator.translate(Translator.Text.DUPLICATE_ID, id=self.attribute, tag=self.tag)} " \
+               f"({self.tag_location()})"
+
+
 class MissingRecommendedAttributesWarning(TagAttributeError):
     """Exception that indicates that a recommended attribute is missing
             this is considered a warning, and all instances of this class will be
