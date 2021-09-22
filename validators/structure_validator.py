@@ -96,13 +96,13 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
             rs_sub = sub_css.rules.find_all(submission, node_sub)
             if rs_sol:
                 for r_key in rs_sol:
-                    if not (r_key in rs_sub and rs_sol[r_key].value_str == rs_sub[r_key].value_str):
+                    if r_key not in rs_sub:
+                        raise NotTheSame(trans.translate(Translator.Text.STYLES_DIFFER, tag=node_sub.tag), node_sub.sourceline, trans)
+                    if rs_sol[r_key].value_str != rs_sub[r_key].value_str:
                         if not (rs_sol[r_key].is_color() and rs_sol[r_key].has_color(rs_sub[r_key].value_str)):
                             raise NotTheSame(trans.translate(Translator.Text.STYLES_DIFFER, tag=node_sub.tag), node_sub.sourceline, trans)
-        # check children of the node
+        # check whether the children of the nodes have the same amount of children
         if len(node_sol.getchildren()) != len(node_sub.getchildren()):
             raise NotTheSame(trans.translate(Translator.Text.AMOUNT_CHILDREN_DIFFER), node_sub.sourceline, trans)
-        node_sol_children = node_sol.getchildren()
-        node_sub_children = node_sub.getchildren()
-        for i in range(len(node_sol.getchildren())):
-            queue.append((node_sol_children[i], node_sub_children[i]))
+        # reverse children bc for some reason they are in bottom up order (and we want to review top down)
+        queue += zip(reversed(node_sol.getchildren()), reversed(node_sub.getchildren()))

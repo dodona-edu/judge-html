@@ -249,6 +249,12 @@ class CssSuite(BoilerplateTestSuite):
     def __init__(self, content: str, check_recommended: bool = ..., allow_warnings: bool = ..., abort: bool = ...): ...
 
 
+class _CompareSuite(HTMLSuite):
+
+    def __init__(self, content: str, solution: str, config: DodonaConfig, check_recommended: bool = True,
+                 allow_warnings: bool = True, abort: bool = True): ...
+
+
 def all_of(*args: Check) -> Check:
     """The all_of function takes a series of Checks, and will only pass if all of these checks passed too. Once one check fails, all other checks in the list will no longer be evaluated."""
     ...
