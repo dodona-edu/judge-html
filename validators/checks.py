@@ -802,7 +802,6 @@ class TestSuite:
         :returns:   the amount of failed tests
         :rtype:     int
         """
-        self._create_language_lists()
         self._validate_translations(translator)
 
         aborted = -1
