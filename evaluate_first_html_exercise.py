@@ -77,4 +77,3 @@ def create_suites(content: str) -> List[checks.TestSuite]:
     ]
 
     return [suite]
-
