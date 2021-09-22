@@ -114,3 +114,9 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(div.has_color("color", "rgba(255,0,0,1.0)")))
         self.assertTrue(suite.check(div.has_color("color", "rgba(255,0,0,1)")))
         self.assertTrue(suite.check(div.has_color("color", "#FF0000")))
+
+    def test_no_loose_text(self):
+        suite = UnitTestSuite("loose_text")
+        self.assertFalse(suite.check(suite.element("body").no_loose_text()))
+        self.assertFalse(suite.check(suite.element("div").no_loose_text()))
+        self.assertTrue(suite.check(suite.element("table").no_loose_text()))

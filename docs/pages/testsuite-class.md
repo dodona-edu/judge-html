@@ -169,21 +169,25 @@ More info on `ElementContainer`s can be found in the respective [documentation p
 
 In order to add `ChecklistItem`s, you can either set the entire checklist at once, or add separate `ChecklistItem`s one by one.
 
-Adding items one by one can either be done by adding them to the internal checklist (`TestSuite.checklist.append(item)`) or by using the shortcut `TestSuite.add_check(item)`.
+Adding items one by one can either be done by adding them to the internal checklist (`TestSuite.checklist.append(item)`) or by using the shortcuts `TestSuite.add_item(item)` and `TestSuite.make_item(message, checks)`. Just like the constructor of `ChecklistItem`, `make_check` can take both a variable amount of `Checks` and a `List` of `Check`s.
 
 ```python
 suite = TestSuite("HTML", content)
 
-first_item = ChecklistItem("Item 1", ...)
-second_item = ChecklistItem("Item 2", ...)
+first_item = ChecklistItem("Item 1", check1)
+second_item = ChecklistItem("Item 2", check2, check3)
 
 # Directly setting the list content
 suite.checklist = [first_item, second_item]
 
 # Adding the items one by one
 suite.checklist.append(first_item)
-# TestSuite.add_check is a shortcut to TestSuite.checklist.append()
-suite.add_check(second_item)
+# TestSuite.add_item is a shortcut to TestSuite.checklist.append()
+suite.add_item(second_item)
+
+# TestSuite.make_item is a shortcut to create a ChecklistItem inline
+# The line below is equal to suite.add_item(ChecklistItem("Item 3", check1, check2, check3))
+suite.make_item("Item 3", check1, check2, check3)
 ```
 
 ## Adding multiple languages
@@ -202,7 +206,7 @@ def create_suites(content: str):
 
     # Check that the HTML is valid, the default message is in English here
     valid_check = ChecklistItem("The HTML is valid.", html_suite.validate_html())
-    html_suite.add_check(valid_check)
+    html_suite.add_item(valid_check)
     
     # Add Dutch translation
     html_suite.translations["nl"] = [

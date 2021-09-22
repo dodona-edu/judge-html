@@ -69,6 +69,10 @@ class Element:
         """Check that this element has the required tag."""
         ...
 
+    def no_loose_text(self) -> Check:
+        """Check that there is no content floating around in this tag"""
+        ...
+
     def _get_attribute(self, attr: str) -> Optional[str]: ...
 
     def attribute_exists(self, attr: str, value: Optional[str] = ..., case_insensitive: bool = ...) ->Check:
@@ -147,10 +151,9 @@ def _flatten_queue(queue: List) -> List[Check]: ...
 
 class ChecklistItem:
     message: str
-    checks: Union[List, Check] = ...
     _checks: List[Check] = ...
 
-    def __init__(self, message: str, checks: Union[List, Check]): ...
+    def __init__(self, message: str, *checks: Union[List, Check]): ...
 
     def __post_init__(self): ...
 
@@ -179,8 +182,12 @@ class TestSuite:
 
     def html_is_valid(self) -> bool: ...
 
-    def add_check(self, check: ChecklistItem):
-        """"Shorcut for TestSuite.checklist.append(item)"""
+    def add_item(self, check: ChecklistItem):
+        """Shortcut for TestSuite.checklist.append(item)"""
+        ...
+
+    def make_item(self, message: str, *args: Check):
+        """Shortcut for suite.checklist.append(ChecklistItem(message, checks))"""
         ...
 
     def validate_html(self, allow_warnings: bool = ...) -> Check:
@@ -208,18 +215,18 @@ class TestSuite:
     def evaluate(self, translator: Translator) -> int: ...
 
 
-def all_of(args: List[Check]) -> Check:
-    """The all_of function takes a list of Checks, and will only pass if all of these checks passed too. Once one check fails, all other checks in the list will no longer be evaluated."""
+def all_of(*args: Check) -> Check:
+    """The all_of function takes a series of Checks, and will only pass if all of these checks passed too. Once one check fails, all other checks in the list will no longer be evaluated."""
     ...
 
 
-def any_of(args: List[Check]) -> Check:
-    """The any_of function takes a list of checks, and will pass if at least one of these checks passes as well. Once one check passes, all other checks in the list will no longer evaluated."""
+def any_of(*args: Check) -> Check:
+    """The any_of function takes a series of checks, and will pass if at least one of these checks passes as well. Once one check passes, all other checks in the list will no longer evaluated."""
     ...
 
 
-def at_least(amount: int, args: List[Check]) -> Check:
-    """The at_least function takes two arguments: the first being the amount of checks required, and the second list of checks to evaluate. The function will pass once at least amount checks have passed, and further checks will no longer be evaluated."""
+def at_least(amount: int, *args: Check) -> Check:
+    """The at_least function takes the amount of checks required, and a series of checks to evaluate. The function will pass once at least amount checks have passed, and further checks will no longer be evaluated."""
     ...
 
 
