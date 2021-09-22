@@ -379,7 +379,7 @@ class Element:
 
         return Check(_inner)
 
-    def url_has_fragment(self, fragment: Optional[str] = None) -> Check:
+    def has_url_with_fragment(self, fragment: Optional[str] = None) -> Check:
         """Check if a url has a fragment
         If no fragment is passed, any non-empty fragment will do
         """
@@ -404,6 +404,37 @@ class Element:
                 return True
 
             return fragment == split.fragment
+
+        return Check(_inner)
+
+    def has_outgoing_url(self, allowed_domains: Optional[List[str]] = None) -> Check:
+        """Check if an <a>-tag has an outgoing link
+        :param allowed_domains: A list of domains that should not be considered "outgoing",
+                                defaults to ["dodona.ugent.be", "users.ugent.be"]
+        """
+        if allowed_domains is None:
+            allowed_domains = ["dodona.ugent.be", "users.ugent.be"]
+
+        """Check if a link is outgoing or not"""
+        def _inner(_: BeautifulSoup) -> bool:
+            if self._element is None:
+                return False
+
+            # Not an anchor tag
+            if self.tag.lower() != "a":
+                return False
+
+            url = self._get_attribute("href")
+
+            # No url present
+            if url is None:
+                return False
+
+            spl = urlsplit(url)
+
+            # Ignore www. in the start to allow the arguments to be shorter
+            netloc = spl.netloc.lower().removeprefix("www.")
+            return netloc not in list(map(lambda x: x.lower(), allowed_domains))
 
         return Check(_inner)
 

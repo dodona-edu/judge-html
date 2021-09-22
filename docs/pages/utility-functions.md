@@ -235,8 +235,8 @@ The example below makes sure that the url doesn't contain a fragment. If the url
 a_tag = suite.element("a")
 
 # If <a> doesn't exist, this will succeed, and the check will pass!
-fail_if(a_tag.url_has_fragment())
+fail_if(a_tag.has_url_with_fragment())
 
 # Solution: first check if it exists, THEN perform the check
-ChecklistItem("The anchor tag does not contain a fragment", a_tag.exists(), fail_if(a_tag.url_has_fragment()))
+ChecklistItem("The anchor tag does not contain a fragment", a_tag.exists(), fail_if(a_tag.has_url_with_fragment()))
 ```

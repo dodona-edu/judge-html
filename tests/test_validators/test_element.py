@@ -16,9 +16,6 @@ class TestElement(unittest.TestCase):
         # Check nested elements
         self.assertTrue(suite.check(body_element.get_child("div", 1, direct=False).attribute_exists("id", "nested")))
 
-    def test_get_children(self):
-        pass
-
     def test_exists(self):
         suite = UnitTestSuite("test_1")
         body_element = suite.element("body")
@@ -120,3 +117,18 @@ class TestElement(unittest.TestCase):
         self.assertFalse(suite.check(suite.element("body").no_loose_text()))
         self.assertFalse(suite.check(suite.element("div").no_loose_text()))
         self.assertTrue(suite.check(suite.element("table").no_loose_text()))
+
+    def test_has_url_with_fragment(self):
+        suite = UnitTestSuite("links")
+        self.assertFalse(suite.check(suite.element("body").has_url_with_fragment()))
+        self.assertFalse(suite.check(suite.element("a", id="outgoing_link").has_url_with_fragment()))
+        self.assertTrue(suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment()))
+        self.assertTrue(suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment("_1-create-an-api-token")))
+        self.assertFalse(suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment("some-other-fragment")))
+
+    def test_has_outgoing_url(self):
+        suite = UnitTestSuite("links")
+        self.assertFalse(suite.check(suite.element("body").has_outgoing_url()))
+        self.assertTrue(suite.check(suite.element("a", id="outgoing_link").has_outgoing_url()))
+        self.assertFalse(suite.check(suite.element("a", id="outgoing_link").has_outgoing_url(["youtube.com"])))
+        self.assertFalse(suite.check(suite.element("a", id="dodona_link").has_outgoing_url()))
