@@ -771,6 +771,12 @@ class TestSuite:
         elements = self._bs.find_all(tag, recursive=not from_root, **kwargs)
         return ElementContainer.from_tags(elements, self._css_validator)
 
+    def _create_language_lists(self):
+        """Init the lists of languages to avoid IndexErrors"""
+        for language in ["en", "nl"]:
+            if language not in self.translations:
+                self.translations[language] = []
+
     def _validate_translations(self, translator: Translator):
         """Check that the set translations are valid"""
         for k, v in self.translations.items():
@@ -796,6 +802,7 @@ class TestSuite:
         :returns:   the amount of failed tests
         :rtype:     int
         """
+        self._create_language_lists()
         self._validate_translations(translator)
 
         aborted = -1
@@ -838,6 +845,75 @@ class TestSuite:
                     failed_tests += 1
 
         return failed_tests
+
+
+class BoilerplateTestSuite(TestSuite):
+    """Base class for TestSuites that handle some boilerplate things"""
+    _default_translations: Optional[Dict[str, List[str]]] = None
+    _default_checks: Optional[List[ChecklistItem]] = None
+
+    def __init__(self, name: str,
+                 content: str,
+                 check_recommended: bool = True,
+                 _default_translations: Optional[Dict[str, List[str]]] = None,
+                 _default_checks: Optional[List[ChecklistItem]] = None):
+        super().__init__(name, content, check_recommended)
+
+    def _add_default_translations(self):
+        self._create_language_lists()
+
+        if self._default_translations is None:
+            return
+
+        # Add in reverse order so we can keep inserting at index 0
+        for language, translations in self._default_translations.items():
+            for entry in reversed(translations):
+                self.translations[language].insert(0, entry)
+
+    def _add_default_checks(self):
+        if self._default_checks is None:
+            return
+
+        # Add in reverse order so we can keep inserting at index 0
+        for item in reversed(self._default_checks):
+            self.checklist.insert(0, item)
+
+    def evaluate(self, translator: Translator) -> int:
+        self._add_default_translations()
+        self._add_default_checks()
+
+        return super().evaluate(translator)
+
+
+class HTMLSuite(BoilerplateTestSuite):
+    """TestSuite that does HTML validation by default"""
+    allow_warnings: bool
+
+    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True):
+        super().__init__("HTML", content, check_recommended)
+
+        self._default_checks = [ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings).or_abort())]
+        self._default_translations = {"en": ["The HTML is valid."], "nl": ["De HTML is geldig."]}
+
+        self.allow_warnings = allow_warnings
+
+
+class CssSuite(BoilerplateTestSuite):
+    """TestSuite that does HTML and CSS validation by default"""
+    allow_warnings: bool
+
+    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True):
+        super().__init__("CSS", content, check_recommended)
+
+        self._default_checks = [ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings).or_abort()),
+                                ChecklistItem("The CSS is valid.", self.validate_css().or_abort())
+                                ]
+        self._default_translations = {
+            "en": ["The HTML is valid.", "The CSS is valid."],
+            "nl": ["De HTML is geldig.", "De CSS is geldig."]
+        }
+
+        self.allow_warnings = allow_warnings
 
 
 def all_of(*args: Check) -> Check:

@@ -210,9 +210,30 @@ class TestSuite:
         """Get references to ALL HTML elements that match a query"""
         ...
 
+    def _create_language_lists(self): ...
+
     def _validate_translations(self, translator: Translator): ...
 
     def evaluate(self, translator: Translator) -> int: ...
+
+
+class BoilerplateTestSuite(TestSuite):
+    _default_translations: Optional[Dict[str, List[str]]] = ...
+    _default_checks: Optional[List[ChecklistItem]] = ...
+
+    def __init__(self, name: str, content: str, check_recommended: bool = ...): ...
+
+
+class HTMLSuite(BoilerplateTestSuite):
+    allow_warnings: bool
+
+    def __init__(self, content: str, check_recommended: bool = ..., allow_warnings: bool = ...): ...
+
+
+class CssSuite(BoilerplateTestSuite):
+    allow_warnings: bool
+
+    def __init__(self, content: str, check_recommended: bool = ..., allow_warnings: bool = ...): ...
 
 
 def all_of(*args: Check) -> Check:
