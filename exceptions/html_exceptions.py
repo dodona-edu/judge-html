@@ -97,6 +97,15 @@ class DuplicateIdError(TagAttributeError):
                f"({self.tag_location()})"
 
 
+class AttributeValueError(LocatableHtmlValidationError):
+    def __init__(self, translator: Translator, tag_location: [str], position: (int, int), message: str):
+        super().__init__(translator, tag_location, position)
+        self.msg = message
+
+    def __str__(self) -> str:
+        return self.msg
+
+
 class MissingRecommendedAttributesWarning(TagAttributeError):
     """Exception that indicates that a recommended attribute is missing
             this is considered a warning, and all instances of this class will be

@@ -61,6 +61,13 @@ class DuplicateIdError(TagAttributeError):
     def __str__(self) -> str: ...
 
 
+class AttributeValueError(LocatableHtmlValidationError):
+    msg: str
+    def __init__(self, translator: Translator, tag_location: [str], position: (int, int), message: str): ...
+
+    def __str__(self) -> str: ...
+
+
 class MissingRecommendedAttributesWarning(TagAttributeError):
     def __str__(self) -> str: ...
 
