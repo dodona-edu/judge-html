@@ -27,4 +27,6 @@ The fragment below contains the boilerplate to make an evaluator:
 >     return [html_suite, css_suite]
 > ```
 
+_Don't forget to take a look at the [built-in TestSuites](default-suites.md) that can simplify this even further!_
+
 In case you only want to write tests for either `HTML` or `CSS`, and not both, the other suite is not required. It is merely added in the fragment above as an example. Returning `[html_suite]` is equally valid.

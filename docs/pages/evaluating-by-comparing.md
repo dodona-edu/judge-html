@@ -1,6 +1,8 @@
 # Evaluating by Comparing
 
-Another way of evaluating an exercise is by comparing it to the `solution.html file`. This is the default if no `evaluator.py` file is present.
+Another way of evaluating an exercise is by comparing it to the `solution.html` file. This is the default if no `evaluator.py` file is present. In this case, the structure of the student's submission will be compared to your solution, and you can provide extra options to specify how strict this comparison should be.
+
+It does have to be noted that this way of evaluation allows for a lot less freedom, both to the students submitting it and the teacher who wants to evaluate the submission. For flexible tests, consider using the [`checks library`](../readme.md#checks-library-documentation).
 
 ## Options
 
@@ -10,6 +12,8 @@ In the `config.json` file of the exercise you can give some options as to how th
 - `contents`: (default: False) check whether the contents of each tag in the solution are exactly the same as in the submission
 - `css`: (default: True) if there are css rules defined in the solution, check if the submission can match these rules. We don't compare the css rules themselves, but rather whether every element in the submission has at least the css-rules defined in the solution.
 - `comments`: (default: False) check whether the submission has the same comments as the solution
+
+Note: when both `attributes` and `minimal_attributes` are supplied, `attributes` will take preference as it is stricter.
 
 To do this, simply add `option`: true to the key-value pairs which are the values of the `evaluation` key.
 

@@ -25,9 +25,10 @@ The `CssSuite` will automatically create a TestSuite called "CSS", and add `Chec
 
 The example below shows the code required *before* and *after* using this custom suite.
 
-Before:
+**Without the CssSuite**:
 
 ```python
+from typing import List
 from validators.checks import TestSuite
 
 
@@ -53,9 +54,10 @@ def create_suites(content: str) -> List[TestSuite]:
     return [css_suite]
 ```
 
-After:
+**With the CssSuite**:
 
 ```python
+from typing import List
 from validators.checks import CssSuite, TestSuite
 
 
@@ -85,9 +87,10 @@ The `HTMLSuite` will automatically create a TestSuite called "HTML", and add a `
 
 The example below shows the code required *before* and *after* using this custom suite.
 
-Before:
+**Without the HTMLSuite**:
 
 ```python
+from typing import List
 from validators.checks import TestSuite
 
 
@@ -110,9 +113,10 @@ def create_suites(content: str) -> List[TestSuite]:
     return [html_suite]
 ```
 
-After:
+**With the HTMLSuite**:
 
 ```python
+from typing import List
 from validators.checks import HTMLSuite, TestSuite
 
 
