@@ -107,3 +107,24 @@ class TestHtmlValidator(unittest.TestCase):
             self.validator.validate_content("<html><body/></html>")
         with self.assertRaises(UnexpectedClosingTagError):
             self.validator.validate_content("<body><img src='The picture of a cat' alt='cat.png'></img></body>")
+
+    def test_unique_ids(self):
+        self.setup(False, False, False)
+        # correct
+        self.validator.validate_content("<img id='img1'><img id='img2'>")
+        # incorrect
+        with self.assertRaises(DuplicateIdError):
+            self.validator.validate_content("<img id='img1'><img id='img1'>")
+
+    def test_values(self):
+        self.setup(False, False, False)
+        # incorrect
+        with self.assertRaises(AttributeValueError):
+            self.validator.validate_content("<body id=''></body>")
+        with self.assertRaises(AttributeValueError):
+            self.validator.validate_content("<body id='t e s t'></body>")
+        with self.assertRaises(AttributeValueError):
+            self.validator.validate_content("<body class=''></body>")
+        with self.assertRaises(AttributeValueError):
+            self.validator.validate_content("<body class='t e s t'></body>")
+
