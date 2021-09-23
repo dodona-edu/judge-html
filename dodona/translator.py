@@ -42,6 +42,7 @@ class Translator:
         DUPLICATE_ID = auto()
         AT_LEAST_ONE_CHAR = auto()
         NO_WHITESPACE = auto()
+        NO_ABS_PATHS = auto()
         MISSING_RECOMMENDED_ATTRIBUTE = auto()
         # comparer text
         TAGS_DIFFER = auto()
@@ -151,6 +152,7 @@ class Translator:
             Text.DUPLICATE_ID: "Id '{id} defined in tag <{tag}> is already defined",
             Text.AT_LEAST_ONE_CHAR: "The value of {attr} must be at least one character.",
             Text.NO_WHITESPACE: "The value of {attr} may not contain whitespace.",
+            Text.NO_ABS_PATHS: "The src attribute may not contain an absolute path.",
             Text.MISSING_RECOMMENDED_ATTRIBUTE: "Missing recommended attribute(s) for",
             # comparer text
             Text.TAGS_DIFFER: "Tags differ",
@@ -190,6 +192,7 @@ class Translator:
             Text.DUPLICATE_ID: "Id '{id} gedefinieerd in tag <{tag}> is al gedefinieerd",
             Text.AT_LEAST_ONE_CHAR: "De waarde van {attr} moet minimaal 1 karakter lang zijn.",
             Text.NO_WHITESPACE: "De waarde van {attr} mag geen spaties bevatten.",
+            Text.NO_ABS_PATHS: "Het attribuut src mag geen absoluut pad zijn.",
             Text.MISSING_RECOMMENDED_ATTRIBUTE: "Ontbrekende aanbevolen attributen voor",
             # comparer text
             Text.TAGS_DIFFER: "Tags verschillen",

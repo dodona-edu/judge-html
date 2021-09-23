@@ -1,3 +1,4 @@
+import ntpath
 from html.parser import HTMLParser
 
 from dodona.translator import Translator
@@ -180,6 +181,11 @@ class HtmlValidator(HTMLParser):
                         AttributeValueError(self.translator, self.tag_stack, self.getpos(),
                                             self.translator.translate(Translator.Text.NO_WHITESPACE, attr=attr)))
 
+        # check src attribute for absolute filepaths
+        if 'src' in attributes:
+            link = attributes['src']
+            if ntpath.isabs(link):
+                self.error(AttributeValueError(self.translator, self.tag_stack, self.getpos(), self.translator.translate(Translator.Text.NO_ABS_PATHS)))
         tag_info = self.valid_dict[tag]
 
         if self.check_required:
