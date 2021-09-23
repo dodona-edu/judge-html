@@ -1,7 +1,8 @@
 from dodona.translator import Translator
-from lxml.html import fromstring, HtmlElement
+from lxml.html import fromstring, HtmlElement, HtmlComment
 
 from validators.css_validator import CssValidator
+from utils.html_navigation import compare_content
 
 
 class NotTheSame(Exception):
@@ -34,6 +35,7 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
     check_minimal_attributes = kwargs.get("minimal_attributes", False)
     check_contents = kwargs.get("contents", False)
     check_css = kwargs.get("css", True)
+    check_comments = kwargs.get("comments", False)
 
     sol_css = None
     sub_css = None
@@ -74,6 +76,14 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
     queue = ([(solution, submission)])
     while queue:
         node_sol, node_sub = queue.pop()
+        if check_comments and isinstance(node_sol, HtmlComment):
+            if not isinstance(node_sub, HtmlComment):
+                raise NotTheSame(trans.translate(Translator.Text.EXPECTED_COMMENT), node_sub.sourceline, trans)
+            node_sol.text = node_sol.text.strip().lower() if node_sol.text is not None else ''
+            node_sub.text = node_sub.text.strip().lower() if node_sub.text is not None else ''
+            if node_sol.text != "dummy" and not compare_content(node_sol.text, node_sub.text):
+                raise NotTheSame(trans.translate(Translator.Text.COMMENT_CORRECT_TEXT), node_sub.sourceline, trans)
+            continue
         node_sol.tag = node_sol.tag.lower()
         node_sub.tag = node_sub.tag.lower()
         node_sol.text = node_sol.text.strip() if node_sol.text is not None else ''
@@ -90,7 +100,7 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
                 raise NotTheSame(trans.translate(Translator.Text.NOT_ALL_ATTRIBUTES_PRESENT), node_sub.sourceline, trans)
         # check content if wanted
         if check_contents:
-            if node_sol.text != "DUMMY" and node_sol.text != node_sub.text:
+            if node_sol.text != "DUMMY" and not compare_content(node_sol.text, node_sub.text):
                 raise NotTheSame(trans.translate(Translator.Text.CONTENTS_DIFFER), node_sub.sourceline, trans)
         # check css
         if check_css:
@@ -104,7 +114,13 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
                         if not (rs_sol[r_key].is_color() and rs_sol[r_key].has_color(rs_sub[r_key].value_str)):
                             raise NotTheSame(trans.translate(Translator.Text.STYLES_DIFFER, tag=node_sub.tag), node_sub.sourceline, trans)
         # check whether the children of the nodes have the same amount of children
-        if len(node_sol.getchildren()) != len(node_sub.getchildren()):
+        node_sol_children = node_sol.getchildren()
+        node_sub_children = node_sub.getchildren()
+        if not check_comments:
+            node_sol_children = [x for x in node_sol_children if isinstance(x, HtmlElement)]
+            node_sub_children = [x for x in node_sub_children if isinstance(x, HtmlElement)]
+        if len(node_sol_children) != len(node_sub_children):
             raise NotTheSame(trans.translate(Translator.Text.AMOUNT_CHILDREN_DIFFER), node_sub.sourceline, trans)
         # reverse children bc for some reason they are in bottom up order (and we want to review top down)
-        queue += zip(reversed(node_sol.getchildren()), reversed(node_sub.getchildren()))
+        queue += zip(reversed(node_sol_children), reversed(node_sub_children))
+

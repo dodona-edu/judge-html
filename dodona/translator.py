@@ -50,6 +50,8 @@ class Translator:
         CONTENTS_DIFFER = auto()
         AMOUNT_CHILDREN_DIFFER = auto()
         STYLES_DIFFER = auto()
+        EXPECTED_COMMENT = auto()
+        COMMENT_CORRECT_TEXT = auto()
         AT_LINE = auto()
         # normal text
         ERRORS = auto()
@@ -159,6 +161,8 @@ class Translator:
             Text.CONTENTS_DIFFER: "Contents differ",
             Text.AMOUNT_CHILDREN_DIFFER: "Amount of children differs",
             Text.STYLES_DIFFER: "CSS styling differs for element <{tag}>",
+            Text.EXPECTED_COMMENT: "Expected a comment",
+            Text.COMMENT_CORRECT_TEXT: "The comment does not have the correct text",
             Text.AT_LINE: "at line",
             # normal text
             Text.ERRORS: "Error(s)",
@@ -198,6 +202,8 @@ class Translator:
             Text.CONTENTS_DIFFER: "Inhoud (text) verschilt",
             Text.AMOUNT_CHILDREN_DIFFER: "Aantal kinderen verschilt",
             Text.STYLES_DIFFER: "CSS stijling verschilt voor element <{tag}>",
+            Text.EXPECTED_COMMENT: "Verwachte een comment",
+            Text.COMMENT_CORRECT_TEXT: "De comment heeft niet de correcte tekst",
             Text.AT_LINE: "op regel",
             # normal text
             Text.ERRORS: "Fout(en)",

@@ -9,7 +9,7 @@ In the `config.json` file of the exercise you can give some options as to how th
 - `minimal_attributes`: (default: False) check whether **at least** the attributes in the solution are supplied in the submission, extra attributes are **allowed**
 - `contents`: (default: False) check whether the contents of each tag in the solution are exactly the same as in the submission
 - `css`: (default: True) if there are css rules defined in the solution, check if the submission can match these rules. We don't compare the css rules themselves, but rather whether every element in the submission has at least the css-rules defined in the solution.
-
+- `comments`: (default: False) check whether the submission has the same comments as the solution
 
 To do this, simply add `option`: true to the key-value pairs which are the values of the `evaluation` key.
 
