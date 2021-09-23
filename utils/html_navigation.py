@@ -24,7 +24,7 @@ def find_child(element: Optional[Union[BeautifulSoup, Tag]],
     # Doesn't match only text, so emmet syntax was used
     if match_emmet(tag):
         try:
-            emmet_match = find_emmet(element, tag, from_root, match_multiple=False)
+            emmet_match = find_emmet(element, tag, index, from_root, match_multiple=False, **kwargs)
         except IndexError:
             # IndexError can happen when negative indexes are supplied which are too
             # small to fit in the list, and this is too ugly to check so just catch it here
@@ -34,13 +34,8 @@ def find_child(element: Optional[Union[BeautifulSoup, Tag]],
         if emmet_match is None or not emmet_match:
             return None
 
-        # Not enough matches found
-        if len(emmet_match) < index:
-            return None
-
-        # Matches multiple elements
-        # If the list was empty or None, we returned above so no need to worry
-        return emmet_match[index]
+        # Index is already applied in the find_emmet method so safely take the first element
+        return emmet_match[0]
 
     # Tags should be lowercase
     if tag is not None:
@@ -63,10 +58,7 @@ def find_child(element: Optional[Union[BeautifulSoup, Tag]],
         return all_children[index]
 
 
-# TODO support index to be passed in from get_ methods for the last result,
-#       emmet index gets priority if present
-# TODO allow kwargs to be passed in from get_ methods for the last result
-def find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, from_root: bool = False, match_multiple: bool = False) -> Optional[List[Tag]]:
+def find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, ind: int, from_root: bool = False, match_multiple: bool = False, **kwargs) -> Optional[List[Tag]]:
     """Find an element using emmet syntax"""
     if element is None:
         return None
@@ -100,7 +92,6 @@ def find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, from_roo
 
         # Illegal class name
         if illegal_class_regex.search(current_entry) is not None:
-            # TODO raise exception to show an error message to the teacher?
             return None
 
         tag = tag_regex.search(current_entry)
@@ -109,19 +100,19 @@ def find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, from_roo
         index = index_regex.search(current_entry)
 
         # Kwargs to filter on
-        kwargs = {}
+        filter_kwargs = {}
 
         # Parse matches out
         # Tag doesn't use a capture group so take match 0 instead of 1,
         # the others need to use 1
         if tag is not None:
-            kwargs["name"] = tag.group(0).lower()
+            filter_kwargs["name"] = tag.group(0).lower()
 
         if id_match is not None:
-            kwargs["id"] = id_match.group(1)
+            filter_kwargs["id"] = id_match.group(1)
 
         if class_name is not None:
-            kwargs["class"] = class_name.group(1)
+            filter_kwargs["class"] = class_name.group(1)
 
         # Parse index out
         # First match is an optional -
@@ -133,11 +124,18 @@ def find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, from_roo
 
             index = int(index.group(2)) * sign
         else:
-            index = 0
+            # Take the first arg, but if an index was specified as a parameter
+            # and this is the last part of the path, then use that index
+            index = 0 if path_stack else ind
+
+        # Apply kwargs to the end of the path only,
+        # and the path takes priority so it overrides the others
+        if not path_stack:
+            filter_kwargs = kwargs | filter_kwargs
 
         # Apply filters & find a matching element
         # Only use from_root if we haven't moved at least once, otherwise never go recursive
-        matches = current_element.find_all(recursive=not from_root if not moved else False, **kwargs)
+        matches = current_element.find_all(recursive=not from_root if not moved else False, **filter_kwargs)
 
         # No matches found, or not enough
         if not matches or len(matches) <= index:
@@ -145,11 +143,14 @@ def find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, from_roo
 
         # End of path reached
         if not path_stack:
+            # Return all matches
             if match_multiple:
                 return matches
 
+            # Only return the match at the specific index
             return [matches[index]]
 
+        # Set current node to the one at the requested index & keep going
         current_element = matches[index]
         moved = True
 

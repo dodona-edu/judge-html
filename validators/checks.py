@@ -124,7 +124,8 @@ class Element:
 
         # Emmet syntax requested
         if match_emmet(tag):
-            matches = find_emmet(self._element, tag, from_root=direct, match_multiple=True)
+            # Index parameter is not relevant here & it won't be used anyways
+            matches = find_emmet(self._element, tag, 0, from_root=direct, match_multiple=True, **kwargs)
 
             # Nothing found
             if matches is None:
@@ -814,7 +815,7 @@ class TestSuite:
     def all_elements(self, tag: Optional[str] = None, from_root: bool = False, **kwargs) -> ElementContainer:
         """Get references to ALL HTML elements that match a query"""
         if match_emmet(tag):
-            elements = find_emmet(self._bs, tag, from_root=from_root, match_multiple=True)
+            elements = find_emmet(self._bs, tag, 0, from_root=from_root, match_multiple=True, **kwargs)
 
             if elements is None:
                 return ElementContainer([])

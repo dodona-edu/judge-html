@@ -8,7 +8,7 @@ _**This method supports Emmet Syntax through the [PARAMETER] parameter**_
 
 ### Note:
 
-The `index` and `kwargs` parameters passed into the `find` methods are still allowed, but will only be applied to the _**last**_ element from the query.
+The `index` and `kwargs` parameters passed into the `find` methods are still allowed, but will only be applied to the _**last**_ element from the query. The path will always take priority when clashing, so if the query itself ends with an index (eg. `table>tr[3]`) then this index will be used instead of the parameter.
 
 ## Basics of Emmet Syntax
 
