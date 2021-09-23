@@ -129,6 +129,6 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
         queue += zip(reversed(node_sol_children), reversed(node_sub_children))
 
 
-def emmet_compare(solution_emmet: str, submission: str, trans: Translator):
+def emmet_compare(solution_emmet: str, submission: str, trans: Translator, **kwargs):
     import emmet
-    compare(emmet.expand(solution_emmet), submission, trans)
+    compare(emmet.expand(solution_emmet), submission, trans, **kwargs)
