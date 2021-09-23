@@ -171,7 +171,7 @@ This method checks if an `Element` with tag `tr` has the required content. This 
 
 #### Signature:
 ```python
-def table_row_has_content(self, row: List[str]) -> Check
+def table_row_has_content(row: List[str]) -> Check
 ```
 
 #### Parameters:

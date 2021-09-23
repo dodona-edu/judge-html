@@ -110,6 +110,11 @@ class Element:
         """
         ...
 
+    def contains_comment(self, comment: Optional[str] = None) -> Check:
+        """Check if the element contains a comment, optionally matching a value"""
+        ...
+
+
     def has_styling(self, attr: str, value: Optional[str] = ..., important: Optional[bool] = ...) -> Check:
         """Check that this element is matched by a CSS selector to give it a particular styling. A value can be passed to match the value of the styling exactly."""
         ...
@@ -215,6 +220,10 @@ class TestSuite:
 
     def document_matches(self, regex: str, flags: Union[int, RegexFlag] = ...) -> Check:
         """Check that the student's submitted code matches a regex string."""
+        ...
+
+    def contains_comment(self, comment: Optional[str] = None) -> Check:
+        """Check if the document contains a comment, optionally matching a value"""
         ...
 
     def element(self, tag: Optional[str] = ..., from_root: bool = ..., **kwargs) -> Element:

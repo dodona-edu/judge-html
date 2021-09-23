@@ -1,7 +1,7 @@
 import re
 from typing import Optional, Union, List
 from bs4 import BeautifulSoup
-from bs4.element import Tag
+from bs4.element import Tag, Comment
 
 
 def match_emmet(tag: Optional[str]) -> bool:
@@ -169,3 +169,23 @@ def compare_content(first: str, second: str) -> bool:
     arg_text = re.sub(r"\s+", " ", arg_text, re.MULTILINE)
 
     return element_text == arg_text
+
+
+def contains_comment(element: Optional[Union[BeautifulSoup, Tag]], comment: Optional[str] = None) -> bool:
+    """Check if an element contains a comment, optionally with a specific value"""
+    if element is None:
+        return False
+
+    comments = element.find_all(string=lambda text: isinstance(text, Comment))
+
+    # No comments found
+    if not comments:
+        return False
+
+    # No specific value requested
+    if comment is None:
+        return True
+
+    # Check if at least one matches
+    # Ignore whitespace again
+    return any(compare_content(c, comment) for c in comments)

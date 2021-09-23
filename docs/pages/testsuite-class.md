@@ -14,6 +14,7 @@ A `TestSuite` contains a checklist of all checks that should be performed on the
 - [Built-in Checks](#built-in-checks)
   - [`validate_css`](#validate_css)
   - [`validate_html`](#validate_html)
+  - [`contains_comment`](#contains_comment)
   - [`document_matches`](#document_matches)
 
 ## Attributes
@@ -264,6 +265,33 @@ In case the `check_recommended` attribute for this class is `True` (default), th
 ```python
 suite = TestSuite("HTML", content)
 html_valid = ChecklistItem("The HTML is valid.", suite.validate_html())
+```
+
+### `contains_comment`
+
+Check if there is a comment inside of this document, optionally with an exact value. Not passing a value will make any comment pass the check.
+
+#### Signature:
+```python
+def contains_comment(comment: Optional[str] = None) -> Check
+```
+
+#### Parameters:
+
+| Name | Description | Required? | Default |
+|:-----|:------------|:---------:|:--------|
+| `comment` | The value to look for. |  | None, which will accept any comment. |
+
+#### Example usage:
+
+```python
+suite = TestSuite("HTML", content)
+
+# Check if the document contains at least one comment
+suite.contains_comment()
+
+# Check if the document contains a comment that says "Example"
+suite.contains_comment("Example")
 ```
 
 ### `document_matches`
