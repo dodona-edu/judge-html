@@ -64,6 +64,5 @@ def prep_render(html_content: str, render_css: bool) -> (str, str):
                 style.string = new_style
 
         return title_str, str(soup.prettify())
-    except Exception as e:
-        print(str(e))
+    except Exception:
         return title_str, html_content
