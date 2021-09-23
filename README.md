@@ -115,6 +115,8 @@ Add your solution (`solution.html` and `solution.css` file) to the **`evaluation
 
 If these settings are not defined, the default value is chosen.
 
+**TODO**
+
 | Evaluation setting | Description | Possible values | Default |
 | ------------------ | ----------- | --------------- | ------- |
 | `???`              | ???         | ???             | `???`   |

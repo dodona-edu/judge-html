@@ -69,6 +69,7 @@ def _get_xpath(selector: str) -> str:
 
 class Rule:
     """represents a single css rule"""
+
     def __init__(self, selector: [], content: Declaration):
         self.selector = strip(selector)
         self.selector_str = tinycss2.serialize(self.selector)
@@ -78,15 +79,24 @@ class Rule:
         self.important = content.important
         self.specificity = calc_specificity(self.selector_str)
         self.value_str = tinycss2.serialize(self.value)
+        self.color = None
+        if self.is_color():
+            self.color = Color(self.value_str)
 
     def __repr__(self):
         return f"(Rule: {self.selector_str} | {self.name} {self.value} {'important' if self.important else ''})"
 
-    def get_color(self) -> Optional[Color]:
-        """Return the Color instance of this Rule in case it's a color"""
-        if "color" in self.name.lower():
-            return Color(self.value_str)
-        return None
+    def is_color(self) -> bool:
+        return "color" in self.name.lower()
+
+    def has_color(self, color: str) -> bool:
+        """Check that this element has a given color
+        :param color:       the color to check this property's value against, in any format
+        """
+        if not self.is_color():
+            return False
+
+        return any(c in self.color.values() for c in Color(color).values())
 
 
 def calc_specificity(selector_str: str) -> (int, int, int):  # see https://specificity.keegan.st/
@@ -188,6 +198,39 @@ class Rules:
 
         return dom_rule
 
+    def find_all(self, root: ElementBase, solution_element: ElementBase) -> dict[str, Rule]:
+        """find all the css rule for the solution_element,
+            root is the root of the html-document (etree)"""
+        dom_css = {}
+        by_keyword: {str: ([Rule], [Rule])} = {}
+        r: Rule
+        # find all rules defined for the solution element for the specified key
+        for r in reversed(self.rules):
+            for element in root.xpath(r.xpath):
+                if element == solution_element:
+                    if r.name not in by_keyword:
+                        by_keyword[r.name] = ([], [])
+                    if r.important:
+                        by_keyword[r.name][0].append(r)
+                    else:
+                        by_keyword[r.name][1].append(r)
+
+        for key in by_keyword:
+            imp, rs = by_keyword[key]
+            # check if there are rules containing !important
+            if imp:
+                rs = imp
+            # get the most specific rule or the one that was defined the latest if multiple with the same specificity
+            dom_rule = rs[0]  # the dominating rule
+            for r in rs:
+                # if   less  than: r is overruled by dom_rule because dom_rule has a higher specificity
+                # if  equal  than: r is overruled by dom_rule because dom_rule was defined after r
+                # if greater than: r overrules dom_rules because of higher specificity
+                if r.specificity > dom_rule.specificity:
+                    dom_rule = r
+            dom_css[dom_rule.name] = dom_rule
+        return dom_css
+
 
 class AmbiguousXpath(Exception):
     """Thrown when an xpath can select multiple elements when it should only select one element"""
@@ -203,10 +246,10 @@ class CssValidator:
     >> validator.find(element, "color")  # will return None if no rules for "color" are defined for that element
 "green"
     """
+
     def __init__(self, html: str):
         # Invalid HTML makes fromstring() crash so it can be None
         self.root: Optional[ElementBase] = None
-
         try:
             self.root = fromstring(html)
             style: ElementBase = self.root.find(".//style")
@@ -221,6 +264,9 @@ class CssValidator:
 
         self.xpaths = {}
 
+    def __bool__(self):
+        return bool(self.rules.rules)
+
     def get_xpath_soup(self, element: Tag) -> str:
         """converts an element from bs4 soup to an xpath expression
         this is the memorization of the private function (makes it a lot faster)"""
@@ -229,7 +275,6 @@ class CssValidator:
             self.xpaths.update({id(element): self._get_xpath_soup(element)})
         return self.xpaths[id(element)]
 
-    # 6250 -> 50 calls
     def _get_xpath_soup(self, element: Tag) -> str:
         """converts an element from bs4 soup to an xpath expression"""
         components = []

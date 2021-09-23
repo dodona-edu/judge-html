@@ -1,6 +1,7 @@
 from dodona.translator import Translator
-from validators.html_validator import HtmlValidator
 from lxml.html import fromstring, HtmlElement
+
+from validators.css_validator import CssValidator
 
 
 class NotTheSame(Exception):
@@ -10,7 +11,7 @@ class NotTheSame(Exception):
         self.trans = trans
 
     def __repr__(self):
-        return f"{self.msg} {self.trans.translate(Translator.Text.AT_LINE)} {self.line}"
+        return f"{self.msg} {self.trans.translate(Translator.Text.AT_LINE)} {self.line + 1}"
 
     def __str__(self):
         return self.__repr__()
@@ -22,14 +23,28 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
     * attributes: (default: False) check whether attributes are exactly the same in solution and submission
     * minimal_attributes: (default: False) check whether at least the attributes in solution are supplied in the submission
     * contents: (default: False) check whether the contents of each tag in the solution are exactly the same as in the submission
+    * css: (default: True) if there are css rules defined in the solution, check if the submission can match these rules.
+            We don't compare the css rules itself, but rather whether every element in the submission has at least the css-rules defined in the solution.
     Raises a NotTheSame exception if the solution and the submission are not alike
+
+    the submission html should be valid html
     """
     # structure is always checked
     check_attributes = kwargs.get("attributes", False)
     check_minimal_attributes = kwargs.get("minimal_attributes", False)
     check_contents = kwargs.get("contents", False)
-    html_validator = HtmlValidator(trans)
-    html_validator.validate_content(submission)
+    check_css = kwargs.get("css", True)
+
+    sol_css = None
+    sub_css = None
+    if check_css:
+        try:
+            sol_css = CssValidator(solution)
+            sub_css = CssValidator(submission)
+            if not sol_css.rules:  # no rules in solution file
+                check_css = False
+        except Exception:
+            check_css = False
 
     solution: HtmlElement = fromstring(solution)
     submission: HtmlElement = fromstring(submission)
@@ -59,6 +74,10 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
     queue = ([(solution, submission)])
     while queue:
         node_sol, node_sub = queue.pop()
+        node_sol.tag = node_sol.tag.lower()
+        node_sub.tag = node_sub.tag.lower()
+        node_sol.text = node_sol.text.strip() if node_sol.text is not None else ''
+        node_sub.text = node_sub.text.strip() if node_sub.text is not None else ''
         # check name of the node
         if node_sol.tag != node_sub.tag:
             raise NotTheSame(trans.translate(Translator.Text.TAGS_DIFFER), node_sub.sourceline, trans)
@@ -71,12 +90,21 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
                 raise NotTheSame(trans.translate(Translator.Text.NOT_ALL_ATTRIBUTES_PRESENT), node_sub.sourceline, trans)
         # check content if wanted
         if check_contents:
-            if node_sol.text.strip() != "DUMMY" and node_sol.text.strip() != node_sub.text.strip():
+            if node_sol.text != "DUMMY" and node_sol.text != node_sub.text:
                 raise NotTheSame(trans.translate(Translator.Text.CONTENTS_DIFFER), node_sub.sourceline, trans)
-        # check children of the node
+        # check css
+        if check_css:
+            rs_sol = sol_css.rules.find_all(solution, node_sol)
+            rs_sub = sub_css.rules.find_all(submission, node_sub)
+            if rs_sol:
+                for r_key in rs_sol:
+                    if r_key not in rs_sub:
+                        raise NotTheSame(trans.translate(Translator.Text.STYLES_DIFFER, tag=node_sub.tag), node_sub.sourceline, trans)
+                    if rs_sol[r_key].value_str != rs_sub[r_key].value_str:
+                        if not (rs_sol[r_key].is_color() and rs_sol[r_key].has_color(rs_sub[r_key].value_str)):
+                            raise NotTheSame(trans.translate(Translator.Text.STYLES_DIFFER, tag=node_sub.tag), node_sub.sourceline, trans)
+        # check whether the children of the nodes have the same amount of children
         if len(node_sol.getchildren()) != len(node_sub.getchildren()):
             raise NotTheSame(trans.translate(Translator.Text.AMOUNT_CHILDREN_DIFFER), node_sub.sourceline, trans)
-        node_sol_children = node_sol.getchildren()
-        node_sub_children = node_sub.getchildren()
-        for i in range(len(node_sol.getchildren())):
-            queue.append((node_sol_children[i], node_sub_children[i]))
+        # reverse children bc for some reason they are in bottom up order (and we want to review top down)
+        queue += zip(reversed(node_sol.getchildren()), reversed(node_sub.getchildren()))

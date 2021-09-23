@@ -36,6 +36,7 @@ class Translator:
         INVALID_TAG = auto()
         NO_SELF_CLOSING_TAG = auto()
         UNEXPECTED_TAG = auto()
+        UNEXPECTED_CLOSING_TAG = auto()
         INVALID_ATTRIBUTE = auto()
         MISSING_REQUIRED_ATTRIBUTE = auto()
         DUPLICATE_ID = auto()
@@ -48,6 +49,7 @@ class Translator:
         NOT_ALL_ATTRIBUTES_PRESENT = auto()
         CONTENTS_DIFFER = auto()
         AMOUNT_CHILDREN_DIFFER = auto()
+        STYLES_DIFFER = auto()
         AT_LINE = auto()
         # normal text
         ERRORS = auto()
@@ -55,6 +57,7 @@ class Translator:
         LOCATED_AT = auto()
         LINE = auto()
         POSITION = auto()
+        SUBMISSION = auto()
 
     def __init__(self, language: Language):
         self.language = language
@@ -127,7 +130,7 @@ class Translator:
 
     text_translations = {
         Language.EN: {
-            Text.MISSING_EVALUATION_FILE: "The evaluator.py file is missing",
+            Text.MISSING_EVALUATION_FILE: "The evaluator.py and solution.html files are missing.",
             Text.MISSING_CREATE_SUITE: "The evaluator.py file does not implement the 'create_suites(content)' method.",
             Text.TESTCASE_ABORTED: "Evaluation was aborted because this test failed. All subsequent tests were not executed.",
             Text.TESTCASE_NO_LONGER_EVALUATED: "This test was not evaluated.",
@@ -142,6 +145,7 @@ class Translator:
             Text.INVALID_TAG: "Invalid html-tag",
             Text.NO_SELF_CLOSING_TAG: "The following tag is not a self-closing html-tag",
             Text.UNEXPECTED_TAG: "Unexpected html-tag",
+            Text.UNEXPECTED_CLOSING_TAG: "The tag <{tag}> isn't supposed to have a closing tag, it's self-closing.",
             Text.INVALID_ATTRIBUTE: "Invalid attribute for",
             Text.MISSING_REQUIRED_ATTRIBUTE: "Missing required attribute(s) for",
             Text.DUPLICATE_ID: "Id '{id} defined in tag <{tag}> is already defined",
@@ -154,16 +158,18 @@ class Translator:
             Text.NOT_ALL_ATTRIBUTES_PRESENT: "Not all minimal required attributes are present",
             Text.CONTENTS_DIFFER: "Contents differ",
             Text.AMOUNT_CHILDREN_DIFFER: "Amount of children differs",
-            Text.AT_LINE: "At line",
+            Text.STYLES_DIFFER: "CSS styling differs for element <{tag}>",
+            Text.AT_LINE: "at line",
             # normal text
             Text.ERRORS: "Error(s)",
             Text.WARNINGS: "Warning(s)",
             Text.LOCATED_AT: "located at",
             Text.LINE: "line",
-            Text.POSITION: "position"
+            Text.POSITION: "position",
+            Text.SUBMISSION: "Submission"
         },
         Language.NL: {
-            Text.MISSING_EVALUATION_FILE: "Het evaluator.py-bestand ontbreekt",
+            Text.MISSING_EVALUATION_FILE: "De evaluator.py en solution.html bestanden ontbreken.",
             Text.MISSING_CREATE_SUITE: "Het evaluator.py-bestand bevat de 'create_suites(content)' methode niet.",
             Text.TESTCASE_ABORTED: "Het evalueren is onderbroken omdat deze test faalde. De hierop volgende tests werden niet uitgevoerd.",
             Text.TESTCASE_NO_LONGER_EVALUATED: "Deze test werd niet uitgevoerd.",
@@ -178,6 +184,7 @@ class Translator:
             Text.INVALID_TAG: "Ongeldige html-tag",
             Text.NO_SELF_CLOSING_TAG: "De volgende html-tag is geen zelf-afsluitende html-tag",
             Text.UNEXPECTED_TAG: "Onverwachte html-tag",
+            Text.UNEXPECTED_CLOSING_TAG: "De tag <{tag}> hoort geen sluitende tag te hebben, het is een zichzelf-afsluitende tag.",
             Text.INVALID_ATTRIBUTE: "Ongeldig attribuut voor",
             Text.MISSING_REQUIRED_ATTRIBUTE: "Ontbrekende vereiste attributen voor",
             Text.DUPLICATE_ID: "Id '{id} gedefinieerd in tag <{tag}> is al gedefinieerd",
@@ -190,12 +197,14 @@ class Translator:
             Text.NOT_ALL_ATTRIBUTES_PRESENT: "Niet alle minimaal vereiste attributen zijn aanwezig",
             Text.CONTENTS_DIFFER: "Inhoud (text) verschilt",
             Text.AMOUNT_CHILDREN_DIFFER: "Aantal kinderen verschilt",
-            Text.AT_LINE: "Bij regel",
+            Text.STYLES_DIFFER: "CSS stijling verschilt voor element <{tag}>",
+            Text.AT_LINE: "op regel",
             # normal text
             Text.ERRORS: "Fout(en)",
             Text.WARNINGS: "Waarschuwing(en)",
             Text.LOCATED_AT: "gevonden op",
             Text.LINE: "regel",
             Text.POSITION: "positie",
+            Text.SUBMISSION: "Indiening"
         }
     }

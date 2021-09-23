@@ -43,7 +43,7 @@ class Element:
 
     def __str__(self) -> str: ...
 
-    def get_child(self, tag: str, index: int = ..., direct: bool = ..., **kwargs) -> "Element":
+    def get_child(self, tag: Optional[str] = ..., index: int = ..., direct: bool = ..., **kwargs) -> "Element":
         """This method finds a child element with tag tag, optionally with extra filters."""
         ...
 
@@ -205,15 +205,23 @@ class TestSuite:
         """Check that the code between the <style>-tag of the submission is valid CSS. If no style tag is present, this Check will also pass."""
         ...
 
+    def add_check_validate_css_if_present(self):
+        """Adds a check for CSS-validation only if there is some CSS supplied"""
+        ...
+
+    def compare_to_solution(self, solution: str, translator: Translator, **kwargs) -> Check:
+        """Compare the submission to the solution html."""
+        ...
+
     def document_matches(self, regex: str, flags: Union[int, RegexFlag] = ...) -> Check:
         """Check that the student's submitted code matches a regex string."""
         ...
 
-    def element(self, tag: str, from_root: bool = ..., **kwargs) -> Element:
+    def element(self, tag: Optional[str] = ..., from_root: bool = ..., **kwargs) -> Element:
         """Create a reference to an HTML element"""
         ...
 
-    def all_elements(self, tag: str, from_root: bool = ..., **kwargs) -> ElementContainer:
+    def all_elements(self, tag: Optional[str] = ..., from_root: bool = ..., **kwargs) -> ElementContainer:
         """Get references to ALL HTML elements that match a query"""
         ...
 
@@ -239,6 +247,12 @@ class CssSuite(BoilerplateTestSuite):
     allow_warnings: bool
 
     def __init__(self, content: str, check_recommended: bool = ..., allow_warnings: bool = ..., abort: bool = ...): ...
+
+
+class _CompareSuite(HTMLSuite):
+
+    def __init__(self, content: str, solution: str, config: DodonaConfig, check_recommended: bool = True,
+                 allow_warnings: bool = True, abort: bool = True): ...
 
 
 def all_of(*args: Check) -> Check:

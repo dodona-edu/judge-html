@@ -1,6 +1,6 @@
 import bs4
 from bs4 import Tag
-
+from ntpath import basename
 from validators.css_validator import Rules, Rule
 
 
@@ -26,10 +26,24 @@ def prep_render(html_content: str, render_css: bool) -> (str, str):
         div = soup.new_tag("div", attrs={"id": "solution_rendering"})
 
         body = soup.find("body")
-        body.wrap(div)
-        attrs = body.attrs
-        body.unwrap()
-        div.wrap(soup.new_tag("body", attrs=attrs))
+
+        if body is not None:
+            body.wrap(div)
+            attrs = body.attrs
+            body.unwrap()
+            div.wrap(soup.new_tag("body", attrs=attrs))
+
+        # Change all img src's to refer to the /media directory
+        for img in soup.find_all("img", src=True):
+            src = img.get("src")
+
+            # Ignore internet URLs, don't use some fancy package for this, this is good enough
+            if not src.startswith(("http", "www",)):
+                # Use ntpath.basename instead of os.path.basename
+                # Because os.path can't handle Windows filepaths!
+                filename = basename(src)
+
+                img["src"] = f"media/{filename}"
 
         style = soup.find("style")
         if style is not None:

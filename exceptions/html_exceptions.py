@@ -64,6 +64,14 @@ class UnexpectedTagError(TagError):
         return f"{self.translator.translate(Translator.Text.UNEXPECTED_TAG)}: <{self.tag}> ({self.tag_location()})"
 
 
+class UnexpectedClosingTagError(TagError):
+    """Exception that indicates that a certain tag was not expected to have a closing tag
+        ex: you don't expect an <img> tag to have a </img> closer later on
+    """
+    def __str__(self):
+        return f"{self.translator.translate(Translator.Text.UNEXPECTED_CLOSING_TAG, tag=self.tag)} ({self.tag_location()})"
+
+
 """
 EXCEPTIONS FOR ATTRIBUTES
 """

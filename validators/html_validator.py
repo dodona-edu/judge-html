@@ -3,6 +3,8 @@ from html.parser import HTMLParser
 from dodona.translator import Translator
 from exceptions.html_exceptions import *
 from os import path
+
+from exceptions.html_exceptions import UnexpectedClosingTagError
 from utils.file_loaders import json_loader, html_loader
 from validators.double_chars_validator import DoubleCharsValidator
 from functools import lru_cache
@@ -115,9 +117,11 @@ class HtmlValidator(HTMLParser):
     def handle_endtag(self, tag: str):
         """handles a html tag that closes, like <body/>"""
         tag = tag.lower()
+        if self._is_void_tag(tag):
+            self.error(UnexpectedClosingTagError(translator=self.translator, tag_location=self.tag_stack,
+                                                 position=self.getpos(), tag=tag))
         self._validate_corresponding_tag(tag)
-        if not self._is_void_tag(tag):
-            self.tag_stack.pop()
+        self.tag_stack.pop()
 
     def handle_startendtag(self, tag, attrs):
         """handles a html tag that opens and instantly closes, like <meta/>"""
@@ -129,8 +133,7 @@ class HtmlValidator(HTMLParser):
             self.handle_starttag(tag, attrs)
 
     def _validate_corresponding_tag(self, tag: str):
-        """validate that each tag that opens has a corresponding closing tag
-        """
+        """validate that each tag that opens has a corresponding closing tag"""
         if not (self.tag_stack and self.tag_stack[-1] == tag):
             missing_closing = self.tag_stack.pop()
             self.error(MissingClosingTagError(translator=self.translator, tag_location=self.tag_stack,
@@ -211,3 +214,4 @@ class HtmlValidator(HTMLParser):
             elif prev_tag is not None and prev_tag not in tag_info[PERMITTED_PARENTS_KEY]:
                 self.error(UnexpectedTagError(translator=self.translator, tag_location=self.tag_stack,
                                               position=self.getpos(), tag=tag))
+
