@@ -123,6 +123,7 @@ If these settings are not defined, the default value is chosen.
 | `minimal_attributes` | Check whether **at least** the attributes in the solution are supplied in the submission, extra attributes are **allowed**. | `true`, `false` | `false` |
 | `contents` | Check whether the contents of each tag in the solution are exactly the same as in the submission. | `true`, `false` | `false` |
 | `css` | If there are css rules defined in the solution, check if the submission can match these rules. We don't compare the css rules themselves, but rather whether every element in the submission has at least the css-rules defined in the solution. | `true`, `false` | `true` |
+| `comments` | Check whether the submission has the same comments as the solution | `true`, `false` | `false` |
 
 When both `attributes` and `minimal_attributes` are supplied, `attributes` will take preference as it is stricter.
 
@@ -134,7 +135,8 @@ When both `attributes` and `minimal_attributes` are supplied, `attributes` will 
     "handler": "html",
     "attributes": true,
     "contents": true,
-    "css": false
+    "css": false,
+    "comments": true
   }
 }
 ````
