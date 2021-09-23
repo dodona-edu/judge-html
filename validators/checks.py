@@ -15,7 +15,7 @@ from dodona.translator import Translator
 from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
 from exceptions.html_exceptions import Warnings, LocatableHtmlValidationError
 from exceptions.utils import EvaluationAborted
-from utils.html_navigation import find_child, compare_content, match_emmet, find_emmet
+from utils.html_navigation import find_child, compare_content, match_emmet, find_emmet, contains_comment
 from validators.css_validator import CssValidator, CssParsingError
 from validators.html_validator import HtmlValidator
 
@@ -454,6 +454,14 @@ class Element:
 
         return Check(_inner)
 
+    def contains_comment(self, comment: Optional[str] = None) -> Check:
+        """Check if the element contains a comment, optionally matching a value"""
+
+        def _inner(_: BeautifulSoup) -> bool:
+            return contains_comment(self._element, comment)
+
+        return Check(_inner)
+
     # CSS checks
     def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None) -> Check:
         """Check that this element has a CSS property
@@ -798,6 +806,13 @@ class TestSuite:
 
         return Check(_inner)
 
+    def contains_comment(self, comment: Optional[str] = None) -> Check:
+        """Check if the document contains a comment, optionally matching a value"""
+        def _inner(_: BeautifulSoup) -> bool:
+            return contains_comment(self._bs, comment)
+
+        return Check(_inner)
+
     def element(self, tag: Optional[str] = None, index: int = 0, from_root: bool = False, **kwargs) -> Element:
         """Create a reference to an HTML element
         :param tag:         the name of the HTML tag to search for
@@ -993,6 +1008,11 @@ class _CompareSuite(HTMLSuite):
         # Translations
         self._default_translations["en"].append("The submission resembles the solution.")
         self._default_translations["nl"].append("De ingediende code lijkt op die van de oplossing.")
+
+
+"""
+UTILITY FUNCTIONS
+"""
 
 
 def all_of(*args: Check) -> Check:

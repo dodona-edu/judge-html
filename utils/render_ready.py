@@ -1,5 +1,5 @@
 import bs4
-from bs4 import Tag
+from bs4.element import Tag
 from ntpath import basename
 from validators.css_validator import Rules, Rule
 

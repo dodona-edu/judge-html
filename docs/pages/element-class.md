@@ -12,6 +12,7 @@ This class is **not** meant for you to instantiate manually, but instances are r
   - [`attribute_contains`](#attribute_contains)
   - [`attribute_exists`](#attribute_exists)
   - [`attribute_matches`](#attribute_matches)
+  - [`contains_comment`](#contains_comment)
   - [`exists`](#exists)
   - [`has_child`](#has_child)
   - [`has_color`](#has_color)
@@ -181,6 +182,34 @@ pattern = r"^https://.*dodona.*\.png$"
 img_attributes = ChecklistItem("The image has the correct attributes.", [
   img_element.attribute_matches("src", pattern, re.IGNORECASE),
 ])
+```
+
+### `contains_comment`
+
+Check if there is a comment inside of this element, optionally with an exact value. Not passing a value will make any comment pass the check.
+
+#### Signature:
+```python
+def contains_comment(comment: Optional[str] = None) -> Check
+```
+
+#### Parameters:
+
+| Name | Description | Required? | Default |
+|:-----|:------------|:---------:|:--------|
+| `comment` | The value to look for. |  | None, which will accept any comment. |
+
+#### Example usage:
+
+```python
+suite = TestSuite("HTML", content)
+body = suite.element("body")
+
+# Check if the body contains at least one comment
+body.contains_comment()
+
+# Check if the body contains a comment that says "Example"
+body.contains_comment("Example")
 ```
 
 ### `exists`
