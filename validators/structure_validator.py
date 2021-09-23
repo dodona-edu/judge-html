@@ -50,6 +50,7 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
 
     solution: HtmlElement = fromstring(solution)
     submission: HtmlElement = fromstring(submission)
+
     # start checking structure
 
     def attrs_a_contains_attrs_b(attrs_a, attrs_b, exact_match):
@@ -97,7 +98,8 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
                 raise NotTheSame(trans.translate(Translator.Text.ATTRIBUTES_DIFFER), node_sub.sourceline, trans)
         if check_minimal_attributes:
             if not attrs_a_contains_attrs_b(node_sol.attrib, node_sub.attrib, False):
-                raise NotTheSame(trans.translate(Translator.Text.NOT_ALL_ATTRIBUTES_PRESENT), node_sub.sourceline, trans)
+                raise NotTheSame(trans.translate(Translator.Text.NOT_ALL_ATTRIBUTES_PRESENT), node_sub.sourceline,
+                                 trans)
         # check content if wanted
         if check_contents:
             if node_sol.text != "DUMMY" and not compare_content(node_sol.text, node_sub.text):
@@ -109,10 +111,12 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
             if rs_sol:
                 for r_key in rs_sol:
                     if r_key not in rs_sub:
-                        raise NotTheSame(trans.translate(Translator.Text.STYLES_DIFFER, tag=node_sub.tag), node_sub.sourceline, trans)
+                        raise NotTheSame(trans.translate(Translator.Text.STYLES_DIFFER, tag=node_sub.tag),
+                                         node_sub.sourceline, trans)
                     if rs_sol[r_key].value_str != rs_sub[r_key].value_str:
                         if not (rs_sol[r_key].is_color() and rs_sol[r_key].has_color(rs_sub[r_key].value_str)):
-                            raise NotTheSame(trans.translate(Translator.Text.STYLES_DIFFER, tag=node_sub.tag), node_sub.sourceline, trans)
+                            raise NotTheSame(trans.translate(Translator.Text.STYLES_DIFFER, tag=node_sub.tag),
+                                             node_sub.sourceline, trans)
         # check whether the children of the nodes have the same amount of children
         node_sol_children = node_sol.getchildren()
         node_sub_children = node_sub.getchildren()
@@ -124,3 +128,7 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
         # reverse children bc for some reason they are in bottom up order (and we want to review top down)
         queue += zip(reversed(node_sol_children), reversed(node_sub_children))
 
+
+def emmet_compare(solution_emmet: str, submission: str, trans: Translator):
+    import emmet
+    compare(emmet.expand(solution_emmet), submission, trans)
