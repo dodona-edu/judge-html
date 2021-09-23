@@ -96,7 +96,8 @@ def find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, ind: int
 
         tag = tag_regex.search(current_entry)
         id_match = id_regex.search(current_entry)
-        class_name = class_regex.search(current_entry)
+        # Multiple class names allowed
+        class_names = class_regex.findall(current_entry)
         index = index_regex.search(current_entry)
 
         # Kwargs to filter on
@@ -111,8 +112,8 @@ def find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, ind: int
         if id_match is not None:
             filter_kwargs["id"] = id_match.group(1)
 
-        if class_name is not None:
-            filter_kwargs["class"] = class_name.group(1)
+        if class_names:
+            filter_kwargs["class"] = " ".join(class_names)
 
         # Parse index out
         # First match is an optional -
