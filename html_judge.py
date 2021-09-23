@@ -47,7 +47,7 @@ def main():
                     invalid_suites(judge, config)
                     return
                 # compare(sol, html_content, config.translator)
-                suite = checks.CompareSuite(html_content, solution, config)
+                suite = checks._CompareSuite(html_content, solution, config)
                 test_suites = [suite]
 
         except NotImplementedError:

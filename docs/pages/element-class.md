@@ -28,20 +28,22 @@ The following methods can be used to obtain references to extra HTML elements st
 
 ### `get_child`
 
+**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter**
+
 This method finds a child element with tag `tag`, optionally with extra filters.
 
 #### Signature:
 ```python
-def get_child(tag: str, index: int = 0, direct: bool = True, **kwargs) -> Element
+def get_child(tag: Optional[str] = None, index: int = 0, direct: bool = True, **kwargs) -> Element
 ```
 
 #### Parameters:
 
-| Name     | Description                                                                                                                                           | Required? | Default         |
-:----------|:------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:----------------|
-| `tag`    | The tag to search for                                                                                                                                 |     ✔     |                 |
-| `index`  | In case multiple children match your query, choose which match should be chosen. If the index goes out of range, the first match is returned instead. |           | 0 (first match) |
-| `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements.                                                             |           | `True`          |
+| Name     | Description                                                                                                                                            | Required? | Default                                 |
+:----------|:-------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------|
+| `tag`    | The tag to search for, if necessary.                                                                                                                   |           | None, which won't filter based on tags. |
+| `index`  | In case multiple children match your query, choose which match should be chosen. If the index goes out of range, an empty element is returned instead. |           | 0 (first match)                         |
+| `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements.                                                              |           | `True`                                  |
 
 Extra `kwargs` can be passed to filter the results down even more. For example, to find the child with a given `id` use `get_child(tag, id="some_id")`.
 
@@ -57,6 +59,8 @@ img_element = body.get_child("img", index=1, direct=False, height="500")
 
 ### `get_children`
 
+**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter**
+
 This method finds ALL child elements, optionally with tag `tag` and extra filters. This returns an instance of `ElementContainer`, which can be used as a list of elements.
 
 #### Signature:
@@ -68,7 +72,7 @@ def get_children(tag: Optional[str] = None, direct: bool = True, **kwargs) -> El
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
-| `tag` | The tag to search for | | None, which will result in no tag-filter being applied. |
+| `tag` | The tag to search for | | None, which won't filter based on tags. |
 | `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements. | | `True` |
 
 Extra `kwargs` can be passed to filter the results down even more. For example, to find all children with a given `attribute` use `get_children(attribute="some_value")`.

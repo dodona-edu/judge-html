@@ -15,3 +15,7 @@ suite.add_item(valid)
 ```
 
 Keep in mind that there may be artifacts from Dodona's own CSS that are applied onto the student's submission. This _can_ result in the rendering not being 100% accurate, but has no influence on the tests being correct or not.
+
+## Embedding Images
+
+Your students can embed images into their HTML using the `<img>` tag. The files for these images **must** be placed in `/description/media`, and **not in any subdirectories**. When rendering, the filepath your student uses will be parsed into one that works on Dodona, so they can store the images wherever they want locally. This allows them to have an organized directory structure without having to worry about the file not being found.
