@@ -1,11 +1,13 @@
 import emmet
-from validators.checks import TestSuite, Element, all_of, EmptyElement
+from validators.checks import TestSuite, Element, all_of, EmptyElement, Check
 
 
-def emmet_to_check(emmet_str: str, suite: TestSuite):
+def emmet_to_check(emmet_str: str, suite: TestSuite) -> Check:
+    """Converts an emmet expression to a Check"""
     parsed = emmet.parse_markup_abbreviation(emmet_str)
 
     def make_params(node):
+        """convert attributes & text to a dict"""
         out = {}
         if node.attributes:
             out.update({attribute.name: " ".join(attribute.value) for attribute in node.attributes})
@@ -14,6 +16,8 @@ def emmet_to_check(emmet_str: str, suite: TestSuite):
         return out
 
     def match_one(ls: [], node):
+        """when ls contains more than one item, it makes the right selection
+            if ls is empty, it returns an EmptyElement (which will result in a failing Check)&"""
         if len(ls) == 1:
             return ls[0], node
         elif node.repeat:
@@ -26,23 +30,20 @@ def emmet_to_check(emmet_str: str, suite: TestSuite):
         else:
             return EmptyElement(), node
 
-    def to_checks(ls: []):
-        el: Element
-        length = len(ls)
-        while length > 0:
-            if ls[0][1].children:
-                el, abr = ls.pop(0)
-                for node in abr.children:
-                    kwargs = make_params(node)
-                    ls.append(match_one(el.get_children(node.name, direct=True, **kwargs), node))
-                    length += 1
-            length -= 1
-        return all_of(*[x[0].exists() for x in ls])
-
-    roots = []
+    ls = []
+    # the roots (plural because of possible siblings)
     for root_child in parsed.children:
         params = make_params(root_child)
-        roots.append(match_one(suite.all_elements(root_child.name, **params), root_child))
-
-    checks = to_checks(roots)
-    return checks
+        ls.append(match_one(suite.all_elements(root_child.name, **params), root_child))
+    # now we go deeper in the tree (if possible)
+    el: Element
+    length = len(ls)
+    while length > 0:
+        if ls[0][1].children:
+            el, abr = ls.pop(0)
+            for child in abr.children:
+                kwargs = make_params(child)
+                ls.append(match_one(el.get_children(child.name, direct=True, **kwargs), child))
+                length += 1
+        length -= 1
+    return all_of(*[x[0].exists() for x in ls])
