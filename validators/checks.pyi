@@ -246,7 +246,7 @@ class BoilerplateTestSuite(TestSuite):
     def __init__(self, name: str, content: str, check_recommended: bool = ...): ...
 
 
-class HTMLSuite(BoilerplateTestSuite):
+class HtmlSuite(BoilerplateTestSuite):
     allow_warnings: bool
 
     def __init__(self, content: str, check_recommended: bool = ..., allow_warnings: bool = ..., abort: bool = ...): ...
@@ -258,7 +258,7 @@ class CssSuite(BoilerplateTestSuite):
     def __init__(self, content: str, check_recommended: bool = ..., allow_warnings: bool = ..., abort: bool = ...): ...
 
 
-class _CompareSuite(HTMLSuite):
+class _CompareSuite(HtmlSuite):
 
     def __init__(self, content: str, solution: str, config: DodonaConfig, check_recommended: bool = True,
                  allow_warnings: bool = True, abort: bool = True): ...

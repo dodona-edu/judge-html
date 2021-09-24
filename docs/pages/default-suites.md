@@ -6,7 +6,7 @@ Remember that these are still `TestSuite`s, so you can still **add your own Chec
 
 ## Table of Contents
 - [`CssSuite`](#csssuite)
-- [`HTMLSuite`](#htmlsuite)
+- [`HtmlSuite`](#htmlsuite)
 
 ## `CssSuite`
 
@@ -70,9 +70,9 @@ def create_suites(content: str) -> List[TestSuite]:
     # return [CssSuite(content, allow_warnings=False)]
 ```
 
-## `HTMLSuite`
+## `HtmlSuite`
 
-The `HTMLSuite` will automatically create a TestSuite called "HTML", and add a `ChecklistItem` for `HTML` validation (along with the translations for this item).
+The `HtmlSuite` will automatically create a TestSuite called "HTML", and add a `ChecklistItem` for `HTML` validation (along with the translations for this item).
 
 ### Attributes
 
@@ -87,7 +87,7 @@ The `HTMLSuite` will automatically create a TestSuite called "HTML", and add a `
 
 The example below shows the code required *before* and *after* using this custom suite.
 
-**Without the HTMLSuite**:
+**Without the HtmlSuite**:
 
 ```python
 from typing import List
@@ -113,18 +113,18 @@ def create_suites(content: str) -> List[TestSuite]:
     return [html_suite]
 ```
 
-**With the HTMLSuite**:
+**With the HtmlSuite**:
 
 ```python
 from typing import List
-from validators.checks import HTMLSuite, TestSuite
+from validators.checks import HtmlSuite, TestSuite
 
 
 def create_suites(content: str) -> List[TestSuite]:
-    html_suite = HTMLSuite(content, allow_warnings=False)
+    html_suite = HtmlSuite(content, allow_warnings=False)
 
     return [html_suite]
 
     # Or even shorter in case you only want validation:
-    # return [HTMLSuite(content, allow_warnings=False)]
+    # return [HtmlSuite(content, allow_warnings=False)]
 ```
