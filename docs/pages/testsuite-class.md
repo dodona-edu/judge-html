@@ -179,7 +179,7 @@ In order to add `ChecklistItem`s, you can either set the entire checklist at onc
 Adding items one by one can either be done by adding them to the internal checklist (`TestSuite.checklist.append(item)`) or by using the shortcuts `TestSuite.add_item(item)` and `TestSuite.make_item(message, checks)`. Just like the constructor of `ChecklistItem`, `make_check` can take both a variable amount of `Checks` and a `List` of `Check`s.
 
 If you want to add a `ChecklistItem` by comparing the submission to an emmet expression, you can use `TestSuite.make_item_from_emmet(message, emmet_str)`.
-You can find more documentation about the emmet syntax [here](emmet-syntax.md)
+You can find more documentation about the Emmet Syntax [here](emmet-syntax.md).
 
 ```python
 suite = TestSuite("HTML", content)
