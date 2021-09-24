@@ -288,8 +288,3 @@ def at_least(amount: int, *args: Check) -> Check:
 def fail_if(check: Check) -> Check:
     """The fail_if function takes a check, and will fail if the check passes."""
     ...
-
-
-def fail() -> Check:
-    """Always fails"""
-    ...
