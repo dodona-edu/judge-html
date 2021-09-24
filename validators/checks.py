@@ -733,7 +733,7 @@ class TestSuite:
         self.checklist.append(ChecklistItem(message, list(args)))
 
     def make_item_from_emmet(self, message: str, emmet_str: str):
-        """Create a new Checklistitem, the check will compare the submission to the emmet expression.
+        """Create a new ChecklistItem, the check will compare the submission to the emmet expression.
             The emmet expression is seen as the minimal required elements/attributes, so the submission may contain more
             or equal elements"""
         from utils.emmet import emmet_to_check
