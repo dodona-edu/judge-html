@@ -125,7 +125,7 @@ class Element:
 
 
 class EmptyElement(Element):
-    def __init__(self): ...
+    def __init__(self, ): ...
 
 
 class ElementContainer:
@@ -200,6 +200,12 @@ class TestSuite:
 
     def make_item(self, message: str, *args: Check):
         """Shortcut for suite.checklist.append(ChecklistItem(message, checks))"""
+        ...
+
+    def make_item_from_emmet(self, message: str, emmet_str: str):
+        """Create a new Checklistitem, the check will compare the submission to the emmet expression.
+            The emmet expression is seen as the minimal required elements/attributes, so the submission may contain more
+            or equal elements"""
         ...
 
     def validate_html(self, allow_warnings: bool = ...) -> Check:
@@ -281,4 +287,9 @@ def at_least(amount: int, *args: Check) -> Check:
 
 def fail_if(check: Check) -> Check:
     """The fail_if function takes a check, and will fail if the check passes."""
+    ...
+
+
+def fail() -> Check:
+    """Always fails"""
     ...
