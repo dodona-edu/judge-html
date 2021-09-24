@@ -1,5 +1,7 @@
 # Emmet Syntax
 
+_For more information, refer to the [official Emmet docs](https://docs.emmet.io/abbreviations/syntax/)_
+
 All `find_*` methods support `Emmet Syntax`, which allows you to perform search queries in a (**much**) shorter way. This comes in handy when you want to quickly find a deeply-nested element along a very specific path. This document aims to first explain this syntax, and then provide a few examples to show how it works (and to show how much shorter it can be). The methods will always display the character count, to show you that `Emmet Syntax` is always **almost twice** as compact (and for more complex cases, even more than that).
 
 To indicate that a specific method supports this, all of them have the following line underneath their header in their respective documentation: 
@@ -108,4 +110,143 @@ div_element = suite.element("table")
 
 # With Emmet Syntax | 49 characters
 div_element = suite.element("table>tr.tr-example>td.ex-1.ex-2")
+```
+
+## Creating Checks using Emmet Syntax
+
+You can, however, use Emmet Syntax for more than just finding elements. The `checks` library also supports creating `Checks` using this syntax, which can be accomplished via the `TestSuite.make_item_from_emmet()` method.
+
+This method creates (and adds) a `ChecklistItem` by parsing your Emmet-string into a series of Checks. Examples are listed below.
+
+**Note**: these examples use more advanced Emmet Syntax found in the [official documentation](https://docs.emmet.io/abbreviations/syntax/).
+
+#### Signature:
+
+```python
+def make_item_from_emmet(message: str, emmet_str: str)
+```
+
+#### Parameters:
+
+| Name     | Description                                                                                                                                            | Required? | Default |
+:----------|:-------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:--------|
+| `message`    | The message to add to the ChecklistItem.                                                                                                           |     ✔     |         |
+| `emmet_str`  | A `string` in `Emmet Syntax` to create the checks from.                                                                                            |     ✔     |         |
+
+### Examples
+
+All these checks should be taken in an *at_least* context. They check that your required structure is present, but still allow other elements to be present as well. These elements are ignored.
+
+#### Check that an element exists
+
+```python
+suite = HtmlSuite(content)
+
+message = "The <table> has a <tr> with id \"example\"."
+
+# Without Emmet Syntax
+suite.make_item(message, suite.element("table").has_child("tr", id="example"))
+# Alternatively: suite.element("table").get_child("tr", id="example").exists()
+
+# With Emmet Syntax
+suite.make_item_from_emmet(message, "table>tr#example")
+```
+
+#### Check that sibling structure exists
+
+```python
+suite = HtmlSuite(content)
+
+message = "The <body> has: a <div>, a <p>, and a <blockquote>."
+
+# Without Emmet Syntax
+body = suite.element("body")
+suite.make_item(message, body.has_child("div"), body.has_child("p"), body.has_child("blockquote"))
+
+# With Emmet Syntax
+suite.make_item_from_emmet(message, "body>div+p+blockquote")
+```
+
+#### Check the content of an element
+
+The following is a good example of how this syntax can greatly simplify otherwise complex queries.
+
+```python
+suite = HtmlSuite(content)
+
+message = "The <body> has a <table>, which contains a <tr> with a <td> with content \"example\"."
+
+# Without Emmet Syntax
+table = suite.element("body").get_child("table")
+
+checks_list = []
+
+for tr in table.get_children("tr"):
+    checks_list.append(tr.has_child("td", text="example"))
+
+# Without Emmet Syntax, using a complex and hard-to-read construction
+table = suite.element("body").get_child("table")
+suite.make_item(message, any_of(
+        *list(map(lambda tr: tr.has_child("td", text="example"), table.get_children("tr")))
+    )
+)
+
+# With Emmet Syntax
+suite.make_item_from_emmet(message, "body>table>tr>td{example}")
+```
+
+#### Check that X amount of children exist
+
+```python
+suite = HtmlSuite(content)
+
+message = "The <body> has a <table> which contains at least 6 <tr>s."
+
+# Without Emmet Syntax
+suite.make_item(message, suite.element("body").get_child("table").get_children("tr").at_least(6))
+
+# With Emmet Syntax
+suite.make_item_from_emmet(message, "body>table>tr*6")
+```
+
+#### Check that elements with an id and/or class exist
+
+```python
+suite = HtmlSuite(content)
+
+message = "The <body> contains a <div> with id \"header\", and another <div> with class \"page\"."
+
+# Without Emmet Syntax
+body = suite.element("body")
+suite.make_item(message, body.has_child("div", id="header"), body.has_child("div", class_="page"), fail_if(body.has_child("div", id="header", class_="page")))
+
+# With Emmet Syntax
+suite.make_item_from_emmet(message, "body>div#header+div.page")
+```
+
+#### Check that an element has attributes (with values)
+
+```python
+suite = HtmlSuite(content)
+
+message = "The <table> has a <tr> which contains a <td> with title \"Hello world\", and colspan \"3\"."
+
+# Without Emmet Syntax
+table = suite.element("table")
+
+checks_list = []
+
+for tr in table.get_children("tr"):
+    checks_list.append(tr.has_child("td", title="Hello world", colspan="3"))
+
+suite.make_item(message, any_of(*checks_list))
+    
+# Without Emmet Syntax, using a complex and hard-to-read construction
+table = suite.element("table")
+suite.make_item(message, any_of(
+    *list(map(lambda tr: tr.has_child("td", title="Hello world", colspan="3"), table.get_children("tr")))
+))
+
+# With Emmet Syntax
+suite.make_item_from_emmet(message, "table>tr>td[title='Hello world' colspan='3']")
 ```

@@ -162,6 +162,8 @@ Remember that values should be `strings`.
 
 In case an attribute only has to *exist*, and the value doesn't matter, set the value to `True`. In the example above, this would mean that you request the students have at least one `<th>` with a `colspan` attribute, no matter how big it may be. The code for this would be `suite.element("th", colspan=True)`
 
+For `class`es, as "class" is a built-in keyword in Python, use `class_` with an **underscore** after it (`element(class_="some_value")`).
+
 ## Referencing multiple HTML elements
 
 **This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter**
