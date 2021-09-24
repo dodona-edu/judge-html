@@ -930,7 +930,7 @@ class BoilerplateTestSuite(TestSuite):
         return super().evaluate(translator)
 
 
-class HTMLSuite(BoilerplateTestSuite):
+class HtmlSuite(BoilerplateTestSuite):
     """TestSuite that does HTML validation by default"""
     allow_warnings: bool
 
@@ -973,7 +973,7 @@ class CssSuite(BoilerplateTestSuite):
         self.allow_warnings = allow_warnings
 
 
-class _CompareSuite(HTMLSuite):
+class _CompareSuite(HtmlSuite):
     """TestSuite that does:
      * HTML validation
      * CSS validation (if css is present)

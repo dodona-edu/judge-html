@@ -21,7 +21,7 @@ def create_suites(content: str) -> List[TestSuite]:
     return [suite]
 ```
 
-or, alternatively, use the built-in [`HTMLSuite`](default-suites.md#htmlsuite) or [`CssSuite`](default-suites.md#csssuite) that already do this for you. `HTMLSuite` validates `HTML`, `CssSuite` validates both.
+or, alternatively, use the built-in [`HtmlSuite`](default-suites.md#htmlsuite) or [`CssSuite`](default-suites.md#csssuite) that already do this for you. `HtmlSuite` validates `HTML`, `CssSuite` validates both.
 
 ```python
 from validators.checks import CssSuite, TestSuite

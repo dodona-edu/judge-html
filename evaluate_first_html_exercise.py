@@ -3,7 +3,7 @@ from validators import checks
 
 
 def create_suites(content: str) -> List[checks.TestSuite]:
-    suite = checks.HTMLSuite(content)
+    suite = checks.HtmlSuite(content)
 
     el_body = suite.element("body")
     el_table = el_body.get_child("table")
