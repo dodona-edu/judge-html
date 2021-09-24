@@ -231,7 +231,7 @@ def create_suites(content: str):
     return [html_suite]
 ```
 
-It's important to note that a translation should always be the **same length as the checklist**, as every item needs a translation. In case the lists differ, evaluation will crash and show an error message to tell you one of the translations doesn't match.
+In case the supplied list of translations is shorter than the checklist, the checks that don't have a translation will fall back to the message that was passed to the ChecklistItem.
 
 ## Built-in Checks
 
@@ -321,8 +321,6 @@ def document_matches(regex: str, flags: Union[int, re.RegexFlag] = 0) -> Check
 #### Example usage:
 
 ```python
-import re
-
 suite = TestSuite("HTML", content)
 
 pattern = r".*<[^>]+/>.*"

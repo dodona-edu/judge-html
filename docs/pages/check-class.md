@@ -28,7 +28,7 @@ The example below will abort testing if the document's HTML is invalid. Even if 
 ```
 
 ```python
-suite = TestSuite("HTML")
+suite = TestSuite("HTML", content)
 table_element = suite.element("table")
 
 # Note the use of .or_abort() here!
@@ -57,7 +57,7 @@ def then(*args: Check) -> Check
 The example below only checks if the `<div>` exists in case the `<body>` does too.
 
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 
 body_element = suite.element("body")
 div_element = body.get_child("div")

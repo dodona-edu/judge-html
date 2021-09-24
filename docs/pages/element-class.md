@@ -50,7 +50,7 @@ Extra `kwargs` can be passed to filter the results down even more. For example, 
 
 #### Example usage:
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 
 # Find the second <img> inside the body with attribute "height" equal to 500,
@@ -80,7 +80,7 @@ Extra `kwargs` can be passed to filter the results down even more. For example, 
 
 #### Example usage:
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 
 # Find all <p>'s with title "Example"
@@ -110,7 +110,7 @@ def attribute_contains(attr: str, substr: str, case_insensitive: bool = False) -
 
 #### Example usage:
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 img_element = body.get_child("img")
 
@@ -139,7 +139,7 @@ def attribute_exists(attr: str, value: Optional[str] = None, case_insensitive: b
 
 #### Example usage:
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 img_element = body.get_child("img")
 
@@ -173,7 +173,7 @@ def attribute_matches(attr: str, regex: str, flags: Union[int, re.RegexFlag] = 0
 ```python
 import re
 
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 img_element = body.get_child("img")
 
@@ -202,7 +202,7 @@ def contains_comment(comment: Optional[str] = None) -> Check
 #### Example usage:
 
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 
 # Check if the body contains at least one comment
@@ -223,7 +223,7 @@ def exists() -> Check
 
 #### Example usage
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 
 body_exists = ChecklistItem("The document has a <body>", body.exists())
@@ -249,7 +249,7 @@ Extra `kwargs` can be passed to filter the results down even more. For example, 
 
 #### Example usage
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 
 # Check that the body has a child div
@@ -295,7 +295,7 @@ def has_color(prop: str, color: str, important: Optional[bool] = None) -> Check
 </html>
 ```
 ```python
-suite = TestSuite("HTML", content)
+suite = CssSuite(content)
 div = suite.element("div")
 
 div.has_color("background-color", "blue")  # By name
@@ -334,7 +334,7 @@ def has_content(text: Optional[str] = None) -> Check
 
 #### Example usage
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 
 # Create references to the elements
@@ -366,7 +366,7 @@ def has_outgoing_url(allowed_domains: Optional[List[str]] = None) -> Check
 
 #### Example usage
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 # href=True means the child should have an href attribute, no matter the value
 a_tag = body.get_child("a", href=True)
@@ -392,7 +392,7 @@ def has_styling(self, prop: str, value: Optional[str] = None, important: Optiona
 
 #### Example usage
 ```python
-suite = TestSuite("HTML", content)
+suite = CssSuite(content)
 body = suite.element("body")
 div_tag = body.get_child("div")
 
@@ -419,7 +419,7 @@ def has_tag(tag: str) -> Check
 
 #### Example usage
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 body_children = body.get_children()
 
@@ -450,7 +450,7 @@ def has_url_with_fragment(fragment: Optional[str] = None) -> Check
 #### Example usage
 
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 # href=True means the child should have an href attribute, no matter the value
 a_tag = body.get_child("a", href=True)
@@ -469,7 +469,7 @@ def no_loose_text() -> Check
 
 #### Example usage
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 table_element = suite.element("table")
 
 # Verify that the table doesn't have any text inside of it
