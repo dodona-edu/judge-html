@@ -1099,3 +1099,12 @@ def fail_if(check: Check) -> Check:
         return not check.callback(bs)
 
     return Check(_inner)
+
+
+def fail() -> Check:
+    """Always fails"""
+
+    def _inner(_: BeautifulSoup) -> bool:
+        return False
+
+    return Check(_inner)
