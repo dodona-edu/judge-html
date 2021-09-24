@@ -162,6 +162,8 @@ Remember that values should be `strings`.
 
 In case an attribute only has to *exist*, and the value doesn't matter, set the value to `True`. In the example above, this would mean that you request the students have at least one `<th>` with a `colspan` attribute, no matter how big it may be. The code for this would be `suite.element("th", colspan=True)`
 
+For `class`es, as "class" is a built-in keyword in Python, use `class_` with an **underscore** after it (`element(class_="some_value")`).
+
 ## Referencing multiple HTML elements
 
 **This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter**
@@ -229,7 +231,7 @@ def create_suites(content: str):
     return [html_suite]
 ```
 
-It's important to note that a translation should always be the **same length as the checklist**, as every item needs a translation. In case the lists differ, evaluation will crash and show an error message to tell you one of the translations doesn't match.
+In case the supplied list of translations is shorter than the checklist, the checks that don't have a translation will fall back to the message that was passed to the ChecklistItem.
 
 ## Built-in Checks
 
@@ -319,8 +321,6 @@ def document_matches(regex: str, flags: Union[int, re.RegexFlag] = 0) -> Check
 #### Example usage:
 
 ```python
-import re
-
 suite = TestSuite("HTML", content)
 
 pattern = r".*<[^>]+/>.*"

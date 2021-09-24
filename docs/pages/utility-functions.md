@@ -26,8 +26,8 @@ def all_of(args: List[Check]) -> Check
 The example below will fail because there is no `<table>` inside the `<body>`.
 
 ```python
-document = "<html><body></body></html>"
-suite = TestSuite("HTML", document)
+content = "<html><body></body></html>"
+suite = HtmlSuite(content)
 
 body_element = suite.element("body")
 table_element = body.get_child("table")
@@ -50,8 +50,8 @@ def any_of(*args: Check) -> Check
 The example below will pass because `<body>` exists, even if `<head>` doesn't. It will also pass if `<head>` exists while `<body>`  doesn't, and if both exist. This last scenario, however, will not be evaluated (as stated above).
 
 ```python
-document = "<html><body></body></html>"
-suite = TestSuite("HTML", document)
+content = "<html><body></body></html>"
+suite = HtmlSuite(content)
 
 head_element = suite.element("head")
 body_element = suite.element("body")
@@ -74,8 +74,8 @@ def at_least(amount: int, *args: Check) -> Check
 The example below will pass because the first two checks have passed, and only two were required.
 
 ```python
-document = "<html><body></body></html>"
-suite = TestSuite("HTML", document)
+content = "<html><body></body></html>"
+suite = HtmlSuite(content)
 
 head_element = suite.element("head")  # Exists
 body_element = head.get_child("body")  # Exists
@@ -120,7 +120,7 @@ def has_table_content(rows: List[List[str]], has_header: bool = True) -> Check
 </table>
 ```
 ```python
-suite = TestSuite("HTML", document)
+suite = HtmlSuite(content)
 table_element = suite.element("table")
 
 rows = [
@@ -158,7 +158,7 @@ def has_table_header(header: List[str]) -> Check
 </table>
 ```
 ```python
-suite = TestSuite("HTML", document)
+suite = HtmlSuite(content)
 table_element = suite.element("table")
 
 header = ["Header 1", "Header 2", "Header 3", "Header 4"]
@@ -195,7 +195,7 @@ def table_row_has_content(row: List[str]) -> Check
 </table>
 ```
 ```python
-suite = TestSuite("HTML", document)
+suite = HtmlSuite(content)
 table_element = suite.element("table")
 rows = table_element.get_children("tr")
 
@@ -218,8 +218,8 @@ def fail_if(check: Check) -> Check
 #### Example usage:
 
 ```python
-document = "<html><body></body></html>"
-suite = TestSuite("HTML", document)
+content = "<html><body></body></html>"
+suite = HtmlSuite(content)
 
 script_element = suite.element("script")
 
