@@ -732,6 +732,13 @@ class TestSuite:
         This is a shortcut for suite.checklist.append(ChecklistItem(message, check))"""
         self.checklist.append(ChecklistItem(message, list(args)))
 
+    def make_item_from_emmet(self, message: str, emmet_str: str):
+        """Create a new Checklistitem, the check will compare the submission to the emmet expression.
+            The emmet expression is seen as the minimal required elements/attributes, so the submission may contain more
+            or equal elements"""
+        from utils.emmet import emmet_to_check
+        self.make_item(message, emmet_to_check(emmet_str, self))
+
     def validate_html(self, allow_warnings: bool = True) -> Check:
         """Check that the HTML is valid
         This is done in here so that all errors and warnings can be sent to
