@@ -125,7 +125,7 @@ class Element:
 
 
 class EmptyElement(Element):
-    def __init__(self, ): ...
+    def __init__(self): ...
 
 
 class ElementContainer:
