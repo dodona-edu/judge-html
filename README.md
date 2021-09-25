@@ -164,42 +164,43 @@ In a lot of cases you're going to want the students to write _something_ or to g
 1. For autocomplete you need to add the folder `validator` with the `checks.pyi` at the root of your project in which you write the evaluators.
 
 2. Create an `evaluator.py` file in the `evaluation` folder with the following code:
-  > `evaluator.py` (Python 3.9+ recommended)
-  >
-  > ```python
-  > from validators.checks import HtmlSuite, CssSuite, TestSuite, ChecklistItem
-  > 
-  > 
-  > def create_suites(content: str) -> list[TestSuite]:
-  >     html = HtmlSuite(content)
-  >     css = CssSuite(content)
-  > 
-  >     return [html, css]
-  > ```
+
+    > `evaluator.py` (Python 3.9+ recommended)
+    >
+    > ```python
+    > from validators.checks import HtmlSuite, CssSuite, TestSuite, ChecklistItem
+    > 
+    > 
+    > def create_suites(content: str) -> list[TestSuite]:
+    >     html = HtmlSuite(content)
+    >     css = CssSuite(content)
+    > 
+    >     return [html, css]
+    > ```
 
 3. Select the desired element (with Emmet syntax)
 
-  ``` python
-  table = html.element("body>table")
-  two_rows = html.element("body>table>tr*2")
-  ```
+    ``` python
+    table = html.element("body>table")
+    two_rows = html.element("body>table>tr*2")
+    ```
 
 4. Make a `ChecklistItem` and append it to a TestSuite. Combine several ChecklistItems in one check if you want.
 
-```python
-html.make_item("The body has a table.", table.exists())
-html.make_item("The table has a two rows.", two_rows.exists())
-```
+    ```python
+    html.make_item("The body has a table.", table.exists())
+    html.make_item("The table has a two rows.", two_rows.exists())
+    ```
 
 5. *Optional*: Add translations for the checklist just before the `return` keyword. Available languages: `nl` (Dutch, **n**eder**l**ands) and `en` (English, **en**glish). Language code needs to be lower case.
 
-  ```python
-  # Add Dutch translation
-  html.translations["nl"] = [
-      "De body heeft een tabel.",
-      "De tabel heeft twee rijen."
-  ]
-  ```
+    ```python
+    # Add Dutch translation
+    html.translations["nl"] = [
+        "De body heeft een tabel.",
+        "De tabel heeft twee rijen."
+    ]
+    ```
 
 6. *Optional*: Add boilerplate HTML to the boilerplate file. The contents of this file is loaded automatically in the submission text area of the users. You can use this to provide some starting code or structure to your students.
 
