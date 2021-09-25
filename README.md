@@ -118,7 +118,7 @@ Add your solution (`solution.html` file) to the **`evaluation`** folder. Absolut
 
 
 
-## Teacher manual for **comparison mode** (Quick start guide)
+## Quick start guide for **comparison mode** (with `solution.html`)
 
 > [Full documentation for **comparison mode**](/docs/pages/valuating-by-comparing.md)
 
@@ -158,7 +158,7 @@ In the `config.json` file of the exercise you can give some options as to how th
 
 In a lot of cases you're going to want the students to write _something_ or to give _some value_ to an attribute, but you don't care what it is they write down. For that you can use the `DUMMY` keyword for attribute values and for text in your `solution.html` file.
 
-## Teacher manual for **checklist mode** (evaluating with `evaluator.py` script) (Quick start guide)
+## Quick start guide for checklist mode (with `evaluator.py`)
 
 > [Full documentation for **checklist mode**](/docs/)
 
