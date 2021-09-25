@@ -4,11 +4,11 @@
 
 * Checklist (correct, fail, warning)
 * Feedback in language of user (Dutch or English)
-* HTML (TODO &CSS) render of student submission
+* HTML (and CSS) render of student submission
 * Support for partial exercises (exercises that focus on one tag)
-* Two evaluation methods
+* Two evaluation methods:
   * **Comparison mode** with `solution.html` file (fast and easy)
-  * **Checklist mode** (a lot of flexibility)
+  * **Checklist mode** with `evaluator.py` (a lot of flexibility, support for [Emmet syntax](https://docs.emmet.io/abbreviations/syntax/))
 * Extensive [customization possible in `config.json`](#optional-evaluation-settings-in-configjson)
 * Elaborate [feedback](#feedback)
 
@@ -18,7 +18,7 @@
 * Inline CSS is not allowed (internal CSS is)
 * `<script>` and `<noscript>` tag are not allowed
 * Self-closing (non-void) tags are not allowed (e.g. `<p/>`, `<div/>`)
-* TestSuite for HTML and/or CSS (in different tabs)
+* Default TestSuite for HTML and/or CSS (in different tabs with automatic validation)
 
 ## Feedback
 
