@@ -6,10 +6,14 @@
 * Feedback in language of user (Dutch or English)
 * HTML (TODO &CSS) render of student submission
 * Support for partial exercises (exercises that focus on one tag)
+* Two evaluation methods
+  * **Comparison mode** with `solution.html` file (fast and easy)
+  * **Checklist mode** (a lot of flexibility)
 * Extensive [customization possible in `config.json`](#optional-evaluation-settings-in-configjson)
 * Elaborate [feedback](#feedback)
 
 ### Judge properties
+
 * Tags are case-insensitive
 * Inline CSS is not allowed (internal CSS is)
 * `<script>` and `<noscript>` tag are not allowed
@@ -47,8 +51,8 @@ Add your solution (`solution.html` and `solution.css` file) to the **`evaluation
 |   +-- 📂first_html_exercise           # Folder name for the exercise
 |   |   +-- config.json                  # ▶ Configuration of the exercise
 |   |   +-- 📂evaluation                # -- 🔽️ ADD YOUR SOLUTION FILES HERE 🔽 --
-|   |   |   +-- solution.html            # ▶ The HTML model solution file
-|   |   |   +-- solution.css             # ▶ The CSS model solution file
+|   |   |   +-- solution.html            # ▶ The HTML model solution for comparison mode
+|   |   |   +-- evaluator.py             # ▶ The Python code for checklist mode
 |   |   +-- 📂solution                  # Optional: This will be visible in Dodona
 |   |   |   +-- solution.html            # Optional: The HTML model solution file
 |   |   |   +-- solution.css             # Optional: The CSS model solution file
@@ -129,22 +133,28 @@ If these settings are not defined, the default value is chosen.
 }
 ````
 
-## Teacher manual to evaluate with `evaluator.py` script
+## Teacher manual for direct comparison mode
+
+Another way of evaluating an exercise is by comparing it to the `solution.html` file in the `evaluation` folder (this is the default if no `evaluator.py` file is present). In this case, the structure of the student's submission will be compared to your solution, and you can provide extra options to specify how strict this comparison should be.
+
+It does have to be noted that this way of evaluation allows for a lot less freedom. For flexible tests, consider using the checklist mode.
+
+## Teacher manual for checklist mode (evaluating with `evaluator.py` script)
 
 1. For autocomplete you need to add the folder `validator` with the `checks.pyi` at the root of your project in which you write the evaluators.
 2. Create an `evaluator.py` file in the `evaluation` folder with the following code:
   
-  > `evaluator.py`
+  > `evaluator.py` (Python 3.9+ recommended)
   >
   > ```python
-  > from validators import checks
+  > from validators.checks import HtmlSuite, CssSuite, TestSuite, ChecklistItem
   > 
   > 
-  > def create_suites(content: str) -> list[checks.TestSuite]:
-  >     html_suite = checks.TestSuite("HTML", content)
-  >     css_suite = checks.TestSuite("CSS", content)
+  > def create_suites(content: str) -> list[TestSuite]:
+  >     html = HtmlSuite(content)
+  >     css = CssSuite(content)
   > 
-  >     return [html_suite, css_suite]
+  >     return [html, css]
   > ```
 
 3. Check if the HTML and/or CSS is valid
@@ -184,7 +194,7 @@ TODO: add example
 
 **Final checks:**
 
-1. Make sure at least one TestSuite is returned (HTML and/or CSS).
+1. Make sure at least one TestSuite is returned (`html` and/or `css`).
 2. Don't use `print()` in the `evaluator.py` file!
 
 ## Testing
