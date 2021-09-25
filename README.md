@@ -2,15 +2,14 @@
 
 ## Judge features
 
-* Checklist (correct, fail, warning)
+* Checklist (correct, fail, warning, error)
 * Feedback in language of user (Dutch or English)
 * HTML (and CSS) render of student submission
 * Support for partial exercises (exercises that focus on one tag)
-* Two evaluation methods:
-  1. **Comparison mode** with `solution.html` file (fast and easy)
-  2. **Checklist mode** with `evaluator.py` (a lot of flexibility, support for [Emmet syntax](https://docs.emmet.io/abbreviations/syntax/))
-* Extensive [customization possible in `config.json`](#optional-evaluation-settings-in-configjson)
 * Elaborate [feedback](#feedback)
+* Two evaluation methods:
+  1. **Comparison mode** with `solution.html` file (fast and easy, [limited configuration options](#optional-evaluation-settings-in-configjson))
+  2. **Checklist mode** with `evaluator.py` (a lot of flexibility, support for [Emmet syntax](https://docs.emmet.io/abbreviations/syntax/))
 
 ### Judge properties
 
@@ -23,10 +22,12 @@
 ## Feedback
 
 ### HTML&CSS
+
 * Syntax errors
   * Check if brackets/quotes open and close (`(`, `<`, `{`, `[`, `'`, `"`)
   * Each tag that opens must have a corresponding closing tag
   * Checks if all tags are valid
+* Check if all id's are unique
 
 ### HTML
 * Check if required attributes are present
@@ -117,13 +118,13 @@ Add your solution (`solution.html` file) to the **`evaluation`** folder. Absolut
 
 
 
-## Teacher manual for **comparison mode** (Quick start quide)
+## Teacher manual for **comparison mode** (Quick start guide)
 
 > [Full documentation for **comparison mode**](/docs/pages/valuating-by-comparing.md)
 
-Another way of evaluating an exercise is by comparing it to the `solution.html` file in the `evaluation` folder (this is the default if no `evaluator.py` file is present). In this case, the structure of the student's submission will be compared to your solution, and you can provide extra options to specify how strict this comparison should be.
+The **easiest** and **fastest** way of evaluating an exercise is by comparing it to the `solution.html` file in the `evaluation` folder (this is the default if no `evaluator.py` file is present). In this case, the structure of the student's submission will be compared to your solution, and you can provide extra options to specify how strict this comparison should be.
 
-It does have to be noted that this way of evaluation allows for a lot less freedom. For flexible tests, consider using the checklist mode.
+It does have to be noted that this way of evaluation allows for a lot less freedom. **For flexible tests, consider using the checklist mode.**
 
 ### Optional `evaluation` settings in `config.json`
 
@@ -155,9 +156,9 @@ In the `config.json` file of the exercise you can give some options as to how th
 
 ### `DUMMY` values
 
-In a lot of cases you're going to want the students to write _something_ or to give _some value_ to an attribute, but you don't care what it is they write down. For that you can use the `DUMMY` keyword for attribute values and for text.
+In a lot of cases you're going to want the students to write _something_ or to give _some value_ to an attribute, but you don't care what it is they write down. For that you can use the `DUMMY` keyword for attribute values and for text in your `solution.html` file.
 
-## Teacher manual for **checklist mode** (evaluating with `evaluator.py` script) (Quick start quide)
+## Teacher manual for **checklist mode** (evaluating with `evaluator.py` script) (Quick start guide)
 
 > [Full documentation for **checklist mode**](/docs/)
 
@@ -187,7 +188,7 @@ In a lot of cases you're going to want the students to write _something_ or to g
     html.make_item_from_emmet("The table has a two rows.", "body>table>tr*2")
     ```
 
-5. *Optional*: Add translations for the checklist just before the `return` keyword. Available languages: `nl` (Dutch, **n**eder**l**ands) and `en` (English, **en**glish). Language code needs to be lower case.
+5. *Optional*: Add translations for the checklist just before the `return` keyword. Available languages: `nl` (Dutch, **n**eder**l**ands) and `en` (English, **en**glish). The language code needs to be lower case.
 
     ```python
     # Add Dutch translation
