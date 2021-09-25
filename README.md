@@ -129,15 +129,15 @@ In the `config.json` file of the exercise you can give some options as to how th
 
 | Evaluation setting | Description | Possible values | Default |
 | ------------------ | ----------- | --------------  | ------- |
-| `attributes` |  Check whether attributes are exactly the same in solution and submission | `true`/`false` | `false`  |
-| `minimal_attributes`| Check whether **at least** the attributes in the solution are supplied in the submission, extra attributes are **allowed** | `true`/`false` | `false` |
-| `contents`| Check whether the contents of each tag in the solution are exactly the same as in the submission | `true`/`false` | `false` |
-| `css`:| If there are CSS rules defined in the solution, check if the submission can match these rules. We don't compare the CSS rules themselves, but rather whether every element in the submission has at least the CSS-rules defined in the solution. | `true`/`false` | `true` |
-| `comments`|  Check whether the submission has the same comments as the solution | `true`/`false` | `false` |
+| `attributes` |  Check whether attributes are exactly the same in solution and submission.* | `true`/`false` | `false`  |
+| `minimal_attributes`| Check whether **at least** the attributes in the solution are supplied in the submission, extra attributes are **allowed**. | `true`/`false` | `false` |
+| `contents`| Check whether the contents of each tag in the solution are exactly the same as in the submission. | `true`/`false` | `false` |
+| `css` | If there are CSS rules defined in the solution, check if the submission can match these rules. We don't compare the CSS rules themselves, but rather whether every element in the submission has at least the CSS-rules defined in the solution. | `true`/`false` | `true` |
+| `comments` | Check whether the submission has the same comments as the solution. | `true`/`false` | `false` |
 
-*Note: when both `attributes` and `minimal_attributes` are supplied, `attributes` will take preference as it is stricter.*
+*\*Note: when both `attributes` and `minimal_attributes` are supplied, `attributes` will take preference as it is stricter.*
 
-### Example of modified settings
+#### Example of modified settings
 
 ````json
 {
