@@ -8,8 +8,8 @@
 * Support for partial exercises (exercises that focus on one tag)
 * Elaborate [feedback](#feedback)
 * Two evaluation methods:
-  1. **Comparison mode** with `solution.html` file (fast and easy, [limited configuration options](#optional-evaluation-settings-in-configjson))
-  2. **Checklist mode** with `evaluator.py` (a lot of flexibility, support for [Emmet syntax](https://docs.emmet.io/abbreviations/syntax/))
+  1. [**Comparison mode**](#quick-start-guide-for-comparison-mode-with-solutionhtml) with `solution.html` file (fast and easy, [limited configuration options](#optional-evaluation-settings-in-configjson))
+  2. [**Checklist mode**](#quick-start-guide-for-checklist-mode-with-evaluatorpy) with `evaluator.py` (a lot of flexibility, support for [Emmet syntax](https://docs.emmet.io/abbreviations/syntax/))
 
 ### Judge properties
 
