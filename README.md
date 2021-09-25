@@ -128,6 +128,7 @@ It does have to be noted that this way of evaluation allows for a lot less freed
 In the `config.json` file of the exercise you can give some options as to how the comparison should happen. If these settings are not defined, the default value is chosen.
 
 | Evaluation setting | Description | Possible values | Default |
+| ------------------ | ----------- | --------------  | ------- |
 | `attributes` |  Check whether attributes are exactly the same in solution and submission | `true`/`false` | `false`  |
 | `minimal_attributes`| Check whether **at least** the attributes in the solution are supplied in the submission, extra attributes are **allowed** | `true`/`false` | `false` |
 | `contents`| Check whether the contents of each tag in the solution are exactly the same as in the submission | `true`/`false` | `false` |
