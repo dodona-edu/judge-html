@@ -26,23 +26,23 @@ def all_of(args: List[Check]) -> Check
 The example below will fail because there is no `<table>` inside the `<body>`.
 
 ```python
-document = "<html><body></body></html>"
-suite = TestSuite("HTML", document)
+content = "<html><body></body></html>"
+suite = HtmlSuite(content)
 
 body_element = suite.element("body")
 table_element = body.get_child("table")
 
 # Check if the <body> exists AND it has a <table> child
-all_of([body_element.exists(), table_element.exists()])
+all_of(body_element.exists(), table_element.exists())
 ```
 
 ## `any_of`
 
-The `any_of` function takes a list of checks, and will pass if at least one of these checks passes as well. Once one check passes, all other checks in the list will no longer evaluated.
+The `any_of` function takes a series of checks, and will pass if at least one of these checks passes as well. Once one check passes, all other checks in the list will no longer evaluated.
 
 #### Signature:
 ```python
-def any_of(args: List[Check]) -> Check
+def any_of(*args: Check) -> Check
 ```
 
 #### Example usage:
@@ -50,23 +50,23 @@ def any_of(args: List[Check]) -> Check
 The example below will pass because `<body>` exists, even if `<head>` doesn't. It will also pass if `<head>` exists while `<body>`  doesn't, and if both exist. This last scenario, however, will not be evaluated (as stated above).
 
 ```python
-document = "<html><body></body></html>"
-suite = TestSuite("HTML", document)
+content = "<html><body></body></html>"
+suite = HtmlSuite(content)
 
 head_element = suite.element("head")
 body_element = suite.element("body")
 
 # Check if the <body> exists OR <head> exists
-any_of([body_element.exists(), head_element.exists()])
+any_of(body_element.exists(), head_element.exists())
 ```
 
 ## `at_least`
 
-The `at_least` function takes two arguments: the first being the amount of checks required, and the second list of checks to evaluate. The function will pass once at least `amount` checks have passed, and further checks will no longer be evaluated.
+The `at_least` function takes the amount of checks required, and a series of checks to evaluate. The function will pass once at least `amount` checks have passed, and further checks will no longer be evaluated.
 
 #### Signature:
 ```python
-def at_least(amount: int, args: List[Check]) -> Check
+def at_least(amount: int, *args: Check) -> Check
 ```
 
 #### Example usage:
@@ -74,15 +74,15 @@ def at_least(amount: int, args: List[Check]) -> Check
 The example below will pass because the first two checks have passed, and only two were required.
 
 ```python
-document = "<html><body></body></html>"
-suite = TestSuite("HTML", document)
+content = "<html><body></body></html>"
+suite = HtmlSuite(content)
 
 head_element = suite.element("head")  # Exists
 body_element = head.get_child("body")  # Exists
 div_element = body.get_child("div")  # Doesn't exist
 
 # Check if at least two of [<head>, <body>, <div>] exist
-at_least(2, [head_element.exists(), body_element.exists(), div_element.exists()])
+at_least(2, head_element.exists(), body_element.exists(), div_element.exists())
 ```
 
 ## `Element.has_table_content`
@@ -120,7 +120,7 @@ def has_table_content(rows: List[List[str]], has_header: bool = True) -> Check
 </table>
 ```
 ```python
-suite = TestSuite("HTML", document)
+suite = HtmlSuite(content)
 table_element = suite.element("table")
 
 rows = [
@@ -158,7 +158,7 @@ def has_table_header(header: List[str]) -> Check
 </table>
 ```
 ```python
-suite = TestSuite("HTML", document)
+suite = HtmlSuite(content)
 table_element = suite.element("table")
 
 header = ["Header 1", "Header 2", "Header 3", "Header 4"]
@@ -171,7 +171,7 @@ This method checks if an `Element` with tag `tr` has the required content. This 
 
 #### Signature:
 ```python
-def table_row_has_content(self, row: List[str]) -> Check
+def table_row_has_content(row: List[str]) -> Check
 ```
 
 #### Parameters:
@@ -195,7 +195,7 @@ def table_row_has_content(self, row: List[str]) -> Check
 </table>
 ```
 ```python
-suite = TestSuite("HTML", document)
+suite = HtmlSuite(content)
 table_element = suite.element("table")
 rows = table_element.get_children("tr")
 
@@ -218,11 +218,25 @@ def fail_if(check: Check) -> Check
 #### Example usage:
 
 ```python
-document = "<html><body></body></html>"
-suite = TestSuite("HTML", document)
+content = "<html><body></body></html>"
+suite = HtmlSuite(content)
 
 script_element = suite.element("script")
 
 # Check that there are no script tags
 fail_if(script_element.exists())
+```
+
+It is **very** important to note that non-existing HTML elements will cause checks to fail by default, so `fail_if` can make them pass unintentionally. When using an `Element`, you should always check if it **exists** first (using the `Element.exists()` Check).
+
+The example below makes sure that the url doesn't contain a fragment. If the url doesn't exist, this will pass as well!
+
+```python
+a_tag = suite.element("a")
+
+# If <a> doesn't exist, this will succeed, and the check will pass!
+fail_if(a_tag.has_url_with_fragment())
+
+# Solution: first check if it exists, THEN perform the check
+ChecklistItem("The anchor tag does not contain a fragment", a_tag.exists(), fail_if(a_tag.has_url_with_fragment()))
 ```

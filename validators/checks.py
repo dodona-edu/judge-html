@@ -7,15 +7,15 @@ from typing import Deque, List, Optional, Callable, Union, Dict
 from urllib.parse import urlsplit
 
 from bs4 import BeautifulSoup
-from bs4.element import Tag
+from bs4.element import Tag, NavigableString
 
-from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation, MessagePermission
+from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
 from exceptions.html_exceptions import Warnings, LocatableHtmlValidationError
-from exceptions.utils import EvaluationAborted, InvalidTranslation
-from utils.color_converter import Color
+from exceptions.utils import EvaluationAborted
+from utils.html_navigation import find_child, compare_content, match_emmet, find_emmet, contains_comment
 from validators.css_validator import CssValidator, CssParsingError
 from validators.html_validator import HtmlValidator
 
@@ -101,38 +101,20 @@ class Element:
         return f"<{self.tag}>"
 
     # HTML utilities
-    def get_child(self, tag: str, index: int = 0, direct: bool = True, **kwargs) -> "Element":
-        """Find the child element with the given tag
+    def get_child(self, tag: Optional[str] = None, index: int = 0, direct: bool = True, **kwargs) -> "Element":
+        """Find the child element that matches the specifications
 
         :param tag:     the tag to search for
         :param index:   in case multiple children are found, specify the index to fetch
-                        if not enough children were found, still return the first
+                        if not enough children were found, return an EmptyElement
         :param direct:  indicate that only direct children should be considered
         """
-        # This element was not found, so the children don't exist either
-        if self._element is None:
-            return EmptyElement()
-
-        # No index specified, first child requested
-        if index == 0:
-            child = self._element.find(tag, recursive=not direct, **kwargs)
-        else:
-            all_children = self._element.find_all(tag, recursive=not direct, **kwargs)
-
-            # No children found
-            if len(all_children) == 0:
-                child = None
-            else:
-                # Not enough children found (index out of range)
-                if index >= len(all_children):
-                    index = 0
-
-                child = all_children[index]
+        child = find_child(self._element, tag=tag, index=index, from_root=direct, **kwargs)
 
         if child is None:
             return EmptyElement()
 
-        return Element(tag, child.get("id", None), child, self._css_validator)
+        return Element(child.name, child.get("id", None), child, self._css_validator)
 
     def get_children(self, tag: Optional[str] = None, direct: bool = True, **kwargs) -> "ElementContainer":
         """Get all children of this element that match the requested input"""
@@ -140,11 +122,19 @@ class Element:
         if self._element is None:
             return ElementContainer([])
 
-        # If a tag was specified, only search for those
-        # Otherwise, use all children instead
-        if tag is not None:
+        # Emmet syntax requested
+        if match_emmet(tag):
+            # Index parameter is not relevant here & it won't be used anyways
+            matches = find_emmet(self._element, tag, 0, from_root=direct, match_multiple=True, **kwargs)
+
+            # Nothing found
+            if matches is None:
+                return ElementContainer([])
+        elif tag is not None:
+            # If a tag was specified, only search for those
             matches = self._element.find_all(tag, recursive=not direct, **kwargs)
         else:
+            # Otherwise, use all children instead
             matches = self._element.children if direct else self._element.descendants
 
             # Filter out string content
@@ -197,10 +187,13 @@ class Element:
             if self._element is None:
                 return False
 
-            if text is not None:
-                return self._element.text == text
+            if self._element.text is None:
+                return text is None
 
-            return len(self._element.text) > 0
+            if text is not None:
+                return compare_content(self._element.text, text)
+
+            return len(self._element.text.strip()) > 0
 
         return Check(_inner)
 
@@ -213,6 +206,30 @@ class Element:
 
         def _inner(_: BeautifulSoup) -> bool:
             return self._has_tag(tag)
+
+        return Check(_inner)
+
+    def no_loose_text(self) -> Check:
+        """Check that there is no content floating around in this tag"""
+
+        def _inner(_: BeautifulSoup) -> bool:
+            # Even though a non-existent element has no text,
+            # so it may seem as this should always pass,
+            # the standard behaviour is that Checks for these elements
+            # should always fail
+            if self._element is None:
+                return False
+
+            children = self._element.children
+
+            for child in children:
+                # Child is a text instance which is not allowed
+                # Empty tags shouldn't count as text, but for some reason bs4
+                # still picks these up so they're filtered out as well
+                if isinstance(child, NavigableString) and child.text.strip():
+                    return False
+
+            return True
 
         return Check(_inner)
 
@@ -231,6 +248,7 @@ class Element:
         :param value:               The value to check. If no value is passed, this will not be checked.
         :param case_insensitive:    Indicate that the casing of the attribute does not matter.
         """
+
         def _inner(_: BeautifulSoup) -> bool:
             attribute = self._get_attribute(attr)
 
@@ -251,6 +269,7 @@ class Element:
 
     def attribute_contains(self, attr: str, substr: str, case_insensitive: bool = False) -> Check:
         """Check that the value of this attribute contains a substring"""
+
         def _inner(_: BeautifulSoup) -> bool:
             attribute = self._get_attribute(attr)
 
@@ -267,6 +286,7 @@ class Element:
 
     def attribute_matches(self, attr: str, regex: str, flags: Union[int, re.RegexFlag] = 0) -> Check:
         """Check that the value of an attribute matches a regex pattern"""
+
         def _inner(_: BeautifulSoup) -> bool:
             attribute = self._get_attribute(attr)
 
@@ -280,6 +300,7 @@ class Element:
 
     def has_table_header(self, header: List[str]) -> Check:
         """If this element is a table, check that the header content matches up"""
+
         def _inner(_: BeautifulSoup) -> bool:
             # This element is either None or not a table
             if not self._has_tag("table"):
@@ -294,7 +315,7 @@ class Element:
 
             # Check if all headers have the same content in the same order
             for i in range(len(header)):
-                if header[i] != ths[i].text:
+                if not compare_content(header[i], ths[i].text):
                     return False
 
             return True
@@ -307,6 +328,7 @@ class Element:
         :param has_header:  Boolean that indicates that this table has a header,
                             so the first row will be ignored (!)
         """
+
         def _inner(_: BeautifulSoup) -> bool:
             # This element is either None or not a table
             if not self._has_tag("table"):
@@ -341,7 +363,7 @@ class Element:
                 # Compare content
                 for j in range(len(rows[i])):
                     # Content doesn't match
-                    if data[j].text != rows[i][j]:
+                    if not compare_content(data[j].text, rows[i][j]):
                         return False
 
             return True
@@ -350,6 +372,7 @@ class Element:
 
     def table_row_has_content(self, row: List[str]) -> Check:
         """Check the content of one row instead of the whole table"""
+
         def _inner(_: BeautifulSoup) -> bool:
             # Check that this element exists and is a <tr>
             if not self._has_tag("tr"):
@@ -363,17 +386,18 @@ class Element:
 
             for i in range(len(row)):
                 # Text doesn't match
-                if row[i] != tds[i].text:
+                if not compare_content(row[i], tds[i].text):
                     return False
 
             return True
 
         return Check(_inner)
 
-    def url_has_fragment(self, fragment: Optional[str] = None) -> Check:
+    def has_url_with_fragment(self, fragment: Optional[str] = None) -> Check:
         """Check if a url has a fragment
         If no fragment is passed, any non-empty fragment will do
         """
+
         def _inner(_: BeautifulSoup) -> bool:
             if self._element is None or self.tag.lower() != "a":
                 return False
@@ -398,6 +422,46 @@ class Element:
 
         return Check(_inner)
 
+    def has_outgoing_url(self, allowed_domains: Optional[List[str]] = None) -> Check:
+        """Check if an <a>-tag has an outgoing link
+        :param allowed_domains: A list of domains that should not be considered "outgoing",
+                                defaults to ["dodona.ugent.be", "users.ugent.be"]
+        """
+        if allowed_domains is None:
+            allowed_domains = ["dodona.ugent.be", "users.ugent.be"]
+
+        """Check if a link is outgoing or not"""
+
+        def _inner(_: BeautifulSoup) -> bool:
+            if self._element is None:
+                return False
+
+            # Not an anchor tag
+            if self.tag.lower() != "a":
+                return False
+
+            url = self._get_attribute("href")
+
+            # No url present
+            if url is None:
+                return False
+
+            spl = urlsplit(url)
+
+            # Ignore www. in the start to allow the arguments to be shorter
+            netloc = spl.netloc.lower().removeprefix("www.")
+            return netloc not in list(map(lambda x: x.lower(), allowed_domains))
+
+        return Check(_inner)
+
+    def contains_comment(self, comment: Optional[str] = None) -> Check:
+        """Check if the element contains a comment, optionally matching a value"""
+
+        def _inner(_: BeautifulSoup) -> bool:
+            return contains_comment(self._element, comment)
+
+        return Check(_inner)
+
     # CSS checks
     def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None) -> Check:
         """Check that this element has a CSS property
@@ -406,6 +470,7 @@ class Element:
                             in case nothing is supplied any value will pass
         :param important:   indicate that this must (or may not be) marked as important
         """
+
         def _inner(_: BeautifulSoup) -> bool:
             if self._element is None:
                 return False
@@ -440,46 +505,19 @@ class Element:
         :param color:       the color to check this property's value against, in any format
         :param important:   indicate that this must (or may not be) marked as important
         """
+
         def _inner(_: BeautifulSoup) -> bool:
             if self._element is None or self._css_validator is None:
                 return False
 
-            # Using "color" here made PyCharm freak out for some reason
-            # this seems to fix it
-            # Make color case insensitive
-            color_arg = color.lower()
-
-            # Remove unnecessary spaces in rgb(a) color as it makes no difference
-            if color_arg.startswith("rgb"):
-                color_arg = color_arg.replace(" ", "")
-
-            # If rgba, ast alpha to a float to remove trailing 0's
-            # and add a '.' if not present
-            if color_arg.startswith("rgba"):
-                rgba_parts = color_arg.removeprefix("rgba(").removesuffix(")").split(",")
-
-                rgba_parts[-1] = str(float(rgba_parts[-1]))
-                color_arg = f"rgba({','.join(rgba_parts)})"
-
             # Find the CSS Rule
             prop_rule = self._css_validator.find(self._element, prop.lower())
-
-            # Property not found
-            if prop_rule is None:
-                return False
 
             # !important modifier is incorrect
             if important is not None and prop_rule.important != important:
                 return False
 
-            # Try casting the value to a color
-            prop_color: Optional[Color] = prop_rule.get_color()
-
-            # Property was not a color
-            if prop_color is None:
-                return False
-
-            return color_arg in prop_color.values()
+            return prop_rule.has_color(color)
 
         return Check(_inner)
 
@@ -487,6 +525,7 @@ class Element:
 @dataclass
 class EmptyElement(Element):
     """Class that represents an element that could not be found"""
+
     def __init__(self):
         super().__init__("", None, None, None)
 
@@ -593,7 +632,7 @@ def _flatten_queue(queue: List) -> List[Check]:
     return flattened
 
 
-@dataclass
+@dataclass(init=False)
 class ChecklistItem:
     """An item to add to the checklist
 
@@ -603,25 +642,23 @@ class ChecklistItem:
                     to be marked as passed/successful on the final list
     """
     message: str
-    # People can pass nested lists into this, so the type is NOT List[Check] yet
-    checks: Union[List, Check] = field(default_factory=list)
     _checks: List[Check] = field(init=False)
 
-    def __post_init__(self):
+    def __init__(self, message: str, *checks: Union[List, Check]):
+        self.message = message
         self._checks = []
 
-        # Only one check was passed
-        if isinstance(self.checks, Check):
-            self._checks.append(self.checks)
+        if isinstance(checks, Check):
+            self._checks.append(checks)
             return
 
         # Flatten the list of checks and store in internal list
-        for item in self.checks:
+        for item in checks:
             if isinstance(item, Check):
                 self._checks.append(item)
             elif isinstance(item, list):
                 # Group the list into one main check and add that one
-                self._checks.append(all_of(item))
+                self._checks.append(all_of(*item))
 
     def evaluate(self, bs: BeautifulSoup) -> bool:
         """Evaluate all checks inside of this item"""
@@ -684,11 +721,23 @@ class TestSuite:
         """
         return self._css_validated
 
-    def add_check(self, check: ChecklistItem):
+    def add_item(self, check: ChecklistItem):
         """Add an item to the checklist
-        This is a shortcut to suite.checklist.append()
+        This is a shortcut to suite.checklist.append(item)
         """
         self.checklist.append(check)
+
+    def make_item(self, message: str, *args: Check):
+        """Create a new ChecklistItem
+        This is a shortcut for suite.checklist.append(ChecklistItem(message, check))"""
+        self.checklist.append(ChecklistItem(message, list(args)))
+
+    def make_item_from_emmet(self, message: str, emmet_str: str):
+        """Create a new ChecklistItem, the check will compare the submission to the emmet expression.
+            The emmet expression is seen as the minimal required elements/attributes, so the submission may contain more
+            or equal elements"""
+        from utils.emmet import emmet_to_check
+        self.make_item(message, emmet_to_check(emmet_str, self))
 
     def validate_html(self, allow_warnings: bool = True) -> Check:
         """Check that the HTML is valid
@@ -728,62 +777,86 @@ class TestSuite:
 
     def validate_css(self) -> Check:
         """Check that CSS was valid"""
+
         def _inner(_: BeautifulSoup) -> bool:
             return self._css_validated
 
         return Check(_inner)
 
+    def add_check_validate_css_if_present(self):
+        """Adds a check for CSS-validation only if there is some CSS supplied"""
+        if self._css_validated and self._css_validator:
+            self.add_item(ChecklistItem("The css is valid.", self.validate_css()))
+            if "nl" in self.translations:
+                self.translations["nl"].append("De CSS is geldig.")
+
+    def compare_to_solution(self, solution: str, translator: Translator, **kwargs):
+        """Compare the submission to the solution html."""
+
+        def _inner(_: BeautifulSoup):
+            from validators.structure_validator import compare, NotTheSame
+            try:
+                compare(solution, self.content, translator, **kwargs)
+            except NotTheSame as err:
+                with Annotation(err.line, str(err)):
+                    with Message(str(err)):
+                        return False
+            return True
+
+        return Check(_inner)
+
     def document_matches(self, regex: str, flags: Union[int, re.RegexFlag] = 0) -> Check:
         """Check that the document matches a regex"""
+
         def _inner(_: BeautifulSoup) -> bool:
             return re.search(regex, self.content, flags) is not None
 
         return Check(_inner)
 
-    # TODO allow path to be passed using html > body > ... notation instead of only tags
-    # TODO allow index here as well
-    def element(self, tag: str, from_root: bool = False, **kwargs) -> Element:
+    def contains_comment(self, comment: Optional[str] = None) -> Check:
+        """Check if the document contains a comment, optionally matching a value"""
+        def _inner(_: BeautifulSoup) -> bool:
+            return contains_comment(self._bs, comment)
+
+        return Check(_inner)
+
+    def element(self, tag: Optional[str] = None, index: int = 0, from_root: bool = False, **kwargs) -> Element:
         """Create a reference to an HTML element
         :param tag:         the name of the HTML tag to search for
+        :param index:       in case multiple elements match, specify which should be chosen
         :param from_root:   find the element as a child of the root node instead of anywhere
                             in the document
         """
-        element = self._bs.find(tag, recursive=not from_root, **kwargs)
-        return Element(tag, kwargs.get("id", None), element, self._css_validator)
+        element = find_child(self._bs, tag=tag, index=index, from_root=from_root, **kwargs)
 
-    # TODO allow path to be passed using html > body > ... notation instead of only tags
-    def all_elements(self, tag: str, from_root: bool = False, **kwargs) -> ElementContainer:
+        if element is None:
+            return EmptyElement()
+
+        return Element(element.name, kwargs.get("id", None), element, self._css_validator)
+
+    def all_elements(self, tag: Optional[str] = None, from_root: bool = False, **kwargs) -> ElementContainer:
         """Get references to ALL HTML elements that match a query"""
-        elements = self._bs.find_all(tag, recursive=not from_root, **kwargs)
+        if match_emmet(tag):
+            elements = find_emmet(self._bs, tag, 0, from_root=from_root, match_multiple=True, **kwargs)
+
+            if elements is None:
+                return ElementContainer([])
+        else:
+            elements = self._bs.find_all(tag, recursive=not from_root, **kwargs)
+
         return ElementContainer.from_tags(elements, self._css_validator)
 
-    def _validate_translations(self, translator: Translator):
-        """Check that the set translations are valid"""
-        for k, v in self.translations.items():
-            if len(v) != len(self.checklist):
-                description = translator.translate(Translator.Text.INVALID_LANGUAGE_TRANSLATION,
-                                                   language=k,
-                                                   translation=len(v),
-                                                   checklist=len(self.checklist)
-                                                   )
-
-                # Show the teacher a message
-                with Message(
-                        permission=MessagePermission.STAFF,
-                        description=description,
-                        format=MessageFormat.TEXT
-                ):
-                    pass
-
-                raise InvalidTranslation
+    def _create_language_lists(self):
+        """Init the lists of languages to avoid IndexErrors"""
+        for language in ["en", "nl"]:
+            if language not in self.translations:
+                self.translations[language] = []
 
     def evaluate(self, translator: Translator) -> int:
         """Run the test suite, and print the Dodona output
         :returns:   the amount of failed tests
         :rtype:     int
         """
-        self._validate_translations(translator)
-
         aborted = -1
         failed_tests = 0
 
@@ -793,7 +866,7 @@ class TestSuite:
         for i, item in enumerate(self.checklist):
             # Get translated version if possible, else use the message in the item
             message: str = item.message \
-                if lang_abr not in self.translations \
+                if lang_abr not in self.translations or i >= len(self.translations[lang_abr]) \
                 else self.translations[lang_abr][i]
 
             with Context(), TestCase(message) as test_case:
@@ -826,13 +899,136 @@ class TestSuite:
         return failed_tests
 
 
-def all_of(args: List[Check]) -> Check:
-    """Perform an AND-statement on a list of Checks
+class BoilerplateTestSuite(TestSuite):
+    """Base class for TestSuites that handle some boilerplate things"""
+    _default_translations: Optional[Dict[str, List[str]]] = None
+    _default_checks: Optional[List[ChecklistItem]] = None
+
+    def __init__(self, name: str,
+                 content: str,
+                 check_recommended: bool = True,
+                 _default_translations: Optional[Dict[str, List[str]]] = None,
+                 _default_checks: Optional[List[ChecklistItem]] = None):
+        super().__init__(name, content, check_recommended)
+
+    def _add_default_translations(self):
+        self._create_language_lists()
+
+        if self._default_translations is None:
+            return
+
+        # Add in reverse order so we can keep inserting at index 0
+        for language, translations in self._default_translations.items():
+            for entry in reversed(translations):
+                self.translations[language].insert(0, entry)
+
+    def _add_default_checks(self):
+        if self._default_checks is None:
+            return
+
+        # Add in reverse order so we can keep inserting at index 0
+        for item in reversed(self._default_checks):
+            self.checklist.insert(0, item)
+
+    def evaluate(self, translator: Translator) -> int:
+        self._add_default_translations()
+        self._add_default_checks()
+
+        return super().evaluate(translator)
+
+
+class HtmlSuite(BoilerplateTestSuite):
+    """TestSuite that does HTML validation by default"""
+    allow_warnings: bool
+
+    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True):
+        super().__init__("HTML", content, check_recommended)
+
+        # Only abort if necessary
+        if abort:
+            self._default_checks = [ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings).or_abort())]
+        else:
+            self._default_checks = [ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings))]
+
+        self._default_translations = {"en": ["The HTML is valid."], "nl": ["De HTML is geldig."]}
+
+        self.allow_warnings = allow_warnings
+
+
+class CssSuite(BoilerplateTestSuite):
+    """TestSuite that does HTML and CSS validation by default"""
+    allow_warnings: bool
+
+    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True):
+        super().__init__("CSS", content, check_recommended)
+
+        # Only abort if necessary
+        if abort:
+            self._default_checks = [ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings).or_abort()),
+                                    ChecklistItem("The CSS is valid.", self.validate_css().or_abort())
+                                    ]
+        else:
+            self._default_checks = [ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings)),
+                                    ChecklistItem("The CSS is valid.", self.validate_css())
+                                    ]
+
+        self._default_translations = {
+            "en": ["The HTML is valid.", "The CSS is valid."],
+            "nl": ["De HTML is geldig.", "De CSS is geldig."]
+        }
+
+        self.allow_warnings = allow_warnings
+
+
+class _CompareSuite(HtmlSuite):
+    """TestSuite that does:
+     * HTML validation
+     * CSS validation (if css is present)
+     * evaluation by comparing to the solution.html"""
+
+    def __init__(self, content: str, solution: str, config: DodonaConfig, check_recommended: bool = True,
+                 allow_warnings: bool = True, abort: bool = True):
+        super().__init__(content, check_recommended, allow_warnings, abort)
+
+        # Adds a check for CSS-validation only if there is some CSS supplied
+        if self._css_validated and self._css_validator:
+            if abort:
+                self._default_checks.append(ChecklistItem("The CSS is valid.", self.validate_css().or_abort()))
+            else:
+                self._default_checks.append(ChecklistItem("The CSS is valid.", self.validate_css()))
+            # Translations
+            self._default_translations["en"].append("The CSS is valid.")
+            self._default_translations["nl"].append("De CSS is geldig.")
+
+        # Adds a check for comparing to solution
+        params = {"attributes": getattr(config, "attributes", False),
+                  "minimal_attributes": getattr(config, "minimal_attributes", False),
+                  "contents": getattr(config, "contents", False)}
+        if abort:
+            self._default_checks.append(
+                ChecklistItem("The submission resembles the solution.",
+                              self.compare_to_solution(solution, config.translator, **params).or_abort()))
+        else:
+            self._default_checks.append(
+                ChecklistItem("The submission resembles the solution.",
+                              self.compare_to_solution(solution, config.translator, **params)))
+        # Translations
+        self._default_translations["en"].append("The submission resembles the solution.")
+        self._default_translations["nl"].append("De ingediende code lijkt op die van de oplossing.")
+
+
+"""
+UTILITY FUNCTIONS
+"""
+
+
+def all_of(*args: Check) -> Check:
+    """Perform an AND-statement on a series of Checks
     Creates a new Check that requires every single one of the checks to pass,
     otherwise returns False.
     """
     # Flatten list of checks
-    flattened = _flatten_queue(deepcopy(args))
+    flattened = _flatten_queue(deepcopy(list(args)))
     queue: Deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:
@@ -852,13 +1048,13 @@ def all_of(args: List[Check]) -> Check:
     return Check(_inner)
 
 
-def any_of(args: List[Check]) -> Check:
-    """Perform an OR-statement on a list of Checks
+def any_of(*args: Check) -> Check:
+    """Perform an OR-statement on a series of Checks
     Returns True if at least one of the tests succeeds, and stops
     evaluating the rest at that point.
     """
     # Flatten list of checks
-    flattened = _flatten_queue(deepcopy(args))
+    flattened = _flatten_queue(deepcopy(list(args)))
     queue: Deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:
@@ -878,10 +1074,10 @@ def any_of(args: List[Check]) -> Check:
     return Check(_inner)
 
 
-def at_least(amount: int, args: List[Check]) -> Check:
+def at_least(amount: int, *args: Check) -> Check:
     """Check that at least [amount] checks passed"""
     # Flatten list of checks
-    flattened = _flatten_queue(deepcopy(args))
+    flattened = _flatten_queue(deepcopy(list(args)))
     queue: Deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:
@@ -905,6 +1101,7 @@ def fail_if(check: Check) -> Check:
     """Fail if the inner Check returns True
     Equivalent to the not-operator.
     """
+
     def _inner(bs: BeautifulSoup):
         return not check.callback(bs)
 

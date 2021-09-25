@@ -43,7 +43,7 @@ class Element:
 
     def __str__(self) -> str: ...
 
-    def get_child(self, tag: str, index: int = ..., direct: bool = ..., **kwargs) -> "Element":
+    def get_child(self, tag: Optional[str] = ..., index: int = ..., direct: bool = ..., **kwargs) -> "Element":
         """This method finds a child element with tag tag, optionally with extra filters."""
         ...
 
@@ -67,6 +67,10 @@ class Element:
 
     def has_tag(self, tag: str) -> Check:
         """Check that this element has the required tag."""
+        ...
+
+    def no_loose_text(self) -> Check:
+        """Check that there is no content floating around in this tag"""
         ...
 
     def _get_attribute(self, attr: str) -> Optional[str]: ...
@@ -95,9 +99,21 @@ class Element:
         """This method checks if an Element with tag tr has the required content."""
         ...
 
-    def url_has_fragment(self, fragment: Optional[str] = ...) -> Check:
+    def has_url_with_fragment(self, fragment: Optional[str] = ...) -> Check:
         """Check that this element has a url with a fragment (#), optionally comparing the fragment to a string that it should match exactly."""
         ...
+
+    def has_outgoing_url(self, allowed_domains: Optional[List[str]] = None) -> Check:
+        """Check if an <a>-tag has an outgoing link
+        :param allowed_domains: A list of domains that should not be considered "outgoing",
+                                defaults to ["dodona.ugent.be", "users.ugent.be"]
+        """
+        ...
+
+    def contains_comment(self, comment: Optional[str] = None) -> Check:
+        """Check if the element contains a comment, optionally matching a value"""
+        ...
+
 
     def has_styling(self, attr: str, value: Optional[str] = ..., important: Optional[bool] = ...) -> Check:
         """Check that this element is matched by a CSS selector to give it a particular styling. A value can be passed to match the value of the styling exactly."""
@@ -109,7 +125,7 @@ class Element:
 
 
 class EmptyElement(Element):
-    def __init__(self, css_validator: CssValidator): ...
+    def __init__(self): ...
 
 
 class ElementContainer:
@@ -147,10 +163,9 @@ def _flatten_queue(queue: List) -> List[Check]: ...
 
 class ChecklistItem:
     message: str
-    checks: Union[List, Check] = ...
     _checks: List[Check] = ...
 
-    def __init__(self, message: str, checks: Union[List, Check]): ...
+    def __init__(self, message: str, *checks: Union[List, Check]): ...
 
     def __post_init__(self): ...
 
@@ -179,8 +194,18 @@ class TestSuite:
 
     def html_is_valid(self) -> bool: ...
 
-    def add_check(self, check: ChecklistItem):
-        """"Shorcut for TestSuite.checklist.append(item)"""
+    def add_item(self, check: ChecklistItem):
+        """Shortcut for TestSuite.checklist.append(item)"""
+        ...
+
+    def make_item(self, message: str, *args: Check):
+        """Shortcut for suite.checklist.append(ChecklistItem(message, checks))"""
+        ...
+
+    def make_item_from_emmet(self, message: str, emmet_str: str):
+        """Create a new ChecklistItem, the check will compare the submission to the emmet expression.
+            The emmet expression is seen as the minimal required elements/attributes, so the submission may contain more
+            or equal elements"""
         ...
 
     def validate_html(self, allow_warnings: bool = ...) -> Check:
@@ -191,31 +216,72 @@ class TestSuite:
         """Check that the code between the <style>-tag of the submission is valid CSS. If no style tag is present, this Check will also pass."""
         ...
 
+    def add_check_validate_css_if_present(self):
+        """Adds a check for CSS-validation only if there is some CSS supplied"""
+        ...
+
+    def compare_to_solution(self, solution: str, translator: Translator, **kwargs) -> Check:
+        """Compare the submission to the solution html."""
+        ...
+
     def document_matches(self, regex: str, flags: Union[int, RegexFlag] = ...) -> Check:
         """Check that the student's submitted code matches a regex string."""
         ...
 
-    def element(self, tag: str, from_root: bool = ..., **kwargs) -> Element: ...
+    def contains_comment(self, comment: Optional[str] = None) -> Check:
+        """Check if the document contains a comment, optionally matching a value"""
+        ...
 
-    def all_elements(self, tag: str, from_root: bool = ..., **kwargs) -> ElementContainer: ...
+    def element(self, tag: Optional[str] = ..., from_root: bool = ..., **kwargs) -> Element:
+        """Create a reference to an HTML element"""
+        ...
 
-    def _validate_translations(self, translator: Translator): ...
+    def all_elements(self, tag: Optional[str] = ..., from_root: bool = ..., **kwargs) -> ElementContainer:
+        """Get references to ALL HTML elements that match a query"""
+        ...
+
+    def _create_language_lists(self): ...
 
     def evaluate(self, translator: Translator) -> int: ...
 
 
-def all_of(args: List[Check]) -> Check:
-    """The all_of function takes a list of Checks, and will only pass if all of these checks passed too. Once one check fails, all other checks in the list will no longer be evaluated."""
+class BoilerplateTestSuite(TestSuite):
+    _default_translations: Optional[Dict[str, List[str]]] = ...
+    _default_checks: Optional[List[ChecklistItem]] = ...
+
+    def __init__(self, name: str, content: str, check_recommended: bool = ...): ...
+
+
+class HtmlSuite(BoilerplateTestSuite):
+    allow_warnings: bool
+
+    def __init__(self, content: str, check_recommended: bool = ..., allow_warnings: bool = ..., abort: bool = ...): ...
+
+
+class CssSuite(BoilerplateTestSuite):
+    allow_warnings: bool
+
+    def __init__(self, content: str, check_recommended: bool = ..., allow_warnings: bool = ..., abort: bool = ...): ...
+
+
+class _CompareSuite(HtmlSuite):
+
+    def __init__(self, content: str, solution: str, config: DodonaConfig, check_recommended: bool = True,
+                 allow_warnings: bool = True, abort: bool = True): ...
+
+
+def all_of(*args: Check) -> Check:
+    """The all_of function takes a series of Checks, and will only pass if all of these checks passed too. Once one check fails, all other checks in the list will no longer be evaluated."""
     ...
 
 
-def any_of(args: List[Check]) -> Check:
-    """The any_of function takes a list of checks, and will pass if at least one of these checks passes as well. Once one check passes, all other checks in the list will no longer evaluated."""
+def any_of(*args: Check) -> Check:
+    """The any_of function takes a series of checks, and will pass if at least one of these checks passes as well. Once one check passes, all other checks in the list will no longer evaluated."""
     ...
 
 
-def at_least(amount: int, args: List[Check]) -> Check:
-    """The at_least function takes two arguments: the first being the amount of checks required, and the second list of checks to evaluate. The function will pass once at least amount checks have passed, and further checks will no longer be evaluated."""
+def at_least(amount: int, *args: Check) -> Check:
+    """The at_least function takes the amount of checks required, and a series of checks to evaluate. The function will pass once at least amount checks have passed, and further checks will no longer be evaluated."""
     ...
 
 

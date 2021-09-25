@@ -12,13 +12,16 @@ This class is **not** meant for you to instantiate manually, but instances are r
   - [`attribute_contains`](#attribute_contains)
   - [`attribute_exists`](#attribute_exists)
   - [`attribute_matches`](#attribute_matches)
+  - [`contains_comment`](#contains_comment)
   - [`exists`](#exists)
   - [`has_child`](#has_child)
   - [`has_color`](#has_color)
   - [`has_content`](#has_content)
+  - [`has_outgoing_url`](#has_outgoing_url)
   - [`has_styling`](#has_styling)
   - [`has_tag`](#has_tag)
-  - [`url_has_fragment`](#url_has_fragment)
+  - [`has_url_with_fragment`](#has_url_with_fragment)
+  - [`no_loose_text`](#no_loose_text)
 
 ## HTML-related methods
 
@@ -26,26 +29,28 @@ The following methods can be used to obtain references to extra HTML elements st
 
 ### `get_child`
 
+**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter**
+
 This method finds a child element with tag `tag`, optionally with extra filters.
 
 #### Signature:
 ```python
-def get_child(tag: str, index: int = 0, direct: bool = True, **kwargs) -> Element
+def get_child(tag: Optional[str] = None, index: int = 0, direct: bool = True, **kwargs) -> Element
 ```
 
 #### Parameters:
 
-| Name     | Description                                                                                                                                           | Required? | Default         |
-:----------|:------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:----------------|
-| `tag`    | The tag to search for                                                                                                                                 |     ✔     |                 |
-| `index`  | In case multiple children match your query, choose which match should be chosen. If the index goes out of range, the first match is returned instead. |           | 0 (first match) |
-| `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements.                                                             |           | `True`          |
+| Name     | Description                                                                                                                                            | Required? | Default                                 |
+:----------|:-------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------|
+| `tag`    | The tag to search for, if necessary.                                                                                                                   |           | None, which won't filter based on tags. |
+| `index`  | In case multiple children match your query, choose which match should be chosen. If the index goes out of range, an empty element is returned instead. |           | 0 (first match)                         |
+| `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements.                                                              |           | `True`                                  |
 
-Extra `kwargs` can be passed to filter the results down even more. For example, to find the child with a given `id` use `get_child(tag, id="some_id")`.
+Extra `kwargs` can be passed to filter the results down even more. For example, to find the child with a given `id` use `get_child(tag, id="some_id")`. For `class`es, as "class" is a built-in keyword in Python, use `class_` with an **underscore** after it (`get_child(class_="some_value")`).
 
 #### Example usage:
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 
 # Find the second <img> inside the body with attribute "height" equal to 500,
@@ -54,6 +59,8 @@ img_element = body.get_child("img", index=1, direct=False, height="500")
 ```
 
 ### `get_children`
+
+**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter**
 
 This method finds ALL child elements, optionally with tag `tag` and extra filters. This returns an instance of `ElementContainer`, which can be used as a list of elements.
 
@@ -66,14 +73,14 @@ def get_children(tag: Optional[str] = None, direct: bool = True, **kwargs) -> El
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
-| `tag` | The tag to search for | | None, which will result in no tag-filter being applied. |
+| `tag` | The tag to search for | | None, which won't filter based on tags. |
 | `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements. | | `True` |
 
-Extra `kwargs` can be passed to filter the results down even more. For example, to find all children with a given `attribute` use `get_children(attribute="some_value")`.
+Extra `kwargs` can be passed to filter the results down even more. For example, to find all children with a given `attribute` use `get_children(attribute="some_value")`. For `class`es, as "class" is a built-in keyword in Python, use `class_` with an **underscore** after it (`get_children(class_="some_value")`).
 
 #### Example usage:
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 
 # Find all <p>'s with title "Example"
@@ -103,7 +110,7 @@ def attribute_contains(attr: str, substr: str, case_insensitive: bool = False) -
 
 #### Example usage:
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 img_element = body.get_child("img")
 
@@ -132,7 +139,7 @@ def attribute_exists(attr: str, value: Optional[str] = None, case_insensitive: b
 
 #### Example usage:
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 img_element = body.get_child("img")
 
@@ -166,7 +173,7 @@ def attribute_matches(attr: str, regex: str, flags: Union[int, re.RegexFlag] = 0
 ```python
 import re
 
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 img_element = body.get_child("img")
 
@@ -175,6 +182,34 @@ pattern = r"^https://.*dodona.*\.png$"
 img_attributes = ChecklistItem("The image has the correct attributes.", [
   img_element.attribute_matches("src", pattern, re.IGNORECASE),
 ])
+```
+
+### `contains_comment`
+
+Check if there is a comment inside of this element, optionally with an exact value. Not passing a value will make any comment pass the check.
+
+#### Signature:
+```python
+def contains_comment(comment: Optional[str] = None) -> Check
+```
+
+#### Parameters:
+
+| Name | Description | Required? | Default |
+|:-----|:------------|:---------:|:--------|
+| `comment` | The value to look for. |  | None, which will accept any comment. |
+
+#### Example usage:
+
+```python
+suite = HtmlSuite(content)
+body = suite.element("body")
+
+# Check if the body contains at least one comment
+body.contains_comment()
+
+# Check if the body contains a comment that says "Example"
+body.contains_comment("Example")
 ```
 
 ### `exists`
@@ -188,7 +223,7 @@ def exists() -> Check
 
 #### Example usage
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 
 body_exists = ChecklistItem("The document has a <body>", body.exists())
@@ -214,7 +249,7 @@ Extra `kwargs` can be passed to filter the results down even more. For example, 
 
 #### Example usage
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 
 # Check that the body has a child div
@@ -260,7 +295,7 @@ def has_color(prop: str, color: str, important: Optional[bool] = None) -> Check
 </html>
 ```
 ```python
-suite = TestSuite("HTML", content)
+suite = CssSuite(content)
 div = suite.element("div")
 
 div.has_color("background-color", "blue")  # By name
@@ -271,7 +306,20 @@ div.has_color("background-color", "#0000FF")  # By hex value
 
 ### `has_content`
 
-Check that the element has specific content, or any content at all.
+Check that the element has specific content, or any content at all. 
+
+This check **ignores** leading and trailing whitespace, and replaces all other whitespace by a single space. The reason behind this is that HTML does the same, so these spaces shouldn't matter.
+
+This means that
+
+```python
+x = "this text" 
+```
+and
+```python
+y = "    \t\n     this \t\n\n\t                text           "
+```
+are considered to be **equal**.
 
 #### Signature:
 ```python
@@ -286,7 +334,7 @@ def has_content(text: Optional[str] = None) -> Check
 
 #### Example usage
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 
 # Create references to the elements
@@ -298,6 +346,32 @@ paragraphs_exist = ChecklistItem("The body has two paragraphs that meet the requ
   first_p.has_content("Hello"),
   second_p.has_content()
 ])
+```
+
+### `has_outgoing_url`
+
+Check that this element has a url that doesn't go to another domain, optionally with a `list` of domains that you want to allow.
+
+In case the element is not an `<a>`-tag or does not have an `href` attribute, this will also return `False`. 
+
+#### Signature:
+```python
+def has_outgoing_url(allowed_domains: Optional[List[str]] = None) -> Check
+```
+#### Parameters:
+
+| Name      | Description                                     | Required? | Default                                           |
+|:----------|:------------------------------------------------|:---------:|:--------------------------------------------------|
+| allowed_domains  | An optional list of domains that should *not* be considered "outgoing". |           | None, which will default to `["dodona.ugent.be", "users.ugent.be"]`.|
+
+#### Example usage
+```python
+suite = HtmlSuite(content)
+body = suite.element("body")
+# href=True means the child should have an href attribute, no matter the value
+a_tag = body.get_child("a", href=True)
+
+a_tag.has_outgoing_link(allowed_domains=["ugent.be"])
 ```
 
 ### `has_styling`
@@ -318,7 +392,7 @@ def has_styling(self, prop: str, value: Optional[str] = None, important: Optiona
 
 #### Example usage
 ```python
-suite = TestSuite("HTML", content)
+suite = CssSuite(content)
 body = suite.element("body")
 div_tag = body.get_child("div")
 
@@ -345,7 +419,7 @@ def has_tag(tag: str) -> Check
 
 #### Example usage
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 body_children = body.get_children()
 
@@ -357,7 +431,7 @@ body_structure = ChecklistItem("The body has a table followed by a div.", [
 ])
 ```
 
-### `url_has_fragment`
+### `has_url_with_fragment`
 
 Check that this element has a url with a fragment (`#`), optionally comparing the fragment to a `string` that it should match exactly.
 
@@ -365,7 +439,7 @@ In case the element is not an `<a>`-tag or does not have an `href` attribute, th
 
 #### Signature:
 ```python
-def url_has_fragment(fragment: Optional[str] = None) -> Check
+def has_url_with_fragment(fragment: Optional[str] = None) -> Check
 ```
 #### Parameters:
 
@@ -374,11 +448,30 @@ def url_has_fragment(fragment: Optional[str] = None) -> Check
 | fragment  | An optional fragment that should match exactly. |           | None, which will make any non-empty fragment pass.|
 
 #### Example usage
+
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 # href=True means the child should have an href attribute, no matter the value
 a_tag = body.get_child("a", href=True)
 
-a_tag.url_has_fragment()
+a_tag.has_url_with_fragment()
+```
+
+### `no_loose_text`
+
+Check that this element has no text inside of it that is not inside of another element. Examples include random text floating around inside of a `<tr>` instead of a `<td>`.
+
+#### Signature:
+```python
+def no_loose_text() -> Check
+```
+
+#### Example usage
+```python
+suite = HtmlSuite(content)
+table_element = suite.element("table")
+
+# Verify that the table doesn't have any text inside of it
+table_element.no_loose_text()
 ```

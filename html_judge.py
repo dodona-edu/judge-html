@@ -1,3 +1,4 @@
+import os
 import sys
 from typing import List, Optional
 
@@ -7,9 +8,10 @@ from dodona.translator import Translator
 from exceptions.utils import InvalidTranslation
 from utils.evaluation_module import EvaluationModule
 from utils.file_loaders import html_loader
+from validators import checks
 from validators.checks import TestSuite
 from utils.render_ready import prep_render
-from utils.messages import invalid_suites, invalid_evaluator_file, missing_create_suite
+from utils.messages import invalid_suites, invalid_evaluator_file, missing_create_suite, missing_evaluator_file
 
 
 def main():
@@ -36,14 +38,18 @@ def main():
         # and a short message to the student
         try:
             evaluator: Optional[EvaluationModule] = EvaluationModule.build(config)
+            if evaluator is not None:
+                test_suites: List[TestSuite] = evaluator.create_suites(html_content)
+            else:
+                solution = html_loader(os.path.join(config.resources, "./solution.html"))
+                if not solution:
+                    missing_evaluator_file(config.translator)
+                    invalid_suites(judge, config)
+                    return
+                # compare(sol, html_content, config.translator)
+                suite = checks._CompareSuite(html_content, solution, config)
+                test_suites = [suite]
 
-            # An error message is shown for this in build(), stop evaluating
-            if evaluator is None:
-                invalid_suites(judge, config)
-                # TODO later allow this to run against the solution file instead
-                return
-
-            test_suites: List[TestSuite] = evaluator.create_suites(html_content)
         except NotImplementedError:
             # Evaluator.py file doesn't implement create_suites
             missing_create_suite(config.translator)
@@ -85,14 +91,15 @@ def main():
 
         # Only render out valid HTML on Dodona
         if html_validated:
-            with Tab("Rendered"):
-                with Message(format=MessageFormat.HTML, description=prep_render(html_content, render_css=css_validated)):
+            title, html = prep_render(html_content, render_css=css_validated)
+            with Tab(f"Rendered{f': {title}' if title else ''}"):
+                with Message(format=MessageFormat.HTML, description=html):
                     pass
 
         if aborted:
             judge.status = config.translator.error_status(ErrorType.RUNTIME_ERROR)
         else:
-            status = ErrorType.CORRECT_ANSWER if failed_tests == 0 else ErrorType.WRONG_ANSWER
+            status = ErrorType.CORRECT_ANSWER if failed_tests == 0 else ErrorType.WRONG if failed_tests == 1 else ErrorType.WRONG_ANSWER
             judge.status = config.translator.error_status(status, amount=failed_tests)
 
 

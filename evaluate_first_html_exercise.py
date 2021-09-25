@@ -3,12 +3,7 @@ from validators import checks
 
 
 def create_suites(content: str) -> List[checks.TestSuite]:
-    suite = checks.TestSuite("HTML", content)
-
-    # Item 1: the HTML is valid
-    ci_html_valid = checks.ChecklistItem("The HTML is valid.",
-                                         suite.validate_html().or_abort()  # Abort all future tests if HTML is invalid
-                                         )
+    suite = checks.HtmlSuite(content)
 
     el_body = suite.element("body")
     el_table = el_body.get_child("table")
@@ -59,7 +54,6 @@ def create_suites(content: str) -> List[checks.TestSuite]:
 
     # Create checklist
     suite.checklist = [
-        ci_html_valid,
         ci_table_exists,
         ci_table_has_caption,
         ci_caption_is_correct,
@@ -72,7 +66,6 @@ def create_suites(content: str) -> List[checks.TestSuite]:
 
     # Add Dutch translation
     suite.translations["nl"] = [
-        "De HTML is geldig.",
         "De body bevat een tabel.",
         "De tabel heeft een caption.",
         "De caption bevat de correcte tekst.",

@@ -1,8 +1,11 @@
+import ntpath
 from html.parser import HTMLParser
 
 from dodona.translator import Translator
 from exceptions.html_exceptions import *
 from os import path
+
+from exceptions.html_exceptions import UnexpectedClosingTagError
 from utils.file_loaders import json_loader, html_loader
 from validators.double_chars_validator import DoubleCharsValidator
 from functools import lru_cache
@@ -50,6 +53,7 @@ class HtmlValidator(HTMLParser):
         self.check_required = kwargs.get("required", True)
         self.check_recommended = kwargs.get("recommended", True)
         self.check_nesting = kwargs.get("nesting", True)
+        self._id_set: set[str] = set()
 
     def set_check_required(self, b: bool):
         self.check_required = b
@@ -109,14 +113,16 @@ class HtmlValidator(HTMLParser):
             self._valid_nesting(tag)
         if not self._is_void_tag(tag):
             self.tag_stack.append(tag)
-        self._valid_attributes(tag, set(a[0].lower() for a in attributes))
+        self._valid_attributes(tag, {a[0].lower(): a[1] for a in attributes})
 
     def handle_endtag(self, tag: str):
         """handles a html tag that closes, like <body/>"""
         tag = tag.lower()
+        if self._is_void_tag(tag):
+            self.error(UnexpectedClosingTagError(translator=self.translator, tag_location=self.tag_stack,
+                                                 position=self.getpos(), tag=tag))
         self._validate_corresponding_tag(tag)
-        if not self._is_void_tag(tag):
-            self.tag_stack.pop()
+        self.tag_stack.pop()
 
     def handle_startendtag(self, tag, attrs):
         """handles a html tag that opens and instantly closes, like <meta/>"""
@@ -128,8 +134,7 @@ class HtmlValidator(HTMLParser):
             self.handle_starttag(tag, attrs)
 
     def _validate_corresponding_tag(self, tag: str):
-        """validate that each tag that opens has a corresponding closing tag
-        """
+        """validate that each tag that opens has a corresponding closing tag"""
         if not (self.tag_stack and self.tag_stack[-1] == tag):
             missing_closing = self.tag_stack.pop()
             self.error(MissingClosingTagError(translator=self.translator, tag_location=self.tag_stack,
@@ -147,7 +152,7 @@ class HtmlValidator(HTMLParser):
             self.error(InvalidTagError(translator=self.translator, tag_location=self.tag_stack, position=self.getpos(),
                                        tag=tag))
 
-    def _valid_attributes(self, tag: str, attributes: set[str]):
+    def _valid_attributes(self, tag: str, attributes: dict[str, str]):
         """validate attributes
             check whether all required attributes are there, if not, raise an error
             check whether all recommended attributes are there, if not, add a warning
@@ -156,19 +161,43 @@ class HtmlValidator(HTMLParser):
         if "style" in attributes:
             self.error(InvalidAttributeError(translator=self.translator, tag_location=self.tag_stack,
                                              position=self.getpos(), tag=tag, attribute="style"))
+        # Unique id's
+        if 'id' in attributes:
+            if attributes['id'] in self._id_set:
+                raise DuplicateIdError(self.translator, tag, self.tag_stack, self.getpos(), attributes['id'])
+            else:
+                self._id_set.add(attributes['id'])
 
+        # id's and classnames may not contain spaces and must be at least one character
+        for attr in ["id", "class"]:
+            if attr in attributes:
+                attr_id = attributes[attr]
+                if not attr_id:
+                    self.error(
+                        AttributeValueError(self.translator, self.tag_stack, self.getpos(),
+                                            self.translator.translate(Translator.Text.AT_LEAST_ONE_CHAR, attr=attr)))
+                if ' ' in attr_id:
+                    self.error(
+                        AttributeValueError(self.translator, self.tag_stack, self.getpos(),
+                                            self.translator.translate(Translator.Text.NO_WHITESPACE, attr=attr)))
+
+        # check src attribute for absolute filepaths
+        if 'src' in attributes:
+            link = attributes['src']
+            if ntpath.isabs(link):
+                self.error(AttributeValueError(self.translator, self.tag_stack, self.getpos(), self.translator.translate(Translator.Text.NO_ABS_PATHS)))
         tag_info = self.valid_dict[tag]
 
         if self.check_required:
             required = set(tag_info[REQUIRED_ATR_KEY]) if REQUIRED_ATR_KEY in tag_info else set()
-            if missing_req := (required - attributes):
+            if missing_req := (required - attributes.keys()):
                 self.error(MissingRequiredAttributesError(translator=self.translator, tag_location=self.tag_stack,
                                                           position=self.getpos(), tag=tag,
                                                           attribute=", ".join(missing_req)))
 
         if self.check_recommended:
             recommended = set(tag_info[RECOMMENDED_ATR_KEY]) if RECOMMENDED_ATR_KEY in tag_info else set()
-            if missing_rec := (recommended - attributes):
+            if missing_rec := (recommended - attributes.keys()):
                 self.warning(MissingRecommendedAttributesWarning(translator=self.translator,
                                                                  tag_location=self.tag_stack.copy(),
                                                                  position=self.getpos(), tag=tag,
@@ -191,3 +220,4 @@ class HtmlValidator(HTMLParser):
             elif prev_tag is not None and prev_tag not in tag_info[PERMITTED_PARENTS_KEY]:
                 self.error(UnexpectedTagError(translator=self.translator, tag_location=self.tag_stack,
                                               position=self.getpos(), tag=tag))
+

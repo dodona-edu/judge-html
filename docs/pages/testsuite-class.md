@@ -2,6 +2,8 @@
 
 A `TestSuite` contains a checklist of all checks that should be performed on the student's code. An exercise is only marked as correct once every check in every `TestSuite` has passed.
 
+**Note**: There are a few built-in implementations of TestSuites that already handle some common behaviour for you automatically. We strongly recommend you to take a look at these, as you will most likely use these in almost every exercise. Creating an instance of `TestSuite` should only be done when you don't want any behaviour such as `validation`. See [`Default TestSuites`](default-suites.md) for more information.
+
 ## Table of Contents
 - [Attributes](#attributes)
 - [`TestSuites` on Dodona](#testsuites-on-dodona)
@@ -12,6 +14,7 @@ A `TestSuite` contains a checklist of all checks that should be performed on the
 - [Built-in Checks](#built-in-checks)
   - [`validate_css`](#validate_css)
   - [`validate_html`](#validate_html)
+  - [`contains_comment`](#contains_comment)
   - [`document_matches`](#document_matches)
 
 ## Attributes
@@ -41,7 +44,24 @@ The image also shows a `1` next to the **HTML** tab, indicating that 1 test fail
 
 ## Referencing (specific) HTML elements
 
+**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter**
+
 You can get a specific HTML element by tag using `suite.element(tag)` in the form of an instance of the `Element` class (explained later). Afterwards, you can use this reference to create extra checks based off of it.
+
+#### Signature:
+```python
+def element(tag: Optional[str] = None, index: int = 0, from_root: bool = False, **kwargs) -> Element
+```
+
+#### Parameters:
+
+| Name     | Description                                                                                                                                            | Required? | Default                                 |
+:----------|:-------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------|
+| `tag`    | The tag to search for                                                                                                                                  |           | None, which won't filter based on tags. |
+| `index`  | In case multiple children match your query, choose which match should be chosen. If the index goes out of range, an empty element is returned instead. |           | 0 (first match)                         |
+| `from_root` | Boolean that indicates only children of the root element should be searched.                                                                        |           | False                                   |
+
+#### Example usage
 
 The example below shows how to get the `<html>` tag:
 
@@ -60,7 +80,7 @@ html_tag = suite.element("html")
 
 Searching will start from the root element, and work in a breadth-first way recursively. In case you want to disable this and only search the root of the tree, you can pass `from_root=True` into the function.
 
-The example below shows how to get the `<div>` at the root of the tree, and not the one that comes first in the file but is nested deeper.
+The example below shows how to get the `<div>` at the root of the tree, not the one that comes first in the file but is nested deeper.
 
 ```html
 <span>
@@ -77,7 +97,37 @@ The example below shows how to get the `<div>` at the root of the tree, and not 
 
 ```python
 suite = TestSuite("HTML", content)
+
+# from_root=True: only check children of the root node, so ignore the very first (nested) <div>
 root_div = suite.element("div", from_root=True)
+```
+
+In case multiple elements were matched, you can specify which one should be chosen using the `index` parameter.
+
+The example below shows how to get the third `<tr>`.
+
+```html
+<tbody>
+<!-- We don't want this tr -->
+<tr>
+  ...
+</tr>
+<!-- We don't want this tr -->
+<tr>
+  ...
+</tr>
+<!-- We want THIS tr -->
+<tr>
+  ...
+</tr>
+</tbody>
+```
+
+```python
+suite = TestSuite("HTML", content)
+
+# index=2: take the third element in case it exists
+root_div = suite.element("div", index=2)
 ```
 
 Extra filters, such as id's and attributes, can be passed as _kwargs_. You can pass as many filters as you want to.
@@ -103,6 +153,7 @@ The example below shows how to get the `<tr>` with id `row_one`, and the `<th>` 
 
 ```python
 suite = TestSuite("HTML", content)
+
 tr_one = suite.element("tr", id="row_one")
 th_colspan = suite.element("th", colspan="2")
 ```
@@ -111,7 +162,11 @@ Remember that values should be `strings`.
 
 In case an attribute only has to *exist*, and the value doesn't matter, set the value to `True`. In the example above, this would mean that you request the students have at least one `<th>` with a `colspan` attribute, no matter how big it may be. The code for this would be `suite.element("th", colspan=True)`
 
+For `class`es, as "class" is a built-in keyword in Python, use `class_` with an **underscore** after it (`element(class_="some_value")`).
+
 ## Referencing multiple HTML elements
+
+**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter**
 
 In case you want to get a list of all elements (optionally matching filters), use `suite.all_elements` instead. This method takes the exact same arguments as `elements`, and thus the same filters can be applied.
 
@@ -123,28 +178,38 @@ More info on `ElementContainer`s can be found in the respective [documentation p
 
 In order to add `ChecklistItem`s, you can either set the entire checklist at once, or add separate `ChecklistItem`s one by one.
 
-Adding items one by one can either be done by adding them to the internal checklist (`TestSuite.checklist.append(item)`) or by using the shortcut `TestSuite.add_check(item)`.
+Adding items one by one can either be done by adding them to the internal checklist (`TestSuite.checklist.append(item)`) or by using the shortcuts `TestSuite.add_item(item)` and `TestSuite.make_item(message, checks)`. Just like the constructor of `ChecklistItem`, `make_check` can take both a variable amount of `Checks` and a `List` of `Check`s.
+
+If you want to add a `ChecklistItem` by comparing the submission to an emmet expression, you can use `TestSuite.make_item_from_emmet(message, emmet_str)`.
+You can find more documentation about the Emmet Syntax [here](emmet-syntax.md).
 
 ```python
 suite = TestSuite("HTML", content)
 
-first_item = ChecklistItem("Item 1", ...)
-second_item = ChecklistItem("Item 2", ...)
+first_item = ChecklistItem("Item 1", check1)
+second_item = ChecklistItem("Item 2", check2, check3)
 
 # Directly setting the list content
 suite.checklist = [first_item, second_item]
 
 # Adding the items one by one
 suite.checklist.append(first_item)
-# TestSuite.add_check is a shortcut to TestSuite.checklist.append()
-suite.add_check(second_item)
+# TestSuite.add_item is a shortcut to TestSuite.checklist.append()
+suite.add_item(second_item)
+
+# TestSuite.make_item is a shortcut to create a ChecklistItem inline
+# The line below is equal to suite.add_item(ChecklistItem("Item 3", check1, check2, check3))
+suite.make_item("Item 3", check1, check2, check3)
+
+# Adding a ChecklistItem from an emmet expression
+suite.make_item_from_emmet("Item 4", "body>div#mydiv")
 ```
 
 ## Adding multiple languages
 
 It's possible that your course might have students from different countries, and you'd like to give feedback in more than one language. You can do this by using the `translations` attribute.
 
-`translations` is a `dict` that maps a two-letter language code (`string`, **lowercase**) to a `list` of `string`s. In case the student's own language was not found in the `dict`, the message that you pass to the `ChecklistItem` will be used as the default.
+`translations` is a `dict` that maps a two-letter language code (`string`, **lowercase**) to a `list` of `string`s. In case the student's own language was not found in the `dict`, the message that you pass to the `ChecklistItem` will be used as the default. In case the list for the student's language doesn't contain *enough* elements, the remaining items will also use their default message. Excess elements are ignored.
 
 Accepted languages are currently `nl` and `en`.
 
@@ -156,7 +221,7 @@ def create_suites(content: str):
 
     # Check that the HTML is valid, the default message is in English here
     valid_check = ChecklistItem("The HTML is valid.", html_suite.validate_html())
-    html_suite.add_check(valid_check)
+    html_suite.add_item(valid_check)
     
     # Add Dutch translation
     html_suite.translations["nl"] = [
@@ -166,7 +231,7 @@ def create_suites(content: str):
     return [html_suite]
 ```
 
-It's important to note that a translation should always be the **same length as the checklist**, as every item needs a translation. In case the lists differ, evaluation will crash and show an error message to tell you one of the translations doesn't match.
+In case the supplied list of translations is shorter than the checklist, the checks that don't have a translation will fall back to the message that was passed to the ChecklistItem.
 
 ## Built-in Checks
 
@@ -210,6 +275,33 @@ suite = TestSuite("HTML", content)
 html_valid = ChecklistItem("The HTML is valid.", suite.validate_html())
 ```
 
+### `contains_comment`
+
+Check if there is a comment inside of this document, optionally with an exact value. Not passing a value will make any comment pass the check.
+
+#### Signature:
+```python
+def contains_comment(comment: Optional[str] = None) -> Check
+```
+
+#### Parameters:
+
+| Name | Description | Required? | Default |
+|:-----|:------------|:---------:|:--------|
+| `comment` | The value to look for. |  | None, which will accept any comment. |
+
+#### Example usage:
+
+```python
+suite = TestSuite("HTML", content)
+
+# Check if the document contains at least one comment
+suite.contains_comment()
+
+# Check if the document contains a comment that says "Example"
+suite.contains_comment("Example")
+```
+
 ### `document_matches`
 
 Check that the student's submitted code matches a `regex string`.
@@ -229,8 +321,6 @@ def document_matches(regex: str, flags: Union[int, re.RegexFlag] = 0) -> Check
 #### Example usage:
 
 ```python
-import re
-
 suite = TestSuite("HTML", content)
 
 pattern = r".*<[^>]+/>.*"

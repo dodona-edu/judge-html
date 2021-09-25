@@ -43,7 +43,7 @@ However, only one single `<div>` is present in the student's code. This means th
 </html>
 ```
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 
 # Get an ElementContainer with all divs inside of the body
@@ -81,7 +81,7 @@ def at_least(amount: int) -> Check
 
 ### Example usage:
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 table = body.get_child("table")
 
@@ -109,7 +109,7 @@ def at_most(amount: int) -> Check
 
 ### Example usage:
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 
 # Get an ElementContainer with all divs inside of the body
@@ -136,7 +136,7 @@ def exactly(amount: int) -> Check
 
 ### Example usage:
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 body = suite.element("body")
 
 # Get an ElementContainer with all p's inside of the body

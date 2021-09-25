@@ -36,15 +36,31 @@ class Translator:
         INVALID_TAG = auto()
         NO_SELF_CLOSING_TAG = auto()
         UNEXPECTED_TAG = auto()
+        UNEXPECTED_CLOSING_TAG = auto()
         INVALID_ATTRIBUTE = auto()
         MISSING_REQUIRED_ATTRIBUTE = auto()
+        DUPLICATE_ID = auto()
+        AT_LEAST_ONE_CHAR = auto()
+        NO_WHITESPACE = auto()
+        NO_ABS_PATHS = auto()
         MISSING_RECOMMENDED_ATTRIBUTE = auto()
+        # comparer text
+        TAGS_DIFFER = auto()
+        ATTRIBUTES_DIFFER = auto()
+        NOT_ALL_ATTRIBUTES_PRESENT = auto()
+        CONTENTS_DIFFER = auto()
+        AMOUNT_CHILDREN_DIFFER = auto()
+        STYLES_DIFFER = auto()
+        EXPECTED_COMMENT = auto()
+        COMMENT_CORRECT_TEXT = auto()
+        AT_LINE = auto()
         # normal text
         ERRORS = auto()
         WARNINGS = auto()
         LOCATED_AT = auto()
         LINE = auto()
         POSITION = auto()
+        SUBMISSION = auto()
 
     def __init__(self, language: Language):
         self.language = language
@@ -97,7 +113,7 @@ class Translator:
             ErrorType.OUTPUT_LIMIT_EXCEEDED: "Output limit exceeded",
             ErrorType.RUNTIME_ERROR: "Crashed while testing",
             ErrorType.WRONG: "Test failed",
-            ErrorType.WRONG_ANSWER: "{amount} test(s) failed",
+            ErrorType.WRONG_ANSWER: "{amount} tests failed",
             ErrorType.CORRECT: "All tests succeeded",
             ErrorType.CORRECT_ANSWER: "All tests succeeded",
         },
@@ -109,7 +125,7 @@ class Translator:
             ErrorType.OUTPUT_LIMIT_EXCEEDED: "Outputlimiet overschreden",
             ErrorType.RUNTIME_ERROR: "Gecrasht bij testen",
             ErrorType.WRONG: "Test gefaald",
-            ErrorType.WRONG_ANSWER: "{amount} test(en) gefaald",
+            ErrorType.WRONG_ANSWER: "{amount} testen gefaald",
             ErrorType.CORRECT: "Alle testen geslaagd",
             ErrorType.CORRECT_ANSWER: "Alle testen geslaagd",
         },
@@ -117,12 +133,12 @@ class Translator:
 
     text_translations = {
         Language.EN: {
-            Text.MISSING_EVALUATION_FILE: "The evaluator.py file is missing",
+            Text.MISSING_EVALUATION_FILE: "The evaluator.py and solution.html files are missing.",
             Text.MISSING_CREATE_SUITE: "The evaluator.py file does not implement the 'create_suites(content)' method.",
             Text.TESTCASE_ABORTED: "Evaluation was aborted because this test failed. All subsequent tests were not executed.",
             Text.TESTCASE_NO_LONGER_EVALUATED: "This test was not evaluated.",
             Text.FAILED_TESTS: "{amount} test(s) failed.",
-            Text.INVALID_LANGUAGE_TRANSLATION: "Translation for language {language} does not contain the same amount of items as the checklist ({translation} instead of {checklist}).",
+            Text.INVALID_LANGUAGE_TRANSLATION: "Translation for language {language} has less items then the checklist ({translation} instead of {checklist}). Some items will use the default value.",
             Text.INVALID_TESTSUITE_STUDENTS: "Your submission could not be evaluated because of an error in the solution file.",
             # double char exceptions
             Text.MISSING_OPENING_CHARACTER: "Missing opening character for",
@@ -132,23 +148,39 @@ class Translator:
             Text.INVALID_TAG: "Invalid html-tag",
             Text.NO_SELF_CLOSING_TAG: "The following tag is not a self-closing html-tag",
             Text.UNEXPECTED_TAG: "Unexpected html-tag",
+            Text.UNEXPECTED_CLOSING_TAG: "The tag <{tag}> isn't supposed to have a closing tag, it's self-closing.",
             Text.INVALID_ATTRIBUTE: "Invalid attribute for",
             Text.MISSING_REQUIRED_ATTRIBUTE: "Missing required attribute(s) for",
+            Text.DUPLICATE_ID: "Id '{id} defined in tag <{tag}> is already defined",
+            Text.AT_LEAST_ONE_CHAR: "The value of {attr} must be at least one character.",
+            Text.NO_WHITESPACE: "The value of {attr} may not contain whitespace.",
+            Text.NO_ABS_PATHS: "The src attribute may not contain an absolute path.",
             Text.MISSING_RECOMMENDED_ATTRIBUTE: "Missing recommended attribute(s) for",
+            # comparer text
+            Text.TAGS_DIFFER: "Tags differ",
+            Text.ATTRIBUTES_DIFFER: "Attributes differ",
+            Text.NOT_ALL_ATTRIBUTES_PRESENT: "Not all minimal required attributes are present",
+            Text.CONTENTS_DIFFER: "Contents differ",
+            Text.AMOUNT_CHILDREN_DIFFER: "Amount of children differs",
+            Text.STYLES_DIFFER: "CSS styling differs for element <{tag}>",
+            Text.EXPECTED_COMMENT: "Expected a comment",
+            Text.COMMENT_CORRECT_TEXT: "The comment does not have the correct text",
+            Text.AT_LINE: "at line",
             # normal text
             Text.ERRORS: "Error(s)",
             Text.WARNINGS: "Warning(s)",
             Text.LOCATED_AT: "located at",
             Text.LINE: "line",
-            Text.POSITION: "position"
+            Text.POSITION: "position",
+            Text.SUBMISSION: "Submission"
         },
         Language.NL: {
-            Text.MISSING_EVALUATION_FILE: "Het evaluator.py-bestand ontbreekt",
+            Text.MISSING_EVALUATION_FILE: "De evaluator.py en solution.html bestanden ontbreken.",
             Text.MISSING_CREATE_SUITE: "Het evaluator.py-bestand bevat de 'create_suites(content)' methode niet.",
             Text.TESTCASE_ABORTED: "Het evalueren is onderbroken omdat deze test faalde. De hierop volgende tests werden niet uitgevoerd.",
             Text.TESTCASE_NO_LONGER_EVALUATED: "Deze test werd niet uitgevoerd.",
             Text.FAILED_TESTS: "{amount} test(en) gefaald.",
-            Text.INVALID_LANGUAGE_TRANSLATION: "De vertaling voor {language} bevat niet hetzelfde aantal elementen als de checklist ({translation} in plaats van {checklist}).",
+            Text.INVALID_LANGUAGE_TRANSLATION: "De vertaling voor {language} bevat minder elementen dan de checklist ({translation} in plaats van {checklist}). De default waarde zal worden gebruikt voor sommige items.",
             Text.INVALID_TESTSUITE_STUDENTS: "Jouw indiening kon niet geëvalueerd worden door een fout in het oplossingsbestand.",
             # double char exceptions
             Text.MISSING_OPENING_CHARACTER: "Ontbrekend openend karakter voor",
@@ -158,14 +190,30 @@ class Translator:
             Text.INVALID_TAG: "Ongeldige html-tag",
             Text.NO_SELF_CLOSING_TAG: "De volgende html-tag is geen zelf-afsluitende html-tag",
             Text.UNEXPECTED_TAG: "Onverwachte html-tag",
+            Text.UNEXPECTED_CLOSING_TAG: "De tag <{tag}> hoort geen sluitende tag te hebben, het is een zichzelf-afsluitende tag.",
             Text.INVALID_ATTRIBUTE: "Ongeldig attribuut voor",
             Text.MISSING_REQUIRED_ATTRIBUTE: "Ontbrekende vereiste attributen voor",
+            Text.DUPLICATE_ID: "Id '{id} gedefinieerd in tag <{tag}> is al gedefinieerd",
+            Text.AT_LEAST_ONE_CHAR: "De waarde van {attr} moet minimaal 1 karakter lang zijn.",
+            Text.NO_WHITESPACE: "De waarde van {attr} mag geen spaties bevatten.",
+            Text.NO_ABS_PATHS: "Het attribuut src mag geen absoluut pad zijn.",
             Text.MISSING_RECOMMENDED_ATTRIBUTE: "Ontbrekende aanbevolen attributen voor",
+            # comparer text
+            Text.TAGS_DIFFER: "Tags verschillen",
+            Text.ATTRIBUTES_DIFFER: "Attributen verschillen",
+            Text.NOT_ALL_ATTRIBUTES_PRESENT: "Niet alle minimaal vereiste attributen zijn aanwezig",
+            Text.CONTENTS_DIFFER: "Inhoud (text) verschilt",
+            Text.AMOUNT_CHILDREN_DIFFER: "Aantal kinderen verschilt",
+            Text.STYLES_DIFFER: "CSS stijling verschilt voor element <{tag}>",
+            Text.EXPECTED_COMMENT: "Verwachte een comment",
+            Text.COMMENT_CORRECT_TEXT: "De comment heeft niet de correcte tekst",
+            Text.AT_LINE: "op regel",
             # normal text
             Text.ERRORS: "Fout(en)",
             Text.WARNINGS: "Waarschuwing(en)",
             Text.LOCATED_AT: "gevonden op",
             Text.LINE: "regel",
             Text.POSITION: "positie",
+            Text.SUBMISSION: "Indiening"
         }
     }

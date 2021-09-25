@@ -59,7 +59,7 @@ def interval_passed(minimum: int, maximum: int, checks: List[Check]) -> Check:
 #### Usage
 
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 html_element = suite.element("html")
 body_element = html_element.get_child("body")
 
@@ -103,7 +103,7 @@ def has_all_attributes(element: Element, attributes: List[str]) -> Check:
 #### Usage
 
 ```python
-suite = TestSuite("HTML", content)
+suite = HtmlSuite(content)
 img_element = suite.element("img")
 
 required_attributes = ["src", "alt", "width", "height"]

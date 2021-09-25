@@ -42,6 +42,10 @@ class UnexpectedTagError(TagError):
     def __str__(self) -> str: ...
 
 
+class UnexpectedClosingTagError(TagError):
+    def __str__(self): ...
+
+
 class TagAttributeError(LocatableHtmlValidationError):
     tag: str
     attribute: str
@@ -54,6 +58,17 @@ class InvalidAttributeError(TagAttributeError):
 
 
 class MissingRequiredAttributesError(TagAttributeError):
+    def __str__(self) -> str: ...
+
+
+class DuplicateIdError(TagAttributeError):
+    def __str__(self) -> str: ...
+
+
+class AttributeValueError(LocatableHtmlValidationError):
+    msg: str
+    def __init__(self, translator: Translator, tag_location: [str], position: (int, int), message: str): ...
+
     def __str__(self) -> str: ...
 
 

@@ -64,6 +64,14 @@ class UnexpectedTagError(TagError):
         return f"{self.translator.translate(Translator.Text.UNEXPECTED_TAG)}: <{self.tag}> ({self.tag_location()})"
 
 
+class UnexpectedClosingTagError(TagError):
+    """Exception that indicates that a certain tag was not expected to have a closing tag
+        ex: you don't expect an <img> tag to have a </img> closer later on
+    """
+    def __str__(self):
+        return f"{self.translator.translate(Translator.Text.UNEXPECTED_CLOSING_TAG, tag=self.tag)} ({self.tag_location()})"
+
+
 """
 EXCEPTIONS FOR ATTRIBUTES
 """
@@ -88,6 +96,22 @@ class MissingRequiredAttributesError(TagAttributeError):
     def __str__(self):
         return f"{self.translator.translate(Translator.Text.MISSING_REQUIRED_ATTRIBUTE)} <{self.tag}>: " \
                f"{self.attribute} ({self.tag_location()})"
+
+
+class DuplicateIdError(TagAttributeError):
+    """Exception that indicates that an id is used twice"""
+    def __str__(self) -> str:
+        return f"{self.translator.translate(Translator.Text.DUPLICATE_ID, id=self.attribute, tag=self.tag)} " \
+               f"({self.tag_location()})"
+
+
+class AttributeValueError(LocatableHtmlValidationError):
+    def __init__(self, translator: Translator, tag_location: [str], position: (int, int), message: str):
+        super().__init__(translator, tag_location, position)
+        self.msg = message
+
+    def __str__(self) -> str:
+        return self.msg
 
 
 class MissingRecommendedAttributesWarning(TagAttributeError):
