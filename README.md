@@ -33,7 +33,7 @@
 * Warning if recommended attributes are missing
 
 ### CSS
-
+* Automatic color conversion (`name`, `#RRGGBB`, `rgb(R,G,B)`, `rgb(R%,G%,B%)`, `#RGB`, `hsl(H,S%,L%)`, `rgba(R,G,B,a)`, `rgba(R%,G%,B%,a)`, `hsla(H,S%,L%,a)`)
 
 
 ## Recommended exercise directory structure
@@ -117,7 +117,9 @@ Add your solution (`solution.html` file) to the **`evaluation`** folder. Absolut
 
 
 
-## Teacher manual for **comparison mode**
+## Teacher manual for **comparison mode** (Quick start quide)
+
+> [Full documentation for **comparison mode**](/docs/pages/valuating-by-comparing.md)
 
 Another way of evaluating an exercise is by comparing it to the `solution.html` file in the `evaluation` folder (this is the default if no `evaluator.py` file is present). In this case, the structure of the student's submission will be compared to your solution, and you can provide extra options to specify how strict this comparison should be.
 
@@ -151,11 +153,17 @@ In the `config.json` file of the exercise you can give some options as to how th
 }
 ````
 
-## Teacher manual for **checklist mode** (evaluating with `evaluator.py` script)
+### `DUMMY` values
+
+In a lot of cases you're going to want the students to write _something_ or to give _some value_ to an attribute, but you don't care what it is they write down. For that you can use the `DUMMY` keyword for attribute values and for text.
+
+## Teacher manual for **checklist mode** (evaluating with `evaluator.py` script) (Quick start quide)
+
+> [Full documentation for **checklist mode**](/docs/)
 
 1. For autocomplete you need to add the folder `validator` with the `checks.pyi` at the root of your project in which you write the evaluators.
+
 2. Create an `evaluator.py` file in the `evaluation` folder with the following code:
-  
   > `evaluator.py` (Python 3.9+ recommended)
   >
   > ```python
@@ -169,40 +177,31 @@ In the `config.json` file of the exercise you can give some options as to how th
   >     return [html, css]
   > ```
 
-3. Check if the HTML and/or CSS is valid
+3. Select the desired element (with Emmet syntax)
+
+  ``` python
+  table = html.element("body>table")
+  two_rows = html.element("body>table>tr*2")
+  ```
+
+4. Make a `ChecklistItem` and append it to a TestSuite. Combine several ChecklistItems in one check if you want.
 
 ```python
-html_valid = ChecklistItem("The HTML is valid.", suite.validate_html().or_abort())
+html.make_item("The body has a table.", table.exists())
+html.make_item("The table has a two rows.", two_rows.exists())
 ```
 
-5. Select the desired element
-
-TODO: add example
-
-5. Make a ChecklistItem
-
-TODO: add example
-
-6. Combine several ChecklistItems in one check
-
-
-
-8. Add ChecklistItem to suite.checklist
-
-TODO: add example
-
-7. *Optional*: Add translations for the checklist just before the `return` keyword. Available languages: `nl` (Dutch, **n**eder**l**ands) and `en` (English, **en**glish). Language code needs to be lower case.
+5. *Optional*: Add translations for the checklist just before the `return` keyword. Available languages: `nl` (Dutch, **n**eder**l**ands) and `en` (English, **en**glish). Language code needs to be lower case.
 
   ```python
   # Add Dutch translation
-  your_suite.translations["nl"] = [
-      "YOUR FIRST CHECKLIST ITEM DESCRIPTION",
-      "YOUR SECOND CHECKLIST ITEM DESCRIPTION",
-      "YOUR THIRD CHECKLIST ITEM DESCRIPTION"
-      ]
+  html.translations["nl"] = [
+      "De body heeft een tabel.",
+      "De tabel heeft twee rijen."
+  ]
   ```
 
-8. *Optional*: Add boilerplate HTML to the boilerplate file. The contents of this file is loaded automatically in the submission text area of the users. You can use this to provide some starting code or structure to your students.
+6. *Optional*: Add boilerplate HTML to the boilerplate file. The contents of this file is loaded automatically in the submission text area of the users. You can use this to provide some starting code or structure to your students.
 
 **Final checks:**
 
@@ -212,6 +211,7 @@ TODO: add example
 ## Testing
 
 ## Contributors
+
 * **S. De Clercq**
 * **Q. Vervynck**
 * T. Ramlot
