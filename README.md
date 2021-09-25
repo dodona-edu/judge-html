@@ -174,22 +174,17 @@ In a lot of cases you're going to want the students to write _something_ or to g
     > def create_suites(content: str) -> list[TestSuite]:
     >     html = HtmlSuite(content)
     >     css = CssSuite(content)
+    >
+    >     # Add checks here
     > 
     >     return [html, css]
     > ```
 
-3. Select the desired element (with Emmet syntax)
-
-    ``` python
-    table = html.element("body>table")
-    two_rows = html.element("body>table>tr*2")
-    ```
-
-4. Make a `ChecklistItem` and append it to a TestSuite. Combine several ChecklistItems in one check if you want.
+4. Make a `ChecklistItem` (with Emmet syntax) and append it to a TestSuite. Combine several ChecklistItems in one check if you want.
 
     ```python
-    html.make_item("The body has a table.", table.exists())
-    html.make_item("The table has a two rows.", two_rows.exists())
+    html.make_item_from_emmet("The body has a table.", "body>table")
+    html.make_item_from_emmet("The table has a two rows.", "body>table>tr*2")
     ```
 
 5. *Optional*: Add translations for the checklist just before the `return` keyword. Available languages: `nl` (Dutch, **n**eder**l**ands) and `en` (English, **en**glish). Language code needs to be lower case.
@@ -208,6 +203,28 @@ In a lot of cases you're going to want the students to write _something_ or to g
 
 1. Make sure at least one TestSuite is returned (`html` and/or `css`).
 2. Don't use `print()` in the `evaluator.py` file!
+
+### Minimal example
+
+> `evaluator.py`
+>
+> ```python
+> from validators.checks import HtmlSuite, TestSuite
+> 
+> 
+> def create_suites(content: str) -> list[TestSuite]:
+>     html = HtmlSuite(content)
+> 
+>     html.make_item_from_emmet("The body has a table.", > "body>table")
+>     html.make_item_from_emmet("The table has a two rows.", > "body>table>tr*2")
+> 
+>     html.translations["nl"] = [
+>         "De body heeft een tabel.",
+>         "De tabel heeft twee rijen."
+>     ]
+> 
+>     return [html]
+> ```
 
 ## Testing
 
