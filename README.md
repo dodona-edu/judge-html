@@ -7,8 +7,8 @@
 * HTML (and CSS) render of student submission
 * Support for partial exercises (exercises that focus on one tag)
 * Two evaluation methods:
-  * **Comparison mode** with `solution.html` file (fast and easy)
-  * **Checklist mode** with `evaluator.py` (a lot of flexibility, support for [Emmet syntax](https://docs.emmet.io/abbreviations/syntax/))
+  1. **Comparison mode** with `solution.html` file (fast and easy)
+  2. **Checklist mode** with `evaluator.py` (a lot of flexibility, support for [Emmet syntax](https://docs.emmet.io/abbreviations/syntax/))
 * Extensive [customization possible in `config.json`](#optional-evaluation-settings-in-configjson)
 * Elaborate [feedback](#feedback)
 
@@ -40,7 +40,7 @@
 
 > [More info about repository directory structure](https://docs.dodona.be/en/references/repository-directory-structure/#example-of-a-valid-repository-structure)
 
-Add your solution (`solution.html` and `solution.css` file) to the **`evaluation`** folder. Absolute necessary files are marked with `▶` in the tree structure below.
+Add your solution (`solution.html` file) to the **`evaluation`** folder. Absolute necessary files are marked with `▶` in the tree structure below.
 
 ```text
 +-- README.md                            # Optional: Describes the repository
@@ -55,7 +55,6 @@ Add your solution (`solution.html` and `solution.css` file) to the **`evaluation
 |   |   |   +-- evaluator.py             # ▶ The Python code for checklist mode
 |   |   +-- 📂solution                  # Optional: This will be visible in Dodona
 |   |   |   +-- solution.html            # Optional: The HTML model solution file
-|   |   |   +-- solution.css             # Optional: The CSS model solution file
 |   |   +-- 📂preparation               # Optional folder
 |   |   |   +-- generator.py             # Optional: Script to generate data
 |   |   +-- 📂description               #
@@ -115,31 +114,43 @@ Add your solution (`solution.html` and `solution.css` file) to the **`evaluation
 }
 ````
 
-## Optional `evaluation` settings in `config.json`
 
-If these settings are not defined, the default value is chosen.
 
-| Evaluation setting | Description | Possible values | Default |
-| ------------------ | ----------- | --------------- | ------- |
-| `???`              | ???         | ???             | `???`   |
 
-### Example of modified settings
-
-````json
-{
-  "evaluation": {
-    "???": "???",
-  }
-}
-````
-
-## Teacher manual for direct comparison mode
+## Teacher manual for **comparison mode**
 
 Another way of evaluating an exercise is by comparing it to the `solution.html` file in the `evaluation` folder (this is the default if no `evaluator.py` file is present). In this case, the structure of the student's submission will be compared to your solution, and you can provide extra options to specify how strict this comparison should be.
 
 It does have to be noted that this way of evaluation allows for a lot less freedom. For flexible tests, consider using the checklist mode.
 
-## Teacher manual for checklist mode (evaluating with `evaluator.py` script)
+### Optional `evaluation` settings in `config.json`
+
+In the `config.json` file of the exercise you can give some options as to how the comparison should happen. If these settings are not defined, the default value is chosen.
+
+| Evaluation setting | Description | Possible values | Default |
+| `attributes` |  Check whether attributes are exactly the same in solution and submission | `true`/`false` | `false`  |
+| `minimal_attributes`| Check whether **at least** the attributes in the solution are supplied in the submission, extra attributes are **allowed** | `true`/`false` | `false` |
+| `contents`| Check whether the contents of each tag in the solution are exactly the same as in the submission | `true`/`false` | `false` |
+| `css`:| If there are CSS rules defined in the solution, check if the submission can match these rules. We don't compare the CSS rules themselves, but rather whether every element in the submission has at least the CSS-rules defined in the solution. | `true`/`false` | `true` |
+| `comments`|  Check whether the submission has the same comments as the solution | `true`/`false` | `false` |
+
+*Note: when both `attributes` and `minimal_attributes` are supplied, `attributes` will take preference as it is stricter.*
+
+### Example of modified settings
+
+````json
+{
+  ...
+  "evaluation": {
+    "handler": "html",
+    "minimal_attributes": true,
+    "contents": true
+  },
+  ...
+}
+````
+
+## Teacher manual for **checklist mode** (evaluating with `evaluator.py` script)
 
 1. For autocomplete you need to add the folder `validator` with the `checks.pyi` at the root of your project in which you write the evaluators.
 2. Create an `evaluator.py` file in the `evaluation` folder with the following code:
