@@ -132,9 +132,9 @@ Add your solution (`solution.html` file) to the **`evaluation`** folder. Absolut
 
 ## Quick start guide for **comparison mode** (with `solution.html`)
 
-> [Full documentation for **comparison mode**](/docs/pages/valuating-by-comparing.md)
+> [Full documentation for **comparison mode**](/docs/pages/evaluating-by-comparing.md)
 
-The **easiest** and **fastest** way of evaluating an exercise is by comparing it to the `solution.html` file in the `evaluation` folder . This is the default if no `evaluator.py` file is present. In this case, the structure of the student's submission will be compared to your solution, and you can provide extra options to specify how strict this comparison should be.
+The **easiest** and **fastest** way of evaluating an exercise is by comparing it to the `solution.html` file in the `evaluation` folder. This is the default if no `evaluator.py` file is present. In this case, the structure of the student's submission will be compared to your solution, and you can provide extra options to specify how strict this comparison should be.
 
 It does have to be noted that this way of evaluation allows for a lot less freedom. **For flexible tests, consider using the checklist mode.**
 
