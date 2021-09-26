@@ -1,6 +1,7 @@
 # Emmet Syntax
 
-_For more information, refer to the [official Emmet docs](https://docs.emmet.io/abbreviations/syntax/)_
+> _For more information, refer to the [official Emmet docs](https://docs.emmet.io/abbreviations/syntax/) _
+> _For an overview, refer to the [official Emmet cheat sheet](https://docs.emmet.io/cheat-sheet/) or [unofficial Emmet cheat sheet](https://devhints.io/emmet) _
 
 All `find_*` methods support `Emmet Syntax`, which allows you to perform search queries in a (**much**) shorter way. This comes in handy when you want to quickly find a deeply-nested element along a very specific path. This document aims to first explain this syntax, and then provide a few examples to show how it works (and to show how much shorter it can be). The methods will always display the character count, to show you that `Emmet Syntax` is always **almost twice** as compact (and for more complex cases, even more than that).
 
@@ -8,9 +9,23 @@ To indicate that a specific method supports this, all of them have the following
 
 _**This method supports Emmet Syntax through the [PARAMETER] parameter**_
 
-### Note:
+> Note: the `index` and `kwargs` parameters passed into the `find` methods are still allowed, but will only be applied to the _**last**_ element from the query. The path will always take priority when clashing, so if the query itself ends with an index (eg. `table>tr[3]`) then this index will be used instead of the parameter.
 
-The `index` and `kwargs` parameters passed into the `find` methods are still allowed, but will only be applied to the _**last**_ element from the query. The path will always take priority when clashing, so if the query itself ends with an index (eg. `table>tr[3]`) then this index will be used instead of the parameter.
+- [Basics of Emmet Syntax](#basics-of-emmet-syntax)
+    - [Finding nested elements](#finding-nested-elements)
+    - [Specifying indexes](#specifying-indexes)
+    - [Specifying id's](#specifying-ids)
+    - [Specifying class names](#specifying-class-names)
+- [Creating Checks using Emmet Syntax](#creating-checks-using-emmet-syntax)
+        - [Signature](#signature)
+        - [Parameters](#parameters)
+    - [Examples](#examples)
+        - [Check that an element exists](#check-that-an-element-exists)
+        - [Check that sibling structure exists](#check-that-sibling-structure-exists)
+        - [Check the content of an element](#check-the-content-of-an-element)
+        - [Check that X amount of children exist](#check-that-x-amount-of-children-exist)
+        - [Check that elements with an id and/or class exist](#check-that-elements-with-an-id-andor-class-exist)
+        - [Check that an element has attributes (with values)](#check-that-an-element-has-attributes-with-values)
 
 ## Basics of Emmet Syntax
 

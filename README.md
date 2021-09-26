@@ -163,7 +163,7 @@ In a lot of cases you're going to want the students to write _something_ or to g
 
 > [Full documentation for **checklist mode**](/docs/)
 
-1. For autocomplete you need to add the folder `validator` with the `checks.pyi` at the root of your project in which you write the evaluators.
+1. For autocomplete you need to add the folder `validator` with the [`checks.pyi`](validators/checks.pyi) file at the root of your project in which you write the evaluators.
 
 2. Create an `evaluator.py` file in the `evaluation` folder with the following code:
 
