@@ -43,7 +43,6 @@
 - [Recommended `config.json` (example with default settings)](#recommended-configjson-example-with-default-settings)
 - [Quick start guide for **comparison mode** (with `solution.html`)](#quick-start-guide-for-comparison-mode-with-solutionhtml)
   - [Optional `evaluation` settings in `config.json`](#optional-evaluation-settings-in-configjson)
-    - [Example of modified settings](#example-of-modified-settings)
   - [`DUMMY` values](#dummy-values)
 - [Quick start guide for **checklist mode** (with `evaluator.py`)](#quick-start-guide-for-checklist-mode-with-evaluatorpy)
   - [Minimal example](#minimal-example)

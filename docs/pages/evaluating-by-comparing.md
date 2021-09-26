@@ -7,7 +7,7 @@ It does have to be noted that this way of evaluation allows for a lot less freed
 ## Table of Contents
 
 - [Optional `evaluation settings` in `config.json`](#optional-evaluation-settings-in-configjson)
-- [DUMMY values](#dummy-values)
+- [`DUMMY` values](#dummy-values)
 
 ## Optional `evaluation settings` in `config.json`
 
@@ -90,7 +90,7 @@ And this as the submission
 Then the submission will be accepted, even though the solution and submission CSS rules differ quite a bit, they result in the same visual change and thus are accepted.
 
 
-## DUMMY values
+## `DUMMY` values
 
 In a lot of cases you're going to want the students to write _something_ or to give _some value_ to an attribute, but you don't care what it is they write down. For that you can use the `DUMMY` keyword for attribute values and for text in your `solution.html` file.
 
