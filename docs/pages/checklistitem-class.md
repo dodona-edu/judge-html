@@ -6,7 +6,7 @@ There is **no** message telling the user which checks failed, as this would allo
 
 ```python
 item_1 = ChecklistItem("This is the first item.", check1)
-item_2 = ChecklistItem("This is the second item.", check2, check3, ...)
+item_2 = ChecklistItem("This is the second item.", check2, check3, check4)
 ```
 
 ![image: ChecklistItems visualized on Dodona.](../media/checklistitems-dodona.png)
