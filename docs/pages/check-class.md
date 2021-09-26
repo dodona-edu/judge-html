@@ -10,7 +10,6 @@ It is important to note that the Check class uses a `fluent interface`, meaning 
 - [`is_crucial`](#is_crucial)
 - [`then`](#then)
 
-
 ## `or_abort`
 
 This function will cause the check's TestSuite to **stop** evaluating, and cause **all future checks to fail**. This should be used in case a first check is a necessary requirement for the following checks to succeed.
