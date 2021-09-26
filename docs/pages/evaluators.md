@@ -6,9 +6,9 @@ This file contains information on how to write your own evaluators.
 
 All evaluators should follow a strict interface: the file should always be called **`evaluator.py`**, and in addition has to follow these rules:
 
-- Contain a `create_suites` function
-- This function should take a `string`, being the student's submission, and return a `list` of `TestSuite`s
-- The `list` should contain **at least one** `TestSuite`
+- `evaluator.py` should contain a `create_suites` function.
+- This function should take a `string`, being the student's submission, and return a `list` of `TestSuite`s.
+- The `list` should contain **at least one** `TestSuite`.
 - The file should import `validators` directly, without any packages above it. To do this, we recommend placing the library at the **root** of your project in which you write the evaluators.
 - **Important: do NOT add `print()`s in your evaluator!** The Judge communicates with Dodona using console output, and printing your own things here will cause exceptions because Dodona can't parse them.
 
