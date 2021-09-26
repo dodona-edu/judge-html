@@ -1,4 +1,4 @@
-# Evaluating by Comparing
+# Evaluate in comparison mode with `solution.html`
 
 Another way of evaluating an exercise is by comparing it to the `solution.html` file. This is the default if no `evaluator.py` file is present. In this case, the structure of the student's submission will be compared to your solution, and you can provide extra options to specify how strict this comparison should be.
 

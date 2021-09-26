@@ -1,4 +1,4 @@
-# Evaluators
+# Evaluate in checklist mode with `evaluator.py`
 
 This file contains information on how to write your own evaluators.
 
@@ -18,16 +18,18 @@ The fragment below contains the [boilerplate](https://en.wikipedia.org/wiki/Boil
 >
 > ```python
 > from typing import List
-> from validators import checks
+> from validators.checks import HtmlSuite, CssSuite, TestSuite, ChecklistItem
 > 
 > 
-> def create_suites(content: str) -> List[checks.TestSuite]:
->     html = checks.TestSuite("HTML", content)
->     css = checks.TestSuite("CSS", content)
+> def create_suites(content: str) -> List[TestSuite]:
+>     html = HtmlSuite(content)
+>     css = CssSuite(content)
+>
+>     # Add checks here
 > 
 >     return [html, css]
 > ```
 
-_Don't forget to take a look at the [built-in TestSuites](default-suites.md) that can simplify this even further!_
+_Take a look at the [built-in TestSuites documentation](default-suites.md) which show how to write your own custom TestSuites with(out) validation._
 
 In case you only want to write tests for either `HTML` or `CSS`, and not both, the other suite is not required. It is merely added in the fragment above as an example. Returning `[html]` is equally valid.
