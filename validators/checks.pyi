@@ -44,11 +44,11 @@ class Element:
     def __str__(self) -> str: ...
 
     def get_child(self, tag: Optional[str] = ..., index: int = ..., direct: bool = ..., **kwargs) -> "Element":
-        """This method finds a child element with tag tag, optionally with extra filters."""
+        """This method finds a child element with tag tag, optionally with extra filters. Supports Emmet syntax through the tag parameter."""
         ...
 
     def get_children(self, tag: Optional[str] = ..., direct: bool = ..., **kwargs) -> "ElementContainer":
-        """This method finds ALL child elements, optionally with tag tag and extra filters."""
+        """This method finds ALL child elements, optionally with tag tag and extra filters. Supports Emmet syntax through the tag parameter."""
         ...
 
     def exists(self) -> Check:

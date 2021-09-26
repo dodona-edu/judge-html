@@ -48,12 +48,12 @@ The image also shows a `1` next to the **HTML** tab, indicating that 1 test fail
 
 You can get a specific HTML element by tag using `suite.element(tag)` in the form of an instance of the `Element` class (explained later). Afterwards, you can use this reference to create extra checks based off of it.
 
-#### Signature:
+#### Signature
 ```python
 def element(tag: Optional[str] = None, index: int = 0, from_root: bool = False, **kwargs) -> Element
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name     | Description                                                                                                                                            | Required? | Default                                 |
 :----------|:-------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------|
@@ -241,12 +241,12 @@ The `TestSuite` class comes with a few Checks that you can use, and they are doc
 
 Check that the code between the `<style>`-tag of the submission is valid CSS. If no style tag is present, this Check will also pass.
 
-#### Signature:
+#### Signature
 ```python
 def validate_css() -> Check
 ```
 
-#### Example usage:
+#### Example usage
 ```python
 suite = TestSuite("CSS", content)
 css_valid = ChecklistItem("The CSS is valid.", suite.validate_css())
@@ -256,12 +256,12 @@ css_valid = ChecklistItem("The CSS is valid.", suite.validate_css())
 
 Check that the student's submitted code is valid HTML without syntax errors. The errors will not be reported to the student as to not reveal the answer.
 
-#### Signature:
+#### Signature
 ```python
 def validate_html(allow_warnings: bool = True) -> Check
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
@@ -269,7 +269,7 @@ def validate_html(allow_warnings: bool = True) -> Check
 
 In case the `check_recommended` attribute for this class is `True` (default), this will also show the student warnings about missing recommended attributes (see [Attributes](#check-recommended-image)).
 
-#### Example usage:
+#### Example usage
 ```python
 suite = TestSuite("HTML", content)
 html_valid = ChecklistItem("The HTML is valid.", suite.validate_html())
@@ -279,18 +279,18 @@ html_valid = ChecklistItem("The HTML is valid.", suite.validate_html())
 
 Check if there is a comment inside of this document, optionally with an exact value. Not passing a value will make any comment pass the check.
 
-#### Signature:
+#### Signature
 ```python
 def contains_comment(comment: Optional[str] = None) -> Check
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
 | `comment` | The value to look for. |  | None, which will accept any comment. |
 
-#### Example usage:
+#### Example usage
 
 ```python
 suite = TestSuite("HTML", content)
@@ -306,19 +306,19 @@ suite.contains_comment("Example")
 
 Check that the student's submitted code matches a `regex string`.
 
-#### Signature:
+#### Signature
 ```python
 def document_matches(regex: str, flags: Union[int, re.RegexFlag] = 0) -> Check
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
 | `regex` | The pattern to match the student's code against. |  ✔  |  |
 | `flags` | Extra `RegexFlag`s to use when comparing. |  | 0, meaning no flags will be applied. |
 
-#### Example usage:
+#### Example usage
 
 ```python
 suite = TestSuite("HTML", content)

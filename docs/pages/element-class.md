@@ -5,6 +5,7 @@ The `Element` class contains a reference to an HTML element in the student's cod
 This class is **not** meant for you to instantiate manually, but instances are returned by the library instead.
 
 ## Table of Contents
+
 - [HTML-related methods](#html-related-methods)
   - [`get_child`](#get_child)
   - [`get_children`](#get_children)
@@ -33,12 +34,13 @@ The following methods can be used to obtain references to extra HTML elements st
 
 This method finds a child element with tag `tag`, optionally with extra filters.
 
-#### Signature:
+#### Signature
+
 ```python
 def get_child(tag: Optional[str] = None, index: int = 0, direct: bool = True, **kwargs) -> Element
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name     | Description                                                                                                                                            | Required? | Default                                 |
 :----------|:-------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------|
@@ -48,7 +50,8 @@ def get_child(tag: Optional[str] = None, index: int = 0, direct: bool = True, **
 
 Extra `kwargs` can be passed to filter the results down even more. For example, to find the child with a given `id` use `get_child(tag, id="some_id")`. For `class`es, as "class" is a built-in keyword in Python, use `class_` with an **underscore** after it (`get_child(class_="some_value")`).
 
-#### Example usage:
+#### Example usage
+
 ```python
 suite = HtmlSuite(content)
 body = suite.element("body")
@@ -64,21 +67,23 @@ img_element = body.get_child("img", index=1, direct=False, height="500")
 
 This method finds ALL child elements, optionally with tag `tag` and extra filters. This returns an instance of `ElementContainer`, which can be used as a list of elements.
 
-#### Signature:
+#### Signature
+
 ```python
 def get_children(tag: Optional[str] = None, direct: bool = True, **kwargs) -> ElementContainer
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
-| `tag` | The tag to search for | | None, which won't filter based on tags. |
+| `tag` | The tag to search for. | | None, which won't filter based on tags. |
 | `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements. | | `True` |
 
 Extra `kwargs` can be passed to filter the results down even more. For example, to find all children with a given `attribute` use `get_children(attribute="some_value")`. For `class`es, as "class" is a built-in keyword in Python, use `class_` with an **underscore** after it (`get_children(class_="some_value")`).
 
-#### Example usage:
+#### Example usage
+
 ```python
 suite = HtmlSuite(content)
 body = suite.element("body")
@@ -95,12 +100,13 @@ The following methods are Checks that can be used on HTML elements, in order to 
 
 Check that this element has a given attribute, and that the attribute contains a substring. If the element doesn't exist, this check will fail as well. This means it's *not* required to use `attribute_exists` before `attribute_contains`.
 
-#### Signature:
+#### Signature
+
 ```python
 def attribute_contains(attr: str, substr: str, case_insensitive: bool = False) -> Check
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
@@ -108,7 +114,8 @@ def attribute_contains(attr: str, substr: str, case_insensitive: bool = False) -
 | `substr`           | The substring that should be in the attribute's value.               |     ✔     |         |
 | `case_insensitive` | Indicate that the casing of the value does not matter when checking. |           | `False` |
 
-#### Example usage:
+#### Example usage
+
 ```python
 suite = HtmlSuite(content)
 body = suite.element("body")
@@ -124,12 +131,13 @@ img_attributes = ChecklistItem("The image's src contains \"dodona\".", [
 
 Check that this element has a given attribute, optionally matching a specific value.
 
-#### Signature:
+#### Signature
+
 ```python
 def attribute_exists(attr: str, value: Optional[str] = None, case_insensitive: bool = False) -> Check
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
@@ -137,7 +145,8 @@ def attribute_exists(attr: str, value: Optional[str] = None, case_insensitive: b
 | `value`            | The value to compare against. | | None, which will make any value pass. This means the check only makes sure the attribute *exists*. |
 | `case_insensitive` | Indicate that the casing of the value does not matter when checking. | | `False` |
 
-#### Example usage:
+#### Example usage
+
 ```python
 suite = HtmlSuite(content)
 body = suite.element("body")
@@ -155,12 +164,13 @@ img_attributes = ChecklistItem("The image has the correct attributes.", [
 
 Check if an attribute exists, and if its value matches a regular expression. If the element doesn't exist, this check will fail as well. This means it's *not* required to use `attribute_exists` before `attribute_matches`.
 
-#### Signature:
+#### Signature
+
 ```python
 def attribute_matches(attr: str, regex: str, flags: Union[int, re.RegexFlag] = 0) -> Check
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
@@ -168,7 +178,7 @@ def attribute_matches(attr: str, regex: str, flags: Union[int, re.RegexFlag] = 0
 | `regex`     | The regex pattern to match the attribute's value against. |  ✔ |                                      |
 | `flags`     | Extra `RegexFlag`s to use when comparing.                 |    | 0, meaning no flags will be applied. |
 
-#### Example usage:
+#### Example usage
 
 ```python
 import re
@@ -188,18 +198,19 @@ img_attributes = ChecklistItem("The image has the correct attributes.", [
 
 Check if there is a comment inside of this element, optionally with an exact value. Not passing a value will make any comment pass the check.
 
-#### Signature:
+#### Signature
+
 ```python
 def contains_comment(comment: Optional[str] = None) -> Check
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
 | `comment` | The value to look for. |  | None, which will accept any comment. |
 
-#### Example usage:
+#### Example usage
 
 ```python
 suite = HtmlSuite(content)
@@ -216,12 +227,14 @@ body.contains_comment("Example")
 
 Check that an element exists, and is not empty. This is equivalent to verifying that an element was found in the student's code.
 
-#### Signature:
+#### Signature
+
 ```python
 def exists() -> Check
 ```
 
 #### Example usage
+
 ```python
 suite = HtmlSuite(content)
 body = suite.element("body")
@@ -233,12 +246,13 @@ body_exists = ChecklistItem("The document has a <body>", body.exists())
 
 Check that the element has a child that meets the specifications. This is a shortcut to combining `get_child()` and `exists()`.
 
-#### Signature:
+#### Signature
+
 ```python
 def has_child(tag: str, direct: bool = True, **kwargs) -> Check
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
@@ -248,6 +262,7 @@ def has_child(tag: str, direct: bool = True, **kwargs) -> Check
 Extra `kwargs` can be passed to filter the results down even more. For example, to check that an element has a child with a given `id` use `has_child(tag, id="some_id")`.
 
 #### Example usage
+
 ```python
 suite = HtmlSuite(content)
 body = suite.element("body")
@@ -263,12 +278,13 @@ body_has_div = ChecklistItem("The body has a div", body.get_child("div").exists(
 
 Check that this element has a given color on a CSS property. This is a more flexible version of [`has_styling`](#has_styling) because it allows the value to be in multiple different formats (`RGB`, `hex`, ...).
 
-#### Signature:
+#### Signature
+
 ```python
 def has_color(prop: str, color: str, important: Optional[bool] = None) -> Check
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name      | Description                                                                                                            | Required? | Default                                                                                       |
 |:----------|:-----------------------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------------------------------------------------------------|
@@ -276,8 +292,8 @@ def has_color(prop: str, color: str, important: Optional[bool] = None) -> Check
 | value     | A value to match the property against. This value may be in any of the accepted formats: `name`, `rgb`, `rgba`, `hex`. |     ✔     |                                                                                               |
 | important | A boolean indicating that this element should (or may not be) marked as important using **`!important`**.              |           | None, which won't check this.                                                                 |
 
-
 #### Example usage
+
 ```html
 <html>
 <head>
@@ -294,6 +310,7 @@ def has_color(prop: str, color: str, important: Optional[bool] = None) -> Check
 </body>
 </html>
 ```
+
 ```python
 suite = CssSuite(content)
 div = suite.element("div")
@@ -321,18 +338,20 @@ y = "    \t\n     this \t\n\n\t                text           "
 ```
 are considered to be **equal**.
 
-#### Signature:
+#### Signature
+
 ```python
 def has_content(text: Optional[str] = None) -> Check
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
 | text | The text to compare the element's content to. |           | None, which will make any content pass and just checks if the content is not empty. |
 
 #### Example usage
+
 ```python
 suite = HtmlSuite(content)
 body = suite.element("body")
@@ -354,17 +373,20 @@ Check that this element has a url that doesn't go to another domain, optionally 
 
 In case the element is not an `<a>`-tag or does not have an `href` attribute, this will also return `False`. 
 
-#### Signature:
+#### Signature
+
 ```python
 def has_outgoing_url(allowed_domains: Optional[List[str]] = None) -> Check
 ```
-#### Parameters:
+
+#### Parameters
 
 | Name      | Description                                     | Required? | Default                                           |
 |:----------|:------------------------------------------------|:---------:|:--------------------------------------------------|
 | allowed_domains  | An optional list of domains that should *not* be considered "outgoing". |           | None, which will default to `["dodona.ugent.be", "users.ugent.be"]`.|
 
 #### Example usage
+
 ```python
 suite = HtmlSuite(content)
 body = suite.element("body")
@@ -378,11 +400,13 @@ a_tag.has_outgoing_link(allowed_domains=["ugent.be"])
 
 Check that this element is matched by a CSS selector to give it a particular styling. A value can be passed to match the value of the styling exactly.
 
-#### Signature:
+#### Signature
+
 ```python
 def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None) -> Check
 ```
-#### Parameters:
+
+#### Parameters
 
 | Name      | Description                                                                                               | Required? | Default                                                                                       |
 |:----------|:----------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------------------------------------------------------------|
@@ -391,6 +415,7 @@ def has_styling(self, prop: str, value: Optional[str] = None, important: Optiona
 | important | A boolean indicating that this element should (or may not be) marked as important using **`!important`**. |           | None, which won't check this.                                                                 |
 
 #### Example usage
+
 ```python
 suite = CssSuite(content)
 body = suite.element("body")
@@ -407,17 +432,20 @@ div_tag.has_styling("margin", "3px", important=True)
 
 Check that this element has the required tag.
 
-#### Signature:
+#### Signature
+
 ```python
 def has_tag(tag: str) -> Check
 ```
-#### Parameters:
+
+#### Parameters
 
 | Name | Description           | Required? | Default |
 |:-----|:----------------------|:---------:|:--------|
 | tag  | The tag to check for. |     ✔     |         |
 
 #### Example usage
+
 ```python
 suite = HtmlSuite(content)
 body = suite.element("body")
@@ -437,11 +465,13 @@ Check that this element has a url with a fragment (`#`), optionally comparing th
 
 In case the element is not an `<a>`-tag or does not have an `href` attribute, this will also return `False`. 
 
-#### Signature:
+#### Signature
+
 ```python
 def has_url_with_fragment(fragment: Optional[str] = None) -> Check
 ```
-#### Parameters:
+
+#### Parameters
 
 | Name      | Description                                     | Required? | Default                                           |
 |:----------|:------------------------------------------------|:---------:|:--------------------------------------------------|
@@ -462,12 +492,14 @@ a_tag.has_url_with_fragment()
 
 Check that this element has no text inside of it that is not inside of another element. Examples include random text floating around inside of a `<tr>` instead of a `<td>`.
 
-#### Signature:
+#### Signature
+
 ```python
 def no_loose_text() -> Check
 ```
 
 #### Example usage
+
 ```python
 suite = HtmlSuite(content)
 table_element = suite.element("table")

@@ -16,12 +16,12 @@ This document lists and explains the built-in utility functions with examples. T
 
 The `all_of` function takes a list of `Check`s, and will only pass if all of these checks passed too. Once one check fails, all other checks in the list will no longer be evaluated.
 
-#### Signature:
+#### Signature
 ```python
 def all_of(args: List[Check]) -> Check
 ```
 
-#### Example usage:
+#### Example usage
 
 The example below will fail because there is no `<table>` inside the `<body>`.
 
@@ -40,12 +40,12 @@ all_of(body_element.exists(), table_element.exists())
 
 The `any_of` function takes a series of checks, and will pass if at least one of these checks passes as well. Once one check passes, all other checks in the list will no longer evaluated.
 
-#### Signature:
+#### Signature
 ```python
 def any_of(*args: Check) -> Check
 ```
 
-#### Example usage:
+#### Example usage
 
 The example below will pass because `<body>` exists, even if `<head>` doesn't. It will also pass if `<head>` exists while `<body>`  doesn't, and if both exist. This last scenario, however, will not be evaluated (as stated above).
 
@@ -64,12 +64,12 @@ any_of(body_element.exists(), head_element.exists())
 
 The `at_least` function takes the amount of checks required, and a series of checks to evaluate. The function will pass once at least `amount` checks have passed, and further checks will no longer be evaluated.
 
-#### Signature:
+#### Signature
 ```python
 def at_least(amount: int, *args: Check) -> Check
 ```
 
-#### Example usage:
+#### Example usage
 
 The example below will pass because the first two checks have passed, and only two were required.
 
@@ -89,19 +89,19 @@ at_least(2, head_element.exists(), body_element.exists(), div_element.exists())
 
 This method checks if an `Element` with tag `table` has rows with the required content, **excluding the header**.
 
-#### Signature:
+#### Signature
 ```python
 def has_table_content(rows: List[List[str]], has_header: bool = True) -> Check
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
 | `rows` | A 2D `list` of `strings` that represents the content that the rows should match exactly. | ✔ |  |
 | `has_header` | Boolean that indicates this table should have a `header`, in which case the first `<tr>` will be ignored.  |  | True |
 
-#### Example usage:
+#### Example usage
 
 ```html
 <table>
@@ -134,18 +134,18 @@ table_element.has_table_content(rows, has_header=True)
 
 This method checks if an `Element` with tag `table` has a header with content that matches a list of strings. This avoids having to use `all_of` combined with a *LOT* of `has_content`s.
 
-#### Signature:
+#### Signature
 ```python
 def has_table_header(header: List[str]) -> Check
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
 | `header` | `List` of `strings` that represents the content that the header should match exactly. | ✔ |  |
 
-#### Example usage:
+#### Example usage
 
 ```html
 <table>
@@ -169,18 +169,18 @@ table_element.has_table_header(header)
 
 This method checks if an `Element` with tag `tr` has the required content. This is the same as [`Element.has_table_content`](#elementhas_table_content) but for one row, and applied on a `<tr>` instead of a `<table>`.
 
-#### Signature:
+#### Signature
 ```python
 def table_row_has_content(row: List[str]) -> Check
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
 | `row` | A `list` of `strings` that represents the content that the row should match exactly. | ✔ |  |
 
-#### Example usage:
+#### Example usage
 
 ```html
 <table>
@@ -210,12 +210,12 @@ rows[1].table_row_has_content(row2)
 
 The `fail_if` function takes a check, and will fail if the check passes. This is equivalent to the `NOT`-operator.
 
-#### Signature:
+#### Signature
 ```python
 def fail_if(check: Check) -> Check
 ```
 
-#### Example usage:
+#### Example usage
 
 ```python
 content = "<html><body></body></html>"

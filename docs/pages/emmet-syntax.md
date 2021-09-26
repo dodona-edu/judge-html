@@ -20,7 +20,7 @@ Before we dive in, a `tag` is still referenced by its name. `element("div")` is 
 
 To indicate that an element should contain another, use the `>` symbol (from left to right).
 
-#### Example usage:
+#### Example usage
 
 Problem: "Find the `<div>` inside of the `<td>` inside of the `<tr>` inside of the `<table>` inside of the `<div>` inside of the `<body>` starting from the root element (`<html>`)"
 
@@ -42,7 +42,7 @@ div_element = suite.element("html>body>div>table>tr>td>div", from_root=True)
 
 By default, the first match will always be chosen for every step. To specify that the `n-th` match should be used, you may do so by adding the index between square brackets **at the end of the step**.
 
-#### Example usage:
+#### Example usage
 
 Problem: "Find the _third_ `<div>` inside of the _fourth_ `<td>` inside of the _first_ `<tr>` inside of the `<table>`"
 
@@ -66,7 +66,7 @@ To filter down based on id's, you can specify an id by adding a hashtag (`#`) in
 
 An id should only contain `letters`, `numbers`, `underscores` and `hyphens`, and should contain at least one character. In essence, they should match the following regex: `#([a-zA-Z0-9_-]+)`.
 
-#### Example usage:
+#### Example usage
 
 Problem: "Find the `<div>` with id `example` inside of the `<body>`"
 
@@ -98,7 +98,7 @@ A class name should only contain `letters`, `numbers`, `underscores` and `hyphen
 
 This means your class name may **never** match the following regex: `\.([0-9]|--|-[0-9])`.
 
-#### Example usage:
+#### Example usage
 
 Problem: "Find the `<td>` with class names `ex-1` **and** `ex-2`, inside of the `<tr>` with class name `tr-example` inside of the `<table>`"
 
@@ -120,13 +120,13 @@ This method creates (and adds) a `ChecklistItem` by parsing your Emmet-string in
 
 **Note**: these examples use more advanced Emmet Syntax found in the [official documentation](https://docs.emmet.io/abbreviations/syntax/).
 
-#### Signature:
+#### Signature
 
 ```python
 def make_item_from_emmet(message: str, emmet_str: str)
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name     | Description                                                                                                                                            | Required? | Default |
 :----------|:-------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:--------|
