@@ -1,7 +1,7 @@
 # Emmet Syntax
 
-> _For more information, refer to the [official Emmet docs](https://docs.emmet.io/abbreviations/syntax/)_  
-> _For an overview, refer to the [official Emmet cheat sheet](https://docs.emmet.io/cheat-sheet/) or [unofficial Emmet cheat sheet](https://devhints.io/emmet)_
+> _For more information, refer to the [official Emmet docs](https://docs.emmet.io/abbreviations/syntax/)._  
+> _For an overview, refer to the [official Emmet cheat sheet](https://docs.emmet.io/cheat-sheet/) or [unofficial Emmet cheat sheet](https://devhints.io/emmet)._
 
 All `find_*` methods support `Emmet Syntax`, which allows you to perform search queries in a (**much**) shorter way. This comes in handy when you want to quickly find a deeply-nested element along a very specific path. This document aims to first explain this syntax, and then provide a few examples to show how it works (and to show how much shorter it can be). The methods will always display the character count, to show you that `Emmet Syntax` is always **almost twice** as compact (and for more complex cases, even more than that).
 
@@ -11,6 +11,7 @@ _**This method supports Emmet Syntax through the [PARAMETER] parameter**_
 
 > Note: the `index` and `kwargs` parameters passed into the `find` methods are still allowed, but will only be applied to the _**last**_ element from the query. The path will always take priority when clashing, so if the query itself ends with an index (eg. `table>tr[3]`) then this index will be used instead of the parameter.
 
+## Table of Contents
 - [Basics of Emmet Syntax](#basics-of-emmet-syntax)
     - [Finding nested elements](#finding-nested-elements)
     - [Specifying indexes](#specifying-indexes)
