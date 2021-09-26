@@ -37,6 +37,18 @@
 ### CSS
 * Automatic color conversion (`name`, `#RRGGBB`, `rgb(R,G,B)`, `rgb(R%,G%,B%)`, `#RGB`, `hsl(H,S%,L%)`, `rgba(R,G,B,a)`, `rgba(R%,G%,B%,a)`, `hsla(H,S%,L%,a)`)
 
+## Table of Contents
+- [Recommended exercise directory structure](#recommended-exercise-directory-structure)
+- [Recommended `dirconfig.json`](#recommended-dirconfigjson)
+- [Recommended `config.json` (example with default settings)](#recommended-configjson-example-with-default-settings)
+- [Quick start guide for **comparison mode** (with `solution.html`)](#quick-start-guide-for-comparison-mode-with-solutionhtml)
+  - [Optional `evaluation` settings in `config.json`](#optional-evaluation-settings-in-configjson)
+    - [Example of modified settings](#example-of-modified-settings)
+  - [`DUMMY` values](#dummy-values)
+- [Quick start guide for **checklist mode** (with `evaluator.py`)](#quick-start-guide-for-checklist-mode-with-evaluatorpy)
+  - [Minimal example](#minimal-example)
+- [Testing](#testing)
+- [Contributors](#contributors)
 
 ## Recommended exercise directory structure
 
