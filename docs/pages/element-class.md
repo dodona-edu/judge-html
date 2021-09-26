@@ -104,8 +104,8 @@ def attribute_contains(attr: str, substr: str, case_insensitive: bool = False) -
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
-| `attribute`        | The attribute to check for.                                          |     X     |         |
-| `substr`           | The substring that should be in the attribute's value.               |     X     |         |
+| `attribute`        | The attribute to check for.                                          |     ✔     |         |
+| `substr`           | The substring that should be in the attribute's value.               |     ✔     |         |
 | `case_insensitive` | Indicate that the casing of the value does not matter when checking. |           | `False` |
 
 #### Example usage:
