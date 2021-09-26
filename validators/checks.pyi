@@ -44,11 +44,11 @@ class Element:
     def __str__(self) -> str: ...
 
     def get_child(self, tag: Optional[str] = ..., index: int = ..., direct: bool = ..., **kwargs) -> "Element":
-        """This method finds a child element with tag tag, optionally with extra filters."""
+        """This method finds a child element with tag tag, optionally with extra filters. Supports Emmet syntax through the tag parameter."""
         ...
 
     def get_children(self, tag: Optional[str] = ..., direct: bool = ..., **kwargs) -> "ElementContainer":
-        """This method finds ALL child elements, optionally with tag tag and extra filters."""
+        """This method finds ALL child elements, optionally with tag tag and extra filters. Supports Emmet syntax through the tag parameter."""
         ...
 
     def exists(self) -> Check:
@@ -229,15 +229,15 @@ class TestSuite:
         ...
 
     def contains_comment(self, comment: Optional[str] = None) -> Check:
-        """Check if the document contains a comment, optionally matching a value"""
+        """Check if the document contains a comment, optionally matching a value."""
         ...
 
     def element(self, tag: Optional[str] = ..., from_root: bool = ..., **kwargs) -> Element:
-        """Create a reference to an HTML element"""
+        """Create a reference to an HTML element. Supports Emmet syntax through the tag parameter."""
         ...
 
     def all_elements(self, tag: Optional[str] = ..., from_root: bool = ..., **kwargs) -> ElementContainer:
-        """Get references to ALL HTML elements that match a query"""
+        """Get references to ALL HTML elements that match a query. Supports Emmet syntax through the tag parameter."""
         ...
 
     def _create_language_lists(self): ...

@@ -1,6 +1,7 @@
 # Emmet Syntax
 
-_For more information, refer to the [official Emmet docs](https://docs.emmet.io/abbreviations/syntax/)_
+> _For more information, refer to the [official Emmet docs](https://docs.emmet.io/abbreviations/syntax/)._  
+> _For an overview, refer to the [official Emmet cheat sheet](https://docs.emmet.io/cheat-sheet/) or [unofficial Emmet cheat sheet](https://devhints.io/emmet)._
 
 All `find_*` methods support `Emmet Syntax`, which allows you to perform search queries in a (**much**) shorter way. This comes in handy when you want to quickly find a deeply-nested element along a very specific path. This document aims to first explain this syntax, and then provide a few examples to show how it works (and to show how much shorter it can be). The methods will always display the character count, to show you that `Emmet Syntax` is always **almost twice** as compact (and for more complex cases, even more than that).
 
@@ -8,9 +9,24 @@ To indicate that a specific method supports this, all of them have the following
 
 _**This method supports Emmet Syntax through the [PARAMETER] parameter**_
 
-### Note:
+> Note: the `index` and `kwargs` parameters passed into the `find` methods are still allowed, but will only be applied to the _**last**_ element from the query. The path will always take priority when clashing, so if the query itself ends with an index (eg. `table>tr[3]`) then this index will be used instead of the parameter.
 
-The `index` and `kwargs` parameters passed into the `find` methods are still allowed, but will only be applied to the _**last**_ element from the query. The path will always take priority when clashing, so if the query itself ends with an index (eg. `table>tr[3]`) then this index will be used instead of the parameter.
+## Table of Contents
+- [Basics of Emmet Syntax](#basics-of-emmet-syntax)
+    - [Finding nested elements](#finding-nested-elements)
+    - [Specifying indexes](#specifying-indexes)
+    - [Specifying id's](#specifying-ids)
+    - [Specifying class names](#specifying-class-names)
+- [Creating Checks using Emmet Syntax](#creating-checks-using-emmet-syntax)  
+    - [Signature](#signature)
+    - [Parameters](#parameters)
+    - [Examples](#examples)
+        - [Check that an element exists](#check-that-an-element-exists)
+        - [Check that sibling structure exists](#check-that-sibling-structure-exists)
+        - [Check the content of an element](#check-the-content-of-an-element)
+        - [Check that X amount of children exist](#check-that-x-amount-of-children-exist)
+        - [Check that elements with an id and/or class exist](#check-that-elements-with-an-id-andor-class-exist)
+        - [Check that an element has attributes (with values)](#check-that-an-element-has-attributes-with-values)
 
 ## Basics of Emmet Syntax
 
@@ -20,7 +36,7 @@ Before we dive in, a `tag` is still referenced by its name. `element("div")` is 
 
 To indicate that an element should contain another, use the `>` symbol (from left to right).
 
-#### Example usage:
+#### Example usage
 
 Problem: "Find the `<div>` inside of the `<td>` inside of the `<tr>` inside of the `<table>` inside of the `<div>` inside of the `<body>` starting from the root element (`<html>`)"
 
@@ -42,7 +58,7 @@ div_element = suite.element("html>body>div>table>tr>td>div", from_root=True)
 
 By default, the first match will always be chosen for every step. To specify that the `n-th` match should be used, you may do so by adding the index between square brackets **at the end of the step**.
 
-#### Example usage:
+#### Example usage
 
 Problem: "Find the _third_ `<div>` inside of the _fourth_ `<td>` inside of the _first_ `<tr>` inside of the `<table>`"
 
@@ -66,7 +82,7 @@ To filter down based on id's, you can specify an id by adding a hashtag (`#`) in
 
 An id should only contain `letters`, `numbers`, `underscores` and `hyphens`, and should contain at least one character. In essence, they should match the following regex: `#([a-zA-Z0-9_-]+)`.
 
-#### Example usage:
+#### Example usage
 
 Problem: "Find the `<div>` with id `example` inside of the `<body>`"
 
@@ -98,7 +114,7 @@ A class name should only contain `letters`, `numbers`, `underscores` and `hyphen
 
 This means your class name may **never** match the following regex: `\.([0-9]|--|-[0-9])`.
 
-#### Example usage:
+#### Example usage
 
 Problem: "Find the `<td>` with class names `ex-1` **and** `ex-2`, inside of the `<tr>` with class name `tr-example` inside of the `<table>`"
 
@@ -120,13 +136,13 @@ This method creates (and adds) a `ChecklistItem` by parsing your Emmet-string in
 
 **Note**: these examples use more advanced Emmet Syntax found in the [official documentation](https://docs.emmet.io/abbreviations/syntax/).
 
-#### Signature:
+### Signature
 
 ```python
 def make_item_from_emmet(message: str, emmet_str: str)
 ```
 
-#### Parameters:
+### Parameters
 
 | Name     | Description                                                                                                                                            | Required? | Default |
 :----------|:-------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:--------|

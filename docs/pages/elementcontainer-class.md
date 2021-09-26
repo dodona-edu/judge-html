@@ -17,18 +17,18 @@ Get the `Element` at a specific index of the container. In case there aren't eno
 
 Alternatively, you can also use the `[]`-operator.
 
-#### Signature:
+#### Signature
 ```python
 def get(index: int) -> Element
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name  | Description                                | Required? | Default |
 | :---- | :----------------------------------------- | :-------: | :------ |
 | index | The index at which to look for an element. |     ✔     |         |
 
-#### Example usage:
+#### Example usage
 Let's say we want to perform checks on two `<div>`s inside of the `<body>`. That means we first have to get references to those `<div>`s, which means they should exist.
 
 However, only one single `<div>` is present in the student's code. This means the `second_div` variable will contain an empty element, but checks can still be performed on it.
@@ -68,12 +68,12 @@ The `ElementContainer` comes with a few checks relating to the amount of element
 
 Check that a container has at least a certain amount of elements.
 
-#### Signature:
+#### Signature
 ```python
 def at_least(amount: int) -> Check
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name   | Description                             | Required? | Default |
 | :----- | :-------------------------------------- | :-------: | :------ |
@@ -96,12 +96,12 @@ all_trs.at_least(4)
 
 Check that a container has at most a certain amount of elements.
 
-#### Signature:
+#### Signature
 ```python
 def at_most(amount: int) -> Check
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name     | Description                             | Required? | Default |
 | :------- | :-------------------------------------- | :-------: | :------ |
@@ -123,12 +123,12 @@ all_divs.at_most(5)
 
 Check that a container has exactly a certain amount of elements.
 
-#### Signature:
+#### Signature
 ```python
 def exactly(amount: int) -> Check
 ```
 
-#### Parameters:
+#### Parameters
 
 | Name     | Description                           | Required? | Default |
 | :------- | :------------------------------------ | :-------: | :------ |
