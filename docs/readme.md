@@ -7,10 +7,13 @@ Note that examples in these files often leave some repetitive information out be
 ## Table of Contents
 
 ### Important information
-- [Evaluators](pages/evaluators.md)
-- [Evaluating by comparing](pages/evaluating-by-comparing.md)
+
+- [Evaluating in comparison mode](pages/evaluating-by-comparing.md)
+- [Evaluating in checklist mode](pages/evaluators.md)
 - [Rendering HTML and CSS on Dodona](pages/rendering-on-dodona.md)
+
 ### Checks library documentation
+
 - [Default TestSuites](pages/default-suites.md)
 - [TestSuite Class](pages/testsuite-class.md)
 - [ChecklistItem Class](pages/checklistitem-class.md)
@@ -19,5 +22,7 @@ Note that examples in these files often leave some repetitive information out be
 - [ElementContainer Class](pages/elementcontainer-class.md)
 - [Utility Functions](pages/utility-functions.md)
 - [Writing custom Checks](pages/custom-checks.md)
+
 ### Other useful information
+
 - [Emmet Syntax](pages/emmet-syntax.md)

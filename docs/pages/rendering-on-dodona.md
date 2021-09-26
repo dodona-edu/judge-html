@@ -33,6 +33,8 @@ def create_suites(content: str) -> List[TestSuite]:
     return [suite]
 ```
 
+## Dodona CSS artifacts
+
 Keep in mind that there may be artifacts from Dodona's own CSS that are applied onto the student's submission. This _can_ result in the rendering not being 100% accurate, but has no influence on the tests being correct or not.
 
 ## Embedding Images
