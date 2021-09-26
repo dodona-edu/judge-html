@@ -2,6 +2,12 @@
 
 In case you want to do something that our library doesn't support, you can always create your own checks. This document will explain how to do so.
 
+## Table of Contents
+- [Check structure](#check-structure)
+- [Examples](#examples)
+    - [Between [min, max] checks passed](#between-min-max-checks-passed)
+    - [Element has a list of attributes](#element-has-a-list-of-attributes)
+
 ## Check structure
 
 A `Check` takes one argument, being the callable that gets executed when the check is evaluated. This callable may only take one argument as well, a `BeautifulSoup` instance of the student's submission, and returns a `bool`.
