@@ -57,7 +57,7 @@ def element(tag: Optional[str] = None, index: int = 0, from_root: bool = False, 
 
 | Name     | Description                                                                                                                                            | Required? | Default                                 |
 :----------|:-------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------|
-| `tag`    | The tag to search for                                                                                                                                  |           | None, which won't filter based on tags. |
+| `tag`    | The tag to search for.                                                                                                                                  |           | None, which won't filter based on tags. |
 | `index`  | In case multiple children match your query, choose which match should be chosen. If the index goes out of range, an empty element is returned instead. |           | 0 (first match)                         |
 | `from_root` | Boolean that indicates only children of the root element should be searched.                                                                        |           | False                                   |
 

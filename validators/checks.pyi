@@ -229,15 +229,15 @@ class TestSuite:
         ...
 
     def contains_comment(self, comment: Optional[str] = None) -> Check:
-        """Check if the document contains a comment, optionally matching a value"""
+        """Check if the document contains a comment, optionally matching a value."""
         ...
 
     def element(self, tag: Optional[str] = ..., from_root: bool = ..., **kwargs) -> Element:
-        """Create a reference to an HTML element"""
+        """Create a reference to an HTML element. Supports Emmet syntax through the tag parameter."""
         ...
 
     def all_elements(self, tag: Optional[str] = ..., from_root: bool = ..., **kwargs) -> ElementContainer:
-        """Get references to ALL HTML elements that match a query"""
+        """Get references to ALL HTML elements that match a query. Supports Emmet syntax through the tag parameter."""
         ...
 
     def _create_language_lists(self): ...
