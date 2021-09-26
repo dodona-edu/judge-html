@@ -4,6 +4,11 @@ Another way of evaluating an exercise is by comparing it to the `solution.html` 
 
 It does have to be noted that this way of evaluation allows for a lot less freedom, both to the students submitting it and the teacher who wants to evaluate the submission. **For flexible tests, consider using the [`checks library`](../readme.md#checks-library-documentation).**
 
+## Table of Contents
+
+- [Optional `evaluation settings` in `config.json`](#optional-evaluation-settings-in-configjson)
+- [DUMMY values](#dummy-values)
+
 ## Optional `evaluation settings` in `config.json`
 
 In the `config.json` file of the exercise you can give some options as to how the comparison should happen. If these settings are not defined, the default value is chosen.
@@ -85,7 +90,7 @@ And this as the submission
 Then the submission will be accepted, even though the solution and submission CSS rules differ quite a bit, they result in the same visual change and thus are accepted.
 
 
-## Dummy values
+## DUMMY values
 
 In a lot of cases you're going to want the students to write _something_ or to give _some value_ to an attribute, but you don't care what it is they write down. For that you can use the `DUMMY` keyword for attribute values and for text in your `solution.html` file.
 
