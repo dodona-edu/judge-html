@@ -32,4 +32,6 @@ The fragment below contains the [boilerplate](https://en.wikipedia.org/wiki/Boil
 
 _Take a look at the [built-in TestSuites documentation](default-suites.md) which show how to write your own custom TestSuites with(out) validation._
 
+*[Emmet syntax](emmet-syntax.md) is supported on selected methods, which allows for fast development of checklists.*
+
 In case you only want to write tests for either `HTML` or `CSS`, and not both, the other suite is not required. It is merely added in the fragment above as an example. Returning `[html]` is equally valid.

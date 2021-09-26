@@ -8,7 +8,7 @@ Note that examples in these files often leave some repetitive information out be
 
 ### Important information
 
-- [Evaluate in **comparison mode** with with `solution.html`](pages/evaluating-by-comparing.md)
+- [Evaluate in **comparison mode** with `solution.html`](pages/evaluating-by-comparing.md)
 - [Evaluate in **checklist mode** with `evaluator.py`](pages/evaluators.md)
 - [Rendering HTML and CSS on Dodona](pages/rendering-on-dodona.md)
 
