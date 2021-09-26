@@ -17,9 +17,9 @@ _**This method supports Emmet Syntax through the [PARAMETER] parameter**_
     - [Specifying indexes](#specifying-indexes)
     - [Specifying id's](#specifying-ids)
     - [Specifying class names](#specifying-class-names)
-- [Creating Checks using Emmet Syntax](#creating-checks-using-emmet-syntax)
-        - [Signature](#signature)
-        - [Parameters](#parameters)
+- [Creating Checks using Emmet Syntax](#creating-checks-using-emmet-syntax)  
+    - [Signature](#signature)
+    - [Parameters](#parameters)
     - [Examples](#examples)
         - [Check that an element exists](#check-that-an-element-exists)
         - [Check that sibling structure exists](#check-that-sibling-structure-exists)
@@ -136,13 +136,13 @@ This method creates (and adds) a `ChecklistItem` by parsing your Emmet-string in
 
 **Note**: these examples use more advanced Emmet Syntax found in the [official documentation](https://docs.emmet.io/abbreviations/syntax/).
 
-#### Signature
+### Signature
 
 ```python
 def make_item_from_emmet(message: str, emmet_str: str)
 ```
 
-#### Parameters
+### Parameters
 
 | Name     | Description                                                                                                                                            | Required? | Default |
 :----------|:-------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:--------|
