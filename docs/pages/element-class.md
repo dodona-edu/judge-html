@@ -257,7 +257,7 @@ def has_child(tag: str, direct: bool = True, **kwargs) -> Check
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
 | `tag`    | The tag to search for.                                                                    |     ✔     |         |
-| `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements. |           | True    |
+| `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements. |           | `True` |
 
 Extra `kwargs` can be passed to filter the results down even more. For example, to check that an element has a child with a given `id` use `has_child(tag, id="some_id")`.
 
