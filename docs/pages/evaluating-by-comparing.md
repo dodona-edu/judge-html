@@ -2,7 +2,7 @@
 
 Another way of evaluating an exercise is by comparing it to the `solution.html` file. This is the default if no `evaluator.py` file is present. In this case, the structure of the student's submission will be compared to your solution, and you can provide extra options to specify how strict this comparison should be.
 
-It does have to be noted that this way of evaluation allows for a lot less freedom, both to the students submitting it and the teacher who wants to evaluate the submission. **For flexible tests, consider using the [`checks library`](../readme.md#checks-library-documentation).**
+It does have to be noted that this way of evaluation allows for a lot less freedom, both to the students submitting it and the teacher who wants to evaluate the submission. **For flexible tests, consider using the [checklist mode](../readme.md#checks-library-documentation).**
 
 ## Table of Contents
 
