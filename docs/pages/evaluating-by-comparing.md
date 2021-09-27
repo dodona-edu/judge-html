@@ -11,7 +11,7 @@ It does have to be noted that this way of evaluation allows for a lot less freed
 
 ## Optional `evaluation settings` in `config.json`
 
-In the `config.json` file of the exercise you can give some options as to how the comparison should happen. If these settings are not defined, the default value is chosen.
+In the `config.json` file of the exercise you can give some options as to how the comparison should happen. If these settings are not defined, the default value is chosen. By default, only the HTML-structure and CSS is checked.
 
 | Evaluation setting | Description | Possible values | Default |
 | ------------------ | ----------- | --------------  | ------- |
