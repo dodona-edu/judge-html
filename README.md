@@ -63,7 +63,7 @@ Add your solution (`solution.html` file) to the **`evaluation`** folder. Absolut
 +-- 📂html-exercises                    # We could group exercises in a folder
 |   +-- 📂first_html_exercise           # Folder name for the exercise
 |   |   +-- config.json                  # ▶ Configuration of the exercise
-|   |   +-- 📂evaluation                # -- 🔽️ ADD YOUR SOLUTION FILES HERE 🔽 --
+|   |   +-- 📂evaluation                # -- 🔽️ ADD YOUR FILES HERE 🔽 --
 |   |   |   +-- solution.html            # ▶ The HTML model solution for comparison mode
 |   |   |   +-- evaluator.py             # ▶ The Python code for checklist mode
 |   |   +-- 📂solution                  # Optional: This will be visible in Dodona
@@ -74,7 +74,7 @@ Add your solution (`solution.html` file) to the **`evaluation`** folder. Absolut
 |   |       +-- description.nl.md        # ▶ The description in Dutch
 |   |       +-- description.en.md        # Optional: The description in English
 |   |       +-- 📂media                 # Optional folder
-|   |       |   +-- some_image.png       # Optional: An image used in the description
+|   |       |   +-- some_image.png       # Optional: An image used in the description and exercise
 |   |       +-- 📂boilerplate           # Optional folder
 |   |           +-- boilerplate          # Optional: loaded automatically in submission text area
 |   :
@@ -89,9 +89,9 @@ Add your solution (`solution.html` file) to the **`evaluation`** folder. Absolut
 {
   "type": "exercise",
   "programming_language": "html",
-  "access": "private",
+  "access": "public",
   "evaluation": {
-    "handler": "html",
+    "handler": "judge-html",
     "time_limit": 10,
     "memory_limit": 50000000
   },
@@ -136,7 +136,7 @@ Add your solution (`solution.html` file) to the **`evaluation`** folder. Absolut
 
 The **easiest** and **fastest** way of evaluating an exercise is by comparing it to the `solution.html` file in the `evaluation` folder. This is the default if no `evaluator.py` file is present. In this case, the structure of the student's submission will be compared to your solution, and you can provide extra options to specify how strict this comparison should be.
 
-It does have to be noted that this way of evaluation allows for a lot less freedom. **For flexible tests, consider using the checklist mode.**
+It does have to be noted that this way of evaluation allows for a lot less freedom. **For flexible tests, consider using the [checklist mode](#quick-start-guide-for-checklist-mode-with-evaluatorpy).**
 
 ### Optional `evaluation` settings in `config.json`
 
@@ -158,7 +158,7 @@ In the `config.json` file of the exercise you can give some options as to how th
 {
   ...
   "evaluation": {
-    "handler": "html",
+    "handler": "judge-html",
     "minimal_attributes": true,
     "contents": true
   },
