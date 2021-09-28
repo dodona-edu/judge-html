@@ -736,7 +736,7 @@ class TestSuite:
         This is a shortcut for suite.checklist.append(ChecklistItem(message, check))"""
         self.checklist.append(ChecklistItem(message, list(args)))
 
-    def make_item_from_emmet(self, message: str, emmet_str: str):
+    def make_item_from_emmet(self, message: str, emmet_str: Union[str, Emmet]):
         """Create a new ChecklistItem, the check will compare the submission to the emmet expression.
             The emmet expression is seen as the minimal required elements/attributes, so the submission may contain more
             or equal elements"""

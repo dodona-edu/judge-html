@@ -141,7 +141,7 @@ This method creates (and adds) a `ChecklistItem` by parsing your Emmet-string in
 ### Signature
 
 ```python
-def make_item_from_emmet(message: str, emmet_str: str)
+def make_item_from_emmet(message: , emmet_str: Union[str, Emmet])
 ```
 
 ### Parameters
