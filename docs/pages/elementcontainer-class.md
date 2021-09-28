@@ -79,7 +79,7 @@ def at_least(amount: int) -> Check
 | :----- | :-------------------------------------- | :-------: | :------ |
 | amount | The minimum amount of elements allowed. |     ✔     |         |
 
-### Example usage:
+#### Example usage
 ```python
 suite = HtmlSuite(content)
 body = suite.element("body")
@@ -107,7 +107,7 @@ def at_most(amount: int) -> Check
 | :------- | :-------------------------------------- | :-------: | :------ |
 | `amount` | The maximum amount of elements allowed. |     ✔     |         |
 
-### Example usage:
+#### Example usage
 ```python
 suite = HtmlSuite(content)
 body = suite.element("body")
@@ -134,7 +134,7 @@ def exactly(amount: int) -> Check
 | :------- | :------------------------------------ | :-------: | :------ |
 | `amount` | The exact amount of elements allowed. |     ✔     |         |
 
-### Example usage:
+#### Example usage
 ```python
 suite = HtmlSuite(content)
 body = suite.element("body")

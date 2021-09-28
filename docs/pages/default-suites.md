@@ -22,7 +22,7 @@ The `HtmlSuite` will automatically create a TestSuite called "HTML", and add a `
 | `allow_warnings` | Boolean that indicates that the check should *not* be marked incorrect if any warnings arise. |  | `True` |
 | `abort` | Boolean that indicates that testing should abort (and all future checks should be marked incorrect) when validation fails. This is default True, because you usually don't want to keep evaluating an exercise if the code isn't valid. |  | `True` |
 
-### Example usage
+#### Example usage
 
 The example below shows the code required *before* and *after* using this custom suite.
 
