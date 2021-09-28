@@ -203,6 +203,9 @@ suite.make_item("Item 3", check1, check2, check3)
 
 # Adding a ChecklistItem from an emmet expression
 suite.make_item_from_emmet("Item 4", "body>div#mydiv")
+
+# Just like make_item, this can take multiple arguments that will be grouped under one ChecklistItem
+suite.make_item_from_emmet("Item 5", "body>div#mydiv", "body>table>tr*4", "body>.classname", ...)
 ```
 
 ## Adding multiple languages
