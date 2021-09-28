@@ -68,7 +68,7 @@ class Translator:
     @classmethod
     def from_str(cls, language: str) -> "Translator":
         """created a Translator instance
-        If the language is not detectected correctly or not supported
+        If the language is not detected correctly or not supported
         the translator defaults to English (EN).
         :param language: Dodona language string "nl" or "en"
         :return: translator
@@ -151,7 +151,7 @@ class Translator:
             Text.UNEXPECTED_CLOSING_TAG: "The tag <{tag}> isn't supposed to have a closing tag, it's self-closing.",
             Text.INVALID_ATTRIBUTE: "Invalid attribute for",
             Text.MISSING_REQUIRED_ATTRIBUTE: "Missing required attribute(s) for",
-            Text.DUPLICATE_ID: "Id '{id} defined in tag <{tag}> is already defined",
+            Text.DUPLICATE_ID: "Id '{id}' defined in tag <{tag}> is already defined",
             Text.AT_LEAST_ONE_CHAR: "The value of {attr} must be at least one character.",
             Text.NO_WHITESPACE: "The value of {attr} may not contain whitespace.",
             Text.NO_ABS_PATHS: "The src attribute may not contain an absolute path.",
@@ -161,7 +161,7 @@ class Translator:
             Text.ATTRIBUTES_DIFFER: "Attributes differ",
             Text.NOT_ALL_ATTRIBUTES_PRESENT: "Not all minimal required attributes are present",
             Text.CONTENTS_DIFFER: "Contents differ",
-            Text.AMOUNT_CHILDREN_DIFFER: "Amount of children differs",
+            Text.AMOUNT_CHILDREN_DIFFER: "Amount of child elements differs",
             Text.STYLES_DIFFER: "CSS styling differs for element <{tag}>",
             Text.EXPECTED_COMMENT: "Expected a comment",
             Text.COMMENT_CORRECT_TEXT: "The comment does not have the correct text",
@@ -184,7 +184,7 @@ class Translator:
             Text.INVALID_TESTSUITE_STUDENTS: "Jouw indiening kon niet geëvalueerd worden door een fout in het oplossingsbestand.",
             # double char exceptions
             Text.MISSING_OPENING_CHARACTER: "Ontbrekend openend karakter voor",
-            Text.MISSING_CLOSING_CHARACTER: "Ontbrekend sluited karakter voor",
+            Text.MISSING_CLOSING_CHARACTER: "Ontbrekend sluitend karakter voor",
             # html exceptions
             Text.MISSING_CLOSING_TAG: "Ontbrekende sluitende html-tag voor",
             Text.INVALID_TAG: "Ongeldige html-tag",
@@ -193,7 +193,7 @@ class Translator:
             Text.UNEXPECTED_CLOSING_TAG: "De tag <{tag}> hoort geen sluitende tag te hebben, het is een zichzelf-afsluitende tag.",
             Text.INVALID_ATTRIBUTE: "Ongeldig attribuut voor",
             Text.MISSING_REQUIRED_ATTRIBUTE: "Ontbrekende vereiste attributen voor",
-            Text.DUPLICATE_ID: "Id '{id} gedefinieerd in tag <{tag}> is al gedefinieerd",
+            Text.DUPLICATE_ID: "Id '{id}' gedefinieerd in tag <{tag}> is al gedefinieerd",
             Text.AT_LEAST_ONE_CHAR: "De waarde van {attr} moet minimaal 1 karakter lang zijn.",
             Text.NO_WHITESPACE: "De waarde van {attr} mag geen spaties bevatten.",
             Text.NO_ABS_PATHS: "Het attribuut src mag geen absoluut pad zijn.",
@@ -203,8 +203,8 @@ class Translator:
             Text.ATTRIBUTES_DIFFER: "Attributen verschillen",
             Text.NOT_ALL_ATTRIBUTES_PRESENT: "Niet alle minimaal vereiste attributen zijn aanwezig",
             Text.CONTENTS_DIFFER: "Inhoud (text) verschilt",
-            Text.AMOUNT_CHILDREN_DIFFER: "Aantal kinderen verschilt",
-            Text.STYLES_DIFFER: "CSS stijling verschilt voor element <{tag}>",
+            Text.AMOUNT_CHILDREN_DIFFER: "Aantal kind elementen verschilt",
+            Text.STYLES_DIFFER: "CSS opmaak verschilt voor element <{tag}>",
             Text.EXPECTED_COMMENT: "Verwachte een comment",
             Text.COMMENT_CORRECT_TEXT: "De comment heeft niet de correcte tekst",
             Text.AT_LINE: "op regel",

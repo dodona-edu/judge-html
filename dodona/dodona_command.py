@@ -56,7 +56,7 @@ class MessageFormat(str, Enum):
 
 
 class AnnotationSeverity(str, Enum):
-    """Dodona serverity of an annotation"""
+    """Dodona severity of an annotation"""
 
     ERROR = "error"
     WARNING = "warning"
@@ -150,7 +150,7 @@ class DodonaCommand(ABC):
     # pylint: disable=no-self-use
     def handle_dodona_exception(self, exception: DodonaException) -> bool:
         """handle a DodonaException
-        This function returns a boolean that is True if the exeption should
+        This function returns a boolean that is True if the exception should
         not get propagated to parent codeblocks. This should only be True
         for the most outer block (Judgement), so that all levels of Dodona
         objects can update their status and success parameters.
