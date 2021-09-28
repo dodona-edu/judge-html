@@ -74,7 +74,7 @@ Add your solution (`solution.html` file) to the **`evaluation`** folder. Absolut
 |   |       +-- description.nl.md        # ▶ The description in Dutch
 |   |       +-- description.en.md        # Optional: The description in English
 |   |       +-- 📂media                 # Optional folder
-|   |       |   +-- some_image.png       # Optional: An image used in the description and exercise
+|   |       |   +-- some_image.png       # Optional: An image used in the description and/or exercise
 |   |       +-- 📂boilerplate           # Optional folder
 |   |           +-- boilerplate          # Optional: loaded automatically in submission text area
 |   :
@@ -172,7 +172,7 @@ In a lot of cases you're going to want the students to write _something_ or to g
 
 ## Quick start guide for checklist mode (with `evaluator.py`)
 
-> [Full documentation for **checklist mode**](/docs/)
+> [Full documentation for **checklist mode**](/docs)
 
 1. For autocomplete you need to add the folder `validator` with the [`checks.pyi`](validators/checks.pyi) file at the root of your project in which you write the evaluators.
 

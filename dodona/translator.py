@@ -184,7 +184,7 @@ class Translator:
             Text.INVALID_TESTSUITE_STUDENTS: "Jouw indiening kon niet geëvalueerd worden door een fout in het oplossingsbestand.",
             # double char exceptions
             Text.MISSING_OPENING_CHARACTER: "Ontbrekend openend karakter voor",
-            Text.MISSING_CLOSING_CHARACTER: "Ontbrekend sluited karakter voor",
+            Text.MISSING_CLOSING_CHARACTER: "Ontbrekend sluitend karakter voor",
             # html exceptions
             Text.MISSING_CLOSING_TAG: "Ontbrekende sluitende html-tag voor",
             Text.INVALID_TAG: "Ongeldige html-tag",

@@ -2,7 +2,7 @@
 
 This file contains information on TestSuites that handle some common behaviour for you. Using these can help reduce boilerplate code, and make your evaluators more compact.
 
-Remember that these are still `TestSuite`s, so you can still **add your own ChecklistItems** to them. They merely provide defaults (eg. HTML validation) behind the scenes, so you don't have to do it yourself every single time.
+Remember that these are still `TestSuite`s, so you can still **add your own ChecklistItems** to them. They merely provide defaults (e.g. HTML validation) behind the scenes, so you don't have to do it yourself every single time.
 
 ## Table of Contents
 
