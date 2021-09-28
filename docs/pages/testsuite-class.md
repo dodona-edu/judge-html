@@ -50,7 +50,7 @@ You can get a specific HTML element by tag using `suite.element(tag)` in the for
 
 #### Signature
 ```python
-def element(tag: Optional[str] = None, index: int = 0, from_root: bool = False, **kwargs) -> Element
+def element(tag: Optional[Union[str, Emmet]] = None, index: int = 0, from_root: bool = False, **kwargs) -> Element
 ```
 
 #### Parameters
