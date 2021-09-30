@@ -50,7 +50,7 @@ You can get a specific HTML element by tag using `suite.element(tag)` in the for
 
 #### Signature
 ```python
-def element(tag: Optional[str] = None, index: int = 0, from_root: bool = False, **kwargs) -> Element
+def element(tag: Optional[Union[str, Emmet]] = None, index: int = 0, from_root: bool = False, **kwargs) -> Element
 ```
 
 #### Parameters
@@ -203,6 +203,9 @@ suite.make_item("Item 3", check1, check2, check3)
 
 # Adding a ChecklistItem from an emmet expression
 suite.make_item_from_emmet("Item 4", "body>div#mydiv")
+
+# Just like make_item, this can take multiple arguments that will be grouped under one ChecklistItem
+suite.make_item_from_emmet("Item 5", "body>div#mydiv", "body>table>tr*4", "body>.classname", ...)
 ```
 
 ## Adding multiple languages

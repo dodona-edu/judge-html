@@ -3,7 +3,7 @@ import re
 from collections import deque
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Deque, List, Optional, Callable, Union, Dict
+from typing import Deque, List, Optional, Callable, Union, Dict, TypeVar
 from urllib.parse import urlsplit
 
 from bs4 import BeautifulSoup
@@ -18,6 +18,10 @@ from exceptions.utils import EvaluationAborted
 from utils.html_navigation import find_child, compare_content, match_emmet, find_emmet, contains_comment
 from validators.css_validator import CssValidator, CssParsingError
 from validators.html_validator import HtmlValidator
+
+
+# Emmet string type
+Emmet = TypeVar("Emmet", bound=str)
 
 
 @dataclass
@@ -101,7 +105,7 @@ class Element:
         return f"<{self.tag}>"
 
     # HTML utilities
-    def get_child(self, tag: Optional[str] = None, index: int = 0, direct: bool = True, **kwargs) -> "Element":
+    def get_child(self, tag: Optional[Union[str, Emmet]] = None, index: int = 0, direct: bool = True, **kwargs) -> "Element":
         """Find the child element that matches the specifications
 
         :param tag:     the tag to search for
@@ -116,7 +120,7 @@ class Element:
 
         return Element(child.name, child.get("id", None), child, self._css_validator)
 
-    def get_children(self, tag: Optional[str] = None, direct: bool = True, **kwargs) -> "ElementContainer":
+    def get_children(self, tag: Optional[Union[str, Emmet]] = None, direct: bool = True, **kwargs) -> "ElementContainer":
         """Get all children of this element that match the requested input"""
         # This element doesn't exist so it has no children
         if self._element is None:
@@ -732,12 +736,19 @@ class TestSuite:
         This is a shortcut for suite.checklist.append(ChecklistItem(message, check))"""
         self.checklist.append(ChecklistItem(message, list(args)))
 
-    def make_item_from_emmet(self, message: str, emmet_str: str):
+    def make_item_from_emmet(self, message: str, *emmets: Union[str, Emmet]):
         """Create a new ChecklistItem, the check will compare the submission to the emmet expression.
             The emmet expression is seen as the minimal required elements/attributes, so the submission may contain more
             or equal elements"""
         from utils.emmet import emmet_to_check
-        self.make_item(message, emmet_to_check(emmet_str, self))
+
+        emmet_checks = []
+
+        # Add multiple emmet checks under one main item
+        for e in emmets:
+            emmet_checks.append(emmet_to_check(e, self))
+
+        self.make_item(message, *emmet_checks)
 
     def validate_html(self, allow_warnings: bool = True) -> Check:
         """Check that the HTML is valid
@@ -820,7 +831,7 @@ class TestSuite:
 
         return Check(_inner)
 
-    def element(self, tag: Optional[str] = None, index: int = 0, from_root: bool = False, **kwargs) -> Element:
+    def element(self, tag: Optional[Union[str, Emmet]] = None, index: int = 0, from_root: bool = False, **kwargs) -> Element:
         """Create a reference to an HTML element
         :param tag:         the name of the HTML tag to search for
         :param index:       in case multiple elements match, specify which should be chosen
@@ -834,7 +845,7 @@ class TestSuite:
 
         return Element(element.name, kwargs.get("id", None), element, self._css_validator)
 
-    def all_elements(self, tag: Optional[str] = None, from_root: bool = False, **kwargs) -> ElementContainer:
+    def all_elements(self, tag: Optional[Union[str, Emmet]] = None, from_root: bool = False, **kwargs) -> ElementContainer:
         """Get references to ALL HTML elements that match a query"""
         if match_emmet(tag):
             elements = find_emmet(self._bs, tag, 0, from_root=from_root, match_multiple=True, **kwargs)

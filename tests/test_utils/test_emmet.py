@@ -13,7 +13,7 @@ def do(emmet, document) -> bool:
     ).callback(BeautifulSoup(document, "html.parser"))
 
 
-class TestCompareContent(unittest.TestCase):
+class TestEmmet(unittest.TestCase):
 
     def test_child(self):
         doc = """
