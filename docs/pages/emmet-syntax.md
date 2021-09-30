@@ -11,7 +11,7 @@ _**This method supports Emmet Syntax through the [PARAMETER] parameter**_
 
 Furthermore, these parameters will be typehinted as `param: Union[str, Emmet]`, to further indicate that this argument can use Emmet Syntax. An `Emmet` is nothing more than a `string`, so don't worry about doing anything special to it. Any `string` will work just fine, this is just a type annotation.
 
-> Note: the `index` and `kwargs` parameters passed into the `find` methods are still allowed, but will only be applied to the _**last**_ element from the query. The path will always take priority when clashing, so if the query itself ends with an index (eg. `table>tr[3]`) then this index will be used instead of the parameter.
+> Note: the `index` and `kwargs` parameters passed into the `find` methods are still allowed, but will only be applied to the _**last**_ element from the query. The path will always take priority when clashing, so if the query itself ends with an index (e.g. `table>tr[3]`) then this index will be used instead of the parameter.
 
 ## Table of Contents
 - [Basics of Emmet Syntax](#basics-of-emmet-syntax)
@@ -138,7 +138,7 @@ This method creates (and adds) a `ChecklistItem` by parsing your Emmet-string in
 
 **Note**: these examples use more advanced Emmet Syntax found in the [official documentation](https://docs.emmet.io/abbreviations/syntax/).
 
-### Signature
+#### Signature
 
 ```python
 def make_item_from_emmet(message: , emmet_str: Union[str, Emmet])
