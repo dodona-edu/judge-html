@@ -4,6 +4,11 @@ from validators.checks import TestSuite, Element, all_of, EmptyElement, Check
 
 def emmet_to_check(emmet_str: str, suite: TestSuite) -> Check:
     """Converts an emmet expression to a Check"""
+
+    # item numbering is not allowed, as it interferes with multiplications
+    if "$" in emmet_str:
+        return EmptyElement().exists()
+
     parsed = emmet.parse_markup_abbreviation(emmet_str)
 
     def make_params(node):
@@ -18,9 +23,7 @@ def emmet_to_check(emmet_str: str, suite: TestSuite) -> Check:
     def match_one(ls: [], node):
         """when ls contains more than one item, it makes the right selection
             if ls is empty, it returns an EmptyElement (which will result in a failing Check)&"""
-        if len(ls) == 1:
-            return ls[0], node
-        elif node.repeat:
+        if node.repeat:
             if node.repeat.value < len(ls):
                 return ls[node.repeat.value], node
             else:
