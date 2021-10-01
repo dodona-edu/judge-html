@@ -78,6 +78,10 @@ class Element:
 
     def _get_attribute(self, attr: str) -> Optional[str]: ...
 
+    def _compare_attribute_list(self, attribute: List[str], value: Optional[str] = None,
+                                case_insensitive: bool = False,
+                                mode: int = 0, flags: Union[int, RegexFlag] = 0) -> bool: ...
+
     def attribute_exists(self, attr: str, value: Optional[str] = ..., case_insensitive: bool = ...) ->Check:
         """Check that this element has a given attribute, optionally matching a specific value."""
         ...
