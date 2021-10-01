@@ -831,6 +831,17 @@ class TestSuite:
 
         return Check(_inner)
 
+    def has_doctype(self) -> Check:
+        """Check if the document starts with <!DOCTYPE HTML"""
+        def _inner(_: BeautifulSoup) -> bool:
+            # Do NOT use the BS Doctype for this, because it repairs
+            # incorrect/broken HTML which invalidates this function
+
+            # Has to be the first non-empty line, and is not case sensitive
+            return self.content.lstrip().lower().startswith("<!doctype html")
+
+        return Check(_inner)
+
     def element(self, tag: Optional[Union[str, Emmet]] = None, index: int = 0, from_root: bool = False, **kwargs) -> Element:
         """Create a reference to an HTML element
         :param tag:         the name of the HTML tag to search for

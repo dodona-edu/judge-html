@@ -235,6 +235,10 @@ class TestSuite:
         """Check if the document contains a comment, optionally matching a value."""
         ...
 
+    def has_doctype(self) -> Check:
+        """Check if the document has a DOCTYPE tag, optionally matching a value"""
+        ...
+
     def element(self, tag: Optional[Union[str, Emmet]] = ..., from_root: bool = ..., **kwargs) -> Element:
         """Create a reference to an HTML element. Supports Emmet syntax through the tag parameter."""
         ...
