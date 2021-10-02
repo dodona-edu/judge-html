@@ -10,4 +10,10 @@ class TestRegexes(unittest.TestCase):
         self.assertIsNotNone(regex.search("<!-- Comment -->\n<!DOCTYPE HTML>\n"))
         self.assertIsNotNone(regex.search("<!-- https:// something comment -->\n\n<!-- more comments --><!DOCTYPE HTML>\n"))
         self.assertIsNotNone(regex.search("<!DOCTYPE HTML>\n<html..."))
+        self.assertIsNotNone(regex.search("""
+        <!-- 
+            multiline comment
+        --><!--another comment with an > inside of it -->
+        <!--comment--><!doctype html><html></html>
+        """))
         self.assertIsNone(regex.search("<html lang='en'></html>"))
