@@ -15,6 +15,7 @@ from dodona.translator import Translator
 from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
 from exceptions.html_exceptions import Warnings, LocatableHtmlValidationError
 from exceptions.utils import EvaluationAborted
+from utils.regexes import doctype_re
 from utils.html_navigation import find_child, compare_content, match_emmet, find_emmet, contains_comment
 from validators.css_validator import CssValidator, CssParsingError
 from validators.html_validator import HtmlValidator
@@ -884,9 +885,7 @@ class TestSuite:
         def _inner(_: BeautifulSoup) -> bool:
             # Do NOT use the BS Doctype for this, because it repairs
             # incorrect/broken HTML which invalidates this function
-
-            # Has to be the first non-empty line, and is not case sensitive
-            return self.content.lstrip().lower().startswith("<!doctype html")
+            return re.search(doctype_re.pattern, self.content, doctype_re.flags) is not None
 
         return Check(_inner)
 
