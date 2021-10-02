@@ -49,7 +49,11 @@ def main():
                 # compare(sol, html_content, config.translator)
                 suite = checks._CompareSuite(html_content, solution, config)
                 test_suites = [suite]
-
+        except FileNotFoundError:
+            # solution.html is missing
+            missing_evaluator_file(config.translator)
+            invalid_suites(judge, config)
+            return
         except NotImplementedError:
             # Evaluator.py file doesn't implement create_suites
             missing_create_suite(config.translator)
