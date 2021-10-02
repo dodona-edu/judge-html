@@ -78,6 +78,10 @@ class Element:
 
     def _get_attribute(self, attr: str) -> Optional[str]: ...
 
+    def _compare_attribute_list(self, attribute: List[str], value: Optional[str] = None,
+                                case_insensitive: bool = False,
+                                mode: int = 0, flags: Union[int, RegexFlag] = 0) -> bool: ...
+
     def attribute_exists(self, attr: str, value: Optional[str] = ..., case_insensitive: bool = ...) ->Check:
         """Check that this element has a given attribute, optionally matching a specific value."""
         ...
@@ -233,6 +237,10 @@ class TestSuite:
 
     def contains_comment(self, comment: Optional[str] = None) -> Check:
         """Check if the document contains a comment, optionally matching a value."""
+        ...
+
+    def has_doctype(self) -> Check:
+        """Check if the document has a DOCTYPE tag, optionally matching a value"""
         ...
 
     def element(self, tag: Optional[Union[str, Emmet]] = ..., from_root: bool = ..., **kwargs) -> Element:

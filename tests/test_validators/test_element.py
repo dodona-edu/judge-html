@@ -1,3 +1,4 @@
+import re
 import unittest
 from tests.helpers import UnitTestSuite
 
@@ -52,6 +53,17 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(img_element.attribute_exists("src")))
         self.assertFalse(suite.check(img_element.attribute_exists("width")))
 
+        # Lists
+        suite = UnitTestSuite("class_names")
+        body_element = suite.element("body")
+        div_element = body_element.get_child("div")
+
+        self.assertFalse(suite.check(body_element.attribute_exists("class")))
+        self.assertTrue(suite.check(div_element.attribute_exists("class")))
+        self.assertTrue(suite.check(div_element.attribute_exists("class", "SOMETHING")))
+        self.assertTrue(suite.check(div_element.attribute_exists("class", "something", case_insensitive=True)))
+        self.assertFalse(suite.check(div_element.attribute_exists("class", "something else")))
+
     def test_attribute_contains(self):
         suite = UnitTestSuite("test_1")
         body_element = suite.element("body")
@@ -61,6 +73,17 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(img_element.attribute_contains("src", "DODONA", case_insensitive=True)))
         self.assertFalse(suite.check(img_element.attribute_contains("src", "google.com")))
 
+        # Lists
+        suite = UnitTestSuite("class_names")
+        body_element = suite.element("body")
+        div_element = body_element.get_child("div")
+
+        self.assertFalse(suite.check(body_element.attribute_contains("class", "text")))
+        self.assertTrue(suite.check(div_element.attribute_contains("class", "SO")))
+        self.assertFalse(suite.check(div_element.attribute_contains("class", "so")))
+        self.assertFalse(suite.check(div_element.attribute_contains("class", "something else")))
+        self.assertTrue(suite.check(div_element.attribute_contains("class", "so", case_insensitive=True)))
+
     def test_attribute_matches(self):
         suite = UnitTestSuite("test_1")
         body_element = suite.element("body")
@@ -68,6 +91,16 @@ class TestElement(unittest.TestCase):
 
         self.assertTrue(suite.check(img_element.attribute_matches("src", r"^https://.*dodona.ugent.be.*.png$")))
         self.assertFalse(suite.check(img_element.attribute_matches("src", r"^www.ufora.ugent.be.*.mp3$")))
+
+        # Lists
+        suite = UnitTestSuite("class_names")
+        body_element = suite.element("body")
+        div_element = body_element.get_child("div")
+
+        self.assertFalse(suite.check(body_element.attribute_matches("class", r"[0-9]")))
+        self.assertTrue(suite.check(div_element.attribute_matches("class", r"^[A-Z]+$")))
+        self.assertTrue(suite.check(div_element.attribute_matches("class", r"^[a-z]+$")))
+        self.assertTrue(suite.check(div_element.attribute_matches("class", r"^[a-zA-Z]+$", flags=re.IGNORECASE)))
 
     def test_has_table_header(self):
         suite = UnitTestSuite("submission_example")

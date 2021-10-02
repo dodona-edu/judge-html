@@ -197,8 +197,9 @@ class DodonaCommandWithAccepted(DodonaCommand):
 
     def handle_dodona_exception(self, exception: DodonaException) -> bool:
         """update the accepted parameter based on the exception status"""
-        accepted = exception.status["enum"] == ErrorType.CORRECT or exception.status["enum"] == ErrorType.CORRECT_ANSWER
-        self.close_args.accepted = accepted
+        if not hasattr(self.close_args, "accepted"):
+            accepted = exception.status["enum"] == ErrorType.CORRECT or exception.status["enum"] == ErrorType.CORRECT_ANSWER
+            self.close_args.accepted = accepted
 
         return super().handle_dodona_exception(exception)
 

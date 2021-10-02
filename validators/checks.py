@@ -15,6 +15,7 @@ from dodona.translator import Translator
 from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
 from exceptions.html_exceptions import Warnings, LocatableHtmlValidationError
 from exceptions.utils import EvaluationAborted
+from utils.regexes import doctype_re
 from utils.html_navigation import find_child, compare_content, match_emmet, find_emmet, contains_comment
 from validators.css_validator import CssValidator, CssParsingError
 from validators.html_validator import HtmlValidator
@@ -237,7 +238,7 @@ class Element:
 
         return Check(_inner)
 
-    def _get_attribute(self, attr: str) -> Optional[str]:
+    def _get_attribute(self, attr: str) -> Optional[Union[List[str], str]]:
         """Internal function that gets an attribute"""
         if self._element is None:
             return None
@@ -245,6 +246,45 @@ class Element:
         attribute = self._element.get(attr.lower())
 
         return attribute
+
+    def _compare_attribute_list(self, attribute: List[str], value: Optional[str] = None,
+                                case_insensitive: bool = False,
+                                mode: int = 0, flags: Union[int, re.RegexFlag] = 0) -> bool:
+        """Attribute check for attributes that contain lists (eg. Class). Can handle all 3 modes.
+        0: exact match (exists)
+        1: substring (contains)
+        2: regex match (matches)
+        """
+        # Attribute doesn't exist
+        if not attribute:
+            return False
+
+        # Any value is good enough
+        if value is None:
+            return True
+
+        if case_insensitive:
+            value = value.lower()
+            attribute = list(map(lambda x: x.lower(), attribute))
+
+        # Exact match
+        if mode == 0:
+            return value in attribute
+
+        # Contains substring
+        if mode == 1:
+            return any(value in v for v in attribute)
+
+        # Match regex
+        if mode == 2:
+            for v in attribute:
+                if re.search(value, v, flags) is not None:
+                    return True
+
+            return False
+
+        # Possible future modes
+        return False
 
     def attribute_exists(self, attr: str, value: Optional[str] = None, case_insensitive: bool = False) -> Check:
         """Check that this element has the required attribute, optionally with a value
@@ -259,6 +299,9 @@ class Element:
             # Attribute wasn't found
             if attribute is None:
                 return False
+
+            if isinstance(attribute, list):
+                return self._compare_attribute_list(attribute, value, case_insensitive, mode=0)
 
             # No value specified
             if value is None:
@@ -281,6 +324,9 @@ class Element:
             if attribute is None:
                 return False
 
+            if isinstance(attribute, list):
+                return self._compare_attribute_list(attribute, substr, case_insensitive, mode=1)
+
             if case_insensitive:
                 return substr.lower() in attribute.lower()
 
@@ -297,6 +343,9 @@ class Element:
             # Attribute wasn't found
             if attribute is None:
                 return False
+
+            if isinstance(attribute, list):
+                return self._compare_attribute_list(attribute, regex, mode=2, flags=flags)
 
             return re.search(regex, attribute, flags) is not None
 
@@ -828,6 +877,15 @@ class TestSuite:
         """Check if the document contains a comment, optionally matching a value"""
         def _inner(_: BeautifulSoup) -> bool:
             return contains_comment(self._bs, comment)
+
+        return Check(_inner)
+
+    def has_doctype(self) -> Check:
+        """Check if the document starts with <!DOCTYPE HTML"""
+        def _inner(_: BeautifulSoup) -> bool:
+            # Do NOT use the BS Doctype for this, because it repairs
+            # incorrect/broken HTML which invalidates this function
+            return re.search(doctype_re.pattern, self.content, doctype_re.flags) is not None
 
         return Check(_inner)
 

@@ -16,6 +16,7 @@ A `TestSuite` contains a checklist of all checks that should be performed on the
   - [`validate_html`](#validate_html)
   - [`contains_comment`](#contains_comment)
   - [`document_matches`](#document_matches)
+  - [`has_doctype`](#has_doctype)
 
 ## Attributes
 
@@ -328,4 +329,21 @@ suite = TestSuite("HTML", content)
 
 pattern = r".*<[^>]+/>.*"
 self_closing = ChecklistItem("The document contains at least one self-closing tag.", suite.document_matches(pattern))
+```
+
+### `has_doctype`
+
+Check that the document has the `<!DOCTYPE html>` declaration. This declaration is **not** case sensitive and must always be at the first non-empty line.
+
+#### Signature
+```python
+def has_doctype() -> Check
+```
+
+#### Example usage
+
+```python
+suite = TestSuite("HTML", "<!DOCTYPE html>")
+
+has_doctype = ChecklistItem("The document has the correct DOCTYPE declaration.", suite.has_doctype())
 ```
