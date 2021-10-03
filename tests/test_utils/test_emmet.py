@@ -56,7 +56,7 @@ class TestEmmet(unittest.TestCase):
             </div>
             <blockquote></blockquote>
         """
-        self.assertTrue(do("div+div>p>span+em^^^blockquote", doc), "I fail")
+        self.assertTrue(do("div+div>p>span+em^^^blockquote", doc))
 
     def test_multiplication(self):
         doc = """
@@ -146,3 +146,32 @@ class TestEmmet(unittest.TestCase):
         """
         self.assertTrue(do("body>table>tr", doc))
         self.assertFalse(do("body>table>tr*2", doc))
+        doc = """
+                    <body>
+                        <table>
+                            <tr>
+                                <td>test</td>
+                            </tr>
+                            <tr></tr>                            
+                        </table>
+                    </body>
+                """
+        self.assertTrue(do("body>table>tr*2", doc))
+        self.assertFalse(do("body>table>tr*3", doc))
+
+    def test_dummy(self):
+        doc = """
+        <html lang='en'>
+        <body>
+            <div></div>
+            <div>azjoansdvniuenvlivz</div>
+        </body>
+        </html>
+        """
+
+        self.assertTrue(do("html[lang='en']", doc))
+        self.assertTrue(do("html[lang='dummY']", doc))
+        self.assertTrue(do('html[lang="en"]', doc))
+        self.assertTrue(do('html[lang="DUMMY"]', doc))
+        self.assertTrue(do("body>div[1]", doc))
+        self.assertTrue(do("body>div{DUMMY}", doc))
