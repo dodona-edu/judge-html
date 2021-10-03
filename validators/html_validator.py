@@ -161,6 +161,13 @@ class HtmlValidator(HTMLParser):
         if "style" in attributes:
             self.error(InvalidAttributeError(translator=self.translator, tag_location=self.tag_stack,
                                              position=self.getpos(), tag=tag, attribute="style"))
+
+        # id's may not contain spaces
+        if "id" in attributes and any(whitespace in attributes["id"] for whitespace in [" ", "\t", "\n"]):
+            self.error(
+                AttributeValueError(self.translator, self.tag_stack, self.getpos(),
+                                    self.translator.translate(Translator.Text.NO_WHITESPACE, attr='id')))
+
         # Unique id's
         if 'id' in attributes:
             if attributes['id'] in self._id_set:
@@ -168,18 +175,14 @@ class HtmlValidator(HTMLParser):
             else:
                 self._id_set.add(attributes['id'])
 
-        # id's and classnames may not contain spaces and must be at least one character
+        # id's and classnames must be at least one character
         for attr in ["id", "class"]:
             if attr in attributes:
-                attr_id = attributes[attr]
-                if not attr_id:
+                attr_val = attributes[attr]
+                if not attr_val:
                     self.error(
                         AttributeValueError(self.translator, self.tag_stack, self.getpos(),
                                             self.translator.translate(Translator.Text.AT_LEAST_ONE_CHAR, attr=attr)))
-                if ' ' in attr_id:
-                    self.error(
-                        AttributeValueError(self.translator, self.tag_stack, self.getpos(),
-                                            self.translator.translate(Translator.Text.NO_WHITESPACE, attr=attr)))
 
         # check src attribute for absolute filepaths
         if 'src' in attributes:
