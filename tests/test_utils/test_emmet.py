@@ -164,7 +164,7 @@ class TestEmmet(unittest.TestCase):
         <html lang='en'>
         <body>
             <div></div>
-            <div></div>
+            <div>azjoansdvniuenvlivz</div>
         </body>
         </html>
         """
@@ -174,3 +174,4 @@ class TestEmmet(unittest.TestCase):
         self.assertTrue(do('html[lang="en"]', doc))
         self.assertTrue(do('html[lang="DUMMY"]', doc))
         self.assertTrue(do("body>div[1]", doc))
+        self.assertTrue(do("body>div{DUMMY}", doc))
