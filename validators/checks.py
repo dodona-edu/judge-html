@@ -858,8 +858,8 @@ class TestSuite:
             try:
                 compare(solution, self.content, translator, **kwargs)
             except NotTheSame as err:
-                with Annotation(err.line, str(err)):
-                    with Message(str(err)):
+                with Message(str(err)):
+                    with Annotation(err.line, str(err)):
                         return False
             return True
 
@@ -1073,14 +1073,10 @@ class _CompareSuite(HtmlSuite):
         params = {"attributes": getattr(config, "attributes", False),
                   "minimal_attributes": getattr(config, "minimal_attributes", False),
                   "contents": getattr(config, "contents", False)}
-        if abort:
-            self._default_checks.append(
-                ChecklistItem("The submission resembles the solution.",
-                              self.compare_to_solution(solution, config.translator, **params).or_abort()))
-        else:
-            self._default_checks.append(
-                ChecklistItem("The submission resembles the solution.",
-                              self.compare_to_solution(solution, config.translator, **params)))
+
+        self._default_checks.append(
+            ChecklistItem("The submission resembles the solution.",
+                          self.compare_to_solution(solution, config.translator, **params)))
         # Translations
         self._default_translations["en"].append("The submission resembles the solution.")
         self._default_translations["nl"].append("De ingediende code lijkt op die van de oplossing.")
