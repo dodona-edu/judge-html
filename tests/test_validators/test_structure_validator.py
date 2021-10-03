@@ -69,3 +69,7 @@ class TestHtmlValidator(unittest.TestCase):
     def test_children_differ(self):
         with self.assertRaises(NotTheSame):
             compare(self.base, self.base.replace('</table>', '</table><p>BOE</p>'), self.translator, contents=True)
+
+    def test_empty_sub(self):
+        with self.assertRaises(NotTheSame):
+            compare(self.base, "        ", self.translator)

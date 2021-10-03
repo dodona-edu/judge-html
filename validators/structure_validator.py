@@ -30,6 +30,9 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
 
     the submission html should be valid html
     """
+    if not submission.strip():
+        raise NotTheSame(trans.translate(Translator.Text.EMPTY_SUBMISSION), 0, trans)
+
     # structure is always checked
     check_attributes = kwargs.get("attributes", False)
     check_minimal_attributes = kwargs.get("minimal_attributes", False)
