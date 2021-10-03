@@ -20,6 +20,7 @@ def emmet_to_check(emmet_str: str, suite: TestSuite) -> Check:
             for a in node.attributes:
                 if a.name.isdigit():
                     # this is a n-th tag selector, like div[2]
+                    # we will do this in the match_one function
                     pass
                 else:
                     val = " ".join(a.value)
@@ -31,7 +32,9 @@ def emmet_to_check(emmet_str: str, suite: TestSuite) -> Check:
                         out.update({a.name: " ".join(a.value)})
         if node.value:
             val = " ".join(node.value)
-            if val.strip().upper() != "DUMMY":
+            if val.strip().upper() == "DUMMY":
+                out.update({"text": True})
+            else:
                 out.update({"text": " ".join(node.value)})
         return out
 
