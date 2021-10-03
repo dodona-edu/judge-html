@@ -1,4 +1,5 @@
-import emmet
+from emmet import parse_markup_abbreviation, AbbreviationAttribute, AbbreviationNode
+
 from validators.checks import TestSuite, Element, all_of, EmptyElement, Check
 
 
@@ -9,29 +10,42 @@ def emmet_to_check(emmet_str: str, suite: TestSuite) -> Check:
     if "$" in emmet_str:
         return EmptyElement().exists()
 
-    parsed = emmet.parse_markup_abbreviation(emmet_str)
+    parsed = parse_markup_abbreviation(emmet_str)
 
-    def make_params(node):
+    def make_params(node: AbbreviationNode):
         """convert attributes & text to a dict"""
         out = {}
         if node.attributes:
-            out.update({attribute.name: " ".join(attribute.value) for attribute in node.attributes})
+            a: AbbreviationAttribute
+            for a in node.attributes:
+                if a.name.isdigit():
+                    # this is a n-th tag selector, like div[2]
+                    pass
+                else:
+                    val = " ".join(a.value)
+                    if val.strip().upper() == "DUMMY":
+                        # dummy values
+                        out.update({a.name: True})
+                    else:
+                        # normal values, this is a list
+                        out.update({a.name: " ".join(a.value)})
         if node.value:
-            out.update({"text": " ".join(node.value)})
+            val = " ".join(node.value)
+            if val.strip().upper() != "DUMMY":
+                out.update({"text": " ".join(node.value)})
         return out
 
-    def match_one(ls: [], node):
+    def match_one(ls: [Element], node: AbbreviationNode):
         """when ls contains more than one item, it makes the right selection
             if ls is empty, it returns an EmptyElement (which will result in a failing Check)&"""
+        if not ls:
+            return EmptyElement(), node
         if node.repeat:
             if node.repeat.value < len(ls):
                 return ls[node.repeat.value], node
             else:
                 return EmptyElement(), node
-        elif ls:
-            return ls[0], node
-        else:
-            return EmptyElement(), node
+        return ls[0], node
 
     ls = []
     # the roots (plural because of possible siblings)
