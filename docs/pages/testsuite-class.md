@@ -138,7 +138,9 @@ root_div = suite.element("div", index=2)
 
 ##### Example 4: Specify which one using `kwargs`
 
-Extra filters, such as id's, classes and attributes, can be passed as _kwargs_. You can pass as many filters as you want to.
+Extra filters, such as id's (`id`), classes (`class_`) and attributes, can be passed as _kwargs_. You can pass as many filters as you want to. Remember that values should always be `strings`.
+
+For `class`es, as "class" is a built-in keyword in Python, use `class_` with an **underscore** after it (`element(class_="some_value")`).
 
 The example below shows how to get the `<tr>` with id `row_one`, and the `<th>` with attribute `colspan` equal to `2`.
 
@@ -165,8 +167,6 @@ suite = TestSuite("HTML", content)
 tr_one = suite.element("tr", id="row_one")
 th_colspan = suite.element("th", colspan="2")
 ```
-
-Remember that values should be `strings`. **For `class`es, as "class" is a built-in keyword in Python, use `class_` with an **underscore** after it (`element(class_="some_value")`).**
 
 ##### Example 5: Attribute with any value
 
