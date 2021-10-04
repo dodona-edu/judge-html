@@ -80,7 +80,7 @@ suite = TestSuite("HTML", content)
 html_tag = suite.element("html")
 ```
 
-##### Example 2: Only search in children of root node (from_root)
+##### Example 2: Only search in children of root node (`from_root`)
 
 Searching will start from the root element, and work in a breadth-first way recursively. In case you want to disable this and only search children of the root node, you can pass `from_root=True` into the function.
 
@@ -106,7 +106,7 @@ suite = TestSuite("HTML", content)
 root_div = suite.element("div", from_root=True)
 ```
 
-##### Example 3: specify which one with index
+##### Example 3: Specify which one with `index`
 
 In case multiple elements were matched, you can specify which one should be chosen using the `index` parameter.
 
@@ -136,9 +136,9 @@ suite = TestSuite("HTML", content)
 root_div = suite.element("div", index=2)
 ```
 
-##### Example 4: Specify which one using kwargs
+##### Example 4: Specify which one using `kwargs`
 
-Extra filters, such as id's and attributes, can be passed as _kwargs_. You can pass as many filters as you want to.
+Extra filters, such as id's, classes and attributes, can be passed as _kwargs_. You can pass as many filters as you want to.
 
 The example below shows how to get the `<tr>` with id `row_one`, and the `<th>` with attribute `colspan` equal to `2`.
 
@@ -166,11 +166,15 @@ tr_one = suite.element("tr", id="row_one")
 th_colspan = suite.element("th", colspan="2")
 ```
 
-Remember that values should be `strings`.
+Remember that values should be `strings`. **For `class`es, as "class" is a built-in keyword in Python, use `class_` with an **underscore** after it (`element(class_="some_value")`).**
 
-In case an attribute only has to *exist*, and the value doesn't matter, set the value to `True`. In the example above, this would mean that you request the students have at least one `<th>` with a `colspan` attribute, no matter how big it may be. The code for this would be `suite.element("th", colspan=True)`
+##### Example 5: Attribute with any value
 
-For `class`es, as "class" is a built-in keyword in Python, use `class_` with an **underscore** after it (`element(class_="some_value")`).
+In case an attribute only has to *exist*, and the value doesn't matter, set the value to `True`. In the example above, this would mean that you request the students have at least one `<th>` with a `colspan` attribute, no matter how big it may be. The code for this would be: 
+
+```python
+th_any_colspan = suite.element("th", colspan=True)
+```
 
 ## `all_elements()` : Referencing multiple HTML elements
 
