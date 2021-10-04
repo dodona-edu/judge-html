@@ -48,8 +48,7 @@ def get_child(tag: Optional[str] = None, index: int = 0, direct: bool = True, **
 :----------|:-------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------|
 | `tag`    | The tag to search for, if necessary.                                                                                                                   |           | `None`, which won't filter based on tags. |
 | `index`  | In case multiple children match your query, choose which match should be chosen. If the index goes out of range, an empty element is returned instead. |           | `0` (first match)                         |
-| `direct` | Boolean that indicates only *
-direct* children should be searched, so not nested elements.                                                              |           | `True`                                  |
+| `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements.                                                              |           | `True`                                  |
 
 Extra `kwargs` can be passed to filter the results down even more. For example, to find the child with a given `id`
 use `get_child(tag, id="some_id")`. For `class`es, as "class" is a built-in keyword in Python, use `class_` with an **
