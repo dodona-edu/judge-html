@@ -13,13 +13,13 @@ This class is **not** meant for you to instantiate manually, but instances are r
   - [`attribute_contains()`](#attribute_contains)
   - [`attribute_exists()`](#attribute_exists)
   - [`attribute_matches()`](#attribute_matches)
-  - [`contains_comment()`](#contains_comment)
   - [`exists()`](#exists)
   - [`has_child()`](#has_child)
   - [`has_content()`](#has_content)
   - [`has_tag()`](#has_tag)
   - [`has_outgoing_url()`](#has_outgoing_url)
   - [`has_url_with_fragment()`](#has_url_with_fragment)
+  - [`contains_comment()`](#contains_comment)
   - [`no_loose_text()`](#no_loose_text)
 - [CSS-related methods](#css-related-methods)
   - [`has_styling()`](#has_styling)
@@ -45,8 +45,8 @@ def get_child(tag: Optional[str] = None, index: int = 0, direct: bool = True, **
 
 | Name     | Description                                                                                                                                            | Required? | Default                                 |
 :----------|:-------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------|
-| `tag`    | The tag to search for, if necessary.                                                                                                                   |           | None, which won't filter based on tags. |
-| `index`  | In case multiple children match your query, choose which match should be chosen. If the index goes out of range, an empty element is returned instead. |           | 0 (first match)                         |
+| `tag`    | The tag to search for, if necessary.                                                                                                                   |           | `None`, which won't filter based on tags. |
+| `index`  | In case multiple children match your query, choose which match should be chosen. If the index goes out of range, an empty element is returned instead. |           | `0` (first match)                         |
 | `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements.                                                              |           | `True`                                  |
 
 Extra `kwargs` can be passed to filter the results down even more. For example, to find the child with a given `id` use `get_child(tag, id="some_id")`. For `class`es, as "class" is a built-in keyword in Python, use `class_` with an **underscore** after it (`get_child(class_="some_value")`).
@@ -78,7 +78,7 @@ def get_children(tag: Optional[str] = None, direct: bool = True, **kwargs) -> El
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
-| `tag` | The tag to search for. | | None, which won't filter based on tags. |
+| `tag` | The tag to search for. | | `None`, which won't filter based on tags. |
 | `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements. | | `True` |
 
 Extra `kwargs` can be passed to filter the results down even more. For example, to find all children with a given `attribute` use `get_children(attribute="some_value")`. For `class`es, as "class" is a built-in keyword in Python, use `class_` with an **underscore** after it (`get_children(class_="some_value")`).
@@ -143,7 +143,7 @@ def attribute_exists(attr: str, value: Optional[str] = None, case_insensitive: b
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
 | `attribute`        | The attribute to check for. | ✔ | |
-| `value`            | The value to compare against. | | None, which will make any value pass. This means the check only makes sure the attribute *exists*. |
+| `value`            | The value to compare against. | | `None`, which will make any value pass. This means the check only makes sure the attribute *exists*. |
 | `case_insensitive` | Indicate that the casing of the value does not matter when checking. | | `False` |
 
 #### Example usage
@@ -177,7 +177,7 @@ def attribute_matches(attr: str, regex: str, flags: Union[int, re.RegexFlag] = 0
 |:-----|:------------|:---------:|:--------|
 | `attribute` | The attribute to check for.                               |  ✔ |                                      |
 | `regex`     | The regex pattern to match the attribute's value against. |  ✔ |                                      |
-| `flags`     | Extra `RegexFlag`s to use when comparing.                 |    | 0, meaning no flags will be applied. |
+| `flags`     | Extra `RegexFlag`s to use when comparing.                 |    | `0`, meaning no flags will be applied. |
 
 #### Example usage
 
@@ -195,34 +195,7 @@ img_attributes = ChecklistItem("The image has the correct attributes.", [
 ])
 ```
 
-### `contains_comment()`
 
-Check if there is a comment inside of this element, optionally with an exact value. Not passing a value will make any comment pass the check.
-
-#### Signature
-
-```python
-def contains_comment(comment: Optional[str] = None) -> Check
-```
-
-#### Parameters
-
-| Name | Description | Required? | Default |
-|:-----|:------------|:---------:|:--------|
-| `comment` | The value to look for. |  | None, which will accept any comment. |
-
-#### Example usage
-
-```python
-suite = HtmlSuite(content)
-body = suite.element("body")
-
-# Check if the body contains at least one comment
-body.contains_comment()
-
-# Check if the body contains a comment that says "Example"
-body.contains_comment("Example")
-```
 
 ### `exists()`
 
@@ -303,7 +276,7 @@ def has_content(text: Optional[str] = None) -> Check
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
-| text | The text to compare the element's content to. |           | None, which will make any content pass and just checks if the content is not empty. |
+| text | The text to compare the element's content to. |           | `None`, which will make any content pass and just checks if the content is not empty. |
 
 #### Example usage
 
@@ -371,7 +344,7 @@ def has_outgoing_url(allowed_domains: Optional[List[str]] = None) -> Check
 
 | Name      | Description                                     | Required? | Default                                           |
 |:----------|:------------------------------------------------|:---------:|:--------------------------------------------------|
-| allowed_domains  | An optional list of domains that should *not* be considered "outgoing". |           | None, which will default to `["dodona.ugent.be", "users.ugent.be"]`.|
+| allowed_domains  | An optional list of domains that should *not* be considered "outgoing". |           | `None`, which will default to `["dodona.ugent.be", "users.ugent.be"]`.|
 
 #### Example usage
 
@@ -401,7 +374,7 @@ def has_url_with_fragment(fragment: Optional[str] = None) -> Check
 
 | Name      | Description                                     | Required? | Default                                           |
 |:----------|:------------------------------------------------|:---------:|:--------------------------------------------------|
-| fragment  | An optional fragment that should match exactly. |           | None, which will make any non-empty fragment pass.|
+| fragment  | An optional fragment that should match exactly. |           | `None`, which will make any non-empty fragment pass.|
 
 #### Example usage
 
@@ -412,6 +385,35 @@ body = suite.element("body")
 a_tag = body.get_child("a", href=True)
 
 a_tag.has_url_with_fragment()
+```
+
+### `contains_comment()`
+
+Check if there is a comment inside of this element, optionally with an exact value. Not passing a value will make any comment pass the check.
+
+#### Signature
+
+```python
+def contains_comment(comment: Optional[str] = None) -> Check
+```
+
+#### Parameters
+
+| Name | Description | Required? | Default |
+|:-----|:------------|:---------:|:--------|
+| `comment` | The value to look for. |  | `None`, which will accept any comment. |
+
+#### Example usage
+
+```python
+suite = HtmlSuite(content)
+body = suite.element("body")
+
+# Check if the body contains at least one comment
+body.contains_comment()
+
+# Check if the body contains a comment that says "Example"
+body.contains_comment("Example")
 ```
 
 ### `no_loose_text()`
@@ -452,8 +454,8 @@ def has_styling(self, prop: str, value: Optional[str] = None, important: Optiona
 | Name      | Description                                                                                               | Required? | Default                                                                                       |
 |:----------|:----------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------------------------------------------------------------|
 | prop      | The name of the CSS property to look for.                                                                 |     ✔     |                                                                                               |
-| value     | A value to match the property against.                                                                    |           | None, which will make any value pass and only checks if the element has this style property.  |
-| important | A boolean indicating that this element should (or may not be) marked as important using **`!important`**. |           | None, which won't check this.                                                                 |
+| value     | A value to match the property against.                                                                    |           | `None`, which will make any value pass and only checks if the element has this style property.  |
+| important | A boolean indicating that this element should (or may not be) marked as important using **`!important`**. |           | `None`, which won't check this.                                                                 |
 
 #### Example usage
 
@@ -486,7 +488,7 @@ def has_color(prop: str, color: str, important: Optional[bool] = None) -> Check
 |:----------|:-----------------------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------------------------------------------------------------|
 | attr      | The name of the CSS attribute to look for.                                                                             |     ✔     |                                                                                               |
 | value     | A value to match the property against. This value may be in any of the accepted formats: `name`, `rgb`, `rgba`, `hex`. |     ✔     |                                                                                               |
-| important | A boolean indicating that this element should (or may not be) marked as important using **`!important`**.              |           | None, which won't check this.                                                                 |
+| important | A boolean indicating that this element should (or may not be) marked as important using **`!important`**.              |           | `None`, which won't check this.                                                                 |
 
 #### Example usage
 
