@@ -21,7 +21,7 @@ def create_suites(content: str) -> List[TestSuite]:
 
 <details>
  <summary>Check for validity with own instance of TestSuite</summary>
-When using an instance of `TestSuite`, this means it is required to check for validity at least _once_. In order to do this, the `validate_html` and `validate_css` checks can be used.
+When using an instance of <code>TestSuite</code>, this means it is required to check for validity at least <i>once</i>. In order to do this, the <code>validate_html</code> and <code>validate_css</code> checks can be used.
 
 ```python
 from validators.checks import TestSuite, ChecklistItem
@@ -40,7 +40,6 @@ def create_suites(content: str) -> List[TestSuite]:
     return [suite]
 ```
 </details>
-
 
 
 ## Dodona CSS artifacts
