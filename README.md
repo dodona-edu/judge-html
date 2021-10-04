@@ -4,21 +4,21 @@
 
 * Checklist (correct, fail, warning, error)
 * Feedback in language of user (Dutch or English)
-* HTML (and CSS) render of student submission
+* HTML and CSS render of student submission
 * Support for partial exercises (exercises that focus on one tag)
 * Elaborate [feedback](#feedback)
 * Two evaluation methods:
-  1. [**Comparison mode**](#quick-start-guide-for-comparison-mode-with-solutionhtml) with `solution.html` file (fast and easy, [limited configuration options](#optional-evaluation-settings-in-configjson))
+  1. [**Comparison mode**](#quick-start-guide-for-comparison-mode-with-solutionhtml) with `solution.html` file (fast, easy, [limited configuration options](#optional-evaluation-settings-in-configjson))
   2. [**Checklist mode**](#quick-start-guide-for-checklist-mode-with-evaluatorpy) with `evaluator.py` (a lot of flexibility, support for [Emmet syntax](https://docs.emmet.io/abbreviations/syntax/))
 
 ### Judge properties
 
-* Tags are case-insensitive
-* Inline CSS is not allowed (internal CSS is)
-* `<script>` and `<noscript>` tag are not allowed
-* Self-closing (non-void) tags are not allowed (e.g. `<p/>`, `<div/>`)
-* Default TestSuite for HTML and/or CSS (in different tabs with automatic validation)
-* Absolute file paths are not allowed
+* Tags are case-insensitive.
+* Inline CSS is not allowed (internal CSS is).
+* `<script>` and `<noscript>` tag are not allowed.
+* Self-closing (non-void) tags are not allowed (e.g. `<p/>`, `<div/>`).
+* Default TestSuite for HTML and/or CSS (in different tabs with automatic validation).
+* Absolute file paths are not allowed.
 
 ## Feedback
 
@@ -26,13 +26,13 @@
 
 * Syntax errors
   * Check if brackets/quotes open and close (`(`, `<`, `{`, `[`, `'`, `"`)
-  * Each tag that opens must have a corresponding closing tag
+  * Each tag that opens must have a corresponding closing tag.
   * Checks if all tags are valid
 * Check if all id's are unique
 
 ### HTML
-* Check if required attributes are present
-* Warning if recommended attributes are missing
+* Check if required attributes are present.
+* Warning if recommended attributes are missing.
 
 ### CSS
 * Automatic color conversion (`name`, `#RRGGBB`, `rgb(R,G,B)`, `rgb(R%,G%,B%)`, `#RGB`, `hsl(H,S%,L%)`, `rgba(R,G,B,a)`, `rgba(R%,G%,B%,a)`, `hsla(H,S%,L%,a)`)
@@ -53,7 +53,7 @@
 
 > [More info about repository directory structure](https://docs.dodona.be/en/references/repository-directory-structure/#example-of-a-valid-repository-structure)
 
-Add your solution (`solution.html` file) to the **`evaluation`** folder. Absolute necessary files are marked with `▶` in the tree structure below.
+Add your solution/evaluator file (`solution.html` for comparison mode or `evaluator.py` for checklist mode) to the **`evaluation`** folder. Absolute necessary files are marked with `▶` in the tree structure below.
 
 ```text
 +-- README.md                            # Optional: Describes the repository
@@ -122,12 +122,10 @@ Add your solution (`solution.html` file) to the **`evaluation`** folder. Absolut
     "html"
   ],
   "evaluation": {
-    "handler": "html"
+    "handler": "judge-html"
   }
 }
 ````
-
-
 
 
 ## Quick start guide for **comparison mode** (with `solution.html`)

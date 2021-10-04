@@ -11,7 +11,7 @@ Remember that these are still `TestSuite`s, so you can still **add your own Chec
 
 ## `HtmlSuite`
 
-The `HtmlSuite` will automatically create a TestSuite called "HTML", and add a `ChecklistItem` for `HTML` validation (along with the translations for this item).
+The `HtmlSuite` will automatically create a TestSuite called "HTML", and add a `ChecklistItem` for **HTML** validation (along with the translations for this item).
 
 ### Attributes
 
@@ -20,7 +20,7 @@ The `HtmlSuite` will automatically create a TestSuite called "HTML", and add a `
 | `content` | A string that contains the student's submission. This is passed as an argument into the `create_suites` method. |  ✔  |  |
 | `check_recommended` | <a id="check-recommended-image"/> A boolean that indicates if the student should see warnings about missing recommended attributes.<br /><br /><img src="../media/warnings-dodona.png" alt="image: warnings on Dodona."> These warnings do **not** cause their submission to be marked incorrect, and are purely informational.<br /><br /> | | `True` |
 | `allow_warnings` | Boolean that indicates that the check should *not* be marked incorrect if any warnings arise. |  | `True` |
-| `abort` | Boolean that indicates that testing should abort (and all future checks should be marked incorrect) when validation fails. This is default True, because you usually don't want to keep evaluating an exercise if the code isn't valid. |  | `True` |
+| `abort` | Boolean that indicates that testing should abort (and all future checks should be marked incorrect) when validation fails. This is default `True`, because you usually don't want to keep evaluating an exercise if the code isn't valid. |  | `True` |
 
 #### Example usage
 
@@ -67,7 +67,7 @@ def create_suites(content: str) -> List[TestSuite]:
 
 ## `CssSuite`
 
-The `CssSuite` will automatically create a TestSuite called "CSS", and add `ChecklistItem`s for `HTML` and `CSS` validation (along with the translations for those items).
+The `CssSuite` will automatically create a TestSuite called "CSS", and add `ChecklistItem`s for **HTML** and **CSS** validation (along with the translations for those items).
 
 ### Attributes
 
@@ -76,7 +76,7 @@ The `CssSuite` will automatically create a TestSuite called "CSS", and add `Chec
 | `content` | A string that contains the student's submission. This is passed as an argument into the `create_suites` method. |  ✔  |  |
 | `check_recommended` | <a id="check-recommended-image"/> A boolean that indicates if the student should see warnings about missing recommended attributes.<br /><br /><img src="../media/warnings-dodona.png" alt="image: warnings on Dodona."> These warnings do **not** cause their submission to be marked incorrect, and are purely informational.<br /><br /> | | `True` |
 | `allow_warnings` | Boolean that indicates that the check should *not* be marked incorrect if any warnings arise. |  | `True` |
-| `abort` | Boolean that indicates that testing should abort (and all future checks should be marked incorrect) when validation fails. This is default True, because you usually don't want to keep evaluating an exercise if the code isn't valid. |  | `True` |
+| `abort` | Boolean that indicates that testing should abort (and all future checks should be marked incorrect) when validation fails. This is default `True`, because you usually don't want to keep evaluating an exercise if the code isn't valid. |  | `True` |
 
 #### Example usage
 

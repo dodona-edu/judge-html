@@ -9,12 +9,12 @@ All evaluators should follow a strict interface: the file should always be calle
 - `evaluator.py` should contain a `create_suites` function.
 - This function should take a `string`, being the student's submission, and return a `list` of `TestSuite`s.
 - The `list` should contain **at least one** `TestSuite`.
-- The file should import `validators` directly, without any packages above it. To do this, we recommend placing the library at the **root** of your project in which you write the evaluators.
+- The file should import the library `validators` directly, without any packages above it. For autocomplete you need to add the folder `validator` with the [`checks.pyi`](../../validators/checks.pyi) file at the root of your project in which you write the evaluators.
 - **Important: do NOT add `print()`s in your evaluator!** The Judge communicates with Dodona using console output, and printing your own things here will cause exceptions because Dodona can't parse them.
 
 The fragment below contains the [boilerplate](https://en.wikipedia.org/wiki/Boilerplate_code) to make an evaluator:
 
-> `evaluator.py`
+> `evaluator.py` (Python 3.9+ recommended)
 >
 > ```python
 > from typing import List

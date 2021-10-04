@@ -7,9 +7,9 @@
 
 All `find_*` methods support `Emmet Syntax`, which allows you to perform search queries in a (**much**) shorter way. This comes in handy when you want to quickly find a deeply-nested element along a very specific path. This document aims to first explain this syntax, and then provide a few examples to show how it works (and to show how much shorter it can be). The methods will always display the character count, to show you that `Emmet Syntax` is always **almost twice** as compact (and for more complex cases, even more than that).
 
-To indicate that a specific method supports this, all of them have the following line underneath their header in their respective documentation: 
+To indicate that a specific method supports this, it's added to the type hint and all of them have the following line underneath their header in their respective documentation: 
 
-_**This method supports Emmet Syntax through the [PARAMETER] parameter**_
+_**This method supports Emmet Syntax through the [PARAMETER] parameter.**_
 
 Furthermore, these parameters will be typehinted as `param: Union[str, Emmet]`, to further indicate that this argument can use Emmet Syntax. An `Emmet` is nothing more than a `string`, so don't worry about doing anything special to it. Any `string` will work just fine, this is just a type annotation.
 
@@ -17,11 +17,11 @@ Furthermore, these parameters will be typehinted as `param: Union[str, Emmet]`, 
 
 ## Table of Contents
 - [Basics of Emmet Syntax](#basics-of-emmet-syntax)
-    - [Finding nested elements](#finding-nested-elements)
-    - [Specifying indexes](#specifying-indexes)
-    - [Specifying id's](#specifying-ids)
-    - [Specifying class names](#specifying-class-names)
-- [Creating Checks using Emmet Syntax](#creating-checks-using-emmet-syntax)  
+    - [Finding nested elements with `>`](#finding-nested-elements-with-)
+    - [Specifying indexes with `[ ]`](#specifying-indexes-with--)
+    - [Specifying id's with `#`](#specifying-ids-with-)
+    - [Specifying class names with `.`](#specifying-class-names-with-)
+- [`make_item_from_emmet()` : Creating Checks using Emmet Syntax](#make_item_from_emmet--creating-checks-using-emmet-syntax)  
     - [Signature](#signature)
     - [Parameters](#parameters)
     - [Examples](#examples)
@@ -36,7 +36,7 @@ Furthermore, these parameters will be typehinted as `param: Union[str, Emmet]`, 
 
 Before we dive in, a `tag` is still referenced by its name. `element("div")` is valid. If you want to include a tag name in your path, **it should _always_ be in the beginning**.
 
-### Finding nested elements
+### Finding nested elements with `>`
 
 To indicate that an element should contain another, use the `>` symbol (from left to right).
 
@@ -58,7 +58,7 @@ div_element = suite.element("html", from_root=True)
 div_element = suite.element("html>body>div>table>tr>td>div", from_root=True)
 ```
 
-### Specifying indexes
+### Specifying indexes with `[ ]`
 
 By default, the first match will always be chosen for every step. To specify that the `n-th` match should be used, you may do so by adding the index between square brackets **at the end of the step**.
 
@@ -80,7 +80,7 @@ div_element = suite.element("table>tr[0]>td[3]>div[2]", from_root=False)
 div_element = suite.element("table>tr>td[3]>div[2]", from_root=False)
 ```
 
-### Specifying id's
+### Specifying id's with `#`
 
 To filter down based on id's, you can specify an id by adding a hashtag (`#`) in front of it.
 
@@ -105,7 +105,7 @@ div_element = suite.element("body>#example")
 div_element = suite.element("body>div", id="example")
 ```
 
-### Specifying class names
+### Specifying class names with `.`
 
 Class names can be specified by adding a dot (`.`) in front of them, and multiple class names in a row are **allowed**.
 
@@ -132,7 +132,7 @@ div_element = suite.element("table")
 div_element = suite.element("table>tr.tr-example>td.ex-1.ex-2")
 ```
 
-## Creating Checks using Emmet Syntax
+## `make_item_from_emmet()` : Creating Checks using Emmet Syntax
 
 You can, however, use Emmet Syntax for more than just finding elements. The `checks` library also supports creating `Checks` using this syntax, which can be accomplished via the `TestSuite.make_item_from_emmet()` method.
 
