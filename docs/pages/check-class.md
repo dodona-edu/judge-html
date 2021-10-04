@@ -6,11 +6,11 @@ It is important to note that the Check class uses a `fluent interface`, meaning 
 
 ## Table of Contents
 
-- [`or_abort`](#or_abort)
-- [`is_crucial`](#is_crucial)
-- [`then`](#then)
+- [`or_abort()`](#or_abort)
+- [`is_crucial()`](#is_crucial)
+- [`then()`](#then)
 
-## `or_abort`
+## `or_abort()`
 
 This function will cause the check's TestSuite to **stop** evaluating, and cause **all future checks to fail**. This should be used in case a first check is a necessary requirement for the following checks to succeed.
 
@@ -44,11 +44,11 @@ html_valid = ChecklistItem("The HTML is valid.", suite.validate_html().or_abort(
 table_exists = ChecklistItem("The document has a table.", table_element.exists())
 ```
 
-## `is_crucial`
+## `is_crucial()`
 
 This is an alias to [`or_abort`](#or_abort), and can be used in the exact same way.
 
-## `then`
+## `then()`
 
 This function registers one or more checks that should *only* run if the current check succeeds.
 
