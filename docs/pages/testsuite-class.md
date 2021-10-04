@@ -2,7 +2,7 @@
 
 A `TestSuite` contains a checklist of all checks that should be performed on the student's code. An exercise is only marked as correct once every check in every `TestSuite` has passed.
 
-**Note**: There are a few built-in implementations of TestSuites that already handle some common behaviour for you automatically. We strongly recommend you to take a look at these, as you will most likely use these in almost every exercise. Creating an instance of `TestSuite` should only be done when you don't want any behaviour such as `validation`. See [`Default TestSuites`](default-suites.md) for more information.
+**Note**: There are a few built-in implementations of TestSuites that already handle some common behaviour for you automatically. We strongly recommend you to take a look at these, as you will most likely use these in almost every exercise. Creating an instance of `TestSuite` should only be done when you don't want any behaviour such as `validation`. See **[Default TestSuites](default-suites.md)** for more information.
 
 ## Table of Contents
 - [Attributes](#attributes)
