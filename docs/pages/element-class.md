@@ -544,7 +544,7 @@ table_element.has_table_header(header)
 
 ## `table_row_has_content()`
 
-This method checks if an `Element` with tag `tr` has the required content. This is the same as [`Element.has_table_content`](#elementhas_table_content) but for one row, and applied on a `<tr>` instead of a `<table>`.
+This method checks if an `Element` with tag `tr` has the required content. This is the same as [`has_table_content()`](#has_table_content) but for one row, and applied on a `<tr>` instead of a `<table>`.
 
 #### Signature
 

@@ -11,7 +11,7 @@ To indicate that a specific method supports this, it's added to the type hint an
 
 _**This method supports Emmet Syntax through the [PARAMETER] parameter.**_
 
-Furthermore, these parameters will be typehinted as `param: Union[str, Emmet]`, to further indicate that this argument can use Emmet Syntax. An `Emmet` is nothing more than a `string`, so don't worry about doing anything special to it. Any `string` will work just fine, this is just a type annotation.
+Furthermore, these parameters will be type hinted as `param: Union[str, Emmet]`, to further indicate that this argument can use Emmet Syntax. An `Emmet` is nothing more than a `string`, so don't worry about doing anything special to it. Any `string` will work just fine, this is just a type annotation.
 
 > Note: the `index` and `kwargs` parameters passed into the `find` methods are still allowed, but will only be applied to the _**last**_ element from the query. The path will always take priority when clashing, so if the query itself ends with an index (e.g. `table>tr[3]`) then this index will be used instead of the parameter.
 
