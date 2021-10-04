@@ -57,9 +57,9 @@ def element(tag: Optional[str] = None, index: int = 0, from_root: bool = False, 
 
 | Name     | Description                                                                                                                                            | Required? | Default                                 |
 :----------|:-------------------------------------------------------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------|
-| `tag`    | The tag to search for.                                                                                                                                  |           | None, which won't filter based on tags. |
-| `index`  | In case multiple children match your query, choose which match should be chosen. If the index goes out of range, an empty element is returned instead. |           | 0 (first match)                         |
-| `from_root` | Boolean that indicates only children of the root element should be searched.                                                                        |           | False                                   |
+| `tag`    | The tag to search for.                                                                                                                                  |           | `None`, which won't filter based on tags. |
+| `index`  | In case multiple children match your query, choose which match should be chosen. If the index goes out of range, an empty element is returned instead. |           | `0` (first match)                         |
+| `from_root` | Boolean that indicates only children of the root element should be searched.                                                                        |           | `False`                                   |
 
 #### Example usage
 
@@ -138,7 +138,7 @@ root_div = suite.element("div", index=2)
 
 ##### Example 4: Specify which one using `kwargs`
 
-Extra filters, such as id's (`id`), classes (`class_`) and attributes, can be passed as _kwargs_. You can pass as many filters as you want to. Remember that values should always be `strings`.
+Extra filters, such as id's (`id`), classes (`class_`) and attributes (e.g. `colspan`, `href`), can be passed as _kwargs_. You can pass as many filters as you want to. Remember that values should always be `strings`.
 
 For `class`es, as "class" is a built-in keyword in Python, use `class_` with an **underscore** after it (`element(class_="some_value")`).
 
@@ -180,7 +180,7 @@ th_any_colspan = suite.element("th", colspan=True)
 
 **This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter.**
 
-In case you want to get a list of all elements (optionally matching filters), use `suite.all_elements` instead. This method takes the exact same arguments as `elements`, and thus the same filters can be applied.
+In case you want to get a list of all elements (optionally matching filters), use `suite.all_elements()` instead. This method takes the exact same arguments as `elements()`, and thus the same filters can be applied.
 
 Note that this method returns an instance of `ElementContainer`, which can be used like a regular Python `list`. More info on `ElementContainer`s can be found in the respective [documentation page](elementcontainer-class.md).
 
@@ -189,11 +189,11 @@ Note that this method returns an instance of `ElementContainer`, which can be us
 def all_elements(self, tag: Optional[Union[str, Emmet]] = ..., from_root: bool = ..., **kwargs) -> ElementContainer:
 ```
 
-## Adding items to the checklist
+## `add_item()` and `make_item()` : Adding and making checklist items
 
 In order to add `ChecklistItem`s, you can either set the entire checklist at once, or add separate `ChecklistItem`s one by one.
 
-Adding items one by one can either be done by adding them to the internal checklist (`TestSuite.checklist.append(item)`) or by using the shortcuts `TestSuite.add_item(item)` and `TestSuite.make_item(message, checks)`. Just like the constructor of `ChecklistItem`, `make_check` can take both a variable amount of `Checks` and a `List` of `Check`s.
+Adding items one by one can either be done by adding them to the internal checklist (`TestSuite.checklist.append(item)`) or by using the shortcuts `TestSuite.add_item(item)` and `TestSuite.make_item(message, checks)`. `make_item()` can take a variable amount of `Check`s.
 
 If you want to add a `ChecklistItem` by comparing the submission to an emmet expression, you can use `TestSuite.make_item_from_emmet(message, emmet_str)`.
 You can find more documentation about the Emmet Syntax [here](emmet-syntax.md).
