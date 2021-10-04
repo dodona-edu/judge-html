@@ -53,9 +53,7 @@ def get_child(tag: Optional[Union[str, Emmet]] = None, index: int = 0, direct: b
 | `index`  | In case multiple children match your query, choose which match should be chosen. If the index goes out of range, an empty element is returned instead. |           | `0` (first match)                         |
 | `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements.                                                              |           | `True`                                  |
 
-Extra `kwargs` can be passed to filter the results down even more. For example, to find the child with a given `id`
-use `get_child(tag, id="some_id")`. For `class`es, as "class" is a built-in keyword in Python, use `class_` with an **
-underscore** after it (`get_child(class_="some_value")`).
+Extra `kwargs` can be passed to filter the results down even more. For example, to find the child with a given `id` use `get_child(tag, id="some_id")`. For `class`es, as "class" is a built-in keyword in Python, use `class_` with an **underscore** after it (`get_child(class_="some_value")`).
 
 #### Example usage
 
@@ -92,9 +90,7 @@ def get_children(tag: Optional[Union[str, Emmet]] = None, direct: bool = True, *
 | `tag` | The tag to search for. | | `None`, which won't filter based on tags. |
 | `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements. | | `True` |
 
-Extra `kwargs` can be passed to filter the results down even more. For example, to find all children with a
-given `attribute` use `get_children(attribute="some_value")`. For `class`es, as "class" is a built-in keyword in Python,
-use `class_` with an **underscore** after it (`get_children(class_="some_value")`).
+Extra `kwargs` can be passed to filter the results down even more. For example, to find all children with a given `attribute` use `get_children(attribute="some_value")`. For `class`es, as "class" is a built-in keyword in Python, use `class_` with an **underscore** after it (`get_children(class_="some_value")`).
 
 #### Example usage
 
@@ -115,9 +111,7 @@ students to pass the exercise. All of these methods return an instance of the `C
 
 ### `attribute_contains()`
 
-Check that this element has a given attribute, and that the attribute contains a substring. If the element doesn't
-exist, this check will fail as well. This means it's *not* required to use `attribute_exists`
-before `attribute_contains`.
+Check that this element has a given attribute, and that the attribute contains a substring. If the element doesn't exist, this check will fail as well. This means it's *not* required to use `attribute_exists` before `attribute_contains`.
 
 #### Signature
 
@@ -181,8 +175,7 @@ img_attributes = ChecklistItem("The image has the correct attributes.", [
 
 ### `attribute_matches()`
 
-Check if an attribute exists, and if its value matches a regular expression. If the element doesn't exist, this check
-will fail as well. This means it's *not* required to use `attribute_exists` before `attribute_matches`.
+Check if an attribute exists, and if its value matches a regular expression. If the element doesn't exist, this check will fail as well. This means it's *not* required to use `attribute_exists` before `attribute_matches`.
 
 #### Signature
 
