@@ -9,8 +9,8 @@ A `TestSuite` contains a checklist of all checks that should be performed on the
 - [`TestSuites` on Dodona](#testsuites-on-dodona)
 - [`element()` : Referencing (specific) HTML elements](#element--referencing-specific-html-elements)
 - [`all_elements()` : Referencing multiple HTML elements](#all_elements--referencing-multiple-html-elements)
-- [Adding items to the checklist](#adding-items-to-the-checklist)
-- [Adding multiple languages](#adding-multiple-languages)
+- [`add_item()` and `make_item()` : Adding and making checklist items](#add_item-and-make_item--adding-and-making-checklist-items)
+- [`suite.translations` : Adding multiple languages](#adding-multiple-languages)
 - [Built-in Checks](#built-in-checks)
   - [`validate_css()`](#validate_css)
   - [`validate_html()`](#validate_html)
@@ -220,7 +220,7 @@ suite.make_item("Item 3", check1, check2, check3)
 suite.make_item_from_emmet("Item 4", "body>div#mydiv")
 ```
 
-## Adding multiple languages
+## `suite.translations` : Adding multiple languages
 
 It's possible that your course might have students from different countries, and you'd like to give feedback in more than one language. You can do this by using the `translations` attribute.
 
