@@ -7,15 +7,15 @@ A `TestSuite` contains a checklist of all checks that should be performed on the
 ## Table of Contents
 - [Attributes](#attributes)
 - [`TestSuites` on Dodona](#testsuites-on-dodona)
-- [Referencing (specific) HTML elements](#referencing-specific-html-elements)
-- [Referencing multiple HTML elements](#referencing-multiple-html-elements)
+- [`element()` : Referencing (specific) HTML elements](#element-referencing-specific-html-elements)
+- [`all_elements()` : Referencing multiple HTML elements](#all_elements-referencing-multiple-html-elements)
 - [Adding items to the checklist](#adding-items-to-the-checklist)
 - [Adding multiple languages](#adding-multiple-languages)
 - [Built-in Checks](#built-in-checks)
-  - [`validate_css`](#validate_css)
-  - [`validate_html`](#validate_html)
-  - [`contains_comment`](#contains_comment)
-  - [`document_matches`](#document_matches)
+  - [`validate_css()`](#validate_css)
+  - [`validate_html()`](#validate_html)
+  - [`contains_comment()`](#contains_comment)
+  - [`document_matches()`](#document_matches)
 
 ## Attributes
 
@@ -42,7 +42,7 @@ def create_suites(content: str):
 
 The image also shows a `1` next to the **HTML** tab, indicating that 1 test failed. This instantly allows users to see which part of their code caused the exercise to be incorrect, and which parts are already finished.
 
-## Referencing (specific) HTML elements
+## `element()`: Referencing (specific) HTML elements
 
 **This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter**
 
@@ -164,7 +164,7 @@ In case an attribute only has to *exist*, and the value doesn't matter, set the 
 
 For `class`es, as "class" is a built-in keyword in Python, use `class_` with an **underscore** after it (`element(class_="some_value")`).
 
-## Referencing multiple HTML elements
+## `all_elements()` : Referencing multiple HTML elements
 
 **This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter**
 
@@ -237,7 +237,7 @@ In case the supplied list of translations is shorter than the checklist, the che
 
 The `TestSuite` class comes with a few Checks that you can use, and they are documented below. More Checks can be found in different classes.
 
-### `validate_css`
+### `validate_css()`
 
 Check that the code between the `<style>`-tag of the submission is valid CSS. If no style tag is present, this Check will also pass.
 
@@ -252,7 +252,7 @@ suite = TestSuite("CSS", content)
 css_valid = ChecklistItem("The CSS is valid.", suite.validate_css())
 ```
 
-### `validate_html`
+### `validate_html()`
 
 Check that the student's submitted code is valid HTML without syntax errors. The errors will not be reported to the student as to not reveal the answer.
 
@@ -275,7 +275,7 @@ suite = TestSuite("HTML", content)
 html_valid = ChecklistItem("The HTML is valid.", suite.validate_html())
 ```
 
-### `contains_comment`
+### `contains_comment()`
 
 Check if there is a comment inside of this document, optionally with an exact value. Not passing a value will make any comment pass the check.
 
@@ -302,7 +302,7 @@ suite.contains_comment()
 suite.contains_comment("Example")
 ```
 
-### `document_matches`
+### `document_matches()`
 
 Check that the student's submitted code matches a `regex string`.
 
