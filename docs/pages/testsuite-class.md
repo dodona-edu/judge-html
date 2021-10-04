@@ -16,6 +16,7 @@ A `TestSuite` contains a checklist of all checks that should be performed on the
   - [`validate_html()`](#validate_html)
   - [`contains_comment()`](#contains_comment)
   - [`document_matches()`](#document_matches)
+  - [`has_doctype`](#has_doctype)
 
 ## Attributes
 
@@ -50,7 +51,7 @@ You can get a specific HTML element by tag using `suite.element(tag)` in the for
 
 #### Signature
 ```python
-def element(tag: Optional[str] = None, index: int = 0, from_root: bool = False, **kwargs) -> Element
+def element(tag: Optional[Union[str, Emmet]] = None, index: int = 0, from_root: bool = False, **kwargs) -> Element
 ```
 
 #### Parameters
@@ -218,6 +219,9 @@ suite.make_item("Item 3", check1, check2, check3)
 
 # Adding a ChecklistItem from an emmet expression
 suite.make_item_from_emmet("Item 4", "body>div#mydiv")
+
+# Just like make_item, this can take multiple arguments that will be grouped under one ChecklistItem
+suite.make_item_from_emmet("Item 5", "body>div#mydiv", "body>table>tr*4", "body>.classname", ...)
 ```
 
 ## `suite.translations` : Adding multiple languages
@@ -340,4 +344,21 @@ suite = TestSuite("HTML", content)
 
 pattern = r".*<[^>]+/>.*"
 self_closing = ChecklistItem("The document contains at least one self-closing tag.", suite.document_matches(pattern))
+```
+
+### `has_doctype`
+
+Check that the document has the `<!DOCTYPE html>` declaration. This declaration is **not** case sensitive and must always be at the first non-empty line.
+
+#### Signature
+```python
+def has_doctype() -> Check
+```
+
+#### Example usage
+
+```python
+suite = TestSuite("HTML", "<!DOCTYPE html>")
+
+has_doctype = ChecklistItem("The document has the correct DOCTYPE declaration.", suite.has_doctype())
 ```

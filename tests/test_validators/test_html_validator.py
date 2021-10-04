@@ -120,6 +120,7 @@ class TestHtmlValidator(unittest.TestCase):
         self.setup(False, False, False)
         # correct
         self.validator.validate_content("<img src='image.jpg'>")
+        self.validator.validate_content("<body class='t e s t'></body>")
         # incorrect
         with self.assertRaises(AttributeValueError):
             self.validator.validate_content("<body id=''></body>")
@@ -128,7 +129,7 @@ class TestHtmlValidator(unittest.TestCase):
         with self.assertRaises(AttributeValueError):
             self.validator.validate_content("<body class=''></body>")
         with self.assertRaises(AttributeValueError):
-            self.validator.validate_content("<body class='t e s t'></body>")
+            self.validator.validate_content("<body id='t e s t'></body>")
         with self.assertRaises(AttributeValueError):
             self.validator.validate_content("<img src='/home/q/Downloads/image.jpg'>")
 

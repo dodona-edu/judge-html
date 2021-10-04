@@ -49,7 +49,11 @@ def main():
                 # compare(sol, html_content, config.translator)
                 suite = checks._CompareSuite(html_content, solution, config)
                 test_suites = [suite]
-
+        except FileNotFoundError:
+            # solution.html is missing
+            missing_evaluator_file(config.translator)
+            invalid_suites(judge, config)
+            return
         except NotImplementedError:
             # Evaluator.py file doesn't implement create_suites
             missing_create_suite(config.translator)
@@ -98,6 +102,7 @@ def main():
 
         if aborted:
             judge.status = config.translator.error_status(ErrorType.RUNTIME_ERROR)
+            judge.accepted = False
         else:
             status = ErrorType.CORRECT_ANSWER if failed_tests == 0 else ErrorType.WRONG if failed_tests == 1 else ErrorType.WRONG_ANSWER
             judge.status = config.translator.error_status(status, amount=failed_tests)

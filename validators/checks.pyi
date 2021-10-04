@@ -2,12 +2,15 @@ from re import RegexFlag
 
 from bs4 import BeautifulSoup
 from bs4.element import Tag
-from typing import Callable, List, Optional, Union, Dict
+from typing import Callable, List, Optional, Union, Dict, TypeVar
 
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from validators.css_validator import CssValidator
 from validators.html_validator import HtmlValidator
+
+
+Emmet = TypeVar("Emmet", bound=str)
 
 
 class Check:
@@ -43,11 +46,11 @@ class Element:
 
     def __str__(self) -> str: ...
 
-    def get_child(self, tag: Optional[str] = ..., index: int = ..., direct: bool = ..., **kwargs) -> "Element":
+    def get_child(self, tag: Optional[Union[str, Emmet]] = ..., index: int = ..., direct: bool = ..., **kwargs) -> "Element":
         """This method finds a child element with tag tag, optionally with extra filters. Supports Emmet syntax through the tag parameter."""
         ...
 
-    def get_children(self, tag: Optional[str] = ..., direct: bool = ..., **kwargs) -> "ElementContainer":
+    def get_children(self, tag: Optional[Union[str, Emmet]] = ..., direct: bool = ..., **kwargs) -> "ElementContainer":
         """This method finds ALL child elements, optionally with tag tag and extra filters. Supports Emmet syntax through the tag parameter."""
         ...
 
@@ -74,6 +77,10 @@ class Element:
         ...
 
     def _get_attribute(self, attr: str) -> Optional[str]: ...
+
+    def _compare_attribute_list(self, attribute: List[str], value: Optional[str] = None,
+                                case_insensitive: bool = False,
+                                mode: int = 0, flags: Union[int, RegexFlag] = 0) -> bool: ...
 
     def attribute_exists(self, attr: str, value: Optional[str] = ..., case_insensitive: bool = ...) ->Check:
         """Check that this element has a given attribute, optionally matching a specific value."""
@@ -202,7 +209,7 @@ class TestSuite:
         """Shortcut for suite.checklist.append(ChecklistItem(message, checks))"""
         ...
 
-    def make_item_from_emmet(self, message: str, emmet_str: str):
+    def make_item_from_emmet(self, message: str, *emmets: Union[str, Emmet]):
         """Create a new ChecklistItem, the check will compare the submission to the emmet expression.
             The emmet expression is seen as the minimal required elements/attributes, so the submission may contain more
             or equal elements"""
@@ -232,11 +239,15 @@ class TestSuite:
         """Check if the document contains a comment, optionally matching a value."""
         ...
 
-    def element(self, tag: Optional[str] = ..., from_root: bool = ..., **kwargs) -> Element:
+    def has_doctype(self) -> Check:
+        """Check if the document has a DOCTYPE tag, optionally matching a value"""
+        ...
+
+    def element(self, tag: Optional[Union[str, Emmet]] = ..., from_root: bool = ..., **kwargs) -> Element:
         """Create a reference to an HTML element. Supports Emmet syntax through the tag parameter."""
         ...
 
-    def all_elements(self, tag: Optional[str] = ..., from_root: bool = ..., **kwargs) -> ElementContainer:
+    def all_elements(self, tag: Optional[Union[str, Emmet]] = ..., from_root: bool = ..., **kwargs) -> ElementContainer:
         """Get references to ALL HTML elements that match a query. Supports Emmet syntax through the tag parameter."""
         ...
 

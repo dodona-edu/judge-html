@@ -42,7 +42,7 @@ This method finds a child element with tag `tag`, optionally with extra filters.
 #### Signature
 
 ```python
-def get_child(tag: Optional[str] = None, index: int = 0, direct: bool = True, **kwargs) -> Element
+def get_child(tag: Optional[Union[str, Emmet]] = None, index: int = 0, direct: bool = True, **kwargs) -> Element
 ```
 
 #### Parameters
@@ -82,7 +82,7 @@ of `ElementContainer`, which can be used as a list of elements.
 #### Signature
 
 ```python
-def get_children(tag: Optional[str] = None, direct: bool = True, **kwargs) -> ElementContainer
+def get_children(tag: Optional[Union[str, Emmet]] = None, direct: bool = True, **kwargs) -> ElementContainer
 ```
 
 #### Parameters

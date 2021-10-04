@@ -5,7 +5,7 @@ from bs4.element import Tag, Comment
 
 
 def match_emmet(tag: Optional[str]) -> bool:
-    return tag is not None and tag and re.match(r"^[a-zA-Z]+$", tag) is None
+    return tag is not None and tag and re.match(r"^[a-zA-Z0-9]+$", tag) is None
 
 
 def find_child(element: Optional[Union[BeautifulSoup, Tag]],
@@ -64,7 +64,7 @@ def find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, ind: int
         return None
 
     # Tag must always be in the beginning, otherwise we can't parse it out
-    tag_regex = re.compile(r"^[a-zA-Z]+")
+    tag_regex = re.compile(r"^[a-zA-Z0-9]+")
     id_regex = re.compile(r"#([a-zA-Z0-9_-]+)")
     index_regex = re.compile(r"\[(-?)([0-9]+)\]$")
 

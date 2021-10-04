@@ -2,12 +2,16 @@
 
 > _For more information, refer to the [official Emmet docs](https://docs.emmet.io/abbreviations/syntax/)._  
 > _For an overview, refer to the [official Emmet cheat sheet](https://docs.emmet.io/cheat-sheet/) or [unofficial Emmet cheat sheet](https://devhints.io/emmet)._
+>
+> _**Note that the `$` operator is not supported**_
 
 All `find_*` methods support `Emmet Syntax`, which allows you to perform search queries in a (**much**) shorter way. This comes in handy when you want to quickly find a deeply-nested element along a very specific path. This document aims to first explain this syntax, and then provide a few examples to show how it works (and to show how much shorter it can be). The methods will always display the character count, to show you that `Emmet Syntax` is always **almost twice** as compact (and for more complex cases, even more than that).
 
 To indicate that a specific method supports this, it's added to the type hint and all of them have the following line underneath their header in their respective documentation: 
 
 _**This method supports Emmet Syntax through the [PARAMETER] parameter.**_
+
+Furthermore, these parameters will be typehinted as `param: Union[str, Emmet]`, to further indicate that this argument can use Emmet Syntax. An `Emmet` is nothing more than a `string`, so don't worry about doing anything special to it. Any `string` will work just fine, this is just a type annotation.
 
 > Note: the `index` and `kwargs` parameters passed into the `find` methods are still allowed, but will only be applied to the _**last**_ element from the query. The path will always take priority when clashing, so if the query itself ends with an index (e.g. `table>tr[3]`) then this index will be used instead of the parameter.
 
@@ -139,7 +143,7 @@ This method creates (and adds) a `ChecklistItem` by parsing your Emmet-string in
 #### Signature
 
 ```python
-def make_item_from_emmet(message: str, emmet_str: str)
+def make_item_from_emmet(message: , emmet_str: Union[str, Emmet])
 ```
 
 ### Parameters

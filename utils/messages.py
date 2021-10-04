@@ -15,6 +15,7 @@ def invalid_suites(judge: SimpleNamespace, config: DodonaConfig):
         pass
 
     judge.status = config.translator.error_status(ErrorType.RUNTIME_ERROR)
+    judge.accepted = False
 
 
 def invalid_evaluator_file(exception: Exception):

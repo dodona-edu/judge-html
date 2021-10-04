@@ -3,7 +3,7 @@ import re
 from collections import deque
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Deque, List, Optional, Callable, Union, Dict
+from typing import Deque, List, Optional, Callable, Union, Dict, TypeVar
 from urllib.parse import urlsplit
 
 from bs4 import BeautifulSoup
@@ -15,9 +15,14 @@ from dodona.translator import Translator
 from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
 from exceptions.html_exceptions import Warnings, LocatableHtmlValidationError
 from exceptions.utils import EvaluationAborted
+from utils.regexes import doctype_re
 from utils.html_navigation import find_child, compare_content, match_emmet, find_emmet, contains_comment
 from validators.css_validator import CssValidator, CssParsingError
 from validators.html_validator import HtmlValidator
+
+
+# Emmet string type
+Emmet = TypeVar("Emmet", bound=str)
 
 
 @dataclass
@@ -101,7 +106,7 @@ class Element:
         return f"<{self.tag}>"
 
     # HTML utilities
-    def get_child(self, tag: Optional[str] = None, index: int = 0, direct: bool = True, **kwargs) -> "Element":
+    def get_child(self, tag: Optional[Union[str, Emmet]] = None, index: int = 0, direct: bool = True, **kwargs) -> "Element":
         """Find the child element that matches the specifications
 
         :param tag:     the tag to search for
@@ -116,7 +121,7 @@ class Element:
 
         return Element(child.name, child.get("id", None), child, self._css_validator)
 
-    def get_children(self, tag: Optional[str] = None, direct: bool = True, **kwargs) -> "ElementContainer":
+    def get_children(self, tag: Optional[Union[str, Emmet]] = None, direct: bool = True, **kwargs) -> "ElementContainer":
         """Get all children of this element that match the requested input"""
         # This element doesn't exist so it has no children
         if self._element is None:
@@ -233,7 +238,7 @@ class Element:
 
         return Check(_inner)
 
-    def _get_attribute(self, attr: str) -> Optional[str]:
+    def _get_attribute(self, attr: str) -> Optional[Union[List[str], str]]:
         """Internal function that gets an attribute"""
         if self._element is None:
             return None
@@ -241,6 +246,45 @@ class Element:
         attribute = self._element.get(attr.lower())
 
         return attribute
+
+    def _compare_attribute_list(self, attribute: List[str], value: Optional[str] = None,
+                                case_insensitive: bool = False,
+                                mode: int = 0, flags: Union[int, re.RegexFlag] = 0) -> bool:
+        """Attribute check for attributes that contain lists (eg. Class). Can handle all 3 modes.
+        0: exact match (exists)
+        1: substring (contains)
+        2: regex match (matches)
+        """
+        # Attribute doesn't exist
+        if not attribute:
+            return False
+
+        # Any value is good enough
+        if value is None:
+            return True
+
+        if case_insensitive:
+            value = value.lower()
+            attribute = list(map(lambda x: x.lower(), attribute))
+
+        # Exact match
+        if mode == 0:
+            return value in attribute
+
+        # Contains substring
+        if mode == 1:
+            return any(value in v for v in attribute)
+
+        # Match regex
+        if mode == 2:
+            for v in attribute:
+                if re.search(value, v, flags) is not None:
+                    return True
+
+            return False
+
+        # Possible future modes
+        return False
 
     def attribute_exists(self, attr: str, value: Optional[str] = None, case_insensitive: bool = False) -> Check:
         """Check that this element has the required attribute, optionally with a value
@@ -255,6 +299,9 @@ class Element:
             # Attribute wasn't found
             if attribute is None:
                 return False
+
+            if isinstance(attribute, list):
+                return self._compare_attribute_list(attribute, value, case_insensitive, mode=0)
 
             # No value specified
             if value is None:
@@ -277,6 +324,9 @@ class Element:
             if attribute is None:
                 return False
 
+            if isinstance(attribute, list):
+                return self._compare_attribute_list(attribute, substr, case_insensitive, mode=1)
+
             if case_insensitive:
                 return substr.lower() in attribute.lower()
 
@@ -293,6 +343,9 @@ class Element:
             # Attribute wasn't found
             if attribute is None:
                 return False
+
+            if isinstance(attribute, list):
+                return self._compare_attribute_list(attribute, regex, mode=2, flags=flags)
 
             return re.search(regex, attribute, flags) is not None
 
@@ -732,12 +785,19 @@ class TestSuite:
         This is a shortcut for suite.checklist.append(ChecklistItem(message, check))"""
         self.checklist.append(ChecklistItem(message, list(args)))
 
-    def make_item_from_emmet(self, message: str, emmet_str: str):
+    def make_item_from_emmet(self, message: str, *emmets: Union[str, Emmet]):
         """Create a new ChecklistItem, the check will compare the submission to the emmet expression.
             The emmet expression is seen as the minimal required elements/attributes, so the submission may contain more
             or equal elements"""
         from utils.emmet import emmet_to_check
-        self.make_item(message, emmet_to_check(emmet_str, self))
+
+        emmet_checks = []
+
+        # Add multiple emmet checks under one main item
+        for e in emmets:
+            emmet_checks.append(emmet_to_check(e, self))
+
+        self.make_item(message, *emmet_checks)
 
     def validate_html(self, allow_warnings: bool = True) -> Check:
         """Check that the HTML is valid
@@ -798,8 +858,8 @@ class TestSuite:
             try:
                 compare(solution, self.content, translator, **kwargs)
             except NotTheSame as err:
-                with Annotation(err.line, str(err)):
-                    with Message(str(err)):
+                with Message(str(err)):
+                    with Annotation(err.line, str(err)):
                         return False
             return True
 
@@ -820,7 +880,16 @@ class TestSuite:
 
         return Check(_inner)
 
-    def element(self, tag: Optional[str] = None, index: int = 0, from_root: bool = False, **kwargs) -> Element:
+    def has_doctype(self) -> Check:
+        """Check if the document starts with <!DOCTYPE HTML"""
+        def _inner(_: BeautifulSoup) -> bool:
+            # Do NOT use the BS Doctype for this, because it repairs
+            # incorrect/broken HTML which invalidates this function
+            return re.search(doctype_re.pattern, self.content, doctype_re.flags) is not None
+
+        return Check(_inner)
+
+    def element(self, tag: Optional[Union[str, Emmet]] = None, index: int = 0, from_root: bool = False, **kwargs) -> Element:
         """Create a reference to an HTML element
         :param tag:         the name of the HTML tag to search for
         :param index:       in case multiple elements match, specify which should be chosen
@@ -834,7 +903,7 @@ class TestSuite:
 
         return Element(element.name, kwargs.get("id", None), element, self._css_validator)
 
-    def all_elements(self, tag: Optional[str] = None, from_root: bool = False, **kwargs) -> ElementContainer:
+    def all_elements(self, tag: Optional[Union[str, Emmet]] = None, from_root: bool = False, **kwargs) -> ElementContainer:
         """Get references to ALL HTML elements that match a query"""
         if match_emmet(tag):
             elements = find_emmet(self._bs, tag, 0, from_root=from_root, match_multiple=True, **kwargs)
@@ -1004,14 +1073,10 @@ class _CompareSuite(HtmlSuite):
         params = {"attributes": getattr(config, "attributes", False),
                   "minimal_attributes": getattr(config, "minimal_attributes", False),
                   "contents": getattr(config, "contents", False)}
-        if abort:
-            self._default_checks.append(
-                ChecklistItem("The submission resembles the solution.",
-                              self.compare_to_solution(solution, config.translator, **params).or_abort()))
-        else:
-            self._default_checks.append(
-                ChecklistItem("The submission resembles the solution.",
-                              self.compare_to_solution(solution, config.translator, **params)))
+
+        self._default_checks.append(
+            ChecklistItem("The submission resembles the solution.",
+                          self.compare_to_solution(solution, config.translator, **params)))
         # Translations
         self._default_translations["en"].append("The submission resembles the solution.")
         self._default_translations["nl"].append("De ingediende code lijkt op die van de oplossing.")

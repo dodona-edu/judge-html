@@ -13,7 +13,7 @@ def do(emmet, document) -> bool:
     ).callback(BeautifulSoup(document, "html.parser"))
 
 
-class TestCompareContent(unittest.TestCase):
+class TestEmmet(unittest.TestCase):
 
     def test_child(self):
         doc = """
@@ -56,7 +56,7 @@ class TestCompareContent(unittest.TestCase):
             </div>
             <blockquote></blockquote>
         """
-        self.assertTrue(do("div+div>p>span+em^^^blockquote", doc), "I fail")
+        self.assertTrue(do("div+div>p>span+em^^^blockquote", doc))
 
     def test_multiplication(self):
         doc = """
@@ -116,58 +116,6 @@ class TestCompareContent(unittest.TestCase):
         """
         self.assertTrue(do("td[title='Hello world!' colspan=3]", doc))
 
-    def test_item_numbering(self):
-        doc = """
-            <ul>
-                <li class="item1"></li>
-                <li class="item2"></li>
-                <li class="item3"></li>
-                <li class="item4"></li>
-                <li class="item5"></li>
-            </ul>
-        """
-        self.assertTrue(do("ul>li.item$*5", doc))
-        doc = """
-            <ul>
-                <li class="item001"></li>
-                <li class="item002"></li>
-                <li class="item003"></li>
-                <li class="item004"></li>
-                <li class="item005"></li>
-            </ul>
-        """
-        self.assertTrue(do("ul>li.item$$$*5", doc))
-        doc = """
-            <ul>
-                <li class="item5"></li>
-                <li class="item4"></li>
-                <li class="item3"></li>
-                <li class="item2"></li>
-                <li class="item1"></li>
-            </ul>
-        """
-        self.assertTrue(do("ul>li.item$@-*5", doc))
-        doc = """
-            <ul>
-                <li class="item3"></li>
-                <li class="item4"></li>
-                <li class="item5"></li>
-                <li class="item6"></li>
-                <li class="item7"></li>
-            </ul>
-        """
-        self.assertTrue(do("ul>li.item$@3*5", doc))
-        doc = """
-            <ul>
-                <li class="item7"></li>
-                <li class="item6"></li>
-                <li class="item5"></li>
-                <li class="item4"></li>
-                <li class="item3"></li>
-            </ul>
-        """
-        self.assertTrue(do("ul>li.item$@-3*5", doc))
-
     def test_text(self):
         doc = """
             <a href="">Click me</a>
@@ -185,3 +133,45 @@ class TestCompareContent(unittest.TestCase):
             <p>Click <a href="">here</a> to continue</p>
         """
         self.assertTrue(do("p>{Click }+a{here}+{ to continue}", doc))
+
+    def test_table_rows(self):
+        doc = """
+            <body>
+                <table>
+                    <tr>
+                        <td>test</td>
+                    </tr>
+                </table>
+            </body>
+        """
+        self.assertTrue(do("body>table>tr", doc))
+        self.assertFalse(do("body>table>tr*2", doc))
+        doc = """
+                    <body>
+                        <table>
+                            <tr>
+                                <td>test</td>
+                            </tr>
+                            <tr></tr>                            
+                        </table>
+                    </body>
+                """
+        self.assertTrue(do("body>table>tr*2", doc))
+        self.assertFalse(do("body>table>tr*3", doc))
+
+    def test_dummy(self):
+        doc = """
+        <html lang='en'>
+        <body>
+            <div></div>
+            <div>azjoansdvniuenvlivz</div>
+        </body>
+        </html>
+        """
+
+        self.assertTrue(do("html[lang='en']", doc))
+        self.assertTrue(do("html[lang='dummY']", doc))
+        self.assertTrue(do('html[lang="en"]', doc))
+        self.assertTrue(do('html[lang="DUMMY"]', doc))
+        self.assertTrue(do("body>div[1]", doc))
+        self.assertTrue(do("body>div{DUMMY}", doc))

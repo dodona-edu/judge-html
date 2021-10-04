@@ -1,6 +1,6 @@
 import re
 import unittest
-from tests.helpers import html_loader
+from tests.helpers import html_loader, UnitTestSuite
 from validators.checks import TestSuite
 
 
@@ -17,3 +17,13 @@ class TestTestSuite(unittest.TestCase):
 
         # Check that the document starts with "<!doctype", but with the IGNORECASE flag
         self.assertTrue(suite.document_matches(r"^<!doctype", re.IGNORECASE).callback(suite._bs))
+
+    def test_doctype(self):
+        suite = TestSuite("", "<!DOCTYPE HTML>")
+        self.assertTrue(suite.has_doctype().callback(suite._bs))
+
+        suite = TestSuite("", "<!DOCTYPE>")
+        self.assertFalse(suite.has_doctype().callback(suite._bs))
+
+        suite = TestSuite("", "<!DOCTYPE somethingelse>")
+        self.assertFalse(suite.has_doctype().callback(suite._bs))
