@@ -20,8 +20,8 @@ def create_suites(content: str) -> List[TestSuite]:
 ```
 
 <details>
- <summary>Check for validity with own instance of TestSuite</summary>
-When using an instance of <code>TestSuite</code>, this means it is required to check for validity at least <i>once</i>. In order to do this, the <code>validate_html</code> and <code>validate_css</code> checks can be used.
+ <summary>Check for validity with own instance of <code>TestSuite</code></summary>
+When using an instance of <code>TestSuite</code>, this means it is required to check for validity at least <i>once</i>. In order to do this, the <code>validate_html</code> and <code>validate_css</code> checks can be used. <br>
 
 ```python
 from validators.checks import TestSuite, ChecklistItem
