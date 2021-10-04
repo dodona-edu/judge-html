@@ -319,7 +319,7 @@ suite.contains_comment("Example")
 
 ### `document_matches()`
 
-Check that the student's submitted code matches a `regex string`.
+Check that the student's submitted code matches a **regex string**.
 
 #### Signature
 ```python

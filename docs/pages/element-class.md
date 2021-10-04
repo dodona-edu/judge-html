@@ -7,28 +7,29 @@ This class is **not** meant for you to instantiate manually, but instances are r
 ## Table of Contents
 
 - [HTML-related methods](#html-related-methods)
-  - [`get_child`](#get_child)
-  - [`get_children`](#get_children)
+  - [`get_child()`](#get_child)
+  - [`get_children()`](#get_children)
 - [Built-in Checks](#built-in-checks)
-  - [`attribute_contains`](#attribute_contains)
-  - [`attribute_exists`](#attribute_exists)
-  - [`attribute_matches`](#attribute_matches)
-  - [`contains_comment`](#contains_comment)
-  - [`exists`](#exists)
-  - [`has_child`](#has_child)
-  - [`has_color`](#has_color)
-  - [`has_content`](#has_content)
-  - [`has_outgoing_url`](#has_outgoing_url)
-  - [`has_styling`](#has_styling)
-  - [`has_tag`](#has_tag)
-  - [`has_url_with_fragment`](#has_url_with_fragment)
-  - [`no_loose_text`](#no_loose_text)
+  - [`attribute_contains()`](#attribute_contains)
+  - [`attribute_exists()`](#attribute_exists)
+  - [`attribute_matches()`](#attribute_matches)
+  - [`contains_comment()`](#contains_comment)
+  - [`exists()`](#exists)
+  - [`has_child()`](#has_child)
+  - [`has_content()`](#has_content)
+  - [`has_tag()`](#has_tag)
+  - [`has_outgoing_url()`](#has_outgoing_url)
+  - [`has_url_with_fragment()`](#has_url_with_fragment)
+  - [`no_loose_text()`](#no_loose_text)
+- [CSS-related methods](#css-related-methods)
+  - [`has_styling()`](#has_styling)
+  - [`has_color()`](#has_color)
 
 ## HTML-related methods
 
 The following methods can be used to obtain references to extra HTML elements starting from another one.
 
-### `get_child`
+### `get_child()`
 
 **This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter.**
 
@@ -61,7 +62,7 @@ body = suite.element("body")
 img_element = body.get_child("img", index=1, direct=False, height="500")
 ```
 
-### `get_children`
+### `get_children()`
 
 **This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter.**
 
@@ -96,7 +97,7 @@ p_elements = body.get_children("p", direct=False, title="Example")
 
 The following methods are Checks that can be used on HTML elements, in order to create specific requirements for your students to pass the exercise. All of these methods return an instance of the `Check` class.
 
-### `attribute_contains`
+### `attribute_contains()`
 
 Check that this element has a given attribute, and that the attribute contains a substring. If the element doesn't exist, this check will fail as well. This means it's *not* required to use `attribute_exists` before `attribute_contains`.
 
@@ -127,7 +128,7 @@ img_attributes = ChecklistItem("The image's src contains \"dodona\".", [
 ])
 ```
 
-### `attribute_exists`
+### `attribute_exists()`
 
 Check that this element has a given attribute, optionally matching a specific value.
 
@@ -160,7 +161,7 @@ img_attributes = ChecklistItem("The image has the correct attributes.", [
 ])
 ```
 
-### `attribute_matches`
+### `attribute_matches()`
 
 Check if an attribute exists, and if its value matches a regular expression. If the element doesn't exist, this check will fail as well. This means it's *not* required to use `attribute_exists` before `attribute_matches`.
 
@@ -194,7 +195,7 @@ img_attributes = ChecklistItem("The image has the correct attributes.", [
 ])
 ```
 
-### `contains_comment`
+### `contains_comment()`
 
 Check if there is a comment inside of this element, optionally with an exact value. Not passing a value will make any comment pass the check.
 
@@ -223,7 +224,7 @@ body.contains_comment()
 body.contains_comment("Example")
 ```
 
-### `exists`
+### `exists()`
 
 Check that an element exists, and is not empty. This is equivalent to verifying that an element was found in the student's code.
 
@@ -242,7 +243,7 @@ body = suite.element("body")
 body_exists = ChecklistItem("The document has a <body>", body.exists())
 ```
 
-### `has_child`
+### `has_child()`
 
 Check that the element has a child that meets the specifications. This is a shortcut to combining `get_child()` and `exists()`.
 
@@ -274,7 +275,202 @@ body_has_div = ChecklistItem("The body has a div", body.has_child("div"))
 body_has_div = ChecklistItem("The body has a div", body.get_child("div").exists())
 ```
 
-### `has_color`
+
+### `has_content()`
+
+Check that the element has specific content, or any content at all. 
+
+This check **ignores** leading and trailing whitespace, and replaces all other whitespace by a single space. The reason behind this is that HTML does the same, so these spaces shouldn't matter.
+
+This means that
+
+```python
+x = "this text" 
+```
+and
+```python
+y = "    \t\n     this \t\n\n\t                text           "
+```
+are considered to be **equal**.
+
+#### Signature
+
+```python
+def has_content(text: Optional[str] = None) -> Check
+```
+
+#### Parameters
+
+| Name | Description | Required? | Default |
+|:-----|:------------|:---------:|:--------|
+| text | The text to compare the element's content to. |           | None, which will make any content pass and just checks if the content is not empty. |
+
+#### Example usage
+
+```python
+suite = HtmlSuite(content)
+body = suite.element("body")
+
+# Create references to the elements
+first_p = body.get_child("p", index=0)
+second_p = body.get_child("p", index=1)
+
+# Check that the first <p> has the text "Hello" and the second has anything inside of it
+paragraphs_exist = ChecklistItem("The body has two paragraphs that meet the requirements", [
+  first_p.has_content("Hello"),
+  second_p.has_content()
+])
+```
+
+
+
+### `has_tag()`
+
+Check that this element has the required tag.
+
+#### Signature
+
+```python
+def has_tag(tag: str) -> Check
+```
+
+#### Parameters
+
+| Name | Description           | Required? | Default |
+|:-----|:----------------------|:---------:|:--------|
+| tag  | The tag to check for. |     ✔     |         |
+
+#### Example usage
+
+```python
+suite = HtmlSuite(content)
+body = suite.element("body")
+body_children = body.get_children()
+
+# Verify that the first child of the body is a <table>
+# and the second a <div>
+body_structure = ChecklistItem("The body has a table followed by a div.", [
+  body_children[0].has_tag("table"),
+  body_children[1].has_tag("div")
+])
+```
+
+### `has_outgoing_url()`
+
+Check that this element has a url that doesn't go to another domain, optionally with a `list` of domains that you want to allow.
+
+In case the element is not an `<a>`-tag or does not have an `href` attribute, this will also return `False`. 
+
+#### Signature
+
+```python
+def has_outgoing_url(allowed_domains: Optional[List[str]] = None) -> Check
+```
+
+#### Parameters
+
+| Name      | Description                                     | Required? | Default                                           |
+|:----------|:------------------------------------------------|:---------:|:--------------------------------------------------|
+| allowed_domains  | An optional list of domains that should *not* be considered "outgoing". |           | None, which will default to `["dodona.ugent.be", "users.ugent.be"]`.|
+
+#### Example usage
+
+```python
+suite = HtmlSuite(content)
+body = suite.element("body")
+# href=True means the child should have an href attribute, no matter the value
+a_tag = body.get_child("a", href=True)
+
+a_tag.has_outgoing_link(allowed_domains=["ugent.be"])
+```
+
+
+### `has_url_with_fragment()`
+
+Check that this element has a url with a fragment (`#`), optionally comparing the fragment to a `string` that it should match exactly.
+
+In case the element is not an `<a>`-tag or does not have an `href` attribute, this will also return `False`. 
+
+#### Signature
+
+```python
+def has_url_with_fragment(fragment: Optional[str] = None) -> Check
+```
+
+#### Parameters
+
+| Name      | Description                                     | Required? | Default                                           |
+|:----------|:------------------------------------------------|:---------:|:--------------------------------------------------|
+| fragment  | An optional fragment that should match exactly. |           | None, which will make any non-empty fragment pass.|
+
+#### Example usage
+
+```python
+suite = HtmlSuite(content)
+body = suite.element("body")
+# href=True means the child should have an href attribute, no matter the value
+a_tag = body.get_child("a", href=True)
+
+a_tag.has_url_with_fragment()
+```
+
+### `no_loose_text()`
+
+Check that this element has no text inside of it that is not inside of another element. Examples include random text floating around inside of a `<tr>` instead of a `<td>`.
+
+#### Signature
+
+```python
+def no_loose_text() -> Check
+```
+
+#### Example usage
+
+```python
+suite = HtmlSuite(content)
+table_element = suite.element("table")
+
+# Verify that the table doesn't have any text inside of it
+table_element.no_loose_text()
+```
+
+
+## CSS-related methods
+
+### `has_styling()`
+
+Check that this element is matched by a CSS selector to give it a particular styling. A value can be passed to match the value of the styling exactly.
+
+#### Signature
+
+```python
+def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None) -> Check
+```
+
+#### Parameters
+
+| Name      | Description                                                                                               | Required? | Default                                                                                       |
+|:----------|:----------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------------------------------------------------------------|
+| prop      | The name of the CSS property to look for.                                                                 |     ✔     |                                                                                               |
+| value     | A value to match the property against.                                                                    |           | None, which will make any value pass and only checks if the element has this style property.  |
+| important | A boolean indicating that this element should (or may not be) marked as important using **`!important`**. |           | None, which won't check this.                                                                 |
+
+#### Example usage
+
+```python
+suite = CssSuite(content)
+body = suite.element("body")
+div_tag = body.get_child("div")
+
+# Check that the div has any background colour at all
+div_tag.has_styling("background-color")
+
+# Check that the div has a horizontal margin of exactly 3px marked as !important
+div_tag.has_styling("margin", "3px", important=True)
+```
+
+
+### `has_color()`
 
 Check that this element has a given color on a CSS property. This is a more flexible version of [`has_styling`](#has_styling) because it allows the value to be in multiple different formats (`RGB`, `hex`, ...).
 
@@ -321,189 +517,3 @@ div.has_color("background-color", "rgba(0, 0, 255, 1.0)")  # By rgba value
 div.has_color("background-color", "#0000FF")  # By hex value
 ```
 
-### `has_content`
-
-Check that the element has specific content, or any content at all. 
-
-This check **ignores** leading and trailing whitespace, and replaces all other whitespace by a single space. The reason behind this is that HTML does the same, so these spaces shouldn't matter.
-
-This means that
-
-```python
-x = "this text" 
-```
-and
-```python
-y = "    \t\n     this \t\n\n\t                text           "
-```
-are considered to be **equal**.
-
-#### Signature
-
-```python
-def has_content(text: Optional[str] = None) -> Check
-```
-
-#### Parameters
-
-| Name | Description | Required? | Default |
-|:-----|:------------|:---------:|:--------|
-| text | The text to compare the element's content to. |           | None, which will make any content pass and just checks if the content is not empty. |
-
-#### Example usage
-
-```python
-suite = HtmlSuite(content)
-body = suite.element("body")
-
-# Create references to the elements
-first_p = body.get_child("p", index=0)
-second_p = body.get_child("p", index=1)
-
-# Check that the first <p> has the text "Hello" and the second has anything inside of it
-paragraphs_exist = ChecklistItem("The body has two paragraphs that meet the requirements", [
-  first_p.has_content("Hello"),
-  second_p.has_content()
-])
-```
-
-### `has_outgoing_url`
-
-Check that this element has a url that doesn't go to another domain, optionally with a `list` of domains that you want to allow.
-
-In case the element is not an `<a>`-tag or does not have an `href` attribute, this will also return `False`. 
-
-#### Signature
-
-```python
-def has_outgoing_url(allowed_domains: Optional[List[str]] = None) -> Check
-```
-
-#### Parameters
-
-| Name      | Description                                     | Required? | Default                                           |
-|:----------|:------------------------------------------------|:---------:|:--------------------------------------------------|
-| allowed_domains  | An optional list of domains that should *not* be considered "outgoing". |           | None, which will default to `["dodona.ugent.be", "users.ugent.be"]`.|
-
-#### Example usage
-
-```python
-suite = HtmlSuite(content)
-body = suite.element("body")
-# href=True means the child should have an href attribute, no matter the value
-a_tag = body.get_child("a", href=True)
-
-a_tag.has_outgoing_link(allowed_domains=["ugent.be"])
-```
-
-### `has_styling`
-
-Check that this element is matched by a CSS selector to give it a particular styling. A value can be passed to match the value of the styling exactly.
-
-#### Signature
-
-```python
-def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None) -> Check
-```
-
-#### Parameters
-
-| Name      | Description                                                                                               | Required? | Default                                                                                       |
-|:----------|:----------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------------------------------------------------------------|
-| prop      | The name of the CSS property to look for.                                                                 |     ✔     |                                                                                               |
-| value     | A value to match the property against.                                                                    |           | None, which will make any value pass and only checks if the element has this style property.  |
-| important | A boolean indicating that this element should (or may not be) marked as important using **`!important`**. |           | None, which won't check this.                                                                 |
-
-#### Example usage
-
-```python
-suite = CssSuite(content)
-body = suite.element("body")
-div_tag = body.get_child("div")
-
-# Check that the div has any background colour at all
-div_tag.has_styling("background-color")
-
-# Check that the div has a horizontal margin of exactly 3px marked as !important
-div_tag.has_styling("margin", "3px", important=True)
-```
-
-### `has_tag`
-
-Check that this element has the required tag.
-
-#### Signature
-
-```python
-def has_tag(tag: str) -> Check
-```
-
-#### Parameters
-
-| Name | Description           | Required? | Default |
-|:-----|:----------------------|:---------:|:--------|
-| tag  | The tag to check for. |     ✔     |         |
-
-#### Example usage
-
-```python
-suite = HtmlSuite(content)
-body = suite.element("body")
-body_children = body.get_children()
-
-# Verify that the first child of the body is a <table>
-# and the second a <div>
-body_structure = ChecklistItem("The body has a table followed by a div.", [
-  body_children[0].has_tag("table"),
-  body_children[1].has_tag("div")
-])
-```
-
-### `has_url_with_fragment`
-
-Check that this element has a url with a fragment (`#`), optionally comparing the fragment to a `string` that it should match exactly.
-
-In case the element is not an `<a>`-tag or does not have an `href` attribute, this will also return `False`. 
-
-#### Signature
-
-```python
-def has_url_with_fragment(fragment: Optional[str] = None) -> Check
-```
-
-#### Parameters
-
-| Name      | Description                                     | Required? | Default                                           |
-|:----------|:------------------------------------------------|:---------:|:--------------------------------------------------|
-| fragment  | An optional fragment that should match exactly. |           | None, which will make any non-empty fragment pass.|
-
-#### Example usage
-
-```python
-suite = HtmlSuite(content)
-body = suite.element("body")
-# href=True means the child should have an href attribute, no matter the value
-a_tag = body.get_child("a", href=True)
-
-a_tag.has_url_with_fragment()
-```
-
-### `no_loose_text`
-
-Check that this element has no text inside of it that is not inside of another element. Examples include random text floating around inside of a `<tr>` instead of a `<td>`.
-
-#### Signature
-
-```python
-def no_loose_text() -> Check
-```
-
-#### Example usage
-
-```python
-suite = HtmlSuite(content)
-table_element = suite.element("table")
-
-# Verify that the table doesn't have any text inside of it
-table_element.no_loose_text()
-```
