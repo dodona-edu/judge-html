@@ -10,7 +10,7 @@ A `TestSuite` contains a checklist of all checks that should be performed on the
 - [`element()` : Referencing (specific) HTML elements](#element--referencing-specific-html-elements)
 - [`all_elements()` : Referencing multiple HTML elements](#all_elements--referencing-multiple-html-elements)
 - [`add_item()` and `make_item()` : Adding and making checklist items](#add_item-and-make_item--adding-and-making-checklist-items)
-- [`suite.translations` : Adding multiple languages](#adding-multiple-languages)
+- [`suite.translations` : Adding multiple languages](#suitetranslations--adding-multiple-languages)
 - [Built-in Checks](#built-in-checks)
   - [`validate_css()`](#validate_css)
   - [`validate_html()`](#validate_html)
@@ -250,7 +250,7 @@ In case the supplied list of translations is shorter than the checklist, the che
 
 ## Built-in Checks
 
-The `TestSuite` class comes with a few Checks that you can use, and they are documented below. More Checks can be found in different classes.
+The `TestSuite` class comes with a few `Check`s that you can use, and they are documented below. More `Check`s can be found in different classes.
 
 ### `validate_css()`
 
@@ -303,7 +303,7 @@ def contains_comment(comment: Optional[str] = None) -> Check
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
-| `comment` | The value to look for. |  | None, which will accept any comment. |
+| `comment` | The value to look for. |  | `None`, which will accept any comment. |
 
 #### Example usage
 
@@ -331,7 +331,7 @@ def document_matches(regex: str, flags: Union[int, re.RegexFlag] = 0) -> Check
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
 | `regex` | The pattern to match the student's code against. |  ✔  |  |
-| `flags` | Extra `RegexFlag`s to use when comparing. |  | 0, meaning no flags will be applied. |
+| `flags` | Extra `RegexFlag`s to use when comparing. |  | `0`, meaning no flags will be applied. |
 
 #### Example usage
 
