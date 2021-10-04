@@ -7,8 +7,8 @@ A `TestSuite` contains a checklist of all checks that should be performed on the
 ## Table of Contents
 - [Attributes](#attributes)
 - [`TestSuites` on Dodona](#testsuites-on-dodona)
-- [`element()` : Referencing (specific) HTML elements](#element-referencing-specific-html-elements)
-- [`all_elements()` : Referencing multiple HTML elements](#all_elements-referencing-multiple-html-elements)
+- [`element()` : Referencing (specific) HTML elements](#element--referencing-specific-html-elements)
+- [`all_elements()` : Referencing multiple HTML elements](#all_elements--referencing-multiple-html-elements)
 - [Adding items to the checklist](#adding-items-to-the-checklist)
 - [Adding multiple languages](#adding-multiple-languages)
 - [Built-in Checks](#built-in-checks)
@@ -42,9 +42,9 @@ def create_suites(content: str):
 
 The image also shows a `1` next to the **HTML** tab, indicating that 1 test failed. This instantly allows users to see which part of their code caused the exercise to be incorrect, and which parts are already finished.
 
-## `element()`: Referencing (specific) HTML elements
+## `element()` : Referencing (specific) HTML elements
 
-**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter**
+**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter.**
 
 You can get a specific HTML element by tag using `suite.element(tag)` in the form of an instance of the `Element` class (explained later). Afterwards, you can use this reference to create extra checks based off of it.
 
@@ -63,6 +63,8 @@ def element(tag: Optional[str] = None, index: int = 0, from_root: bool = False, 
 
 #### Example usage
 
+#### Example 1
+
 The example below shows how to get the `<html>` tag:
 
 ```html
@@ -78,7 +80,9 @@ suite = TestSuite("HTML", content)
 html_tag = suite.element("html")
 ```
 
-Searching will start from the root element, and work in a breadth-first way recursively. In case you want to disable this and only search the root of the tree, you can pass `from_root=True` into the function.
+#### Example 2: Only search in children of root node (from_root)
+
+Searching will start from the root element, and work in a breadth-first way recursively. In case you want to disable this and only search children of the root node, you can pass `from_root=True` into the function.
 
 The example below shows how to get the `<div>` at the root of the tree, not the one that comes first in the file but is nested deeper.
 
@@ -101,6 +105,8 @@ suite = TestSuite("HTML", content)
 # from_root=True: only check children of the root node, so ignore the very first (nested) <div>
 root_div = suite.element("div", from_root=True)
 ```
+
+#### Example 3: specify which one with index
 
 In case multiple elements were matched, you can specify which one should be chosen using the `index` parameter.
 
@@ -129,6 +135,8 @@ suite = TestSuite("HTML", content)
 # index=2: take the third element in case it exists
 root_div = suite.element("div", index=2)
 ```
+
+# Example 4: Specify which one using kwargs
 
 Extra filters, such as id's and attributes, can be passed as _kwargs_. You can pass as many filters as you want to.
 
@@ -166,13 +174,16 @@ For `class`es, as "class" is a built-in keyword in Python, use `class_` with an 
 
 ## `all_elements()` : Referencing multiple HTML elements
 
-**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter**
+**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter.**
 
 In case you want to get a list of all elements (optionally matching filters), use `suite.all_elements` instead. This method takes the exact same arguments as `elements`, and thus the same filters can be applied.
 
-Note that this method returns an instance of `ElementContainer`, which can be used like a regular Python `list`:
+Note that this method returns an instance of `ElementContainer`, which can be used like a regular Python `list`. More info on `ElementContainer`s can be found in the respective [documentation page](elementcontainer-class.md).
 
-More info on `ElementContainer`s can be found in the respective [documentation page](elementcontainer-class.md).
+#### Signature
+```python
+def all_elements(self, tag: Optional[Union[str, Emmet]] = ..., from_root: bool = ..., **kwargs) -> ElementContainer:
+```
 
 ## Adding items to the checklist
 

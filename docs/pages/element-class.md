@@ -30,7 +30,7 @@ The following methods can be used to obtain references to extra HTML elements st
 
 ### `get_child`
 
-**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter**
+**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter.**
 
 This method finds a child element with tag `tag`, optionally with extra filters.
 
@@ -63,7 +63,7 @@ img_element = body.get_child("img", index=1, direct=False, height="500")
 
 ### `get_children`
 
-**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter**
+**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter.**
 
 This method finds ALL child elements, optionally with tag `tag` and extra filters. This returns an instance of `ElementContainer`, which can be used as a list of elements.
 
