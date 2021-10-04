@@ -299,7 +299,7 @@ def has_content(text: Optional[str] = None) -> Check
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
-| text | The text to compare the element's content to. |           | `None`, which will make any content pass and just checks if the content is not empty. |
+| `text` | The text to compare the element's content to. |           | `None`, which will make any content pass and just checks if the content is not empty. |
 
 #### Example usage
 
@@ -332,7 +332,7 @@ def has_tag(tag: str) -> Check
 
 | Name | Description           | Required? | Default |
 |:-----|:----------------------|:---------:|:--------|
-| tag  | The tag to check for. |     ✔     |         |
+| `tag`  | The tag to check for. |     ✔     |         |
 
 #### Example usage
 
@@ -366,7 +366,7 @@ def has_outgoing_url(allowed_domains: Optional[List[str]] = None) -> Check
 
 | Name      | Description                                     | Required? | Default                                           |
 |:----------|:------------------------------------------------|:---------:|:--------------------------------------------------|
-| allowed_domains  | An optional list of domains that should *not* be considered "outgoing". |           | `None`, which will default to `["dodona.ugent.be", "users.ugent.be"]`.|
+| `allowed_domains`  | An optional list of domains that should *not* be considered "outgoing". |           | `None`, which will default to `["dodona.ugent.be", "users.ugent.be"]`.|
 
 #### Example usage
 
@@ -396,7 +396,7 @@ def has_url_with_fragment(fragment: Optional[str] = None) -> Check
 
 | Name      | Description                                     | Required? | Default                                           |
 |:----------|:------------------------------------------------|:---------:|:--------------------------------------------------|
-| fragment  | An optional fragment that should match exactly. |           | `None`, which will make any non-empty fragment pass.|
+| `fragment`  | An optional fragment that should match exactly. |           | `None`, which will make any non-empty fragment pass.|
 
 #### Example usage
 
@@ -477,9 +477,9 @@ def has_styling(self, prop: str, value: Optional[str] = None, important: Optiona
 
 | Name      | Description                                                                                               | Required? | Default                                                                                       |
 |:----------|:----------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------------------------------------------------------------|
-| prop      | The name of the CSS property to look for.                                                                 |     ✔     |                                                                                               |
-| value     | A value to match the property against.                                                                    |           | `None`, which will make any value pass and only checks if the element has this style property.  |
-| important | A boolean indicating that this element should (or may not be) marked as important using **`!important`**. |           | `None`, which won't check this.                                                                 |
+| `prop`      | The name of the CSS property to look for.                                                                 |     ✔     |                                                                                               |
+| `value`     | A value to match the property against.                                                                    |           | `None`, which will make any value pass and only checks if the element has this style property.  |
+| `important` | A boolean indicating that this element should (or may not be) marked as important using **`!important`**. |           | `None`, which won't check this.                                                                 |
 
 #### Example usage
 
@@ -510,9 +510,9 @@ def has_color(prop: str, color: str, important: Optional[bool] = None) -> Check
 
 | Name      | Description                                                                                                            | Required? | Default                                                                                       |
 |:----------|:-----------------------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------------------------------------------------------------|
-| attr      | The name of the CSS attribute to look for.                                                                             |     ✔     |                                                                                               |
-| value     | A value to match the property against. This value may be in any of the accepted formats: `name`, `rgb`, `rgba`, `hex`. |     ✔     |                                                                                               |
-| important | A boolean indicating that this element should (or may not be) marked as important using **`!important`**.              |           | `None`, which won't check this.                                                                 |
+| `attr`      | The name of the CSS attribute to look for.                                                                             |     ✔     |                                                                                               |
+| `value`     | A value to match the property against. This value may be in any of the accepted formats: `name`, `rgb`, `rgba`, `hex`. |     ✔     |                                                                                               |
+| `important` | A boolean indicating that this element should (or may not be) marked as important using **`!important`**.              |           | `None`, which won't check this.                                                                 |
 
 #### Example usage
 
