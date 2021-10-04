@@ -158,8 +158,7 @@ def attribute_exists(attr: str, value: Optional[str] = None, case_insensitive: b
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
 | `attribute`        | The attribute to check for. | ✔ | |
-| `value`            | The value to compare against. | | `None`, which will make any value pass. This means the check only makes sure the attribute *
-exists*. |
+| `value`            | The value to compare against. | | `None`, which will make any value pass. This means the check only makes sure the attribute *exists*. |
 | `case_insensitive` | Indicate that the casing of the value does not matter when checking. | | `False` |
 
 #### Example usage
@@ -248,8 +247,7 @@ def has_child(tag: str, direct: bool = True, **kwargs) -> Check
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
 | `tag`    | The tag to search for.                                                                    |     ✔     |         |
-| `direct` | Boolean that indicates only *
-direct* children should be searched, so not nested elements. |           | `True` |
+| `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements. |           | `True` |
 
 Extra `kwargs` can be passed to filter the results down even more. For example, to check that an element has a child
 with a given `id` use `has_child(tag, id="some_id")`.
@@ -368,8 +366,7 @@ def has_outgoing_url(allowed_domains: Optional[List[str]] = None) -> Check
 
 | Name      | Description                                     | Required? | Default                                           |
 |:----------|:------------------------------------------------|:---------:|:--------------------------------------------------|
-| allowed_domains  | An optional list of domains that should *
-not* be considered "outgoing". |           | `None`, which will default to `["dodona.ugent.be", "users.ugent.be"]`.|
+| allowed_domains  | An optional list of domains that should *not* be considered "outgoing". |           | `None`, which will default to `["dodona.ugent.be", "users.ugent.be"]`.|
 
 #### Example usage
 
