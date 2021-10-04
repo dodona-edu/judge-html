@@ -60,6 +60,7 @@ body = suite.element("body")
 # Find the second <img> inside the body with attribute "height" equal to 500,
 # which can be nested in another element
 img_element = body.get_child("img", index=1, direct=False, height="500")
+p_element = body.get_child("p", id="myHeader")
 ```
 
 ### `get_children()`
@@ -91,6 +92,7 @@ body = suite.element("body")
 
 # Find all <p>'s with title "Example"
 p_elements = body.get_children("p", direct=False, title="Example")
+p_warning_elements = body.get_child("p", class_="warning")
 ```
 
 ## Built-in Checks
@@ -246,6 +248,7 @@ body_has_div = ChecklistItem("The body has a div", body.has_child("div"))
 
 # Equivalent to
 body_has_div = ChecklistItem("The body has a div", body.get_child("div").exists())
+body_has_header_with_id = ChecklistItem("The body has a header with id", body.has_child("h1", id="myHeader").exists())
 ```
 
 
