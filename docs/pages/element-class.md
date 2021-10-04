@@ -1,7 +1,6 @@
 # Element Class
 
-The `Element` class contains a reference to an HTML element in the student's code. If this element doesn't exist, it
-will be empty, but can still be used. All checks performed on it will just fail, and the list of children will be empty.
+The `Element` class contains a reference to an HTML element in the student's code. If this element doesn't exist, it will be empty, but can still be used. All checks performed on it will just fail, and the list of children will be empty.
 
 This class is **not** meant for you to instantiate manually, but instances are returned by the library instead.
 
