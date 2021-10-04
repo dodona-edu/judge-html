@@ -63,7 +63,7 @@ def element(tag: Optional[str] = None, index: int = 0, from_root: bool = False, 
 
 #### Example usage
 
-#### Example 1
+##### Example 1
 
 The example below shows how to get the `<html>` tag:
 
@@ -80,7 +80,7 @@ suite = TestSuite("HTML", content)
 html_tag = suite.element("html")
 ```
 
-#### Example 2: Only search in children of root node (from_root)
+##### Example 2: Only search in children of root node (from_root)
 
 Searching will start from the root element, and work in a breadth-first way recursively. In case you want to disable this and only search children of the root node, you can pass `from_root=True` into the function.
 
@@ -106,7 +106,7 @@ suite = TestSuite("HTML", content)
 root_div = suite.element("div", from_root=True)
 ```
 
-#### Example 3: specify which one with index
+##### Example 3: specify which one with index
 
 In case multiple elements were matched, you can specify which one should be chosen using the `index` parameter.
 
@@ -136,7 +136,7 @@ suite = TestSuite("HTML", content)
 root_div = suite.element("div", index=2)
 ```
 
-# Example 4: Specify which one using kwargs
+##### Example 4: Specify which one using kwargs
 
 Extra filters, such as id's and attributes, can be passed as _kwargs_. You can pass as many filters as you want to.
 
