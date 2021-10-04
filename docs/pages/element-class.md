@@ -22,6 +22,10 @@ This class is **not** meant for you to instantiate manually, but instances are r
   - [`has_url_with_fragment()`](#has_url_with_fragment)
   - [`contains_comment()`](#contains_comment)
   - [`no_loose_text()`](#no_loose_text)
+- [table related utility functions](#table-related-utility-functions)
+  - [`has_table_content()`](#has_table_content)
+  - [`has_table_header()`](#has_table_header)
+  - [`table_row_has_content()`](#table_row_has_content)
 - [CSS-related methods](#css-related-methods)
   - [`has_styling()`](#has_styling)
   - [`has_color()`](#has_color)
@@ -458,6 +462,135 @@ table_element = suite.element("table")
 
 # Verify that the table doesn't have any text inside of it
 table_element.no_loose_text()
+```
+
+## table related utility functions
+
+## `has_table_content()`
+
+This method checks if an `Element` with tag `table` has rows with the required content, **excluding the header**.
+
+#### Signature
+
+```python
+def has_table_content(rows: List[List[str]], has_header: bool = True) -> Check
+```
+
+#### Parameters
+
+| Name | Description | Required? | Default |
+|:-----|:------------|:---------:|:--------|
+| `rows` | A 2D `list` of `strings` that represents the content that the rows should match exactly. | ✔ |  |
+| `has_header` | Boolean that indicates this table should have a `header`, in which case the first `<tr>` will be ignored.  |  | `True` |
+
+#### Example usage
+
+```html
+<table>
+    <tr>
+        <th>Header 1</th>
+        <th>Header 2</th>
+    </tr>
+    <tr>
+        <td>Row 1 Col 1</td>
+        <td>Row 1 Col 2</td>
+    </tr>
+    <tr>
+        <td>Row 2 Col 1</td>
+        <td>Row 2 Col 2</td>
+    </tr>
+</table>
+```
+
+```python
+suite = HtmlSuite(content)
+table_element = suite.element("table")
+
+rows = [
+    ["Row 1 Col 1", "Row 1 Col 2"],
+    ["Row 2 Col 1", "Row 2 Col 2"]
+]
+table_element.has_table_content(rows, has_header=True)
+```
+
+## `has_table_header()`
+
+This method checks if an `Element` with tag `table` has a header with content that matches a list of strings. This avoids having to use `all_of` combined with a *LOT* of `has_content`s.
+
+#### Signature
+
+```python
+def has_table_header(header: List[str]) -> Check
+```
+
+#### Parameters
+
+| Name | Description | Required? | Default |
+|:-----|:------------|:---------:|:--------|
+| `header` | `List` of `strings` that represents the content that the header should match exactly. | ✔ |  |
+
+#### Example usage
+
+```html
+<table>
+    <tr>
+        <th>Header 1</th>
+        <th>Header 2</th>
+        <th>Header 3</th>
+        <th>Header 4</th>
+    </tr>
+</table>
+```
+
+```python
+suite = HtmlSuite(content)
+table_element = suite.element("table")
+
+header = ["Header 1", "Header 2", "Header 3", "Header 4"]
+table_element.has_table_header(header)
+```
+
+## `table_row_has_content()`
+
+This method checks if an `Element` with tag `tr` has the required content. This is the same as [`Element.has_table_content`](#elementhas_table_content) but for one row, and applied on a `<tr>` instead of a `<table>`.
+
+#### Signature
+
+```python
+def table_row_has_content(row: List[str]) -> Check
+```
+
+#### Parameters
+
+| Name | Description | Required? | Default |
+|:-----|:------------|:---------:|:--------|
+| `row` | A `list` of `strings` that represents the content that the row should match exactly. | ✔ |  |
+
+#### Example usage
+
+```html
+<table>
+    <tr>
+        <td>Row 1 Col 1</td>
+        <td>Row 1 Col 2</td>
+    </tr>
+    <tr>
+        <td>Row 2 Col 1</td>
+        <td>Row 2 Col 2</td>
+    </tr>
+</table>
+```
+
+```python
+suite = HtmlSuite(content)
+table_element = suite.element("table")
+rows = table_element.get_children("tr")
+
+row1 = ["Row 1 Col 1", "Row 1 Col 2"]
+row2 = ["Row 2 Col 1", "Row 2 Col 2"]
+
+rows[0].table_row_has_content(row1)
+rows[1].table_row_has_content(row2)
 ```
 
 ## CSS-related methods

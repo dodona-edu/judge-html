@@ -7,16 +7,16 @@ All `find_*` methods support `Emmet Syntax`, which allows you to perform search 
 
 To indicate that a specific method supports this, all of them have the following line underneath their header in their respective documentation: 
 
-_**This method supports Emmet Syntax through the [PARAMETER] parameter**_
+_**This method supports Emmet Syntax through the [PARAMETER] parameter.**_
 
 > Note: the `index` and `kwargs` parameters passed into the `find` methods are still allowed, but will only be applied to the _**last**_ element from the query. The path will always take priority when clashing, so if the query itself ends with an index (e.g. `table>tr[3]`) then this index will be used instead of the parameter.
 
 ## Table of Contents
 - [Basics of Emmet Syntax](#basics-of-emmet-syntax)
-    - [Finding nested elements](#finding-nested-elements)
-    - [Specifying indexes](#specifying-indexes)
-    - [Specifying id's](#specifying-ids)
-    - [Specifying class names](#specifying-class-names)
+    - [Finding nested elements with `>`](#finding-nested-elements-with-)
+    - [Specifying indexes with `[ ]`](#specifying-indexes-with--)
+    - [Specifying id's with `#`](#specifying-ids-with-)
+    - [Specifying class names with `.`](#specifying-class-names-with-)
 - [Creating Checks using Emmet Syntax](#creating-checks-using-emmet-syntax)  
     - [Signature](#signature)
     - [Parameters](#parameters)
@@ -32,7 +32,7 @@ _**This method supports Emmet Syntax through the [PARAMETER] parameter**_
 
 Before we dive in, a `tag` is still referenced by its name. `element("div")` is valid. If you want to include a tag name in your path, **it should _always_ be in the beginning**.
 
-### Finding nested elements
+### Finding nested elements with `>`
 
 To indicate that an element should contain another, use the `>` symbol (from left to right).
 
@@ -54,7 +54,7 @@ div_element = suite.element("html", from_root=True)
 div_element = suite.element("html>body>div>table>tr>td>div", from_root=True)
 ```
 
-### Specifying indexes
+### Specifying indexes with `[ ]`
 
 By default, the first match will always be chosen for every step. To specify that the `n-th` match should be used, you may do so by adding the index between square brackets **at the end of the step**.
 
@@ -76,7 +76,7 @@ div_element = suite.element("table>tr[0]>td[3]>div[2]", from_root=False)
 div_element = suite.element("table>tr>td[3]>div[2]", from_root=False)
 ```
 
-### Specifying id's
+### Specifying id's with `#`
 
 To filter down based on id's, you can specify an id by adding a hashtag (`#`) in front of it.
 
@@ -101,7 +101,7 @@ div_element = suite.element("body>#example")
 div_element = suite.element("body>div", id="example")
 ```
 
-### Specifying class names
+### Specifying class names with `.`
 
 Class names can be specified by adding a dot (`.`) in front of them, and multiple class names in a row are **allowed**.
 
