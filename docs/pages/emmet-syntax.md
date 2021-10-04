@@ -5,7 +5,7 @@
 
 All `find_*` methods support `Emmet Syntax`, which allows you to perform search queries in a (**much**) shorter way. This comes in handy when you want to quickly find a deeply-nested element along a very specific path. This document aims to first explain this syntax, and then provide a few examples to show how it works (and to show how much shorter it can be). The methods will always display the character count, to show you that `Emmet Syntax` is always **almost twice** as compact (and for more complex cases, even more than that).
 
-To indicate that a specific method supports this, all of them have the following line underneath their header in their respective documentation: 
+To indicate that a specific method supports this, it's added to the type hint and all of them have the following line underneath their header in their respective documentation: 
 
 _**This method supports Emmet Syntax through the [PARAMETER] parameter.**_
 
@@ -17,7 +17,7 @@ _**This method supports Emmet Syntax through the [PARAMETER] parameter.**_
     - [Specifying indexes with `[ ]`](#specifying-indexes-with--)
     - [Specifying id's with `#`](#specifying-ids-with-)
     - [Specifying class names with `.`](#specifying-class-names-with-)
-- [Creating Checks using Emmet Syntax](#creating-checks-using-emmet-syntax)  
+- [`make_item_from_emmet()` : Creating Checks using Emmet Syntax](#make_item_from_emmet--creating-checks-using-emmet-syntax)  
     - [Signature](#signature)
     - [Parameters](#parameters)
     - [Examples](#examples)
@@ -128,7 +128,7 @@ div_element = suite.element("table")
 div_element = suite.element("table>tr.tr-example>td.ex-1.ex-2")
 ```
 
-## Creating Checks using Emmet Syntax
+## `make_item_from_emmet()` : Creating Checks using Emmet Syntax
 
 You can, however, use Emmet Syntax for more than just finding elements. The `checks` library also supports creating `Checks` using this syntax, which can be accomplished via the `TestSuite.make_item_from_emmet()` method.
 
