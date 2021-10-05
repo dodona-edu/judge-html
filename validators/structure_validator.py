@@ -17,6 +17,18 @@ class NotTheSame(Exception):
     def __str__(self):
         return self.__repr__()
 
+    def message_str(self):
+        # Line number < 0 means no line number should be shown (eg. empty submission)
+        # (#137)
+        if self.line < 0:
+            return self.msg
+
+        return f"{self.msg} {self.trans.translate(Translator.Text.AT_LINE)} {self.line + 1}"
+
+    def annotation_str(self):
+        # Don't show line number in annotations (#137)
+        return self.msg
+
 
 def compare(solution: str, submission: str, trans: Translator, **kwargs):
     """compare submission structure to the solution structure (html)
