@@ -859,8 +859,12 @@ class TestSuite:
                 compare(solution, self.content, translator, **kwargs)
             except NotTheSame as err:
                 with Message(str(err)):
-                    with Annotation(err.line, str(err)):
-                        return False
+                    # Only add annotation if line number is positive
+                    if err.line >= 0:
+                        with Annotation(err.line, str(err)):
+                            pass
+
+                    return False
             return True
 
         return Check(_inner)
