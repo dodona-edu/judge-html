@@ -47,7 +47,7 @@ def main():
                     invalid_suites(judge, config)
                     return
                 # compare(sol, html_content, config.translator)
-                suite = checks._CompareSuite(html_content, solution, config)
+                suite = checks._CompareSuite(html_content, solution, config, check_recommended=getattr(config, "recommended", True))
                 test_suites = [suite]
         except FileNotFoundError:
             # solution.html is missing

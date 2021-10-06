@@ -146,6 +146,7 @@ In the `config.json` file of the exercise you can give some options as to how th
 | ------------------ | ----------- | --------------  | ------- |
 | `attributes` |  Check whether attributes are exactly the same in solution and submission.* | `true`/`false` | `false`  |
 | `minimal_attributes`| Check whether **at least** the attributes in the solution are supplied in the submission, extra attributes are **allowed**. | `true`/`false` | `false` |
+| `recommended`| Check whether **all recommended** attributes are present, these are warnings, the check won't fail if some of them are missing | `true`/`false` | `true` |
 | `contents`| Check whether the contents of each tag in the solution are exactly the same as in the submission. | `true`/`false` | `false` |
 | `css` | If there are CSS rules defined in the solution, check if the submission can match these rules. We don't compare the CSS rules themselves, but rather whether every element in the submission has at least the CSS-rules defined in the solution. | `true`/`false` | `true` |
 | `comments` | Check whether the submission has the same comments as the solution. | `true`/`false` | `false` |
