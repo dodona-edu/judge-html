@@ -60,8 +60,8 @@ Add your solution/evaluator file (`solution.html` for comparison mode or `evalua
 +-- dirconfig.json                       # Shared config for all exercises in subdirs
 +-- 📂public                            # Optional: Contains files that belong to the course or series
 |   +-- my_picture.png                   # Optional: An image to reuse throughout the course
-+-- 📂validators                        # Folder that needs to be imported in every evaluator.py
-|   +-- checks.pyi                       # File needed for autocomplete (explained later)
++-- 📂validators                        # ▶ Folder that needs to be imported in every evaluator.py
+|   +-- checks.pyi                       # ▶ File needed for autocomplete (explained later)
 +-- 📂html-exercises                    # We could group exercises in a folder
 |   +-- 📂first_html_exercise           # Folder name for the exercise
 |   |   +-- config.json                  # ▶ Configuration of the exercise

@@ -152,12 +152,12 @@ suite.make_item_from_emmet("A div in body contains some text.", 'body>div{DUMMY}
 And this as the submission
 
 ```html
-        <html lang='en'>
-        <body>
-            <div></div>
-            <div>Lorem ipsum</div>
-        </body>
-        </html>
+<html lang='en'>
+<body>
+    <div></div>
+    <div>Lorem ipsum</div>
+</body>
+</html>
 ```
 
 Then the submission will be accepted.
@@ -176,12 +176,12 @@ suite.make_item_from_emmet("A language is defined.", 'html[lang="DUMMY"]')
 And this as the submission
 
 ```html
-        <html lang='en'>
-        <body>
-            <div></div>
-            <div>Lorem ipsum</div>
-        </body>
-        </html>
+<html lang='en'>
+<body>
+    <div></div>
+    <div>Lorem ipsum</div>
+</body>
+</html>
 ```
 
 Then the submission will be accepted.
