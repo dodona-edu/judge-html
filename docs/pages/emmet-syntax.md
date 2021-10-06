@@ -246,6 +246,8 @@ suite.make_item_from_emmet(message, "body>div+p+blockquote")
 
 The following is a good example of how this syntax can greatly simplify otherwise complex queries.
 
+The `DUMMY` keyword can be used to indicate that any content is accepted.
+
 ```python
 suite = HtmlSuite(content)
 
@@ -268,6 +270,9 @@ suite.make_item(message, any_of(
 
 # With Emmet Syntax
 suite.make_item_from_emmet(message, "body>table>tr>td{example}")
+
+# Emmet Syntax with DUMMY keyword
+suite.make_item_from_emmet("The <body> has a <table>, which contains a <tr> with a <td> with any content.", "body>table>tr>td{DUMMY}")
 ```
 
 #### Check that X amount of children exist
@@ -301,6 +306,8 @@ suite.make_item_from_emmet(message, "body>div#header+div.page")
 
 #### Check that an element has attributes (with values)
 
+The `DUMMY` keyword can be used to indicate that any value of the attribute is accepted.
+
 ```python
 suite = HtmlSuite(content)
 
@@ -324,4 +331,7 @@ suite.make_item(message, any_of(
 
 # With Emmet Syntax
 suite.make_item_from_emmet(message, "table>tr>td[title='Hello world' colspan='3']")
+
+# Emmet Syntax with DUMMY keyword
+suite.make_item_from_emmet("The <table> has a <tr> which contains a <td> with any title, and any colspan.", "table>tr>td[title='DUMMY' colspan='DUMMY']")
 ```
