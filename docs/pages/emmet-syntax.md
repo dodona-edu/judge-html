@@ -21,6 +21,7 @@ Furthermore, these parameters will be type hinted as `param: Union[str, Emmet]`,
     - [Specifying indexes with `[ ]`](#specifying-indexes-with--)
     - [Specifying id's with `#`](#specifying-ids-with-)
     - [Specifying class names with `.`](#specifying-class-names-with-)
+- [`DUMMY` values](#dummy-values)
 - [`make_item_from_emmet()` : Creating Checks using Emmet Syntax](#make_item_from_emmet--creating-checks-using-emmet-syntax)  
     - [Signature](#signature)
     - [Parameters](#parameters)
@@ -131,6 +132,60 @@ div_element = suite.element("table")
 # With Emmet Syntax | 49 characters
 div_element = suite.element("table>tr.tr-example>td.ex-1.ex-2")
 ```
+
+## `DUMMY` values
+
+In a lot of cases you're going to want the students to write _something_ or to give _some value_ to an attribute, but you don't care what it is they write down. For that you can use the `DUMMY` keyword in your emmet for attribute values and for text.
+
+### Examples
+
+#### Example 1 (text)
+
+If you have this as `evaluator.py` (`make_item_from_emmet` is explained in the next section)
+
+```python
+suite = HtmlSuite(content)
+
+suite.make_item_from_emmet("A div in body contains some text.", 'body>div{DUMMY}')
+```
+
+And this as the submission
+
+```html
+        <html lang='en'>
+        <body>
+            <div></div>
+            <div>Lorem ipsum</div>
+        </body>
+        </html>
+```
+
+Then the submission will be accepted.
+
+
+#### Example 2 (attribute values)
+
+If you have this as `evaluator.py`
+
+```python
+suite = HtmlSuite(content)
+
+suite.make_item_from_emmet("A language is defined.", 'html[lang="DUMMY"]')
+```
+
+And this as the submission
+
+```html
+        <html lang='en'>
+        <body>
+            <div></div>
+            <div>Lorem ipsum</div>
+        </body>
+        </html>
+```
+
+Then the submission will be accepted.
+
 
 ## `make_item_from_emmet()` : Creating Checks using Emmet Syntax
 
