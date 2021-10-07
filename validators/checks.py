@@ -628,6 +628,10 @@ class ElementContainer:
 
         return self.elements[item]
 
+    def __iter__(self):
+        for el in self.elements:
+            yield el
+
     def __len__(self):
         return self._size
 
