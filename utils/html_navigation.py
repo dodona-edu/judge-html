@@ -158,7 +158,7 @@ def find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, ind: int
     return current_element
 
 
-def compare_content(first: str, second: str) -> bool:
+def compare_content(first: str, second: str, case_insensitive: bool = False) -> bool:
     """Check if content of two strings is equal, ignoring all whitespace"""
     # Remove all leading/trailing whitespace, and replace all other whitespace by single spaces
     # in both argument and content
@@ -167,6 +167,10 @@ def compare_content(first: str, second: str) -> bool:
 
     element_text = re.sub(r"\s+", " ", element_text, re.MULTILINE)
     arg_text = re.sub(r"\s+", " ", arg_text, re.MULTILINE)
+
+    if case_insensitive:
+        element_text = element_text.lower()
+        arg_text = arg_text.lower()
 
     return element_text == arg_text
 

@@ -172,7 +172,7 @@ class Element:
 
         return Check(_inner)
 
-    def has_content(self, text: Optional[str] = None) -> Check:
+    def has_content(self, text: Optional[str] = None, case_insensitive: bool = False) -> Check:
         """Check if this element has given text as content.
         In case no text is passed, any non-empty string will make the test pass
 
@@ -196,7 +196,7 @@ class Element:
                 return text is None
 
             if text is not None:
-                return compare_content(self._element.text, text)
+                return compare_content(self._element.text, text, case_insensitive)
 
             return len(self._element.text.strip()) > 0
 
@@ -375,7 +375,7 @@ class Element:
 
         return Check(_inner)
 
-    def has_table_content(self, rows: List[List[str]], has_header: bool = True) -> Check:
+    def has_table_content(self, rows: List[List[str]], has_header: bool = True, case_insensitive: bool = False) -> Check:
         """Check that a table's rows have the requested content
         :param rows:        The data of all the rows to check
         :param has_header:  Boolean that indicates that this table has a header,
@@ -416,14 +416,14 @@ class Element:
                 # Compare content
                 for j in range(len(rows[i])):
                     # Content doesn't match
-                    if not compare_content(data[j].text, rows[i][j]):
+                    if not compare_content(data[j].text, rows[i][j], case_insensitive):
                         return False
 
             return True
 
         return Check(_inner)
 
-    def table_row_has_content(self, row: List[str]) -> Check:
+    def table_row_has_content(self, row: List[str], case_insensitive: bool = False) -> Check:
         """Check the content of one row instead of the whole table"""
 
         def _inner(_: BeautifulSoup) -> bool:
@@ -439,7 +439,7 @@ class Element:
 
             for i in range(len(row)):
                 # Text doesn't match
-                if not compare_content(row[i], tds[i].text):
+                if not compare_content(row[i], tds[i].text, case_insensitive):
                     return False
 
             return True
