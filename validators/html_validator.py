@@ -5,7 +5,7 @@ from dodona.translator import Translator
 from exceptions.html_exceptions import *
 from os import path
 
-from exceptions.html_exceptions import UnexpectedClosingTagError
+from exceptions.html_exceptions import UnexpectedClosingTagError, MissingOpeningTagError
 from utils.file_loaders import json_loader, html_loader
 from validators.double_chars_validator import DoubleCharsValidator
 from functools import lru_cache
@@ -136,9 +136,13 @@ class HtmlValidator(HTMLParser):
     def _validate_corresponding_tag(self, tag: str):
         """validate that each tag that opens has a corresponding closing tag"""
         if not (self.tag_stack and self.tag_stack[-1] == tag):
-            missing_closing = self.tag_stack.pop()
-            self.error(MissingClosingTagError(translator=self.translator, tag_location=self.tag_stack,
-                                              position=self.getpos(), tag=missing_closing))
+            if self.tag_stack:
+                missing_closing = self.tag_stack.pop()
+                self.error(MissingClosingTagError(translator=self.translator, tag_location=self.tag_stack,
+                                                  position=self.getpos(), tag=missing_closing))
+            else:
+                self.error(MissingOpeningTagError(translator=self.translator, tag_location=self.tag_stack,
+                                                  position=self.getpos(), tag=tag))
 
     @lru_cache()
     def _is_void_tag(self, tag: str) -> bool:
