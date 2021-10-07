@@ -62,7 +62,7 @@ class Element:
         """Check that the element has a child that meets the specifications"""
         ...
 
-    def has_content(self, text: Optional[str] = ...) -> Check:
+    def has_content(self, text: Optional[str] = ..., case_insensitive: bool = ...) -> Check:
         """Check that the element has specific content, or any content at all."""
         ...
 
@@ -98,11 +98,11 @@ class Element:
         """This method checks if an Element with tag table has a header with content that matches a list of strings."""
         ...
 
-    def has_table_content(self, rows: List[List[str]], has_header: bool = True) -> Check:
+    def has_table_content(self, rows: List[List[str]], has_header: bool = True, case_insensitive: bool = ...) -> Check:
         """This method checks if an Element with tag table has rows with the required content, excluding the header."""
         ...
 
-    def table_row_has_content(self, row: List[str]) -> Check:
+    def table_row_has_content(self, row: List[str], case_insensitive: bool = ...) -> Check:
         """This method checks if an Element with tag tr has the required content."""
         ...
 

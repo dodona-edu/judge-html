@@ -288,7 +288,7 @@ are considered to be **equal**.
 #### Signature
 
 ```python
-def has_content(text: Optional[str] = None) -> Check
+def has_content(text: Optional[str] = None, case_insensitive: bool = False) -> Check
 ```
 
 #### Parameters
@@ -296,6 +296,7 @@ def has_content(text: Optional[str] = None) -> Check
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
 | `text` | The text to compare the element's content to. |           | `None`, which will make any content pass and just checks if the content is not empty. |
+| `case_insensitive` | Indicate that the casing of the value does not matter when checking. |           | `False` |
 
 #### Example usage
 
@@ -465,7 +466,7 @@ This method checks if an `Element` with tag `table` has rows with the required c
 #### Signature
 
 ```python
-def has_table_content(rows: List[List[str]], has_header: bool = True) -> Check
+def has_table_content(rows: List[List[str]], has_header: bool = True, case_insensitive: bool = False) -> Check
 ```
 
 #### Parameters
@@ -474,6 +475,7 @@ def has_table_content(rows: List[List[str]], has_header: bool = True) -> Check
 |:-----|:------------|:---------:|:--------|
 | `rows` | A 2D `list` of `strings` that represents the content that the rows should match exactly. | ✔ |  |
 | `has_header` | Boolean that indicates this table should have a `header`, in which case the first `<tr>` will be ignored.  |  | `True` |
+| `case_insensitive` | Indicate that the casing of the value does not matter when checking. |           | `False` |
 
 #### Example usage
 
@@ -549,7 +551,7 @@ This method checks if an `Element` with tag `tr` has the required content. This 
 #### Signature
 
 ```python
-def table_row_has_content(row: List[str]) -> Check
+def table_row_has_content(row: List[str], case_insensitive: bool = False) -> Check
 ```
 
 #### Parameters
@@ -557,6 +559,7 @@ def table_row_has_content(row: List[str]) -> Check
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
 | `row` | A `list` of `strings` that represents the content that the row should match exactly. | ✔ |  |
+| `case_insensitive` | Indicate that the casing of the value does not matter when checking. |           | `False` |
 
 #### Example usage
 
