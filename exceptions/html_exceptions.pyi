@@ -26,6 +26,11 @@ class TagError(LocatableHtmlValidationError):
 
     def __init__(self, translator: Translator, tag_location: [str], position: (int, int), tag: str): ...
 
+
+class MissingOpeningTagError(TagError):
+    def __str__(self) -> str: ...
+
+
 class MissingClosingTagError(TagError):
     def __str__(self) -> str: ...
 

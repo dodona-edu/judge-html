@@ -32,6 +32,7 @@ class Translator:
         MISSING_OPENING_CHARACTER = auto()
         MISSING_CLOSING_CHARACTER = auto()
         # html exceptions
+        MISSING_OPENING_TAG = auto()
         MISSING_CLOSING_TAG = auto()
         INVALID_TAG = auto()
         NO_SELF_CLOSING_TAG = auto()
@@ -145,6 +146,7 @@ class Translator:
             Text.MISSING_OPENING_CHARACTER: "Missing opening character for",
             Text.MISSING_CLOSING_CHARACTER: "Missing closing character for",
             # html exceptions
+            Text.MISSING_OPENING_TAG: "Missing opening html-tag for",
             Text.MISSING_CLOSING_TAG: "Missing closing html-tag for",
             Text.INVALID_TAG: "Invalid html-tag",
             Text.NO_SELF_CLOSING_TAG: "The following tag is not a self-closing html-tag",
@@ -188,6 +190,7 @@ class Translator:
             Text.MISSING_OPENING_CHARACTER: "Ontbrekend openend karakter voor",
             Text.MISSING_CLOSING_CHARACTER: "Ontbrekend sluitend karakter voor",
             # html exceptions
+            Text.MISSING_OPENING_TAG: "Ontbrekende openende html-tag voor",
             Text.MISSING_CLOSING_TAG: "Ontbrekende sluitende html-tag voor",
             Text.INVALID_TAG: "Ongeldige html-tag",
             Text.NO_SELF_CLOSING_TAG: "De volgende html-tag is geen zelf-afsluitende html-tag",

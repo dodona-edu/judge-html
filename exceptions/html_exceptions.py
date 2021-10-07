@@ -45,6 +45,12 @@ class MissingClosingTagError(TagError):
         return f"{self.translator.translate(Translator.Text.MISSING_CLOSING_TAG)} <{self.tag}> ({self.tag_location()})"
 
 
+class MissingOpeningTagError(TagError):
+    """Exception that indicates that the opening tag is missing for a tag"""
+    def __str__(self):
+        return f"{self.translator.translate(Translator.Text.MISSING_OPENING_TAG)} <{self.tag}> ({self.tag_location()})"
+
+
 class InvalidTagError(TagError):
     """Exception that indicates that a tag is invalid (tag doesn't exist or isn't allowed to be used"""
     def __str__(self):
