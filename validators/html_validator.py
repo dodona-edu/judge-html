@@ -5,7 +5,6 @@ from dodona.translator import Translator
 from exceptions.html_exceptions import *
 from os import path
 
-from exceptions.html_exceptions import UnexpectedClosingTagError, MissingOpeningTagError
 from utils.file_loaders import json_loader, html_loader
 from validators.double_chars_validator import DoubleCharsValidator
 from functools import lru_cache
