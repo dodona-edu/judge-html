@@ -140,7 +140,7 @@ class HtmlValidator(HTMLParser):
                 missing_closing = self.tag_stack.pop()
                 self.error(MissingClosingTagError(translator=self.translator, tag_location=self.tag_stack,
                                                   position=self.getpos(), tag=missing_closing))
-            else:
+            elif not self._is_void_tag(tag):
                 self.error(MissingOpeningTagError(translator=self.translator, tag_location=self.tag_stack,
                                                   position=self.getpos(), tag=tag))
 
