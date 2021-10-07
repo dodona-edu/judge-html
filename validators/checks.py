@@ -741,7 +741,7 @@ class TestSuite:
     translations: Dict[str, List[str]] = field(default_factory=dict)
     _bs: BeautifulSoup = field(init=False)
     _html_validator: HtmlValidator = field(init=False)
-    _css_validator: CssValidator = field(init=False)
+    _css_validator: Optional[CssValidator] = field(init=False)
     _html_validated: bool = field(init=False)
     _css_validated: bool = field(init=False)
 
@@ -753,6 +753,8 @@ class TestSuite:
             self._css_validator = CssValidator(self.content)
             self._css_validated = True
         except CssParsingError:
+            # Css is invalid, can't create the validator
+            self._css_validator = None
             self._css_validated = False
 
     def create_validator(self, config: DodonaConfig):
