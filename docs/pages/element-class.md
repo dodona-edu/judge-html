@@ -351,19 +351,18 @@ body_structure = ChecklistItem("The body has a table followed by a div.", [
 Check that this element has a url that doesn't go to another domain, optionally with a `list` of domains that you want
 to allow.
 
-In case the element is not an `<a>`-tag or does not have an `href` attribute, this will also return `False`.
-
 #### Signature
 
 ```python
-def has_outgoing_url(allowed_domains: Optional[List[str]] = None) -> Check
+def has_outgoing_url(allowed_domains: Optional[List[str]] = None, attr: str = "href") -> Check
 ```
 
 #### Parameters
 
 | Name      | Description                                     | Required? | Default                                           |
 |:----------|:------------------------------------------------|:---------:|:--------------------------------------------------|
-| `allowed_domains`  | An optional list of domains that should *not* be considered "outgoing". |           | `None`, which will default to `["dodona.ugent.be", "users.ugent.be"]`.|
+| `allowed_domains`  | An optional list of domains that should *not* be considered "outgoing". |           | `None`, which will default to `["dodona.ugent.be", "users.ugent.be"]`. If you don't want to allow those domains either, simply pass an `empty list` (`[]`). |
+| `attr` | The attribute the link should be in, which allows this to be used on multiple types of tags. For example, `<a>`-tags (`attr="href"`) and `<img>`-tags (`attr="src"`). | | `"href"`, used in `<a>`-tags. |
 
 #### Example usage
 

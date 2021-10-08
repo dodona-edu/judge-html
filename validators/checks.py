@@ -475,10 +475,11 @@ class Element:
 
         return Check(_inner)
 
-    def has_outgoing_url(self, allowed_domains: Optional[List[str]] = None) -> Check:
-        """Check if an <a>-tag has an outgoing link
+    def has_outgoing_url(self, allowed_domains: Optional[List[str]] = None, attr: str = "href") -> Check:
+        """Check if a tag has an outgoing link
         :param allowed_domains: A list of domains that should not be considered "outgoing",
                                 defaults to ["dodona.ugent.be", "users.ugent.be"]
+        :param attr:       The attribute the link should be in
         """
         if allowed_domains is None:
             allowed_domains = ["dodona.ugent.be", "users.ugent.be"]
@@ -489,11 +490,7 @@ class Element:
             if self._element is None:
                 return False
 
-            # Not an anchor tag
-            if self.tag.lower() != "a":
-                return False
-
-            url = self._get_attribute("href")
+            url = self._get_attribute(attr.lower())
 
             # No url present
             if url is None:
