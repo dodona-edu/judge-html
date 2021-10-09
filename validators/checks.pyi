@@ -110,10 +110,11 @@ class Element:
         """Check that this element has a url with a fragment (#), optionally comparing the fragment to a string that it should match exactly."""
         ...
 
-    def has_outgoing_url(self, allowed_domains: Optional[List[str]] = None) -> Check:
+    def has_outgoing_url(self, allowed_domains: Optional[List[str]] = None, attr: str = "href") -> Check:
         """Check if an <a>-tag has an outgoing link
         :param allowed_domains: A list of domains that should not be considered "outgoing",
                                 defaults to ["dodona.ugent.be", "users.ugent.be"]
+        :param attr:       The attribute the link should be in
         """
         ...
 
