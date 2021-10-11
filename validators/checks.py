@@ -502,8 +502,8 @@ class Element:
                 # Ignore www. in the start to allow the arguments to be shorter
                 netloc = spl.netloc.lower().removeprefix("www.")
                 return netloc not in list(map(lambda x: x.lower(), allowed_domains))
-            else:
-                return False
+
+            return False
 
         return Check(_inner)
 
