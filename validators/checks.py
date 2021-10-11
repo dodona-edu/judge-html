@@ -856,7 +856,7 @@ class TestSuite:
             if "nl" in self.translations:
                 self.translations["nl"].append("De CSS is geldig.")
 
-    def compare_to_solution(self, solution: str, translator: Translator, **kwargs):
+    def compare_to_solution(self, solution: str, translator: Translator, **kwargs) -> Check:
         """Compare the submission to the solution html."""
 
         def _inner(_: BeautifulSoup):

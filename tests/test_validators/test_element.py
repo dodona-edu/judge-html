@@ -162,6 +162,7 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment()))
         self.assertTrue(suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment("_1-create-an-api-token")))
         self.assertFalse(suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment("some-other-fragment")))
+        self.assertTrue(suite.check(suite.element("a", id="internal_link").has_url_with_fragment("section2")))
 
     def test_has_outgoing_url(self):
         suite = UnitTestSuite("links")
