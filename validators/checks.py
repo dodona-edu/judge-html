@@ -498,9 +498,12 @@ class Element:
 
             spl = urlsplit(url)
 
-            # Ignore www. in the start to allow the arguments to be shorter
-            netloc = spl.netloc.lower().removeprefix("www.")
-            return netloc not in list(map(lambda x: x.lower(), allowed_domains))
+            if spl.netloc:
+                # Ignore www. in the start to allow the arguments to be shorter
+                netloc = spl.netloc.lower().removeprefix("www.")
+                return netloc not in list(map(lambda x: x.lower(), allowed_domains))
+
+            return False
 
         return Check(_inner)
 

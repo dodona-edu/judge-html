@@ -170,6 +170,8 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(suite.element("a", id="outgoing_link").has_outgoing_url()))
         self.assertFalse(suite.check(suite.element("a", id="outgoing_link").has_outgoing_url(["youtube.com"])))
         self.assertFalse(suite.check(suite.element("a", id="dodona_link").has_outgoing_url()))
+        self.assertFalse(suite.check(suite.element("img", id="internal_image").has_outgoing_url(attr="src")))
+        self.assertTrue(suite.check(suite.element("img", id="external_image").has_outgoing_url(attr="src")))
 
     def test_contains_comment(self):
         suite = UnitTestSuite("test_1")
