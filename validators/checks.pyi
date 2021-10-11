@@ -16,7 +16,7 @@ Emmet = TypeVar("Emmet", bound=str)
 class Check:
     callback: Callable[[BeautifulSoup], bool]
     on_success: List["Check"] = ...
-    abort_on_fail: bool = ...
+    abort_on_fail: bool = False
 
     def __init__(self, callback: Callable[[BeautifulSoup], bool]): ...
 
@@ -46,11 +46,11 @@ class Element:
 
     def __str__(self) -> str: ...
 
-    def get_child(self, tag: Optional[Union[str, Emmet]] = ..., index: int = ..., direct: bool = ..., **kwargs) -> "Element":
+    def get_child(self, tag: Optional[Union[str, Emmet]] = ..., index: int = 0, direct: bool = True, **kwargs) -> "Element":
         """This method finds a child element with tag tag, optionally with extra filters. Supports Emmet syntax through the tag parameter."""
         ...
 
-    def get_children(self, tag: Optional[Union[str, Emmet]] = ..., direct: bool = ..., **kwargs) -> "ElementContainer":
+    def get_children(self, tag: Optional[Union[str, Emmet]] = ..., direct: bool = True, **kwargs) -> "ElementContainer":
         """This method finds ALL child elements, optionally with tag tag and extra filters. Supports Emmet syntax through the tag parameter."""
         ...
 
@@ -58,7 +58,7 @@ class Element:
         """Check that an element exists, and is not empty."""
         ...
 
-    def has_child(self, tag: str, direct: bool = ..., **kwargs) -> Check:
+    def has_child(self, tag: str, direct: bool = True, **kwargs) -> Check:
         """Check that the element has a child that meets the specifications"""
         ...
 
@@ -76,17 +76,17 @@ class Element:
         """Check that there is no content floating around in this tag"""
         ...
 
-    def _get_attribute(self, attr: str) -> Optional[str]: ...
+    def _get_attribute(self, attr: str) -> Optional[Union[List[str], str]]: ...
 
     def _compare_attribute_list(self, attribute: List[str], value: Optional[str] = None,
                                 case_insensitive: bool = False,
                                 mode: int = 0, flags: Union[int, RegexFlag] = 0) -> bool: ...
 
-    def attribute_exists(self, attr: str, value: Optional[str] = ..., case_insensitive: bool = ...) ->Check:
+    def attribute_exists(self, attr: str, value: Optional[str] = ..., case_insensitive: bool = False) ->Check:
         """Check that this element has a given attribute, optionally matching a specific value."""
         ...
 
-    def attribute_contains(self, attr: str, substr: str, case_insensitive: bool = ...) -> Check:
+    def attribute_contains(self, attr: str, substr: str, case_insensitive: bool = False) -> Check:
         """Check that this element has a given attribute, and that the attribute contains a substring. If the element doesn't exist, this check will fail as well."""
         ...
 
@@ -126,7 +126,7 @@ class Element:
         """Check that this element is matched by a CSS selector to give it a particular styling. A value can be passed to match the value of the styling exactly."""
         ...
 
-    def has_color(self, prop: str, color: str) -> Check:
+    def has_color(self, prop: str, color: str, important: Optional[bool] = None) -> Check:
         """Check that this element has a given color on a CSS property."""
         ...
 
@@ -182,7 +182,7 @@ class ChecklistItem:
 class TestSuite:
     name: str
     content: str
-    check_recommended: bool = ...
+    check_recommended: bool = True
     checklist: List[ChecklistItem] = ...
     translations: Dict[str, List[str]] = ...
     _bs: BeautifulSoup = ...
@@ -215,7 +215,7 @@ class TestSuite:
             or equal elements"""
         ...
 
-    def validate_html(self, allow_warnings: bool = ...) -> Check:
+    def validate_html(self, allow_warnings: bool = True) -> Check:
         """Check that the student's submitted code is valid HTML without syntax errors. The errors will not be reported to the student as to not reveal the answer."""
         ...
 
@@ -243,11 +243,11 @@ class TestSuite:
         """Check if the document has a DOCTYPE tag, optionally matching a value"""
         ...
 
-    def element(self, tag: Optional[Union[str, Emmet]] = ..., from_root: bool = ..., **kwargs) -> Element:
+    def element(self, tag: Optional[Union[str, Emmet]] = ..., index: int = 0, from_root: bool = False, **kwargs) -> Element:
         """Create a reference to an HTML element. Supports Emmet syntax through the tag parameter."""
         ...
 
-    def all_elements(self, tag: Optional[Union[str, Emmet]] = ..., from_root: bool = ..., **kwargs) -> ElementContainer:
+    def all_elements(self, tag: Optional[Union[str, Emmet]] = ..., from_root: bool = False, **kwargs) -> ElementContainer:
         """Get references to ALL HTML elements that match a query. Supports Emmet syntax through the tag parameter."""
         ...
 
@@ -260,19 +260,19 @@ class BoilerplateTestSuite(TestSuite):
     _default_translations: Optional[Dict[str, List[str]]] = ...
     _default_checks: Optional[List[ChecklistItem]] = ...
 
-    def __init__(self, name: str, content: str, check_recommended: bool = ...): ...
+    def __init__(self, name: str, content: str, check_recommended: bool = True): ...
 
 
 class HtmlSuite(BoilerplateTestSuite):
     allow_warnings: bool
 
-    def __init__(self, content: str, check_recommended: bool = ..., allow_warnings: bool = ..., abort: bool = ...): ...
+    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True): ...
 
 
 class CssSuite(BoilerplateTestSuite):
     allow_warnings: bool
 
-    def __init__(self, content: str, check_recommended: bool = ..., allow_warnings: bool = ..., abort: bool = ...): ...
+    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True): ...
 
 
 class _CompareSuite(HtmlSuite):

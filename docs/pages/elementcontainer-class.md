@@ -1,6 +1,6 @@
 # ElementContainer Class
 
-The `ElementContainer` is a container for `Elements` (...), and can be used as a standard Python `list`. Instances of this class are returned by methods that can return more than one element (for example: `Element.get_children()`, `TestSuite.all_elements()`).
+The `ElementContainer` is a container for [`Element`](element-class)s, and can be used as a standard Python `list`. Instances of this class are returned by methods that can return more than one element (for example: `Element.get_children()`, `TestSuite.all_elements()`).
 
 The main purpose of `ElementContainer`s is verification of a document's structure. If your solution wants to check if the second `<div>` contains something, and the student's submission only has one `<div>`, then this would cause an IndexError. When getting indexes that go out of bounds, the ElementContainer will return an empty element instead. Empty elements will make *checks* fail, and rightfully so because the element doesn't exist even though it should, but the suite itself won't crash.
 
