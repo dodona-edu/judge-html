@@ -29,6 +29,9 @@
   * Each tag that opens must have a corresponding closing tag.
   * Checks if all tags are valid
 * Check if all id's are unique
+* Check if the tag is permitted in the parent tag
+* Check for required (and recommended) attributes
+* Check for invalid attributes (e.g. style attribute is not allowed)
 
 ### HTML
 * Check if required attributes are present.
