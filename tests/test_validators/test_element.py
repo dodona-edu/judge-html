@@ -46,6 +46,8 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(body_element.exists()))
         self.assertFalse(suite.check(body_element.get_child("body").exists()))
 
+        self.assertTrue(suite.check(body_element.get_child("div", id="second_div").exists()))
+
     def test_has_tag(self):
         suite = UnitTestSuite("test_1")
         body_element = suite.element("body")
@@ -56,12 +58,18 @@ class TestElement(unittest.TestCase):
 
     def test_has_content(self):
         suite = UnitTestSuite("test_1")
-        paragraph = suite.element("p")
+        ps = suite.all_elements("p")
+        paragraph1 = ps[0]
+        paragraph3 = ps[2]
 
-        self.assertTrue(suite.check(paragraph.has_content()))
-        self.assertTrue(suite.check(paragraph.has_content("Some text.")))
-        self.assertTrue(suite.check(paragraph.has_content("Some  \t        text.")))
-        self.assertFalse(suite.check(paragraph.has_content("Other text")))
+        self.assertTrue(suite.check(paragraph1.has_content()))
+        self.assertTrue(suite.check(paragraph1.has_content("Some text.")))
+        self.assertTrue(suite.check(paragraph1.has_content("Some  \t        text.")))
+        self.assertFalse(suite.check(paragraph1.has_content("Other text")))
+        self.assertTrue(suite.check(paragraph1.has_content("SOME text.", case_insensitive=True)))
+        self.assertFalse(suite.check(paragraph1.has_content("SOME", case_insensitive=True)))
+
+        self.assertFalse(suite.check(paragraph3.has_content()))
 
     def test_attribute_exists(self):
         suite = UnitTestSuite("test_1")
@@ -70,6 +78,7 @@ class TestElement(unittest.TestCase):
 
         self.assertTrue(suite.check(img_element.attribute_exists("src")))
         self.assertFalse(suite.check(img_element.attribute_exists("width")))
+        self.assertTrue(suite.check(img_element.attribute_exists("alt", "dodona-icon")))
 
         # Lists
         suite = UnitTestSuite("class_names")
@@ -81,6 +90,7 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(div_element.attribute_exists("class", "SOMETHING")))
         self.assertTrue(suite.check(div_element.attribute_exists("class", "something", case_insensitive=True)))
         self.assertFalse(suite.check(div_element.attribute_exists("class", "something else")))
+        self.assertTrue(suite.check(div_element.attribute_exists("class", "else")))
 
     def test_attribute_contains(self):
         suite = UnitTestSuite("test_1")
