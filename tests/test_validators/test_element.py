@@ -12,14 +12,32 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(body_element.get_child("div", 1, direct=True).attribute_exists("id", "second_div")))
 
         # Index out of range will return nothing
-        self.assertFalse(suite.check(body_element.get_child("div", 2, direct=True).exists()))
+        self.assertFalse(suite.check(body_element.get_child("div", index=2, direct=True).exists()))
 
         # Check nested elements
         self.assertTrue(suite.check(body_element.get_child("div", 1, direct=False).attribute_exists("id", "nested")))
 
+        # First tag
+        self.assertTrue(suite.check(body_element.get_child(index=0).attribute_exists("id", "first_div")))
+
+        # kwargs
+        self.assertTrue(suite.check(body_element.get_child("div", direct=True, id="second_div").exists()))
+        self.assertFalse(suite.check(body_element.get_child("div", direct=True, id="nested").exists()))
+        self.assertTrue(suite.check(body_element.get_child("img", alt="dodona-icon").exists()))
+        self.assertTrue(suite.check(body_element.get_child("h2", direct=False, class_="city").has_content("London")))
+
+        # Emmet
+        self.assertTrue(suite.check(body_element.get_child("div>p").has_content("Some text.")))
+
     def test_get_children(self):
         suite = UnitTestSuite("test_1")
         self.assertTrue(suite.element("html").get_children("body>div").exactly(2))
+        self.assertTrue(suite.element("html").get_children("img").exactly(1))
+
+        self.assertTrue(suite.element("body").get_children("p", direct=True).exactly(1))
+        self.assertTrue(suite.element("html").get_children("p", direct=False).exactly(3))
+        self.assertTrue(suite.element("html").get_children("p", direct=False, class_="city").exactly(2))
+        self.assertTrue(suite.element("html").get_children("img", direct=False, alt="dodona-icon").exactly(1))
 
     def test_exists(self):
         suite = UnitTestSuite("test_1")
@@ -160,8 +178,10 @@ class TestElement(unittest.TestCase):
         self.assertFalse(suite.check(suite.element("body").has_url_with_fragment()))
         self.assertFalse(suite.check(suite.element("a", id="outgoing_link").has_url_with_fragment()))
         self.assertTrue(suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment()))
-        self.assertTrue(suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment("_1-create-an-api-token")))
-        self.assertFalse(suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment("some-other-fragment")))
+        self.assertTrue(
+            suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment("_1-create-an-api-token")))
+        self.assertFalse(
+            suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment("some-other-fragment")))
         self.assertTrue(suite.check(suite.element("a", id="internal_link").has_url_with_fragment("section2")))
 
     def test_has_outgoing_url(self):
