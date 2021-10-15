@@ -460,7 +460,7 @@ table_element.no_loose_text()
 
 ## `has_table_content()`
 
-This method checks if an `Element` with tag `table` has rows with the required content, **excluding the header**.
+This method checks if an `Element` with tag `table` has rows (`tr`) with the required content in `td`, **excluding the header (assuming first row)**.
 
 #### Signature
 
@@ -508,7 +508,7 @@ table_element.has_table_content(rows, has_header=True)
 
 ## `has_table_header()`
 
-This method checks if an `Element` with tag `table` has a header with content that matches a list of strings. This avoids having to use `all_of` combined with a *LOT* of `has_content`s.
+This method checks if an `Element` with tag `table` has a header (all `th` tags of the table) with content that matches a list of strings. This avoids having to use `all_of` combined with a *LOT* of `has_content`s.
 
 #### Signature
 

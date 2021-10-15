@@ -79,6 +79,7 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(img_element.attribute_exists("src")))
         self.assertFalse(suite.check(img_element.attribute_exists("width")))
         self.assertTrue(suite.check(img_element.attribute_exists("alt", "dodona-icon")))
+        self.assertFalse(suite.check(img_element.attribute_exists("alt", "icon")))
 
         # Lists
         suite = UnitTestSuite("class_names")
@@ -96,10 +97,12 @@ class TestElement(unittest.TestCase):
         suite = UnitTestSuite("test_1")
         body_element = suite.element("body")
         img_element = body_element.get_child("img")
+        h3 = body_element.get_child("h3", direct=False)  # does not exist
 
         self.assertTrue(suite.check(img_element.attribute_contains("src", "dodona")))
         self.assertTrue(suite.check(img_element.attribute_contains("src", "DODONA", case_insensitive=True)))
         self.assertFalse(suite.check(img_element.attribute_contains("src", "google.com")))
+        self.assertFalse(suite.check(h3.attribute_contains("class", "city")))
 
         # Lists
         suite = UnitTestSuite("class_names")
@@ -116,9 +119,11 @@ class TestElement(unittest.TestCase):
         suite = UnitTestSuite("test_1")
         body_element = suite.element("body")
         img_element = body_element.get_child("img")
+        h3 = body_element.get_child("h3", direct=False)  # does not exist
 
         self.assertTrue(suite.check(img_element.attribute_matches("src", r"^https://.*dodona.ugent.be.*.png$")))
         self.assertFalse(suite.check(img_element.attribute_matches("src", r"^www.ufora.ugent.be.*.mp3$")))
+        self.assertFalse(suite.check(h3.attribute_contains("class", "^city")))
 
         # Lists
         suite = UnitTestSuite("class_names")
@@ -162,7 +167,8 @@ class TestElement(unittest.TestCase):
         # Only for td's, not for headers
         self.assertFalse(suite.check(rows[0].table_row_has_content(["Column 1", "Column 2", "Column 3"])))
         self.assertTrue(suite.check(rows[1].table_row_has_content(["Value \n1", "Value 2", "Value 3"])))
-        self.assertTrue(suite.check(rows[2].table_row_has_content(["Value 4", "Value \t5", "Value      6"])))
+        self.assertTrue(
+            suite.check(rows[2].table_row_has_content(["Value 4", "Value \t5", "VALUE      6"], case_insensitive=True)))
 
     def test_has_color(self):
         suite = UnitTestSuite("css_1")
