@@ -1,33 +1,17 @@
 from dodona.translator import Translator
 from lxml.html import fromstring, HtmlElement, HtmlComment
 
+from exceptions.utils import AnnotatedException
 from validators.css_validator import CssValidator
 from utils.html_navigation import compare_content
 
 
-class NotTheSame(Exception):
-    def __init__(self, msg: str, line: int, trans: Translator):
-        self.msg = msg
-        self.line = line - 1  # 1 based to 0 based
-        self.trans = trans
-
+class NotTheSame(AnnotatedException):
     def __repr__(self):
         return f"{self.msg} {self.trans.translate(Translator.Text.AT_LINE)} {self.line + 1}"
 
     def __str__(self):
         return self.__repr__()
-
-    def message_str(self):
-        # Line number < 0 means no line number should be shown (eg. empty submission)
-        # (#137)
-        if self.line < 0:
-            return self.msg
-
-        return f"{self.msg} {self.trans.translate(Translator.Text.AT_LINE)} {self.line + 1}"
-
-    def annotation_str(self):
-        # Don't show line number in annotations (#137)
-        return self.msg
 
 
 def compare(solution: str, submission: str, trans: Translator, **kwargs):
