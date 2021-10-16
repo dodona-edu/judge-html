@@ -1,5 +1,23 @@
 from typing import List
 
+from dodona.translator import Translator
+
+
+class AnnotatedException(Exception):
+    msg: str
+    line: int
+    trans: Translator
+
+    def __init__(self, msg: str, line: int, trans: Translator, *args): ...
+
+    def message_str(self):
+        """Create the message that should be displayed in the Dodona Tab"""
+        ...
+
+    def annotation_str(self):
+        """Create the message that should be displayed in the annotation in the Code Tab"""
+        ...
+
 
 class EvaluationAborted(RuntimeError):
     def __init__(self, *args): ...
