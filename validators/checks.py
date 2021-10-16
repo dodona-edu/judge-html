@@ -3,7 +3,7 @@ import re
 from collections import deque
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Deque, List, Optional, Callable, Union, Dict, TypeVar
+from typing import Deque, List, Optional, Callable, Union, Dict, TypeVar, Iterable
 from urllib.parse import urlsplit
 
 from bs4 import BeautifulSoup
@@ -23,6 +23,7 @@ from validators.html_validator import HtmlValidator
 
 # Emmet string type
 Emmet = TypeVar("Emmet", bound=str)
+Checks = TypeVar("Checks", bound=Union["Check", Iterable["Check"]])
 
 
 @dataclass
