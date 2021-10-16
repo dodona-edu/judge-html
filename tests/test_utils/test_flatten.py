@@ -22,3 +22,8 @@ class TestFlatten(unittest.TestCase):
         item = ChecklistItem("", map(lambda i: i.has_tag("div"), body.get_children("div")[:2]))
         self.assertEqual(len(item._checks), 2)
         self.assertTrue(suite.checklist_item(item))
+
+        # Generator expression
+        item = ChecklistItem("", (c.has_tag("div") for c in body.get_children("div")[:2]))
+        self.assertEqual(len(item._checks), 2)
+        self.assertTrue(suite.checklist_item(item))
