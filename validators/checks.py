@@ -9,12 +9,14 @@ from urllib.parse import urlsplit
 from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
 
+from decorators import flatten_varargs
 from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
 from exceptions.html_exceptions import Warnings, LocatableHtmlValidationError
 from exceptions.utils import EvaluationAborted
+from utils.flatten import flatten_queue
 from utils.regexes import doctype_re
 from utils.html_navigation import find_child, compare_content, match_emmet, find_emmet, contains_comment
 from validators.css_validator import CssValidator, CssParsingError
@@ -65,7 +67,8 @@ class Check:
         """Alias to or_abort()"""
         return self.or_abort()
 
-    def then(self, *args: "Check") -> "Check":
+    @flatten_varargs
+    def then(self, *args: Checks) -> "Check":
         """Register a list of checks to perform in case this check succeeds
         When this check already has checks registered, try to find the deepest check
         and append it to that check. The reasoning is that x.then(y).then(z) suggests y should
@@ -378,9 +381,10 @@ class Element:
 
     def has_table_content(self, rows: List[List[str]], has_header: bool = True, case_insensitive: bool = False) -> Check:
         """Check that a table's rows have the requested content
-        :param rows:        The data of all the rows to check
-        :param has_header:  Boolean that indicates that this table has a header,
-                            so the first row will be ignored (!)
+        :param rows:                The data of all the rows to check
+        :param has_header:          Boolean that indicates that this table has a header,
+                                    so the first row will be ignored (!)
+        :param case_insensitive:    Indicate that comparison should ignore casing or not
         """
 
         def _inner(_: BeautifulSoup) -> bool:
@@ -480,12 +484,10 @@ class Element:
         """Check if a tag has an outgoing link
         :param allowed_domains: A list of domains that should not be considered "outgoing",
                                 defaults to ["dodona.ugent.be", "users.ugent.be"]
-        :param attr:       The attribute the link should be in
+        :param attr:            The attribute the link should be in
         """
         if allowed_domains is None:
             allowed_domains = ["dodona.ugent.be", "users.ugent.be"]
-
-        """Check if a link is outgoing or not"""
 
         def _inner(_: BeautifulSoup) -> bool:
             if self._element is None:
@@ -671,25 +673,6 @@ class ElementContainer:
         return Check(_inner)
 
 
-def _flatten_queue(queue: List) -> List[Check]:
-    """Flatten the queue to allow nested lists to be put it"""
-    flattened: List[Check] = []
-
-    while queue:
-        el = queue.pop(0)
-
-        # This entry is a list too, unpack it
-        # & add to front of the queue
-        if isinstance(el, list):
-            # Iterate in reverse to keep the order of checks!
-            for nested_el in reversed(el):
-                queue.insert(0, nested_el)
-        else:
-            flattened.append(el)
-
-    return flattened
-
-
 @dataclass(init=False)
 class ChecklistItem:
     """An item to add to the checklist
@@ -787,12 +770,13 @@ class TestSuite:
         """
         self.checklist.append(check)
 
-    def make_item(self, message: str, *args: Check):
+    @flatten_varargs
+    def make_item(self, message: str, *args: Checks):
         """Create a new ChecklistItem
         This is a shortcut for suite.checklist.append(ChecklistItem(message, check))"""
         self.checklist.append(ChecklistItem(message, list(args)))
 
-    def make_item_from_emmet(self, message: str, *emmets: Union[str, Emmet]):
+    def make_item_from_emmet(self, message: str, *emmets: Emmet):
         """Create a new ChecklistItem, the check will compare the submission to the emmet expression.
             The emmet expression is seen as the minimal required elements/attributes, so the submission may contain more
             or equal elements"""
@@ -1098,13 +1082,14 @@ UTILITY FUNCTIONS
 """
 
 
-def all_of(*args: Check) -> Check:
+@flatten_varargs
+def all_of(*args: Checks) -> Check:
     """Perform an AND-statement on a series of Checks
     Creates a new Check that requires every single one of the checks to pass,
     otherwise returns False.
     """
     # Flatten list of checks
-    flattened = _flatten_queue(deepcopy(list(args)))
+    flattened = flatten_queue(deepcopy(list(args)))
     queue: Deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:
@@ -1124,13 +1109,14 @@ def all_of(*args: Check) -> Check:
     return Check(_inner)
 
 
-def any_of(*args: Check) -> Check:
+@flatten_varargs
+def any_of(*args: Checks) -> Check:
     """Perform an OR-statement on a series of Checks
     Returns True if at least one of the tests succeeds, and stops
     evaluating the rest at that point.
     """
     # Flatten list of checks
-    flattened = _flatten_queue(deepcopy(list(args)))
+    flattened = flatten_queue(deepcopy(list(args)))
     queue: Deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:
@@ -1150,10 +1136,11 @@ def any_of(*args: Check) -> Check:
     return Check(_inner)
 
 
-def at_least(amount: int, *args: Check) -> Check:
+@flatten_varargs
+def at_least(amount: int, *args: Checks) -> Check:
     """Check that at least [amount] checks passed"""
     # Flatten list of checks
-    flattened = _flatten_queue(deepcopy(list(args)))
+    flattened = flatten_queue(deepcopy(list(args)))
     queue: Deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:

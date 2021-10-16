@@ -2,7 +2,7 @@ from re import RegexFlag
 
 from bs4 import BeautifulSoup
 from bs4.element import Tag
-from typing import Callable, List, Optional, Union, Dict, TypeVar
+from typing import Callable, List, Optional, Union, Dict, TypeVar, Iterable
 
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
@@ -11,6 +11,7 @@ from validators.html_validator import HtmlValidator
 
 
 Emmet = TypeVar("Emmet", bound=str)
+Checks = TypeVar("Checks", bound=Union["Check", Iterable["Check"]])
 
 
 class Check:
@@ -111,10 +112,10 @@ class Element:
         ...
 
     def has_outgoing_url(self, allowed_domains: Optional[List[str]] = None, attr: str = "href") -> Check:
-        """Check if an <a>-tag has an outgoing link
+        """Check if a tag has an outgoing link
         :param allowed_domains: A list of domains that should not be considered "outgoing",
                                 defaults to ["dodona.ugent.be", "users.ugent.be"]
-        :param attr:       The attribute the link should be in
+        :param attr:            The attribute the link should be in
         """
         ...
 
@@ -168,9 +169,6 @@ class ElementContainer:
         ...
 
 
-def _flatten_queue(queue: List) -> List[Check]: ...
-
-
 class ChecklistItem:
     message: str
     _checks: List[Check] = ...
@@ -212,7 +210,7 @@ class TestSuite:
         """Shortcut for suite.checklist.append(ChecklistItem(message, checks))"""
         ...
 
-    def make_item_from_emmet(self, message: str, *emmets: Union[str, Emmet]):
+    def make_item_from_emmet(self, message: str, *emmets: Emmet):
         """Create a new ChecklistItem, the check will compare the submission to the emmet expression.
             The emmet expression is seen as the minimal required elements/attributes, so the submission may contain more
             or equal elements"""

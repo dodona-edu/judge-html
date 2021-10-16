@@ -17,7 +17,7 @@ The `all_of` function takes a list of `Check`s, and will only pass if all of the
 #### Signature
 
 ```python
-def all_of(args: List[Check]) -> Check
+def all_of(*args: Checks) -> Check
 ```
 
 #### Example usage
@@ -42,7 +42,7 @@ The `any_of` function takes a series of checks, and will pass if at least one of
 #### Signature
 
 ```python
-def any_of(*args: Check) -> Check
+def any_of(*args: Checks) -> Check
 ```
 
 #### Example usage
@@ -67,7 +67,7 @@ The `at_least` function takes the amount of checks required, and a series of che
 #### Signature
 
 ```python
-def at_least(amount: int, *args: Check) -> Check
+def at_least(amount: int, *args: Checks) -> Check
 ```
 
 #### Example usage

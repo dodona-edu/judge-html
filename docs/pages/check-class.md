@@ -57,7 +57,7 @@ The checks will be added to an internal list of `on_success` checks. In case the
 #### Signature
 
 ```python
-def then(*args: Check) -> Check
+def then(*args: Checks) -> Check
 ```
 
 #### Example usage
