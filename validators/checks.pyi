@@ -282,17 +282,17 @@ class _CompareSuite(HtmlSuite):
                  allow_warnings: bool = True, abort: bool = True): ...
 
 
-def all_of(*args: Check) -> Check:
+def all_of(*args: Checks) -> Check:
     """The all_of function takes a series of Checks, and will only pass if all of these checks passed too. Once one check fails, all other checks in the list will no longer be evaluated."""
     ...
 
 
-def any_of(*args: Check) -> Check:
+def any_of(*args: Checks) -> Check:
     """The any_of function takes a series of checks, and will pass if at least one of these checks passes as well. Once one check passes, all other checks in the list will no longer evaluated."""
     ...
 
 
-def at_least(amount: int, *args: Check) -> Check:
+def at_least(amount: int, *args: Checks) -> Check:
     """The at_least function takes the amount of checks required, and a series of checks to evaluate. The function will pass once at least amount checks have passed, and further checks will no longer be evaluated."""
     ...
 
