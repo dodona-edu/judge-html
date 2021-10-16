@@ -672,6 +672,18 @@ class ElementContainer:
 
         return Check(_inner)
 
+    def all(self, func: Callable[[Element], Check]) -> Check:
+        """Check if all elements in this container match a Check
+        Requires the container to be non-empty, fails otherwise
+        """
+        return self.at_least(1).then(all_of(func(el) for el in self.elements))
+
+    def any(self, func: Callable[[Element], Check]) -> Check:
+        """Check if one element in this container matches a Check
+        Requires the container to be non-empty, fails otherwise
+        """
+        return self.at_least(1).then(any_of(func(el) for el in self.elements))
+
 
 @dataclass(init=False)
 class ChecklistItem:

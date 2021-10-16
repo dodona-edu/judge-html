@@ -168,6 +168,18 @@ class ElementContainer:
         """Check that a container has exactly a certain amount of elements."""
         ...
 
+    def all(self, func: Callable[[Element], Check]) -> Check:
+        """Check if all elements in this container match a Check
+        Requires the container to be non-empty, fails otherwise
+        """
+        ...
+
+    def any(self, func: Callable[[Element], Check]) -> Check:
+        """Check if one element in this container matches a Check
+        Requires the container to be non-empty, fails otherwise
+        """
+        ...
+
 
 class ChecklistItem:
     message: str
