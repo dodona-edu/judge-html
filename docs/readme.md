@@ -26,3 +26,4 @@ Note that examples in these files often leave some repetitive information out be
 ### Other useful information
 
 - [Emmet Syntax](pages/emmet-syntax.md)
+- [Special type annotations](pages/type-annotations.md)

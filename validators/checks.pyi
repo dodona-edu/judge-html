@@ -2,7 +2,7 @@ from re import RegexFlag
 
 from bs4 import BeautifulSoup
 from bs4.element import Tag
-from typing import Callable, List, Optional, Union, Dict, TypeVar
+from typing import Callable, List, Optional, Union, Dict, TypeVar, Iterable
 
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
@@ -11,6 +11,7 @@ from validators.html_validator import HtmlValidator
 
 
 Emmet = TypeVar("Emmet", bound=str)
+Checks = TypeVar("Checks", bound=Union["Check", Iterable["Check"]])
 
 
 class Check:
@@ -111,10 +112,10 @@ class Element:
         ...
 
     def has_outgoing_url(self, allowed_domains: Optional[List[str]] = None, attr: str = "href") -> Check:
-        """Check if an <a>-tag has an outgoing link
+        """Check if a tag has an outgoing link
         :param allowed_domains: A list of domains that should not be considered "outgoing",
                                 defaults to ["dodona.ugent.be", "users.ugent.be"]
-        :param attr:       The attribute the link should be in
+        :param attr:            The attribute the link should be in
         """
         ...
 
@@ -142,7 +143,7 @@ class ElementContainer:
 
     def __init__(self, elements: List[Element]): ...
 
-    def __getitem__(self, item) -> Element: ...
+    def __getitem__(self, item) -> Union[Element, List[Element]]: ...
 
     def __iter__(self): ...
 
@@ -168,14 +169,11 @@ class ElementContainer:
         ...
 
 
-def _flatten_queue(queue: List) -> List[Check]: ...
-
-
 class ChecklistItem:
     message: str
     _checks: List[Check] = ...
 
-    def __init__(self, message: str, *checks: Union[List, Check]): ...
+    def __init__(self, message: str, *checks: Checks): ...
 
     def __post_init__(self): ...
 
@@ -212,7 +210,7 @@ class TestSuite:
         """Shortcut for suite.checklist.append(ChecklistItem(message, checks))"""
         ...
 
-    def make_item_from_emmet(self, message: str, *emmets: Union[str, Emmet]):
+    def make_item_from_emmet(self, message: str, *emmets: Emmet):
         """Create a new ChecklistItem, the check will compare the submission to the emmet expression.
             The emmet expression is seen as the minimal required elements/attributes, so the submission may contain more
             or equal elements"""
@@ -284,17 +282,17 @@ class _CompareSuite(HtmlSuite):
                  allow_warnings: bool = True, abort: bool = True): ...
 
 
-def all_of(*args: Check) -> Check:
+def all_of(*args: Checks) -> Check:
     """The all_of function takes a series of Checks, and will only pass if all of these checks passed too. Once one check fails, all other checks in the list will no longer be evaluated."""
     ...
 
 
-def any_of(*args: Check) -> Check:
+def any_of(*args: Checks) -> Check:
     """The any_of function takes a series of checks, and will pass if at least one of these checks passes as well. Once one check passes, all other checks in the list will no longer evaluated."""
     ...
 
 
-def at_least(amount: int, *args: Check) -> Check:
+def at_least(amount: int, *args: Checks) -> Check:
     """The at_least function takes the amount of checks required, and a series of checks to evaluate. The function will pass once at least amount checks have passed, and further checks will no longer be evaluated."""
     ...
 
