@@ -685,21 +685,13 @@ class ChecklistItem:
     message: str
     _checks: List[Check] = field(init=False)
 
-    def __init__(self, message: str, *checks: Union[List, Check]):
+    def __init__(self, message: str, *checks: Checks):
         self.message = message
         self._checks = []
 
-        if isinstance(checks, Check):
-            self._checks.append(checks)
-            return
-
         # Flatten the list of checks and store in internal list
-        for item in checks:
-            if isinstance(item, Check):
-                self._checks.append(item)
-            elif isinstance(item, list):
-                # Group the list into one main check and add that one
-                self._checks.append(all_of(*item))
+        checks = flatten_queue(checks)
+        self._checks = flatten_queue(checks)
 
     def evaluate(self, bs: BeautifulSoup) -> bool:
         """Evaluate all checks inside of this item"""
