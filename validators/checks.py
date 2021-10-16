@@ -621,12 +621,12 @@ class ElementContainer:
         # Avoid calling len() all the time
         self._size = len(self.elements)
 
-    def __getitem__(self, item) -> Element:
-        if not isinstance(item, int):
-            raise TypeError(f"Key {item} was of type {item}, not int.")
+    def __getitem__(self, item) -> Union[Element, List[Element]]:
+        if not isinstance(item, (int, slice)):
+            raise TypeError(f"Key {item} was of type {item}, not int or slice.")
 
         # Out of range
-        if item >= self._size:
+        if isinstance(item, int) and item >= self._size:
             return EmptyElement()
 
         return self.elements[item]
