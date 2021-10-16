@@ -10,3 +10,5 @@ item_2 = ChecklistItem("This is the second item.", check2, check3, check4)
 ```
 
 ![image: ChecklistItems visualized on Dodona.](../media/checklistitems-dodona.png)
+
+ChecklistItems can take variable amounts of Checks, as well as `lists`, `maps`, and `generator expressions`. For more info, refer to the docs for the [`Checks` type annotation](type-annotations.md#checks).
