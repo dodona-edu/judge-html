@@ -8,10 +8,9 @@ def flatten_varargs(func):
     amount of Checks into one List, can also take nested Iterables (maps, generators, ...)
     """
     argspec = getfullargspec(func)
-    var = argspec.varargs
 
     # No varargs argument to flatten
-    if var is None:
+    if argspec.varargs is None:
         return func
 
     def wrapper(*args, **kwargs):
