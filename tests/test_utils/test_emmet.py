@@ -23,7 +23,37 @@ class TestEmmet(unittest.TestCase):
                 </ul>
             </div>
         """
+        self.assertTrue(do("div>ul", doc))
         self.assertTrue(do("div>ul>li", doc))
+        self.assertFalse(do("div>ul>li>li", doc))
+        self.assertFalse(do("div>ol>li", doc))
+
+    def test_index(self):
+        doc = """
+            <ul>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ul>
+        """
+        self.assertTrue(do("ul>li[4]", doc))
+        self.assertFalse(do("ul>ol[5]", doc))
+        doc = """
+            <body>
+                <table>
+                    <tr></tr> 
+                    <tr>
+                        <td>test</td>
+                        <td>text</td>
+                    </tr>                   
+                </table>
+            </body>
+        """
+        # self.assertTrue(do("body>table>tr[1]>td[1]", doc))  # TODO
+        self.assertTrue(do("body>table>tr[1]", doc))
+        self.assertTrue(do("body>table[0]>tr[0]", doc))
 
     def test_sibling(self):
         doc = """
@@ -32,6 +62,9 @@ class TestEmmet(unittest.TestCase):
             <blockquote></blockquote>
         """
         self.assertTrue(do("div+p+blockquote", doc))
+        self.assertTrue(do("p+blockquote+div", doc))
+        self.assertTrue(do("blockquote+div+p", doc))
+        self.assertTrue(do("div+blockquote+p", doc))
 
     def test_climb_up(self):
         doc = """
@@ -68,7 +101,9 @@ class TestEmmet(unittest.TestCase):
                 <li></li>
             </ul>
         """
+        self.assertTrue(do("ul>li*4", doc))
         self.assertTrue(do("ul>li*5", doc))
+        self.assertFalse(do("ul>li*6", doc))
 
     def test_grouping(self):
         doc = """
@@ -104,23 +139,33 @@ class TestEmmet(unittest.TestCase):
 
     def test_id_and_class(self):
         doc = """
-            <div id="header"></div>
-            <div class="page"></div>
-            <div id="footer" class="class1 class2 class3"></div>
+            <body>
+                <div id="header"></div>
+                <div class="page"></div>
+                <div id="footer" class="class1 class2 class3"></div>
+            </body>
         """
         self.assertTrue(do("div#header+div.page+div#footer.class1.class2.class3", doc))
+        self.assertTrue(do("body>div#header", doc))
+        self.assertFalse(do("body>div#page", doc))
+        self.assertTrue(do("body>#header", doc))
+        self.assertTrue(do("body>.page", doc))
+        # self.assertFalse(do("body>.header", doc))  # TODO
 
     def test_custom_attributes(self):
         doc = """
             <td title="Hello world!" colspan="3"></td>
         """
         self.assertTrue(do("td[title='Hello world!' colspan=3]", doc))
+        self.assertTrue(do("td[title='Hello world!' colspan='3']", doc))
+        self.assertFalse(do("td[title='Hello world!' colspan=4]", doc))
 
     def test_text(self):
         doc = """
             <a href="">Click me</a>
         """
         self.assertTrue(do("a{Click me}", doc))
+        self.assertFalse(do("a{Hello}", doc))
         doc = """
             <a href="">click</a><b>here</b>
         """
@@ -147,15 +192,15 @@ class TestEmmet(unittest.TestCase):
         self.assertTrue(do("body>table>tr", doc))
         self.assertFalse(do("body>table>tr*2", doc))
         doc = """
-                    <body>
-                        <table>
-                            <tr>
-                                <td>test</td>
-                            </tr>
-                            <tr></tr>                            
-                        </table>
-                    </body>
-                """
+            <body>
+                <table>
+                    <tr>
+                        <td>test</td>
+                    </tr>
+                    <tr></tr>                            
+                </table>
+            </body>
+        """
         self.assertTrue(do("body>table>tr*2", doc))
         self.assertFalse(do("body>table>tr*3", doc))
 
@@ -168,7 +213,6 @@ class TestEmmet(unittest.TestCase):
         </body>
         </html>
         """
-
         self.assertTrue(do("html[lang='en']", doc))
         self.assertTrue(do("html[lang='dummY']", doc))
         self.assertTrue(do('html[lang="en"]', doc))

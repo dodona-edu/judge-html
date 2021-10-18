@@ -1,3 +1,4 @@
+from tests.helpers import UnitTestSuite
 from validators.checks import Element, EmptyElement, ElementContainer
 import unittest
 
@@ -22,3 +23,36 @@ class TestElementContainer(unittest.TestCase):
         self.assertEqual(container[0], container.get(0))
         self.assertEqual(container[1], container.get(1))
         self.assertNotEqual(container[0], container.get(1))
+
+    def test_at_least(self):
+        suite = UnitTestSuite("my_first_html_exercise.html")
+        body = suite.element("body")
+        table = body.get_child("table")
+
+        all_trs = table.get_children("tr")
+
+        self.assertTrue(suite.check(all_trs.at_least(3)))
+        self.assertTrue(suite.check(all_trs.at_least(4)))
+        self.assertFalse(suite.check(all_trs.at_least(5)))
+
+    def test_at_most(self):
+        suite = UnitTestSuite("my_first_html_exercise.html")
+        body = suite.element("body")
+        table = body.get_child("table")
+
+        all_trs = table.get_children("tr")
+
+        self.assertFalse(suite.check(all_trs.at_most(3)))
+        self.assertTrue(suite.check(all_trs.at_most(4)))
+        self.assertTrue(suite.check(all_trs.at_most(5)))
+
+    def test_exactly(self):
+        suite = UnitTestSuite("my_first_html_exercise.html")
+        body = suite.element("body")
+        table = body.get_child("table")
+
+        all_trs = table.get_children("tr")
+
+        self.assertFalse(suite.check(all_trs.exactly(3)))
+        self.assertTrue(suite.check(all_trs.exactly(4)))
+        self.assertFalse(suite.check(all_trs.exactly(5)))
