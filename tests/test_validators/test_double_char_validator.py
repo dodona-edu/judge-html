@@ -38,7 +38,18 @@ class TestHtmlValidator(unittest.TestCase):
             "{([})}",
             # "][[][[]]][]]][[[[]",  # TODO
             # "))",  # TODO
-            "<html>head><meta charset='UTF-8'></head></html>"
+            "<html>head><meta charset='UTF-8'></head></html>",
+            """
+              width: 500px;
+              font-size: 25px;
+            }
+            """,
+            """
+            p
+              width: 500px;
+              font-size: 25px;
+            }
+            """
         ])
         # correct
         self.run_correct([
