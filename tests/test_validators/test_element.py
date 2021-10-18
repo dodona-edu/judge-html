@@ -47,7 +47,6 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(body_element.exists()))
         self.assertFalse(suite.check(body_element.get_child("body").exists()))
 
-        self.assertTrue(suite.check(body_element.get_child("div", id="second_div").exists()))
 
     def test_has_child(self):
         suite = UnitTestSuite("test_1.html")
