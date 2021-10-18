@@ -31,13 +31,13 @@ class TestHtmlValidator(unittest.TestCase):
             "<html>></html>",
             "'test''",
             ")((",
-            # "} test {",  # TODO
+            "} test {",  # TODO
             "{ { test } } } { }",
             "()}}}",
             "({}))",
             "{([})}",
-            # "][[][[]]][]]][[[[]",  # TODO
-            # "))",  # TODO
+            "][[][[]]][]]][[[[]",  # TODO
+            "))",  # TODO
             "<html>head><meta charset='UTF-8'></head></html>",
             """
               width: 500px;
@@ -80,12 +80,12 @@ class TestHtmlValidator(unittest.TestCase):
             "'",
             '"',
             "{ { }",
-            # "((",  # TODO
-            # "((((",  # TODO
+            "((",  # TODO
+            "((((",  # TODO
             "('')(",
             "{{()}",
             "<html><</html>",
-            # "<html><head<meta charset='UTF-8'</head></html>"  # TODO 2 >-symbols missing
+            "<html><head<meta charset='UTF-8'</head></html>"  # TODO 2 >-symbols missing
         ])
 
     def test_nested(self):
@@ -109,7 +109,14 @@ class TestHtmlValidator(unittest.TestCase):
             """<p>"</p>""",
             """<body><h1>What's On In Toronto (Canada)</h1></body>""",
             """<body><h1>)}]"({['"</h1></body>"""
-            """<body><h1>Check if brackets/quotes open and close (`(`, '&lt;', `{`, `[`, `'`, `"`)<h1></body>"""
+            """<body><h1>Check if brackets/quotes open and close (`(`, '&lt;', `{`, `[`, `'`, `"`)<h1></body>""",
+            """<style>
+                .chat > div {
+                background-color: black;
+                padding: 10px;
+                }
+            </style>
+            """  # TODO
         ])
 
     def test_value(self):
