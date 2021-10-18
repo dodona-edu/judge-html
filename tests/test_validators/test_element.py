@@ -13,7 +13,7 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(body_element.get_child("div", 1, direct=True).attribute_exists("id", "second_div")))
 
         # Index out of range will return nothing
-        self.assertFalse(suite.check(body_element.get_child("div", index=2, direct=True).exists()))
+        self.assertFalse(suite.check(body_element.get_child("div", 2, direct=True).exists()))
 
         # Check nested elements
         self.assertTrue(suite.check(body_element.get_child("div", 1, direct=False).attribute_exists("id", "nested")))
@@ -47,7 +47,6 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(body_element.exists()))
         self.assertFalse(suite.check(body_element.get_child("body").exists()))
 
-        self.assertTrue(suite.check(body_element.get_child("div", id="second_div").exists()))
 
     def test_has_child(self):
         suite = UnitTestSuite("test_1.html")
