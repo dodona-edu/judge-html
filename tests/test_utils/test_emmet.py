@@ -52,7 +52,7 @@ class TestEmmet(unittest.TestCase):
                 </table>
             </body>
         """
-        # self.assertTrue(do("body>table>tr[1]>td[1]", doc))  # TODO
+        self.assertTrue(do("body>table>tr[1]>td[1]", doc))  # TODO
         self.assertTrue(do("body>table>tr[1]", doc))
         self.assertTrue(do("body>table[0]>tr[0]", doc))
 
@@ -92,7 +92,7 @@ class TestEmmet(unittest.TestCase):
             <blockquote></blockquote>
         """
         self.assertTrue(do("div+div>p>span+em^^^blockquote", doc))
-        # self.assertFalse(do("div+div>p>span+em^^blockquote", doc))  # TODO
+        self.assertFalse(do("div+div>p>span+em^^blockquote", doc))  # TODO
 
     def test_multiplication(self):
         doc = """
@@ -155,7 +155,7 @@ class TestEmmet(unittest.TestCase):
         self.assertFalse(do("body>div#page", doc))
         self.assertTrue(do("body>#header", doc))
         self.assertTrue(do("body>.page", doc))
-        # self.assertFalse(do("body>.header", doc))  # TODO
+        self.assertFalse(do("body>.header", doc))  # TODO
 
     def test_custom_attributes(self):
         doc = """
@@ -216,6 +216,8 @@ class TestEmmet(unittest.TestCase):
         <body>
             <div></div>
             <div>azjoansdvniuenvlivz</div>
+            <p></p>
+            <a href=''>UGent</a>
         </body>
         </html>
         """
@@ -225,3 +227,5 @@ class TestEmmet(unittest.TestCase):
         self.assertTrue(do('html[lang="DUMMY"]', doc))
         self.assertTrue(do("body>div[1]", doc))
         self.assertTrue(do("body>div{DUMMY}", doc))
+        self.assertFalse(do("body>p{DUMMY}", doc))  # DUMMY requires some text, i.e. not empty
+        self.assertFalse(do("body>a[href='DUMMY']", doc))  # TODO: DUMMY requires some text, i.e. not empty
