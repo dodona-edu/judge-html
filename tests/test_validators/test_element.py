@@ -140,7 +140,7 @@ class TestElement(unittest.TestCase):
 
         self.assertTrue(suite.check(img_element.attribute_matches("src", r"^https://.*dodona.ugent.be.*.png$")))
         self.assertFalse(suite.check(img_element.attribute_matches("src", r"^www.ufora.ugent.be.*.mp3$")))
-        self.assertFalse(suite.check(h3.attribute_contains("class", "^city")))
+        self.assertFalse(suite.check(h3.attribute_matches("class", "^ci.*")))
 
         # Lists
         suite = UnitTestSuite("class_names.html")

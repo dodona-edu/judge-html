@@ -631,7 +631,7 @@ class ElementContainer:
 
         return self.elements[item]
 
-    def __iter__(self):
+    def __iter__(self) -> Element:
         for el in self.elements:
             yield el
 
