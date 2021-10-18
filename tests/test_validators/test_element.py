@@ -291,8 +291,10 @@ class TestElement(unittest.TestCase):
 
         body_element = suite.element("body")
         img_element = suite.element("img")
+        h2_elements = suite.all_elements('h2')
 
         self.assertTrue(suite.check(all_of(body_element.exists(), body_element.has_child("div"), img_element.exists())))
+        self.assertTrue(suite.check(all_of(h2.attribute_exists('class', 'city') for h2 in h2_elements)))
 
     def test_any_of(self):
         suite = UnitTestSuite("test_1.html")
