@@ -52,7 +52,7 @@ class DoubleChar:
         s = s[0:self.len_open()]
         return self.open == s
 
-    def match_close(self, s:str):
+    def match_close(self, s: str):
         if len(s) < self.len_close():
             return False
         s = s[0:self.len_close()]
