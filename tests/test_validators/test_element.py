@@ -48,6 +48,22 @@ class TestElement(unittest.TestCase):
 
         self.assertTrue(suite.check(body_element.get_child("div", id="second_div").exists()))
 
+    def test_has_child(self):
+        suite = UnitTestSuite("test_1")
+        body = suite.element("body")
+        div_nested = suite.element("div", id="nested")
+        div_first = suite.element("div", id="first_div")
+
+        self.assertTrue(suite.check(body.has_child("div", id="second_div")))
+        self.assertTrue(suite.check(div_nested.has_child("h2")))
+        self.assertTrue(suite.check(div_nested.has_child("h2", class_="city")))
+        self.assertTrue(suite.check(div_nested.has_child("p")))
+        self.assertFalse(suite.check(div_nested.has_child("img")))
+
+        self.assertTrue(suite.check(div_first.has_child("h2", direct=False)))
+        self.assertTrue(suite.check(div_first.has_child("p", direct=False)))
+        self.assertFalse(suite.check(div_first.has_child("img", direct=False)))
+
     def test_has_tag(self):
         suite = UnitTestSuite("test_1")
         body_element = suite.element("body")
@@ -173,7 +189,7 @@ class TestElement(unittest.TestCase):
     def test_has_color(self):
         suite = UnitTestSuite("css_1")
         div = suite.element("div")
-        span = suite.element("span")
+        # p = suite.element("p")
 
         self.assertTrue(suite.check(div.has_color("color", "red")))
         self.assertTrue(suite.check(div.has_color("color", "rgb(255, 0, 0)")))
@@ -185,10 +201,31 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(div.has_color("color", "#FF0000")))
 
         # TODO #106
-        # self.assertTrue(suite.check(span.has_color("color", "gold")))
-        # self.assertTrue(suite.check(span.has_color("color", "#FFD700FF")))
-        # self.assertTrue(suite.check(span.has_color("color", "rgb(255, 215, 0)")))
-        # self.assertTrue(suite.check(span.has_color("color", "rgba(255, 215, 0, 1)")))
+        # self.assertTrue(suite.check(p.has_color("color", "gold")))
+        # self.assertTrue(suite.check(p.has_color("color", "#FFD700FF")))
+        # self.assertTrue(suite.check(p.has_color("color", "rgb(255, 215, 0)")))
+        # self.assertTrue(suite.check(p.has_color("color", "rgba(255, 215, 0, 1)")))
+
+    def test_has_styling(self):
+        suite = UnitTestSuite("css_1")
+        div = suite.element("div")
+        p = suite.element("p")
+        span = suite.element("span")
+
+        self.assertTrue(suite.check(div.has_styling("margin", "3px")))
+        self.assertTrue(suite.check(p.has_styling("background-color")))
+        self.assertTrue(suite.check(p.has_styling("text-align")))
+        self.assertTrue(suite.check(p.has_styling("text-align", "left")))
+
+        self.assertTrue(suite.check(p.has_styling("font-weight", "bold")))
+        self.assertFalse(suite.check(p.has_styling("font-weight", "normal")))
+        self.assertTrue(suite.check(p.has_styling("text-align", "left", important=False)))
+        self.assertFalse(suite.check(p.has_styling("text-align", "left", important=True)))
+        self.assertFalse(suite.check(p.has_styling("font-weight", "bold", important=False)))
+        self.assertTrue(suite.check(p.has_styling("font-weight", "bold", important=True)))
+
+        self.assertFalse(suite.check(span.has_styling("background-color")))
+
 
     def test_no_loose_text(self):
         suite = UnitTestSuite("loose_text")
