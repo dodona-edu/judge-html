@@ -38,6 +38,7 @@ class TestEmmet(unittest.TestCase):
                 <li></li>
             </ul>
         """
+        self.assertTrue(do("ul>li[0]", doc))
         self.assertTrue(do("ul>li[4]", doc))
         self.assertFalse(do("ul>ol[5]", doc))
         doc = """
@@ -65,6 +66,7 @@ class TestEmmet(unittest.TestCase):
         self.assertTrue(do("p+blockquote+div", doc))
         self.assertTrue(do("blockquote+div+p", doc))
         self.assertTrue(do("div+blockquote+p", doc))
+        self.assertFalse(do("div+img+p", doc))
 
     def test_climb_up(self):
         doc = """
@@ -90,6 +92,7 @@ class TestEmmet(unittest.TestCase):
             <blockquote></blockquote>
         """
         self.assertTrue(do("div+div>p>span+em^^^blockquote", doc))
+        # self.assertFalse(do("div+div>p>span+em^^blockquote", doc))  # TODO
 
     def test_multiplication(self):
         doc = """
@@ -101,6 +104,8 @@ class TestEmmet(unittest.TestCase):
                 <li></li>
             </ul>
         """
+        self.assertFalse(do("ul*4", doc))
+        self.assertTrue(do("li*4", doc))
         self.assertTrue(do("ul>li*4", doc))
         self.assertTrue(do("ul>li*5", doc))
         self.assertFalse(do("ul>li*6", doc))
@@ -159,6 +164,7 @@ class TestEmmet(unittest.TestCase):
         self.assertTrue(do("td[title='Hello world!' colspan=3]", doc))
         self.assertTrue(do("td[title='Hello world!' colspan='3']", doc))
         self.assertFalse(do("td[title='Hello world!' colspan=4]", doc))
+        self.assertFalse(do("td[title='Hello!' colspan=3]", doc))
 
     def test_text(self):
         doc = """
