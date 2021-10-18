@@ -2,7 +2,7 @@ from re import RegexFlag
 
 from bs4 import BeautifulSoup
 from bs4.element import Tag
-from typing import Callable, List, Optional, Union, Dict, TypeVar, Iterable
+from typing import Callable, List, Optional, Union, Dict, TypeVar, Iterable, Iterator
 
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
@@ -141,7 +141,7 @@ class ElementContainer:
 
     def __getitem__(self, item) -> Union[Element, List[Element]]: ...
 
-    def __iter__(self) -> Element: ...
+    def __iter__(self) -> Iterator[Element]: ...
 
     def __len__(self) -> int: ...
 
