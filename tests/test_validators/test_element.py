@@ -173,6 +173,7 @@ class TestElement(unittest.TestCase):
     def test_has_color(self):
         suite = UnitTestSuite("css_1")
         div = suite.element("div")
+        span = suite.element("span")
 
         self.assertTrue(suite.check(div.has_color("color", "red")))
         self.assertTrue(suite.check(div.has_color("color", "rgb(255, 0, 0)")))
@@ -183,11 +184,18 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(div.has_color("color", "rgba(255,0,0,1)")))
         self.assertTrue(suite.check(div.has_color("color", "#FF0000")))
 
+        # TODO #106
+        # self.assertTrue(suite.check(span.has_color("color", "gold")))
+        # self.assertTrue(suite.check(span.has_color("color", "#FFD700FF")))
+        # self.assertTrue(suite.check(span.has_color("color", "rgb(255, 215, 0)")))
+        # self.assertTrue(suite.check(span.has_color("color", "rgba(255, 215, 0, 1)")))
+
     def test_no_loose_text(self):
         suite = UnitTestSuite("loose_text")
         self.assertFalse(suite.check(suite.element("body").no_loose_text()))
         self.assertFalse(suite.check(suite.element("div").no_loose_text()))
         self.assertTrue(suite.check(suite.element("table").no_loose_text()))
+        self.assertFalse(suite.check(suite.element("h1").no_loose_text()))
 
     def test_has_url_with_fragment(self):
         suite = UnitTestSuite("links")
