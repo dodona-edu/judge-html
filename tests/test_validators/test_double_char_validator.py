@@ -108,7 +108,21 @@ class TestHtmlValidator(unittest.TestCase):
             """<p>It's a red text — check it out!</p>""",
             """<p>"</p>""",
             """<body><h1>What's On In Toronto (Canada)</h1></body>""",
-            """<body><h1>)}]"({['"</h1></body>"""
+            """<body><h1>)}]"({['"</h1></body>""",
+            """
+            <!--
+            Or you can
+            comment out
+            a large number of -> lines.
+            -->
+            """,
+            """
+            <!--
+            function displayMsg) {
+              alert"Hello World!")
+            
+            //-->
+            """,
             """<body><h1>Check if brackets/quotes open and close (`(`, '&lt;', `{`, `[`, `'`, `"`)<h1></body>""",
             """<style>
                 .chat > div {
