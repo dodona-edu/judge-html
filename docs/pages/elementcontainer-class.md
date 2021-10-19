@@ -15,7 +15,7 @@ The main purpose of `ElementContainer`s is verification of a document's structur
 
 Get the `Element` at a specific index of the container. In case there aren't enough elements in the container this returns an empty element instead.
 
-Alternatively, you can also use the `[]`-operator.
+Alternatively, you can also use the `[]`-operator. Slicing is also supported (e.g. `all_divs[start:stop:step]`).
 
 #### Signature
 ```python
