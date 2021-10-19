@@ -255,7 +255,8 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(div.has_color("color", "#FF0000")))
 
         self.assertFalse(suite.check(phantom.has_color("color", "gold")))
-        self.assertFalse(suite.check(span.has_color("color", "gold")))  # TODO
+        self.assertTrue(suite.check(span.has_color("color", "gold")))  # TODO
+        self.assertFalse(suite.check(span.has_color("color", "blue")))  # TODO
 
         # TODO #106
         # self.assertTrue(suite.check(p.has_color("color", "gold")))
