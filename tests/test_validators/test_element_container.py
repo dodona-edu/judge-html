@@ -25,7 +25,7 @@ class TestElementContainer(unittest.TestCase):
         self.assertNotEqual(container[0], container.get(1))
 
     def test_at_least(self):
-        suite = UnitTestSuite("my_first_html_exercise.html")
+        suite = UnitTestSuite("my_first_html_exercise")
         body = suite.element("body")
         table = body.get_child("table")
 
@@ -36,7 +36,7 @@ class TestElementContainer(unittest.TestCase):
         self.assertFalse(suite.check(all_trs.at_least(5)))
 
     def test_at_most(self):
-        suite = UnitTestSuite("my_first_html_exercise.html")
+        suite = UnitTestSuite("my_first_html_exercise")
         body = suite.element("body")
         table = body.get_child("table")
 
@@ -47,7 +47,7 @@ class TestElementContainer(unittest.TestCase):
         self.assertTrue(suite.check(all_trs.at_most(5)))
 
     def test_exactly(self):
-        suite = UnitTestSuite("my_first_html_exercise.html")
+        suite = UnitTestSuite("my_first_html_exercise")
         body = suite.element("body")
         table = body.get_child("table")
 

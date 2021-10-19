@@ -4,7 +4,7 @@ import unittest
 
 class TestEmmetMethods(unittest.TestCase):
     def test_find_methods(self):
-        suite = UnitTestSuite("emmet_finding.html")
+        suite = UnitTestSuite("emmet_finding")
 
         # Basic navigation
         self.assertTrue(suite.check(suite.element("body>div").attribute_exists("id", "the_first_div")))

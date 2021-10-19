@@ -18,6 +18,9 @@ class UnitTestSuite(TestSuite):
     """TestSuite with extra utility stuff for unittests"""
 
     def __init__(self, file: str, **kwargs):
+        """
+        :param file: HTML file extension (.html) can be left out
+        """
         super().__init__(name="TEST", content=html_loader(file), **kwargs)
 
     def check(self, c: Check) -> bool:
