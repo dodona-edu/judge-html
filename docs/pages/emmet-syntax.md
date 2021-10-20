@@ -165,7 +165,7 @@ Then the submission will be accepted.
 
 #### Example 2 (attribute values)
 
-You always have to specify attribute values, [contary to the regular Emmet syntax](https://docs.emmet.io/abbreviations/syntax/#custom-attributes). `html[lang]` won't work, `html[lang='DUMMY]` will.
+You always have to specify attribute values, [contrary to the regular Emmet syntax](https://docs.emmet.io/abbreviations/syntax/#custom-attributes). `html[lang]` won't work, `html[lang='DUMMY']` will.
 
 If you have this as `evaluator.py`
 

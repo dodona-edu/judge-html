@@ -3,7 +3,7 @@ import re
 from collections import deque
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Deque, List, Optional, Callable, Union, Dict, TypeVar, Iterable
+from typing import Deque, List, Optional, Callable, Union, Dict, TypeVar, Iterable, Iterator
 from urllib.parse import urlsplit
 
 from bs4 import BeautifulSoup
@@ -631,7 +631,7 @@ class ElementContainer:
 
         return self.elements[item]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Element]:
         for el in self.elements:
             yield el
 
