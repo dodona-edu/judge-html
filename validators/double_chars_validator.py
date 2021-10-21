@@ -15,7 +15,7 @@ class DoubleChar:
     line: int
     pos: int
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if self.is_unambiguous:
             s = " open" if self.is_open() else " close"
         else:
@@ -34,25 +34,25 @@ class DoubleChar:
         c.pos = pos
         return c
 
-    def is_open(self):
+    def is_open(self) -> bool:
         return self._is_open if self.is_unambiguous else None
 
-    def is_close(self):
+    def is_close(self) -> bool:
         return not self._is_open if self.is_unambiguous else None
 
-    def len_open(self):
+    def len_open(self) -> int:
         return len(self.open)
 
-    def len_close(self):
+    def len_close(self) -> int:
         return len(self.close)
 
-    def match_open(self, s: str):
+    def match_open(self, s: str) -> bool:
         if len(s) < self.len_open():
             return False
         s = s[0:self.len_open()]
         return self.open == s
 
-    def match_close(self, s:str):
+    def match_close(self, s: str) -> bool:
         if len(s) < self.len_close():
             return False
         s = s[0:self.len_close()]
@@ -133,7 +133,7 @@ class Generator:
 
 
 class DoubleCharsValidator:
-    """"
+    """
     parses some text & checks that every opening char has an equivalent closing char later in the text (html style)
     checks for:
         * ( )
