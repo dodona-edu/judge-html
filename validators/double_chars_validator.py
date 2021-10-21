@@ -180,6 +180,8 @@ class DoubleCharsValidator:
         # validate
         stack = []
         wait_until_seen: DoubleChar = None
+        # Error checking
+        errors = MultipleMissingCharsError(self.translator)
 
         def push_stack(el: DoubleChar):
             """
@@ -208,17 +210,20 @@ class DoubleCharsValidator:
             if isinstance(dc, DoubleChar):
                 if not wait_until_seen:
                     dc: DoubleChar
-                    if not stack or (stack and stack[-1].type != dc.type):
+                    if (stack and stack[-1].type != dc.type) or (dc.is_unambiguous and dc.is_open()) or not dc.is_unambiguous:
                         wait_until_seen = push_stack(dc)
                     elif stack and stack[-1].type == dc.type:
                         wait_until_seen = pop_stack(dc)
+                    else:
+                        errors.add(MissingOpeningCharError(translator=self.translator, position=(dc.line, dc.pos), char=dc.close))
+
                 else:  # we're inside something that we don't need to check, just whether we need to leave this state
                     if dc.type == wait_until_seen.type:
-                        wait_until_seen = None
-                        push_stack(dc)
+                        if (not dc.check_in_between and dc.is_unambiguous and dc.is_open()) or dc.check_in_between:
+                            wait_until_seen = None
+                            push_stack(dc)
 
         # Error checking
-        errors = MultipleMissingCharsError(self.translator)
         # the stack should be empty, if not error remaining things
         while stack:
             dc = stack.pop()
@@ -236,3 +241,7 @@ class DoubleCharsValidator:
                     errors.add(MissingOpeningCharError(translator=self.translator, position=(dc.line, dc.pos), char=dc.open))
         if errors:
             raise errors
+
+
+dcv = DoubleCharsValidator(Translator(Translator.Language.EN))
+dcv.validate_content("<html> head> <meta charset='UTF-8'></head></html>")

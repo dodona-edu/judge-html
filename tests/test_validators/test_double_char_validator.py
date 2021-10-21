@@ -5,7 +5,7 @@ from validators.double_chars_validator import DoubleCharsValidator
 from exceptions.double_char_exceptions import MultipleMissingCharsError
 
 
-class TestHtmlValidator(unittest.TestCase):
+class TestDoubleCharValidator(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.validator = DoubleCharsValidator(Translator(Translator.Language.EN))
@@ -28,17 +28,15 @@ class TestHtmlValidator(unittest.TestCase):
             "]",
             "'",
             '"',
-            "<html>></html>",
             "'test''",
             ")((",
-            "} test {",  # TODO
+            "} test {",
             "{ { test } } } { }",
             "()}}}",
             "({}))",
             "{([})}",
-            "][[][[]]][]]][[[[]",  # TODO
-            "))",  # TODO
-            "<html>head><meta charset='UTF-8'></head></html>",
+            "][[][[]]][]]][[[[]",
+            "))",
             """
               width: 500px;
               font-size: 25px;
@@ -62,7 +60,9 @@ class TestHtmlValidator(unittest.TestCase):
             "{}()[]",
             "[[[[]][]]][[][]]",
             "({(test)})",
-            """<meta http-equiv="Content-Type" content="text/html; charset=utf-8">"""
+            """<meta http-equiv="Content-Type" content="text/html; charset=utf-8">""",
+            "<html>  >  </html>",
+            "<html>head><meta charset='UTF-8'></head></html>"
         ])
 
     def test_nothing(self):
@@ -80,12 +80,12 @@ class TestHtmlValidator(unittest.TestCase):
             "'",
             '"',
             "{ { }",
-            "((",  # TODO
-            "((((",  # TODO
+            "((",
+            "((((",
             "('')(",
             "{{()}",
             "<html><</html>",
-            "<html><head<meta charset='UTF-8'</head></html>"  # TODO 2 >-symbols missing
+            "<html><head<meta charset='UTF-8'</head></html>"
         ])
 
     def test_nested(self):
@@ -130,7 +130,7 @@ class TestHtmlValidator(unittest.TestCase):
                 padding: 10px;
                 }
             </style>
-            """  # TODO
+            """
         ])
 
     def test_value(self):
