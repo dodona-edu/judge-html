@@ -22,24 +22,78 @@ class TestHtmlValidator(unittest.TestCase):
     def test_missing_opening(self):
         # incorrect
         self.run_incorrect([
+            ")",
             ">",
-            "<html>></html>",
+            "}",
+            "]",
             "'",
-            ")"
+            '"',
+            "<html>></html>",
+            "'test''",
+            ")((",
+            "} test {",  # TODO
+            "{ { test } } } { }",
+            "()}}}",
+            "({}))",
+            "{([})}",
+            "][[][[]]][]]][[[[]",  # TODO
+            "))",  # TODO
+            "<html>head><meta charset='UTF-8'></head></html>",
+            """
+              width: 500px;
+              font-size: 25px;
+            }
+            """,
+            """
+            p
+              width: 500px;
+              font-size: 25px;
+            }
+            """
+        ])
+        # correct
+        self.run_correct([
+            "<>",
+            "<html><head><meta charset='UTF-8'></head></html>",
+            "''",
+            "()",
+            "{([])}",
+            "{()}[[{}]]",
+            "{}()[]",
+            "[[[[]][]]][[][]]",
+            "({(test)})",
+            """<meta http-equiv="Content-Type" content="text/html; charset=utf-8">"""
+        ])
+
+    def test_nothing(self):
+        self.run_correct([
+            ""
         ])
 
     def test_missing_closing(self):
         # incorrect
         self.run_incorrect([
+            "(",
             "<",
-            "<html><</html>"
+            "{",
+            "[",
+            "'",
+            '"',
+            "{ { }",
+            "((",  # TODO
+            "((((",  # TODO
+            "('')(",
+            "{{()}",
+            "<html><</html>",
+            "<html><head<meta charset='UTF-8'</head></html>"  # TODO 2 >-symbols missing
         ])
 
     def test_nested(self):
         # correct
         self.run_correct([
             """<""> ' IGNORED " <''> IGNORED][)}""",
-            """<>IGNORED())))))<>"""
+            """<>IGNORED())))))<>""",
+            "{([{{([{}()[]])}}({([{{([{{([{{([{}()[]])}}({([{{([{}()[]])}}()[]])})[{([{{([{}()[]])}}({([{{([{}()[]])}}()[]])})[]])}]])}}()[]])}}()[]])})[{([{{([{}()[]])}}({([{{([{}()[]])}}()[]])})[{([{{([{}()[]])}}({([{{([{}()[]])}}()[]])})[{([{{([{}()[]])}}({([{{([{}()[]])}}()[]])})[]])}]])}]])}]])}"
         ])
         # incorrect
         self.run_incorrect([
@@ -52,7 +106,31 @@ class TestHtmlValidator(unittest.TestCase):
         # correct
         self.run_correct([
             """<p>It's a red text — check it out!</p>""",
-            """<body><h1>What's On In Toronto</h1></body>"""
+            """<p>"</p>""",
+            """<body><h1>What's On In Toronto (Canada)</h1></body>""",
+            """<body><h1>)}]"({['"</h1></body>""",
+            """
+            <!--
+            Or you can
+            comment out
+            a large number of -> lines.
+            -->
+            """,
+            """
+            <!--
+            function displayMsg) {
+              alert"Hello World!")
+            
+            //-->
+            """,
+            """<body><h1>Check if brackets/quotes open and close (`(`, '&lt;', `{`, `[`, `'`, `"`)<h1></body>""",
+            """<style>
+                .chat > div {
+                background-color: black;
+                padding: 10px;
+                }
+            </style>
+            """  # TODO
         ])
 
     def test_value(self):
