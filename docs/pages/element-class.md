@@ -21,7 +21,7 @@ This class is **not** meant for you to instantiate manually, but instances are r
   - [`has_url_with_fragment()`](#has_url_with_fragment)
   - [`contains_comment()`](#contains_comment)
   - [`no_loose_text()`](#no_loose_text)
-- [table related utility functions](#table-related-utility-functions)
+- [table-related utility functions](#table-related-utility-functions)
   - [`has_table_content()`](#has_table_content)
   - [`has_table_header()`](#has_table_header)
   - [`table_row_has_content()`](#table_row_has_content)
@@ -456,7 +456,7 @@ table_element = suite.element("table")
 table_element.no_loose_text()
 ```
 
-## table related utility functions
+## table-related utility functions
 
 ## `has_table_content()`
 
