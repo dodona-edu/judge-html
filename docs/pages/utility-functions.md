@@ -17,7 +17,7 @@ The `all_of` function takes a list of `Check`s, and will only pass if all of the
 #### Signature
 
 ```python
-def all_of(args: List[Check]) -> Check
+def all_of(*args: Checks) -> Check
 ```
 
 #### Example usage
@@ -29,7 +29,7 @@ content = "<html><body></body></html>"
 suite = HtmlSuite(content)
 
 body_element = suite.element("body")
-table_element = body.get_child("table")
+table_element = body_element.get_child("table")
 
 # Check if the <body> exists AND it has a <table> child
 all_of(body_element.exists(), table_element.exists())
@@ -42,7 +42,7 @@ The `any_of` function takes a series of checks, and will pass if at least one of
 #### Signature
 
 ```python
-def any_of(*args: Check) -> Check
+def any_of(*args: Checks) -> Check
 ```
 
 #### Example usage
@@ -67,7 +67,7 @@ The `at_least` function takes the amount of checks required, and a series of che
 #### Signature
 
 ```python
-def at_least(amount: int, *args: Check) -> Check
+def at_least(amount: int, *args: Checks) -> Check
 ```
 
 #### Example usage
@@ -79,8 +79,8 @@ content = "<html><body></body></html>"
 suite = HtmlSuite(content)
 
 head_element = suite.element("head")  # Exists
-body_element = head.get_child("body")  # Exists
-div_element = body.get_child("div")  # Doesn't exist
+body_element = head_element.get_child("body")  # Exists
+div_element = body_element.get_child("div")  # Doesn't exist
 
 # Check if at least two of [<head>, <body>, <div>] exist
 at_least(2, head_element.exists(), body_element.exists(), div_element.exists())

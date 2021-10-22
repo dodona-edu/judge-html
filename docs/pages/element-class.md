@@ -21,7 +21,7 @@ This class is **not** meant for you to instantiate manually, but instances are r
   - [`has_url_with_fragment()`](#has_url_with_fragment)
   - [`contains_comment()`](#contains_comment)
   - [`no_loose_text()`](#no_loose_text)
-- [table related utility functions](#table-related-utility-functions)
+- [table-related utility functions](#table-related-utility-functions)
   - [`has_table_content()`](#has_table_content)
   - [`has_table_header()`](#has_table_header)
   - [`table_row_has_content()`](#table_row_has_content)
@@ -456,11 +456,11 @@ table_element = suite.element("table")
 table_element.no_loose_text()
 ```
 
-## table related utility functions
+## table-related utility functions
 
 ## `has_table_content()`
 
-This method checks if an `Element` with tag `table` has rows with the required content, **excluding the header**.
+This method checks if an `Element` with tag `table` has rows (`tr`) with the required content in `td`, **excluding the header (assuming first row)**.
 
 #### Signature
 
@@ -508,7 +508,7 @@ table_element.has_table_content(rows, has_header=True)
 
 ## `has_table_header()`
 
-This method checks if an `Element` with tag `table` has a header with content that matches a list of strings. This avoids having to use `all_of` combined with a *LOT* of `has_content`s.
+This method checks if an `Element` with tag `table` has a header (all `th` tags of the table) with content that matches a list of strings. This avoids having to use `all_of` combined with a *LOT* of `has_content`s.
 
 #### Signature
 

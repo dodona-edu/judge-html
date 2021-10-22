@@ -57,7 +57,7 @@ The checks will be added to an internal list of `on_success` checks. In case the
 #### Signature
 
 ```python
-def then(*args: Check) -> Check
+def then(*args: Checks) -> Check
 ```
 
 #### Example usage
@@ -68,7 +68,7 @@ The example below only checks if the `<div>` exists in case the `<body>` does to
 suite = HtmlSuite(content)
 
 body_element = suite.element("body")
-div_element = body.get_child("div")
+div_element = body_element.get_child("div")
 
 body_checks = body_element.exists().then(div_element.exists()).then(...).then(...)
 ```

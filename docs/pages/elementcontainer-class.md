@@ -10,12 +10,15 @@ The main purpose of `ElementContainer`s is verification of a document's structur
   - [`at_least()`](#at_least)
   - [`at_most()`](#at_most)
   - [`exactly()`](#exactly)
+- [Utility functions](#utility-functions)
+  - [`all()`](#all)
+  - [`any()`](#any)
 
 ## `get()`
 
 Get the `Element` at a specific index of the container. In case there aren't enough elements in the container this returns an empty element instead.
 
-Alternatively, you can also use the `[]`-operator.
+Alternatively, you can also use the `[]`-operator. Slicing is also supported (e.g. `all_divs[start:stop:step]`).
 
 #### Signature
 ```python
@@ -144,4 +147,60 @@ all_ps = body.get_children("p")
 
 # Check that there are exactly 3 paragraphs
 all_ps.exactly(3)
+```
+
+## Utility functions
+
+### `all()`
+
+Check that all of the elements inside of this container match a function. The argument should be a function that maps an `Element` onto a `Check`. If the container is empty, this check will also fail.
+
+Shorthand for `all_of` combined with a `generator expression`.
+
+#### Signature
+
+```python
+def all(func: Callable[[Element], Check]) -> Check
+```
+
+#### Parameters
+
+| Name     | Description                            | Required? | Default |
+| :------- | :------------------------------------- | :-------: | :------ |
+| `func`   | The function to run for every element. |     ✔     |         |
+
+#### Example usage
+```python
+suite = HtmlSuite(content)
+table = suite.element("table")
+
+# Check that the <table> only contains <tr> elements, nothing else
+table.get_children().all(lambda i: i.has_tag("tr"))
+```
+
+### `any()`
+
+Check that any of the elements inside of this container matches a function. The argument should be a function that maps an `Element` onto a `Check`. If the container is empty, this check will also fail.
+
+Shorthand for `any_of` combined with a `generator expression`.
+
+#### Signature
+
+```python
+def any(func: Callable[[Element], Check]) -> Check
+```
+
+#### Parameters
+
+| Name     | Description                            | Required? | Default |
+| :------- | :------------------------------------- | :-------: | :------ |
+| `func`   | The function to run for every element. |     ✔     |         |
+
+#### Example usage
+```python
+suite = HtmlSuite(content)
+table = suite.element("table")
+
+# Check that the <table> contains at least one element that has exactly one child
+table.get_children().any(lambda i: i.get_children().exactly(1))
 ```
