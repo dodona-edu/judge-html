@@ -308,8 +308,8 @@ class TestElement(unittest.TestCase):
         self.assertFalse(
             suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment("some-other-fragment")))
         self.assertTrue(suite.check(suite.element("a", id="internal_link").has_url_with_fragment("section2")))
-        self.assertTrue(suite.check(suite.element("a", id="no_link").has_url_with_fragment("section42")))
-        self.assertTrue(suite.check(suite.element("a", id="no_href").has_url_with_fragment("section101")))
+        self.assertFalse(suite.check(suite.element("a", id="no_link").has_url_with_fragment("section42")))
+        self.assertFalse(suite.check(suite.element("a", id="no_href").has_url_with_fragment("section101")))
         self.assertFalse(suite.check(phantom.has_url_with_fragment()))
 
     def test_has_outgoing_url(self):
