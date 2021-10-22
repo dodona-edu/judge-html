@@ -37,14 +37,14 @@ class TestElement(unittest.TestCase):
 
     def test_get_children(self):
         suite = UnitTestSuite("test_1")
-        self.assertTrue(suite.element("html").get_children("body>div").exactly(2))
-        self.assertFalse(suite.element("html").get_children("body>div>p").exactly(2))  # TODO
-        self.assertTrue(suite.element("html").get_children("img").exactly(1))
+        self.assertTrue(suite.check(suite.element("html").get_children("body>div").exactly(2)))
+        self.assertFalse(suite.check(suite.element("html").get_children("body>div>p").exactly(2)))
+        self.assertTrue(suite.check(suite.element("html").get_children("img", direct=False).exactly(1)))
 
-        self.assertTrue(suite.element("body").get_children("p", direct=True).exactly(1))
-        self.assertTrue(suite.element("html").get_children("p", direct=False).exactly(3))
-        self.assertTrue(suite.element("html").get_children("p", direct=False, class_="city").exactly(2))
-        self.assertTrue(suite.element("html").get_children("img", direct=False, alt="dodona-icon").exactly(1))
+        self.assertTrue(suite.check(suite.element("div").get_children("p", direct=True).exactly(1)))
+        self.assertTrue(suite.check(suite.element("html").get_children("p", direct=False).exactly(3)))
+        self.assertTrue(suite.check(suite.element("html").get_children("h2", direct=False, class_="city").exactly(2)))
+        self.assertTrue(suite.check(suite.element("html").get_children("img", direct=False, alt="dodona-icon").exactly(1)))
 
     def test_exists(self):
         suite = UnitTestSuite("test_1")
