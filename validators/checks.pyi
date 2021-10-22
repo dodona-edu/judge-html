@@ -59,7 +59,7 @@ class Element:
         """Check that an element exists, and is not empty."""
         ...
 
-    def has_child(self, tag: str, direct: bool = True, **kwargs) -> Check:
+    def has_child(self, tag: Optional[Union[str, Emmet]] = ..., direct: bool = True, **kwargs) -> Check:
         """Check that the element has a child that meets the specifications"""
         ...
 

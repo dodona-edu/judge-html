@@ -160,19 +160,16 @@ class Element:
 
         return Check(_inner)
 
-    def has_child(self, tag: str, direct: bool = True, **kwargs) -> Check:
+    def has_child(self, tag: Optional[Union[str, Emmet]] = None, direct: bool = True, **kwargs) -> Check:
         """Check that this element has a child with the given tag
 
         :param tag:     the tag to search for
         :param direct:  indicate that only direct children should be considered,
                         not children of children
         """
-
         def _inner(_: BeautifulSoup) -> bool:
-            if self._element is None:
-                return False
-
-            return self._element.find(tag, recursive=not direct, **kwargs) is not None
+            child = find_child(self._element, tag=tag, from_root=direct, **kwargs)
+            return child is not None
 
         return Check(_inner)
 

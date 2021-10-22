@@ -35,7 +35,7 @@ The following methods can be used to obtain references to extra HTML elements st
 
 ### `get_child()`
 
-**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter.**
+**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tag` parameter.**
 
 This method finds a child element with tag `tag`, optionally with extra filters.
 
@@ -72,7 +72,7 @@ img_element_with_alt = body.get_child("img", alt="This is a cat.")
 
 ### `get_children()`
 
-**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tags` parameter.**
+**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tag` parameter.**
 
 This method finds ALL child elements, optionally with tag `tag` and extra filters. This returns an instance
 of `ElementContainer`, which can be used as a list of elements.
@@ -232,17 +232,19 @@ body_exists = ChecklistItem("The document has a <body>", body.exists())
 Check that the element has a child that meets the specifications. This is a shortcut to combining `get_child()`
 and `exists()`.
 
+**This method supports [`Emmet Syntax`](emmet-syntax.md) through the `tag` parameter.**
+
 #### Signature
 
 ```python
-def has_child(tag: str, direct: bool = True, **kwargs) -> Check
+def has_child(tag: Optional[Union[str, Emmet]] = None, direct: bool = True, **kwargs) -> Check
 ```
 
 #### Parameters
 
 | Name | Description | Required? | Default |
 |:-----|:------------|:---------:|:--------|
-| `tag`    | The tag to search for.                                                                    |     ✔     |         |
+| `tag`    | The tag to search for.                                                                    |           | `None`, which will make any child element pass.        |
 | `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements. |           | `True` |
 
 Extra `kwargs` can be passed to filter the results down even more. For example, to check that an element has a child
@@ -260,8 +262,8 @@ body_has_div = ChecklistItem("The body has a div", body.has_child("div"))
 # Equivalent to
 body_has_div = ChecklistItem("The body has a div", body.get_child("div").exists())
 
-body_has_header_with_id = ChecklistItem("The body has a header with id",
-                                        body.has_child("h1", id="myHeader").exists())  # example with kwarg
+# Passing extra filters through kwargs
+body_has_header_with_id = ChecklistItem("The body has a header with id", body.has_child("h1", id="myHeader"))
 ```
 
 ### `has_content()`
