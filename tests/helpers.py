@@ -19,7 +19,7 @@ class UnitTestSuite(TestSuite):
 
     def __init__(self, file: str, **kwargs):
         """
-        :param file: HTML file extension (.html) can be left out
+        :param file: The HTML file to run the test against. The file extension (.html) can be left out.
         """
         super().__init__(name="TEST", content=html_loader(file), **kwargs)
 
