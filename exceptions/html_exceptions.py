@@ -7,6 +7,12 @@ class HtmlValidationError(Exception):
     def __init__(self, translator: Translator):
         self.translator = translator
 
+    def __str__(self):
+        return self.annotation()
+
+    def annotation(self) -> str:
+        return f"Html validation error"
+
 
 class LocatableHtmlValidationError(HtmlValidationError):
     """Exceptions that can be located"""
@@ -15,7 +21,7 @@ class LocatableHtmlValidationError(HtmlValidationError):
         self.position = position
         self.translator = translator
 
-    def tag_location(self) -> str:
+    def location(self) -> str:
         if self._tag_location:
             return f"{self.translator.translate(Translator.Text.LOCATED_AT)}: " \
                    f"{self.fpos()} | {' -> '.join([f'<{x}>' for x in self._tag_location])}"
@@ -26,6 +32,11 @@ class LocatableHtmlValidationError(HtmlValidationError):
         return f"{self.translator.translate(Translator.Text.LINE)} {self.position[0] + 1} " \
                f"{self.translator.translate(Translator.Text.POSITION)} {self.position[1] + 1}"
 
+    def annotation(self) -> str:
+        return f"Locatable double char error"
+
+    def __str__(self):
+        return f"{self.annotation()} {self.location()}"
 
 """
 EXCEPTIONS FOR TAGS
@@ -38,44 +49,47 @@ class TagError(LocatableHtmlValidationError):
         super(TagError, self).__init__(translator, tag_location, position)
         self.tag = tag
 
-
-class MissingClosingTagError(TagError):
-    """Exception that indicates that the closing tag is missing for a tag"""
-    def __str__(self):
-        return f"{self.translator.translate(Translator.Text.MISSING_CLOSING_TAG)} <{self.tag}> ({self.tag_location()})"
+    def annotation(self) -> str:
+        return "Tag error"
 
 
 class MissingOpeningTagError(TagError):
     """Exception that indicates that the opening tag is missing for a tag"""
-    def __str__(self):
-        return f"{self.translator.translate(Translator.Text.MISSING_OPENING_TAG)} <{self.tag}> ({self.tag_location()})"
+    def annotation(self) -> str:
+        return f"{self.translator.translate(Translator.Text.MISSING_OPENING_TAG)} <{self.tag}>"
+
+
+class MissingClosingTagError(TagError):
+    """Exception that indicates that the closing tag is missing for a tag"""
+    def annotation(self) -> str:
+        return f"{self.translator.translate(Translator.Text.MISSING_CLOSING_TAG)} <{self.tag}>"
 
 
 class InvalidTagError(TagError):
     """Exception that indicates that a tag is invalid (tag doesn't exist or isn't allowed to be used"""
-    def __str__(self):
-        return f"{self.translator.translate(Translator.Text.INVALID_TAG)}: <{self.tag}> ({self.tag_location()})"
+    def annotation(self) -> str:
+        return f"{self.translator.translate(Translator.Text.INVALID_TAG)}: <{self.tag}>"
 
 
 class NoSelfClosingTagError(TagError):
-    def __str__(self):
-        return f"{self.translator.translate(Translator.Text.NO_SELF_CLOSING_TAG)}: <{self.tag}> ({self.tag_location()})"
+    def annotation(self) -> str:
+        return f"{self.translator.translate(Translator.Text.NO_SELF_CLOSING_TAG)}: <{self.tag}>"
 
 
 class UnexpectedTagError(TagError):
     """Exception that indicates that a certain tag was not expected
         ex: you don't expect a <html> tag inside of a <body> tag
     """
-    def __str__(self):
-        return f"{self.translator.translate(Translator.Text.UNEXPECTED_TAG)}: <{self.tag}> ({self.tag_location()})"
+    def annotation(self) -> str:
+        return f"{self.translator.translate(Translator.Text.UNEXPECTED_TAG)}: <{self.tag}>"
 
 
 class UnexpectedClosingTagError(TagError):
     """Exception that indicates that a certain tag was not expected to have a closing tag
         ex: you don't expect an <img> tag to have a </img> closer later on
     """
-    def __str__(self):
-        return f"{self.translator.translate(Translator.Text.UNEXPECTED_CLOSING_TAG, tag=self.tag)} ({self.tag_location()})"
+    def annotation(self) -> str:
+        return f"{self.translator.translate(Translator.Text.UNEXPECTED_CLOSING_TAG, tag=self.tag)}"
 
 
 """
@@ -89,26 +103,28 @@ class TagAttributeError(LocatableHtmlValidationError):
         self.tag = tag
         self.attribute = attribute
 
+    def annotation(self) -> str:
+        return "Tag attribute error"
+
 
 class InvalidAttributeError(TagAttributeError):
     """Exception that indicates that an attribute is invalid for a tag"""
-    def __str__(self):
+    def annotation(self) -> str:
         return f"{self.translator.translate(Translator.Text.INVALID_ATTRIBUTE)} <{self.tag}>: " \
-               f"{self.attribute} ({self.tag_location()})"
+               f"{self.attribute}"
 
 
 class MissingRequiredAttributesError(TagAttributeError):
     """Exception that indicates that a required attribute for a tag is missing"""
-    def __str__(self):
+    def annotation(self) -> str:
         return f"{self.translator.translate(Translator.Text.MISSING_REQUIRED_ATTRIBUTE)} <{self.tag}>: " \
-               f"{self.attribute} ({self.tag_location()})"
+               f"{self.attribute}"
 
 
 class DuplicateIdError(TagAttributeError):
     """Exception that indicates that an id is used twice"""
-    def __str__(self) -> str:
-        return f"{self.translator.translate(Translator.Text.DUPLICATE_ID, id=self.attribute, tag=self.tag)} " \
-               f"({self.tag_location()})"
+    def annotation(self) -> str:
+        return f"{self.translator.translate(Translator.Text.DUPLICATE_ID, id=self.attribute, tag=self.tag)}"
 
 
 class AttributeValueError(LocatableHtmlValidationError):
@@ -116,7 +132,7 @@ class AttributeValueError(LocatableHtmlValidationError):
         super().__init__(translator, tag_location, position)
         self.msg = message
 
-    def __str__(self) -> str:
+    def annotation(self) -> str:
         return self.msg
 
 
@@ -125,9 +141,9 @@ class MissingRecommendedAttributesWarning(TagAttributeError):
             this is considered a warning, and all instances of this class will be
             gathered and thrown at the very end if no other exceptions appear
     """
-    def __str__(self):
+    def annotation(self) -> str:
         return f"{self.translator.translate(Translator.Text.MISSING_RECOMMENDED_ATTRIBUTE)} <{self.tag}>: " \
-               f"{self.attribute} ({self.tag_location()})"
+               f"{self.attribute}"
 
 
 class Warnings(DelayedExceptions):

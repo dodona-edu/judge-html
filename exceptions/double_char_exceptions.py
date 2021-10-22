@@ -7,6 +7,12 @@ class DoubleCharError(Exception):
     def __init__(self,  translator: Translator):
         self.translator = translator
 
+    def __str__(self):
+        return self.annotation()
+
+    def annotation(self) -> str:
+        return f"Double char error"
+
 
 class LocatableDoubleCharError(DoubleCharError):
     """Exceptions that can be located"""
@@ -39,6 +45,12 @@ class LocatableDoubleCharError(DoubleCharError):
         return f"{self.translator.translate(Translator.Text.LINE)} {self.position[0] + 1} " \
                f"{self.translator.translate(Translator.Text.POSITION)} {self.position[1] + 1} "
 
+    def annotation(self) -> str:
+        return f"Locatable double char error"
+
+    def __str__(self):
+        return f"{self.annotation()} {self.location()}"
+
 
 class MissingCharError(LocatableDoubleCharError):
     """Exception that indicates a missing character for a character"""
@@ -46,17 +58,20 @@ class MissingCharError(LocatableDoubleCharError):
         super(MissingCharError, self).__init__(translator, position)
         self.char = char
 
+    def annotation(self) -> str:
+        return f"Missing char error"
+
 
 class MissingOpeningCharError(MissingCharError):
     """Exception that indicates that an opening equivalent of a certain character is missing"""
-    def __str__(self):
-        return f"{self.translator.translate(Translator.Text.MISSING_OPENING_CHARACTER)} '{self.char}' {self.location()}"
+    def annotation(self) -> str:
+        return f"{self.translator.translate(Translator.Text.MISSING_OPENING_CHARACTER)} '{self.char}'"
 
 
 class MissingClosingCharError(MissingCharError):
     """Exception that indicates that a closing equivalent of a certain character is missing"""
-    def __str__(self):
-        return f"{self.translator.translate(Translator.Text.MISSING_CLOSING_CHARACTER)} '{self.char}' {self.location()}"
+    def annotation(self) -> str:
+        return f"{self.translator.translate(Translator.Text.MISSING_CLOSING_CHARACTER)} '{self.char}'"
 
 
 class MultipleMissingCharsError(DelayedExceptions):
