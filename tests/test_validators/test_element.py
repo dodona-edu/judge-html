@@ -381,16 +381,19 @@ class TestElement(unittest.TestCase):
 
         body_element = suite.element("body")
         img_element = suite.element("img")
+        p_elements = suite.all_elements("p")
         h3_element = body_element.get_child("h3")  # Does not exist
 
         self.assertTrue(suite.check(any_of(body_element.exists(), body_element.has_child("div"),
                                            img_element.exists(), h3_element.exists())))
+        self.assertTrue(suite.check(any_of([p_element.has_content() for p_element in p_elements])))
 
     def test_at_least(self):
         suite = UnitTestSuite("test_1")
 
         body_element = suite.element("body")
         img_element = suite.element("img")
+        p_elements = suite.all_elements("p")
         h3_element = body_element.get_child("h3")  # Does not exist
 
         self.assertTrue(suite.check(at_least(2, body_element.exists(), body_element.has_child("div"),
@@ -399,6 +402,8 @@ class TestElement(unittest.TestCase):
                                              img_element.exists(), h3_element.exists())))
         self.assertFalse(suite.check(at_least(4, body_element.exists(), body_element.has_child("div"),
                                               img_element.exists(), h3_element.exists())))
+        self.assertTrue(suite.check(at_least(2, (p_element.has_content() for p_element in p_elements))))
+        self.assertFalse(suite.check(at_least(3, (p_element.has_content() for p_element in p_elements))))
 
     def test_fail_if(self):
         suite = UnitTestSuite("test_1")

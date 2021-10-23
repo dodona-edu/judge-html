@@ -199,8 +199,12 @@ Adding items one by one can either be done by adding them to the internal checkl
 If you want to add a `ChecklistItem` by comparing the submission to an emmet expression, you can use `TestSuite.make_item_from_emmet(message, emmet_str)`.
 You can find more documentation about the Emmet Syntax [here](emmet-syntax.md).
 
+This function `make_item()` takes (nested) iterables such as `list`s, `map`s, generator expressions (including inline list comprehensions), etc.
+
 ```python
 suite = TestSuite("HTML", content)
+body = css.element("body")
+imgs = body.get_children("img")
 
 first_item = ChecklistItem("Item 1", check1)
 second_item = ChecklistItem("Item 2", check2, check3)
@@ -222,6 +226,10 @@ suite.make_item_from_emmet("Item 4", "body>div#mydiv")
 
 # Just like make_item, this can take multiple arguments that will be grouped under one ChecklistItem
 suite.make_item_from_emmet("Item 5", "body>div#mydiv", "body>table>tr*4", "body>.classname", ...)
+
+suite.make_item("All images have height equal to 300 pixels",
+               (img.has_styling("height", "300px") for img in imgs))
+
 ```
 
 ## `suite.translations` : Adding multiple languages
