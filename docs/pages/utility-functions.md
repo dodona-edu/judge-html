@@ -65,7 +65,7 @@ links = suite.all_elements('a')
 any_of(body_element.exists(), head_element.exists())
 
 # Check if at least one <a> tags as a url fragment
-all_of(link.has_url_with_fragment() for link in links)
+any_of(link.has_url_with_fragment() for link in links)
 ```
 
 ## `at_least()`
