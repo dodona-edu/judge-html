@@ -132,6 +132,8 @@ class Element:
 class EmptyElement(Element):
     def __init__(self): ...
 
+    def __str__(self) -> str: ...
+
 
 class ElementContainer:
     elements: List[Element]
