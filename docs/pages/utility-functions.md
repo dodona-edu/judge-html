@@ -12,7 +12,7 @@ This document lists and explains the built-in utility functions with examples. T
 
 ## `all_of()`
 
-The `all_of` function takes a list of `Check`s, and will only pass if all of these checks passed too. Once one check fails, all other checks in the list will no longer be evaluated.
+The `all_of` function takes a list of `Check`s or (nested) iterables such as `list`s, `map`s, generator expressions (including inline list comprehensions), etc. The function will only pass if all of these checks passed too. Once one check fails, all other checks in the list will no longer be evaluated.
 
 #### Signature
 
@@ -30,14 +30,18 @@ suite = HtmlSuite(content)
 
 body_element = suite.element("body")
 table_element = body_element.get_child("table")
+links = suite.all_elements('a')
 
 # Check if the <body> exists AND it has a <table> child
 all_of(body_element.exists(), table_element.exists())
+
+# Check if all <a> tags have a url fragment
+all_of(link.has_url_with_fragment() for link in links)
 ```
 
 ## `any_of()`
 
-The `any_of` function takes a series of checks, and will pass if at least one of these checks passes as well. Once one check passes, all other checks in the list will no longer evaluated.
+The `any_of` function takes a series of `Check`s or (nested) iterables such as `list`s, `map`s, generator expressions (including inline list comprehensions), etc. The function will pass if at least one of these checks passes as well. Once one check passes, all other checks in the list will no longer evaluated.
 
 #### Signature
 
@@ -55,14 +59,18 @@ suite = HtmlSuite(content)
 
 head_element = suite.element("head")
 body_element = suite.element("body")
+links = suite.all_elements('a')
 
 # Check if the <body> exists OR <head> exists
 any_of(body_element.exists(), head_element.exists())
+
+# Check if at least one <a> tags as a url fragment
+any_of(link.has_url_with_fragment() for link in links)
 ```
 
 ## `at_least()`
 
-The `at_least` function takes the amount of checks required, and a series of checks to evaluate. The function will pass once at least `amount` checks have passed, and further checks will no longer be evaluated.
+The `at_least` function takes the amount of [Check]()s required, and a series of checks to evaluate (with support for (nested) iterables). The function will pass once at least `amount` checks have passed, and further checks will no longer be evaluated.
 
 #### Signature
 
@@ -81,9 +89,11 @@ suite = HtmlSuite(content)
 head_element = suite.element("head")  # Exists
 body_element = head_element.get_child("body")  # Exists
 div_element = body_element.get_child("div")  # Doesn't exist
+links = suite.all_elements('a')
 
 # Check if at least two of [<head>, <body>, <div>] exist
 at_least(2, head_element.exists(), body_element.exists(), div_element.exists())
+at_least(2, [link.has_url_with_fragment() for link in links])
 ```
 
 ## `fail_if()`

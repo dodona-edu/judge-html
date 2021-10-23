@@ -54,6 +54,8 @@ This function registers one or more checks that should *only* run if the current
 
 The checks will be added to an internal list of `on_success` checks. In case the current check already has such a list, the checks will be added to the deepest child without any `on_success`-checks so far instead. The function returns a reference to the last check in the list, to which future checks will be added when calling `.then()` again.
 
+This function `then()` also takes (nested) iterables such as `list`s, `map`s, generator expressions (including inline list comprehensions), etc.
+
 #### Signature
 
 ```python
