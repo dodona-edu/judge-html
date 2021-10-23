@@ -7,7 +7,7 @@ from tinycss2.ast import Declaration
 from utils.color_converter import Color
 
 
-def strip(ls: []) -> []: ...
+def strip(ls: list) -> list: ...
 
 
 class CssParsingError(Exception):
@@ -18,17 +18,17 @@ def _get_xpath(selector: str) -> str: ...
 
 
 class Rule:
-    selector: []
+    selector: list
     selector_str: str
     xpath: str
     name: str
-    value: []
+    value: list
     important: bool
-    specificity: (int, int, int)
+    specificity: tuple[int, int, int]
     value_str: str
     color: Optional[Color]
 
-    def __init__(self, selector: [], content: Declaration): ...
+    def __init__(self, selector: list, content: Declaration): ...
 
     def __repr__(self) -> str: ...
 
@@ -38,12 +38,12 @@ class Rule:
 
 
 
-def calc_specificity(selector_str: str) -> (int, int, int):  ...
+def calc_specificity(selector_str: str) -> tuple[int, int, int]:  ...
 
 class Rules:
     root: ElementBase
-    rules: []
-    map: {}
+    rules: list
+    map: dict
 
     def __init__(self, css_content: str): ...
 
@@ -63,7 +63,7 @@ class AmbiguousXpath(Exception):
 class CssValidator:
     root: Optional[ElementBase]
     rules: Rules
-    xpaths: {}
+    xpaths: dict
 
     def __init__(self, html: str): ...
     

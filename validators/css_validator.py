@@ -44,7 +44,7 @@ USAGE:
 """
 
 
-def strip(ls: []) -> []:
+def strip(ls: list) -> list:
     """strips leading & trailing whitespace tokens"""
     while ls and ls[0].type == WhitespaceToken.type:
         ls.pop(0)
