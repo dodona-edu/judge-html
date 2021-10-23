@@ -1,17 +1,8 @@
 from dodona.translator import Translator
+from exceptions.utils import FeedbackException
 
 
-class NotTheSame(Exception):
-    def __init__(self, msg: str, line: int, trans: Translator):
-        self.msg = msg
-        self.line = line - 1
-        self.trans = trans
+class NotTheSame(FeedbackException):
+    def __init__(self, trans: Translator, msg: str, line: int, pos: int, *args):
+        super(NotTheSame, self).__init__(trans=trans, msg=msg, line=line, pos=pos, args=args)
 
-    def annotation(self):
-        return self.msg
-
-    def __repr__(self):
-        return f"{self.msg} {self.trans.translate(Translator.Text.AT_LINE)} {self.line + 1}"
-
-    def __str__(self):
-        return self.__repr__()
