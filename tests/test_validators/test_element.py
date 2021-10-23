@@ -59,12 +59,15 @@ class TestElement(unittest.TestCase):
         div_nested = suite.element("div", id="nested")
         div_first = suite.element("div", id="first_div")
         div_second = suite.element("div", id="second_div")
+        p_last = div_nested.get_child("p", index=-1)
         phantom = suite.element("video")  # does not exist
 
         self.assertTrue(suite.check(body.has_child("div", id="second_div")))
         self.assertTrue(suite.check(div_nested.has_child("h2")))
         self.assertTrue(suite.check(div_nested.has_child("h2", class_="city")))
         self.assertTrue(suite.check(div_nested.has_child("p")))
+        self.assertTrue(suite.check(div_nested.has_child()))
+        self.assertFalse(suite.check(p_last.has_child()))
         self.assertFalse(suite.check(div_nested.has_child("img")))
         self.assertFalse(suite.check(div_second.has_child("p")))
         self.assertFalse(suite.check(phantom.has_child("source")))
@@ -255,8 +258,9 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(div.has_color("color", "#FF0000")))
 
         self.assertFalse(suite.check(phantom.has_color("color", "gold")))
-        self.assertTrue(suite.check(span.has_color("color", "gold")))  # TODO
-        self.assertFalse(suite.check(span.has_color("color", "blue")))  # TODO
+        self.assertFalse(suite.check(span.has_color("color", "gold")))
+        self.assertTrue(suite.check(span.has_color("color", "gold", allow_inheritance=True)))
+        self.assertFalse(suite.check(span.has_color("color", "blue")))
 
         # TODO #106
         # self.assertTrue(suite.check(p.has_color("color", "gold")))
@@ -284,6 +288,7 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(p.has_styling("font-weight", "bold", important=True)))
 
         self.assertFalse(suite.check(span.has_styling("background-color")))
+        self.assertTrue(suite.check(span.has_styling("background-color", allow_inheritance=True)))
         self.assertFalse(suite.check(phantom.has_styling("border")))
 
     def test_no_loose_text(self):
