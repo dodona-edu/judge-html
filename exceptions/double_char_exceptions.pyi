@@ -1,23 +1,19 @@
 from typing import Tuple
 
 from dodona.translator import Translator
-from exceptions.utils import DelayedExceptions
+from exceptions.utils import DelayedExceptions, AnnotatedException
 
 
-class DoubleCharError(Exception):
-    translator: Translator
-
-    def __init__(self,  translator: Translator): ...
-
-    def __str__(self): ...
-
-    def annotation(self) -> str: ...
+class DoubleCharError(AnnotatedException):
+    """Base class for double char related exceptions in this module."""
+    def __init__(self, trans: Translator, msg: str, line: int = -1, pos: int = -1, *args):
+        ...
 
 
 class LocatableDoubleCharError(DoubleCharError):
-    position: Tuple[int, int]
 
-    def __init__(self, translator: Translator, position: Tuple[int, int]): ...
+    def __init__(self, trans: Translator, msg: str, line: int, pos: int, *args):
+        ...
 
     def __lt__(self, other) -> bool: ...
 
@@ -31,30 +27,14 @@ class LocatableDoubleCharError(DoubleCharError):
 
     def __ne__(self, other) -> bool: ...
 
-    def location(self) -> str: ...
 
-    def fpos(self) -> str: ...
+class MissingOpeningCharError(LocatableDoubleCharError):
+    def __init__(self, trans: Translator, char: str, line: int, pos: int, *args):
+        ...
 
-    def annotation(self) -> str: ...
-
-    def __str__(self): ...
-
-
-class MissingCharError(LocatableDoubleCharError):
-    char: str
-
-    def __init__(self, translator: Translator, char: str, position: Tuple[int, int]): ...
-
-    def annotation(self) -> str: ...
-
-
-class MissingOpeningCharError(MissingCharError):
-    def annotation(self) -> str: ...
-
-
-class MissingClosingCharError(MissingCharError):
-    def annotation(self) -> str: ...
-
+class MissingClosingCharError(LocatableDoubleCharError):
+    def __init__(self, trans: Translator, char: str, line: int, pos: int, *args):
+        ...
 
 class MultipleMissingCharsError(DelayedExceptions):
     translator: Translator

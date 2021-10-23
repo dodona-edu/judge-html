@@ -1,30 +1,34 @@
 from dodona.translator import Translator
 
 
-class AnnotatedException(Exception):
+class FeedbackException(Exception):
     msg: str
     line: int
+    pos: int
     trans: Translator
 
-    def __init__(self, msg: str, line: int, trans: Translator, *args):
+    def __init__(self, msg: str, line: int, pos: int, trans: Translator, *args):
         super().__init__(msg, *args)
-
         self.msg = msg
         self.line = line - 1  # 1-based to 0-based
+        self.pos = pos
         self.trans = trans
 
     def message_str(self):
         """Create the message that should be displayed in the Dodona Tab"""
         # Line number < 0 means no line number should be shown (eg. empty submission)
-        # (#137)
-        if self.line < 0:
-            return self.msg
+        # Same for position
+        out = self.msg
+        if self.line > 0:
+            out += f" {self.trans.translate(Translator.Text.AT_LINE)} {self.line + 1}"
+        if self.pos > 0:
+            out += f" {self.pos + 1}"
 
-        return f"{self.msg} {self.trans.translate(Translator.Text.AT_LINE)} {self.line + 1}"
+        return out
 
     def annotation_str(self):
         """Create the message that should be displayed in the annotation in the Code Tab"""
-        # Don't show line number in annotations (#137)
+        # Don't show line number in annotations
         return self.msg
 
 
@@ -40,10 +44,10 @@ class InvalidTranslation(ValueError):
         super().__init__(*args)
 
 
-class DelayedExceptions(Exception):
+class DelayedExceptions(FeedbackException):
     """class made to gather multiple exceptions"""
     def __init__(self):
-        self.exceptions: [Exception] = []
+        self.exceptions: [FeedbackException] = []
 
     def __len__(self):
         return len(self.exceptions)
@@ -51,12 +55,13 @@ class DelayedExceptions(Exception):
     def __bool__(self):
         return bool(self.exceptions)
 
-    def add(self, exception: Exception):
+    def add(self, exception: FeedbackException):
         self.exceptions.append(exception)
 
     def clear(self):
         self.exceptions.clear()
 
     def _print_exceptions(self) -> str:
-        return "\n".join([str(x) for x in self.exceptions])
+        x: FeedbackException
+        return "\n".join([x.message_str() for x in self.exceptions])
 

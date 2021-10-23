@@ -1,17 +1,11 @@
 from typing import Tuple, List
 
 from dodona.translator import Translator
-from exceptions.utils import DelayedExceptions
+from exceptions.utils import DelayedExceptions, FeedbackException
 
 
-class HtmlValidationError(Exception):
-    translator: Translator
-
+class HtmlValidationError(FeedbackException):
     def __init__(self, translator: Translator): ...
-
-    def __str__(self): ...
-
-    def annotation(self) -> str: ...
 
 
 class LocatableHtmlValidationError(HtmlValidationError):
@@ -29,69 +23,52 @@ class LocatableHtmlValidationError(HtmlValidationError):
     def __str__(self): ...
 
 
-class TagError(LocatableHtmlValidationError):
-    tag: str
 
-    def __init__(self, translator: Translator, tag_location: [str], position: (int, int), tag: str): ...
+class MissingOpeningTagError(LocatableHtmlValidationError):
+    def __init__(self, trans: Translator, tag: str, line: int, pos: int, *args):
+        ...
 
-    def annotation(self) -> str: ...
+class MissingClosingTagError(LocatableHtmlValidationError):
+    def __init__(self, trans: Translator, tag: str, line: int, pos: int, *args):
+        ...
 
+class InvalidTagError(LocatableHtmlValidationError):
+    def __init__(self, trans: Translator, tag: str, line: int, pos: int, *args):
+        ...
 
-class MissingOpeningTagError(TagError):
-    def annotation(self) -> str: ...
+class NoSelfClosingTagError(LocatableHtmlValidationError):
+    def __init__(self, trans: Translator, tag: str, line: int, pos: int, *args):
+        ...
 
+class UnexpectedTagError(LocatableHtmlValidationError):
+    def __init__(self, trans: Translator, tag: str, line: int, pos: int, *args):
+        ...
 
-class MissingClosingTagError(TagError):
-    def annotation(self) -> str: ...
-
-
-class InvalidTagError(TagError):
-    def annotation(self) -> str: ...
-
-
-class NoSelfClosingTagError(TagError):
-    def annotation(self) -> str: ...
-
-
-class UnexpectedTagError(TagError):
-    def annotation(self) -> str: ...
+class UnexpectedClosingTagError(LocatableHtmlValidationError):
+    def __init__(self, trans: Translator, tag: str, line: int, pos: int, *args):
+        ...
 
 
-class UnexpectedClosingTagError(TagError):
-    def annotation(self) -> str: ...
 
+class InvalidAttributeError(LocatableHtmlValidationError):
+    def __init__(self, trans: Translator, tag: str, line: int, pos: int, *args):
+        ...
 
-class TagAttributeError(LocatableHtmlValidationError):
-    tag: str
-    attribute: str
+class MissingRequiredAttributesError(LocatableHtmlValidationError):
+    def __init__(self, trans: Translator, tag: str, attribute: str, line: int, pos: int, *args):
+        ...
 
-    def __init__(self, translator: Translator, tag: str, tag_location: List[str], position: Tuple[int, int], attribute: str): ...
-
-    def annotation(self) -> str: ...
-
-
-class InvalidAttributeError(TagAttributeError):
-    def annotation(self) -> str: ...
-
-
-class MissingRequiredAttributesError(TagAttributeError):
-    def annotation(self) -> str: ...
-
-
-class DuplicateIdError(TagAttributeError):
-    def annotation(self) -> str: ...
-
+class DuplicateIdError(LocatableHtmlValidationError):
+    def __init__(self, trans: Translator, tag: str, attribute: str, line: int, pos: int, *args):
+        ...
 
 class AttributeValueError(LocatableHtmlValidationError):
-    msg: str
     def __init__(self, translator: Translator, tag_location: [str], position: (int, int), message: str): ...
+        ...
 
-    def annotation(self) -> str: ...
-
-
-class MissingRecommendedAttributesWarning(TagAttributeError):
-    def annotation(self) -> str: ...
-
+class MissingRecommendedAttributesWarning(LocatableHtmlValidationError):
+    def __init__(self, trans: Translator, tag: str, attribute: str, line: int, pos: int, *args):
+        ...
 
 class Warnings(DelayedExceptions):
     translator: Translator
@@ -99,4 +76,4 @@ class Warnings(DelayedExceptions):
 
     def __init__(self, translator: Translator): ...
 
-    def annotation(self) -> str: ...
+    def __str__(self): ...

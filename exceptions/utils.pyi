@@ -3,18 +3,19 @@ from typing import List
 from dodona.translator import Translator
 
 
-class AnnotatedException(Exception):
+class FeedbackException(Exception):
     msg: str
     line: int
+    pos: int
     trans: Translator
 
-    def __init__(self, msg: str, line: int, trans: Translator, *args): ...
+    def __init__(self, trans: Translator, msg: str, line: int, pos: int, *args): ...
 
-    def message_str(self):
+    def message_str(self) -> str:
         """Create the message that should be displayed in the Dodona Tab"""
         ...
 
-    def annotation_str(self):
+    def annotation_str(self) -> str:
         """Create the message that should be displayed in the annotation in the Code Tab"""
         ...
 
@@ -26,8 +27,8 @@ class InvalidTranslation(ValueError):
     def __init__(self, *args): ...
 
 
-class DelayedExceptions(Exception):
-    exceptions: List[Exception]
+class DelayedExceptions(FeedbackException):
+    exceptions: List[FeedbackException]
 
     def __init__(self): ...
 
@@ -35,7 +36,7 @@ class DelayedExceptions(Exception):
 
     def __bool__(self) -> bool: ...
 
-    def add(self, exception: Exception): ...
+    def add(self, exception: FeedbackException): ...
 
     def clear(self): ...
 

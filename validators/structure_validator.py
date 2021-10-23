@@ -1,24 +1,9 @@
 from dodona.translator import Translator
 from lxml.html import fromstring, HtmlElement, HtmlComment
 
+from exceptions.structure_exceptions import NotTheSame
 from validators.css_validator import CssValidator
 from utils.html_navigation import compare_content
-
-
-class NotTheSame(Exception):
-    def __init__(self, msg: str, line: int, trans: Translator):
-        self.msg = msg
-        self.line = line - 1
-        self.trans = trans
-
-    def annotation(self):
-        return self.msg
-
-    def __repr__(self):
-        return f"{self.msg} {self.trans.translate(Translator.Text.AT_LINE)} {self.line + 1}"
-
-    def __str__(self):
-        return self.__repr__()
 
 
 def compare(solution: str, submission: str, trans: Translator, **kwargs):

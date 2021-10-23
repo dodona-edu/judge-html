@@ -1,77 +1,50 @@
 from dodona.translator import Translator
-from exceptions.utils import DelayedExceptions
+from exceptions.utils import DelayedExceptions, FeedbackException
 
 
-class DoubleCharError(Exception):
+class DoubleCharError(FeedbackException):
     """Base class for double char related exceptions in this module."""
-    def __init__(self,  translator: Translator):
-        self.translator = translator
-
-    def __str__(self):
-        return self.annotation()
-
-    def annotation(self) -> str:
-        return f"Double char error"
+    def __init__(self, trans: Translator, msg: str, line: int, pos: int, *args):
+        super(DoubleCharError, self).__init__(trans=trans, msg=msg, line=line, pos=pos, args=args)
 
 
 class LocatableDoubleCharError(DoubleCharError):
     """Exceptions that can be located"""
-    def __init__(self, translator: Translator, position: (int, int)):
-        super(LocatableDoubleCharError, self).__init__(translator)
-        self.position = position
+
+    def __init__(self, trans: Translator, msg: str, line: int, pos: int, *args):
+        super(LocatableDoubleCharError, self).__init__(trans=trans, msg=msg, line=line, pos=pos, args=args)
 
     def __lt__(self, other):
-        return self.position < other.position
+        return (self.line, self.pos) < (other.line, other.pos)
 
     def __gt__(self, other):
-        return self.position > other.position
+        return (self.line, self.pos) > (other.line, other.pos)
 
     def __le__(self, other):
-        return self.position <= other.position
+        return (self.line, self.pos) <= (other.line, other.pos)
 
     def __ge__(self, other):
-        return self.position >= other.position
+        return (self.line, self.pos) >= (other.line, other.pos)
 
     def __eq__(self, other):
-        return self.position == other.position
+        return (self.line, self.pos) == (other.line, other.pos)
 
     def __ne__(self, other):
-        return self.position != other.position
-
-    def location(self) -> str:
-        return f"{self.translator.translate(Translator.Text.LOCATED_AT)}: {self.fpos()}"
-
-    def fpos(self) -> str:
-        return f"{self.translator.translate(Translator.Text.LINE)} {self.position[0] + 1} " \
-               f"{self.translator.translate(Translator.Text.POSITION)} {self.position[1] + 1} "
-
-    def annotation(self) -> str:
-        return f"Locatable double char error"
-
-    def __str__(self):
-        return f"{self.annotation()} {self.location()}"
+        return (self.line, self.pos) != (other.line, other.pos)
 
 
-class MissingCharError(LocatableDoubleCharError):
-    """Exception that indicates a missing character for a character"""
-    def __init__(self, translator: Translator, char: str, position: (int, int)):
-        super(MissingCharError, self).__init__(translator, position)
-        self.char = char
-
-    def annotation(self) -> str:
-        return f"Missing char error"
-
-
-class MissingOpeningCharError(MissingCharError):
+class MissingOpeningCharError(LocatableDoubleCharError):
     """Exception that indicates that an opening equivalent of a certain character is missing"""
-    def annotation(self) -> str:
-        return f"{self.translator.translate(Translator.Text.MISSING_OPENING_CHARACTER)} '{self.char}'"
+    def __init__(self, trans: Translator, char: str, line: int, pos: int, *args):
+        msg = f"{trans.translate(Translator.Text.MISSING_OPENING_CHARACTER)} '{char}'"
+        super(MissingOpeningCharError, self).__init__(trans=trans, msg=msg, line=line, pos=pos, args=args)
 
 
-class MissingClosingCharError(MissingCharError):
+class MissingClosingCharError(LocatableDoubleCharError):
     """Exception that indicates that a closing equivalent of a certain character is missing"""
-    def annotation(self) -> str:
-        return f"{self.translator.translate(Translator.Text.MISSING_CLOSING_CHARACTER)} '{self.char}'"
+    def __init__(self, trans: Translator, char: str, line: int, pos: int, *args):
+        msg = f"{trans.translate(Translator.Text.MISSING_CLOSING_CHARACTER)} '{char}'"
+        super(MissingOpeningCharError, self).__init__(trans=trans, msg=msg, line=line, pos=pos, args=args)
 
 
 class MultipleMissingCharsError(DelayedExceptions):
