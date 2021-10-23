@@ -155,3 +155,10 @@ class Warnings(DelayedExceptions):
     def __str__(self):
         self.exceptions.sort(key=lambda x: x.position)
         return f"{self.translator.translate(Translator.Text.WARNINGS)} ({len(self)}):\n{self._print_exceptions()}"
+
+
+er = DuplicateIdError(Translator(Translator.Language.EN), "div", ["html", "body"], (3, 12), "my_div")
+print(er.annotation())
+print(er)
+
+# todo let annotate call the annotation function & normal tabs normal error string
