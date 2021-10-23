@@ -6,7 +6,7 @@ from typing import Callable, List, Optional, Union, Dict, TypeVar, Iterable, Ite
 
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
-from validators.css_validator import CssValidator
+from validators.css_validator import CssValidator, Rule
 from validators.html_validator import HtmlValidator
 
 
@@ -119,12 +119,18 @@ class Element:
         """Check if the element contains a comment, optionally matching a value"""
         ...
 
+    def _find_css_property(self, prop: str, inherit: bool) -> Optional[Rule]:
+        """Find a css property recursively if necessary
+        Properties by parent elements are applied onto their children, so
+        an element can inherit a property from its parent
+        """
+        ...
 
-    def has_styling(self, attr: str, value: Optional[str] = ..., important: Optional[bool] = ...) -> Check:
+    def has_styling(self, attr: str, value: Optional[str] = ..., important: Optional[bool] = ..., allow_inheritance: bool = False) -> Check:
         """Check that this element is matched by a CSS selector to give it a particular styling. A value can be passed to match the value of the styling exactly."""
         ...
 
-    def has_color(self, prop: str, color: str, important: Optional[bool] = None) -> Check:
+    def has_color(self, prop: str, color: str, important: Optional[bool] = None, allow_inheritance: bool = False) -> Check:
         """Check that this element has a given color on a CSS property."""
         ...
 

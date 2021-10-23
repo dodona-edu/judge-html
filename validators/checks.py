@@ -19,7 +19,7 @@ from exceptions.utils import EvaluationAborted
 from utils.flatten import flatten_queue
 from utils.regexes import doctype_re
 from utils.html_navigation import find_child, compare_content, match_emmet, find_emmet, contains_comment
-from validators.css_validator import CssValidator, CssParsingError
+from validators.css_validator import CssValidator, CssParsingError, Rule
 from validators.html_validator import HtmlValidator
 
 
@@ -513,17 +513,50 @@ class Element:
         return Check(_inner)
 
     # CSS checks
+    def _find_css_property(self, prop: str, inherit: bool) -> Optional[Rule]:
+        """Find a css property recursively if necessary
+        Properties by parent elements are applied onto their children, so
+        an element can inherit a property from its parent
+        """
+        prop = prop.lower()
+
+        # Inheritance is not allowed
+        if not inherit:
+            return self._css_validator.find(self._element, prop)
+
+        current_element = self._element
+        prop_value = None
+
+        # Keep going higher up the tree until a match is found
+        while prop_value is None and current_element is not None:
+            # Check if the current element has this rule & applies it onto the child
+            prop_value = self._css_validator.find(current_element, prop)
+
+            if prop_value is None:
+                parents = current_element.find_parents()
+
+                # find_parents() always returns the entire document as well,
+                # even when the current element is the root
+                # So at least 2 parents are required
+                if len(parents) <= 2:
+                    current_element = None
+                else:
+                    current_element = parents[0]
+
+        return prop_value
+
     @css_check
-    def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None) -> Check:
+    def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None, allow_inheritance: bool = False) -> Check:
         """Check that this element has a CSS property
-        :param prop:        the required CSS property to check
-        :param value:       an optional value to add that must be checked against,
-                            in case nothing is supplied any value will pass
-        :param important:   indicate that this must (or may not be) marked as important
+        :param prop:                the required CSS property to check
+        :param value:               an optional value to add that must be checked against,
+                                    in case nothing is supplied any value will pass
+        :param important:           indicate that this must (or may not be) marked as important
+        :param allow_inheritance:   allow a parent element to have this property and apply it onto the child
         """
 
         def _inner(_: BeautifulSoup) -> bool:
-            prop_value = self._css_validator.find(self._element, prop.lower())
+            prop_value = self._find_css_property(prop, allow_inheritance)
 
             # Property not found
             if prop_value is None:
@@ -542,18 +575,23 @@ class Element:
         return Check(_inner)
 
     @css_check
-    def has_color(self, prop: str, color: str, important: Optional[bool] = None) -> Check:
+    def has_color(self, prop: str, color: str, important: Optional[bool] = None, allow_inheritance: bool = False) -> Check:
         """Check that this element has a given color
         More flexible version of has_styling because it also allows RGB(r, g, b), hex format, ...
 
-        :param prop:        the required CSS property to check (background-color, color, ...)
-        :param color:       the color to check this property's value against, in any format
-        :param important:   indicate that this must (or may not be) marked as important
+        :param prop:                the required CSS property to check (background-color, color, ...)
+        :param color:               the color to check this property's value against, in any format
+        :param important:           indicate that this must (or may not be) marked as important
+        :param allow_inheritance:   allow a parent element to have this property and apply it onto the child
         """
 
         def _inner(_: BeautifulSoup) -> bool:
             # Find the CSS Rule
-            prop_rule = self._css_validator.find(self._element, prop.lower())
+            prop_rule = self._find_css_property(prop, allow_inheritance)
+
+            # Property not found
+            if prop_rule is None:
+                return False
 
             # !important modifier is incorrect
             if important is not None and prop_rule.important != important:
