@@ -259,7 +259,7 @@ class TestElement(unittest.TestCase):
 
         self.assertFalse(suite.check(phantom.has_color("color", "gold")))
         self.assertFalse(suite.check(span.has_color("color", "gold")))
-        self.assertTrue(suite.check(span.has_color("color", "gold", allow_inherit=True)))
+        self.assertTrue(suite.check(span.has_color("color", "gold", allow_inheritance=True)))
         self.assertFalse(suite.check(span.has_color("color", "blue")))
 
         # TODO #106
@@ -288,7 +288,8 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(p.has_styling("font-weight", "bold", important=True)))
 
         self.assertFalse(suite.check(span.has_styling("background-color")))
-        self.assertTrue(suite.check(span.has_styling("background-color", allow_inherit=True)))
+        self.assertTrue(suite.check(span.has_styling("background-color", allow_inheritance=True)))
+        self.assertTrue(suite.check(span.has_styling("background-color", allow_inheritance=True)))
         self.assertFalse(suite.check(phantom.has_styling("border")))
 
     def test_no_loose_text(self):

@@ -599,7 +599,7 @@ value of the styling exactly.
 #### Signature
 
 ```python
-def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None, allow_inherit: bool = False) -> Check
+def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None, allow_inheritance: bool = False) -> Check
 ```
 
 #### Parameters
@@ -609,7 +609,7 @@ def has_styling(self, prop: str, value: Optional[str] = None, important: Optiona
 | `prop`      | The name of the CSS property to look for.                                                                 |     ✔     |                                                                                               |
 | `value`     | A value to match the property against.                                                                    |           | `None`, which will make any value pass and only checks if the element has this style property.  |
 | `important` | A boolean indicating that this element should (or may not be) marked as important using **`!important`**. |           | `None`, which won't check this.                                                                 |
-| `allow_inherit` | A boolean indicating that a parent element can also have this styling and pass it down onto the child instead.  | | `False`, which will require the element itself to have this property. |
+| `allow_inheritance` | A boolean indicating that a parent element can also have this styling and pass it down onto the child instead.  | | `False`, which will require the element itself to have this property. |
 
 #### Example usage
 
@@ -622,7 +622,7 @@ div_tag = body.get_child("div")
 div_tag.has_styling("background-color")
 
 # Check that the div has a background colour, optionally inheriting it from a parent element
-div_tag.has_styling("background-color", allow_inherit=True)
+div_tag.has_styling("background-color", allow_inheritance=True)
 
 # Check that the div has a horizontal margin of exactly 3px marked as !important
 div_tag.has_styling("margin", "3px", important=True)
@@ -636,7 +636,7 @@ of [`has_styling`](#has_styling) because it allows the value to be in multiple d
 #### Signature
 
 ```python
-def has_color(prop: str, color: str, important: Optional[bool] = None, allow_inherit: bool = False) -> Check
+def has_color(prop: str, color: str, important: Optional[bool] = None, allow_inheritance: bool = False) -> Check
 ```
 
 #### Parameters
@@ -646,7 +646,7 @@ def has_color(prop: str, color: str, important: Optional[bool] = None, allow_inh
 | `attr`      | The name of the CSS attribute to look for.                                                                             |     ✔     |                                                                                               |
 | `value`     | A value to match the property against. This value may be in any of the accepted formats: `name`, `rgb`, `rgba`, `hex`. |     ✔     |                                                                                               |
 | `important` | A boolean indicating that this element should (or may not be) marked as important using **`!important`**.              |           | `None`, which won't check this.                                                                 |
-| `allow_inherit` | A boolean indicating that a parent element can also have this styling and pass it down onto the child instead.  | | `False`, which will require the element itself to have this property. |
+| `allow_inheritance` | A boolean indicating that a parent element can also have this styling and pass it down onto the child instead.  | | `False`, which will require the element itself to have this property. |
 
 #### Example usage
 
@@ -677,6 +677,6 @@ div.has_color("background-color", "rgb(0, 0, 255)")  # By rgb value
 div.has_color("background-color", "rgba(0, 0, 255, 1.0)")  # By rgba value
 div.has_color("background-color", "#0000FF")  # By hex value
 
-div.has_color("background-color", "blue", allow_inherit=True)  # Allow inheriting from the parent <body>
+div.has_color("background-color", "blue", allow_inheritance=True)  # Allow inheriting from the parent <body>
 ```
 

@@ -546,17 +546,17 @@ class Element:
         return prop_value
 
     @css_check
-    def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None, allow_inherit: bool = False) -> Check:
+    def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None, allow_inheritance: bool = False) -> Check:
         """Check that this element has a CSS property
-        :param prop:            the required CSS property to check
-        :param value:           an optional value to add that must be checked against,
-                                in case nothing is supplied any value will pass
-        :param important:       indicate that this must (or may not be) marked as important
-        :param allow_inherit:   allow a parent element to have this property and apply it onto the child
+        :param prop:                the required CSS property to check
+        :param value:               an optional value to add that must be checked against,
+                                    in case nothing is supplied any value will pass
+        :param important:           indicate that this must (or may not be) marked as important
+        :param allow_inheritance:   allow a parent element to have this property and apply it onto the child
         """
 
         def _inner(_: BeautifulSoup) -> bool:
-            prop_value = self._find_css_property(prop, allow_inherit)
+            prop_value = self._find_css_property(prop, allow_inheritance)
 
             # Property not found
             if prop_value is None:
@@ -575,19 +575,19 @@ class Element:
         return Check(_inner)
 
     @css_check
-    def has_color(self, prop: str, color: str, important: Optional[bool] = None, allow_inherit: bool = False) -> Check:
+    def has_color(self, prop: str, color: str, important: Optional[bool] = None, allow_inheritance: bool = False) -> Check:
         """Check that this element has a given color
         More flexible version of has_styling because it also allows RGB(r, g, b), hex format, ...
 
-        :param prop:            the required CSS property to check (background-color, color, ...)
-        :param color:           the color to check this property's value against, in any format
-        :param important:       indicate that this must (or may not be) marked as important
-        :param allow_inherit:   allow a parent element to have this property and apply it onto the child
+        :param prop:                the required CSS property to check (background-color, color, ...)
+        :param color:               the color to check this property's value against, in any format
+        :param important:           indicate that this must (or may not be) marked as important
+        :param allow_inheritance:   allow a parent element to have this property and apply it onto the child
         """
 
         def _inner(_: BeautifulSoup) -> bool:
             # Find the CSS Rule
-            prop_rule = self._find_css_property(prop, allow_inherit)
+            prop_rule = self._find_css_property(prop, allow_inheritance)
 
             # Property not found
             if prop_rule is None:
