@@ -1,5 +1,4 @@
 import tinycss2
-from bs4 import BeautifulSoup
 from bs4.element import Tag
 from tinycss2.ast import *
 from lxml.html import fromstring

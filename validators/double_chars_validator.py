@@ -215,7 +215,7 @@ class DoubleCharsValidator:
                     elif stack and stack[-1].type == dc.type:
                         wait_until_seen = pop_stack(dc)
                     else:
-                        errors.add(MissingOpeningCharError(translator=self.translator, position=(dc.line, dc.pos), char=dc.close))
+                        errors.add(MissingOpeningCharError(trans=self.translator, char=dc.close, line=dc.line, pos=dc.pos))
 
                 else:  # we're inside something that we don't need to check, just whether we need to leave this state
                     if dc.type == wait_until_seen.type:
@@ -228,20 +228,16 @@ class DoubleCharsValidator:
         while stack:
             dc = stack.pop()
             if dc.is_unambiguous and dc.is_close():
-                errors.add(MissingOpeningCharError(translator=self.translator, position=(dc.line, dc.pos), char=dc.close))
+                errors.add(MissingOpeningCharError(trans=self.translator, char=dc.close, line=dc.line, pos=dc.pos))
             else:
-                errors.add(MissingClosingCharError(translator=self.translator, position=(dc.line, dc.pos), char=dc.open))
+                errors.add(MissingClosingCharError(trans=self.translator, char=dc.open, line=dc.line, pos=dc.pos))
         # wait_until_seen should be empty
         if wait_until_seen:
             dc = wait_until_seen
             if dc.check_in_between:
                 if dc.is_open():
-                    errors.add(MissingClosingCharError(translator=self.translator, position=(dc.line, dc.pos), char=dc.open))
+                    errors.add(MissingClosingCharError(trans=self.translator, char=dc.open, line=dc.line, pos=dc.pos))
                 else:
-                    errors.add(MissingOpeningCharError(translator=self.translator, position=(dc.line, dc.pos), char=dc.open))
+                    errors.add(MissingOpeningCharError(trans=self.translator, char=dc.open, line=dc.line, pos=dc.pos))
         if errors:
             raise errors
-
-
-dcv = DoubleCharsValidator(Translator(Translator.Language.EN))
-dcv.validate_content("<html> head> <meta charset='UTF-8'></head></html>")

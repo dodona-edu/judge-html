@@ -5,14 +5,15 @@ from exceptions.utils import DelayedExceptions, FeedbackException
 
 
 class HtmlValidationError(FeedbackException):
-    def __init__(self, translator: Translator): ...
-
+    def __init__(self, trans: Translator, msg: str, line: int, pos: int, *args):
+        ...
 
 class LocatableHtmlValidationError(HtmlValidationError):
     _tag_location: List[str]
     position: Tuple[int, int]
 
-    def __init__(self, translator: Translator, tag_location: List[str], position: Tuple[int, int]): ...
+    def __init__(self, trans: Translator, msg: str, line: int, pos: int, *args):
+        ...
 
     def location(self) -> str: ...
 
@@ -51,7 +52,7 @@ class UnexpectedClosingTagError(LocatableHtmlValidationError):
 
 
 class InvalidAttributeError(LocatableHtmlValidationError):
-    def __init__(self, trans: Translator, tag: str, line: int, pos: int, *args):
+    def __init__(self, trans: Translator, tag: str, attribute: str, line: int, pos: int, *args):
         ...
 
 class MissingRequiredAttributesError(LocatableHtmlValidationError):
