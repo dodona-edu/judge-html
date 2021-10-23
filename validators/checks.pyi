@@ -10,6 +10,7 @@ from validators.css_validator import CssValidator, Rule
 from validators.html_validator import HtmlValidator
 
 
+# Custom type hints
 Emmet = TypeVar("Emmet", bound=str)
 Checks = TypeVar("Checks", bound=Union["Check", Iterable["Check"]])
 
@@ -31,7 +32,7 @@ class Check:
         """This is an alias to or_abort, and can be used in the exact same way."""
         ...
 
-    def then(self, *args: "Check") -> "Check":
+    def then(self, *args: Checks) -> "Check":
         """This function registers one or more checks that should only run if the current check succeeds."""
         ...
 
@@ -126,7 +127,7 @@ class Element:
         """
         ...
 
-    def has_styling(self, attr: str, value: Optional[str] = ..., important: Optional[bool] = ..., allow_inheritance: bool = False) -> Check:
+    def has_styling(self, prop: str, value: Optional[str] = ..., important: Optional[bool] = ...) -> Check:
         """Check that this element is matched by a CSS selector to give it a particular styling. A value can be passed to match the value of the styling exactly."""
         ...
 
@@ -222,7 +223,7 @@ class TestSuite:
         """Shortcut for TestSuite.checklist.append(item)"""
         ...
 
-    def make_item(self, message: str, *args: Check):
+    def make_item(self, message: str, *args: Checks):
         """Shortcut for suite.checklist.append(ChecklistItem(message, checks))"""
         ...
 

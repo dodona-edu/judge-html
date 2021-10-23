@@ -23,7 +23,7 @@ from validators.css_validator import CssValidator, CssParsingError, Rule
 from validators.html_validator import HtmlValidator
 
 
-# Emmet string type
+# Custom type hints
 Emmet = TypeVar("Emmet", bound=str)
 Checks = TypeVar("Checks", bound=Union["Check", Iterable["Check"]])
 
