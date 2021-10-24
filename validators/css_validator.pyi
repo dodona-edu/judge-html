@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Dict, List, Tuple
 
 from bs4.element import Tag
 from lxml.etree import ElementBase
@@ -18,17 +18,17 @@ def _get_xpath(selector: str) -> str: ...
 
 
 class Rule:
-    selector: list
+    selector: List
     selector_str: str
     xpath: str
     name: str
-    value: list
+    value: List
     important: bool
-    specificity: tuple[int, int, int]
+    specificity: Tuple[int, int, int]
     value_str: str
     color: Optional[Color]
 
-    def __init__(self, selector: list, content: Declaration): ...
+    def __init__(self, selector: List, content: Declaration): ...
 
     def __repr__(self) -> str: ...
 
@@ -38,12 +38,12 @@ class Rule:
 
 
 
-def calc_specificity(selector_str: str) -> tuple[int, int, int]:  ...
+def calc_specificity(selector_str: str) -> Tuple[int, int, int]:  ...
 
 class Rules:
     root: ElementBase
-    rules: list
-    map: dict
+    rules: List
+    map: Dict
 
     def __init__(self, css_content: str): ...
 
@@ -63,7 +63,7 @@ class AmbiguousXpath(Exception):
 class CssValidator:
     root: Optional[ElementBase]
     rules: Rules
-    xpaths: dict
+    xpaths: Dict
 
     def __init__(self, html: str): ...
     

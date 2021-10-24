@@ -24,7 +24,7 @@ class LocatableHtmlValidationError(HtmlValidationError):
 class TagError(LocatableHtmlValidationError):
     tag: str
 
-    def __init__(self, translator: Translator, tag_location: list[str], position: tuple[int, int], tag: str): ...
+    def __init__(self, translator: Translator, tag_location: List[str], position: Tuple[int, int], tag: str): ...
 
 
 class MissingOpeningTagError(TagError):
@@ -72,7 +72,7 @@ class DuplicateIdError(TagAttributeError):
 
 class AttributeValueError(LocatableHtmlValidationError):
     msg: str
-    def __init__(self, translator: Translator, tag_location: list[str], position: tuple[int, int], message: str): ...
+    def __init__(self, translator: Translator, tag_location: List[str], position: Tuple[int, int], message: str): ...
 
     def __str__(self) -> str: ...
 

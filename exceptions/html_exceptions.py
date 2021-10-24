@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 from dodona.translator import Translator
 from exceptions.utils import DelayedExceptions
 
@@ -10,7 +12,7 @@ class HtmlValidationError(Exception):
 
 class LocatableHtmlValidationError(HtmlValidationError):
     """Exceptions that can be located"""
-    def __init__(self, translator: Translator, tag_location: list[str], position: tuple[int, int]):
+    def __init__(self, translator: Translator, tag_location: List[str], position: Tuple[int, int]):
         self._tag_location = tag_location
         self.position = position
         self.translator = translator
@@ -34,7 +36,7 @@ EXCEPTIONS FOR TAGS
 
 class TagError(LocatableHtmlValidationError):
     """Exception that contains a tag"""
-    def __init__(self, translator: Translator, tag_location: list[str], position: tuple[int, int], tag: str):
+    def __init__(self, translator: Translator, tag_location: List[str], position: Tuple[int, int], tag: str):
         super(TagError, self).__init__(translator, tag_location, position)
         self.tag = tag
 
@@ -84,7 +86,7 @@ EXCEPTIONS FOR ATTRIBUTES
 
 
 class TagAttributeError(LocatableHtmlValidationError):
-    def __init__(self, translator: Translator, tag: str, tag_location: list[str], position: tuple[int, int], attribute: str):
+    def __init__(self, translator: Translator, tag: str, tag_location: List[str], position: Tuple[int, int], attribute: str):
         super(TagAttributeError, self).__init__(translator, tag_location, position)
         self.tag = tag
         self.attribute = attribute
@@ -112,7 +114,7 @@ class DuplicateIdError(TagAttributeError):
 
 
 class AttributeValueError(LocatableHtmlValidationError):
-    def __init__(self, translator: Translator, tag_location: list[str], position: tuple[int, int], message: str):
+    def __init__(self, translator: Translator, tag_location: List[str], position: Tuple[int, int], message: str):
         super().__init__(translator, tag_location, position)
         self.msg = message
 

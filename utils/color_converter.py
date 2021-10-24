@@ -1,7 +1,7 @@
 """Provide RGB color constants and a colors dictionary with
 elements formatted: colors[colorname] = CONSTANT"""
 from collections import namedtuple, OrderedDict
-from typing import Optional
+from typing import Optional, Tuple
 
 """
 from util.color_converter import colors, RGB
@@ -407,7 +407,7 @@ class Color:
             return False
         return self.values() == other.values()
 
-    def values(self) -> tuple[str, str, str, str]:
+    def values(self) -> Tuple[str, str, str, str]:
         return self.as_name, self.as_hex, self.as_rgb, self.as_rgba
 
     def _from_name(self, name: str):

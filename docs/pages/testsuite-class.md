@@ -88,12 +88,12 @@ Searching will start from the root element, and work in a breadth-first way recu
 The example below shows how to get the `<div>` at the root of the tree, not the one that comes first in the file but is nested deeper.
 
 ```html
-<span>
+<section>
     <!-- We don't want this div -->
     <div>
         ...
     </div>
-</span>
+</section>
 <!-- We want THIS div -->
 <div>
     ...
