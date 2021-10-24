@@ -7,7 +7,7 @@ from tinycss2.ast import Declaration
 from utils.color_converter import Color
 
 
-def strip(ls: list) -> list: ...
+def strip(ls: List) -> List: ...
 
 
 class CssParsingError(Exception):
