@@ -199,7 +199,7 @@ Adding items one by one can either be done by adding them to the internal checkl
 If you want to add a `ChecklistItem` by comparing the submission to an emmet expression, you can use `TestSuite.make_item_from_emmet(message, emmet_str)`.
 You can find more documentation about the Emmet Syntax [here](emmet-syntax.md).
 
-This function `make_item()` takes (nested) iterables such as `list`s, `map`s, generator expressions (including inline list comprehensions), etc.
+This function `make_item()` also takes (nested) iterables such as `list`s, `map`s, generator expressions (including inline list comprehensions), etc.
 
 ```python
 suite = TestSuite("HTML", content)

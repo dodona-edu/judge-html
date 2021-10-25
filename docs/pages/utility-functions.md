@@ -70,7 +70,7 @@ any_of(link.has_url_with_fragment() for link in links)
 
 ## `at_least()`
 
-The `at_least` function takes the amount of [Check]()s required, and a series of checks to evaluate (with support for (nested) iterables). The function will pass once at least `amount` checks have passed, and further checks will no longer be evaluated.
+The `at_least` function takes the amount of `Check`s required, and a series of checks to evaluate (with support for (nested) iterables). The function will pass once at least `amount` checks have passed, and further checks will no longer be evaluated.
 
 #### Signature
 
