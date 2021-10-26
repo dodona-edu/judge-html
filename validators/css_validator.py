@@ -5,7 +5,7 @@ from tinycss2.ast import *
 from lxml.html import fromstring
 from lxml.etree import ElementBase
 from cssselect import GenericTranslator, SelectorError
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Dict
 
 from utils.color_converter import Color
 
@@ -198,7 +198,7 @@ class Rules:
 
         return dom_rule
 
-    def find_all(self, root: ElementBase, solution_element: ElementBase) -> dict[str, Rule]:
+    def find_all(self, root: ElementBase, solution_element: ElementBase) -> Dict[str, Rule]:
         """find all the css rule for the solution_element,
             root is the root of the html-document (etree)"""
         dom_css = {}
