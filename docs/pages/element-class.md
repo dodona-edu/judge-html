@@ -643,7 +643,7 @@ def has_color(prop: str, color: str, important: Optional[bool] = None, allow_inh
 
 | Name      | Description                                                                                                            | Required? | Default                                                                                       |
 |:----------|:-----------------------------------------------------------------------------------------------------------------------|:---------:|:----------------------------------------------------------------------------------------------|
-| `attr`      | The name of the CSS attribute to look for.                                                                             |     ✔     |                                                                                               |
+| `prop`      | The name of the CSS attribute to look for.                                                                             |     ✔     |                                                                                               |
 | `value`     | A value to match the property against. This value may be in any of the accepted formats: `name`, `rgb`, `rgba`, `hex`. |     ✔     |                                                                                               |
 | `important` | A boolean indicating that this element should (or may not be) marked as important using **`!important`**.              |           | `None`, which won't check this.                                                                 |
 | `allow_inheritance` | A boolean indicating that a parent element can also have this styling and pass it down onto the child instead.  | | `False`, which will require the element itself to have this property. |
