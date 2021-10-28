@@ -37,14 +37,14 @@ class TestElement(unittest.TestCase):
 
     def test_get_children(self):
         suite = UnitTestSuite("test_1")
-        self.assertTrue(suite.element("html").get_children("body>div").exactly(2))
-        self.assertFalse(suite.element("html").get_children("body>div>p").exactly(2))  # TODO
-        self.assertTrue(suite.element("html").get_children("img").exactly(1))
+        self.assertTrue(suite.check(suite.element("html").get_children("body>div").exactly(2)))
+        self.assertFalse(suite.check(suite.element("html").get_children("body>div>p").exactly(2)))
+        self.assertTrue(suite.check(suite.element("html").get_children("img", direct=False).exactly(1)))
 
-        self.assertTrue(suite.element("body").get_children("p", direct=True).exactly(1))
-        self.assertTrue(suite.element("html").get_children("p", direct=False).exactly(3))
-        self.assertTrue(suite.element("html").get_children("p", direct=False, class_="city").exactly(2))
-        self.assertTrue(suite.element("html").get_children("img", direct=False, alt="dodona-icon").exactly(1))
+        self.assertTrue(suite.check(suite.element("div").get_children("p", direct=True).exactly(1)))
+        self.assertTrue(suite.check(suite.element("html").get_children("p", direct=False).exactly(3)))
+        self.assertTrue(suite.check(suite.element("html").get_children("h2", direct=False, class_="city").exactly(2)))
+        self.assertTrue(suite.check(suite.element("html").get_children("img", direct=False, alt="dodona-icon").exactly(1)))
 
     def test_exists(self):
         suite = UnitTestSuite("test_1")
@@ -59,12 +59,15 @@ class TestElement(unittest.TestCase):
         div_nested = suite.element("div", id="nested")
         div_first = suite.element("div", id="first_div")
         div_second = suite.element("div", id="second_div")
+        p_last = div_nested.get_child("p", index=-1)
         phantom = suite.element("video")  # does not exist
 
         self.assertTrue(suite.check(body.has_child("div", id="second_div")))
         self.assertTrue(suite.check(div_nested.has_child("h2")))
         self.assertTrue(suite.check(div_nested.has_child("h2", class_="city")))
         self.assertTrue(suite.check(div_nested.has_child("p")))
+        self.assertTrue(suite.check(div_nested.has_child()))
+        self.assertFalse(suite.check(p_last.has_child()))
         self.assertFalse(suite.check(div_nested.has_child("img")))
         self.assertFalse(suite.check(div_second.has_child("p")))
         self.assertFalse(suite.check(phantom.has_child("source")))
@@ -255,8 +258,9 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(div.has_color("color", "#FF0000")))
 
         self.assertFalse(suite.check(phantom.has_color("color", "gold")))
-        self.assertTrue(suite.check(span.has_color("color", "gold")))  # TODO
-        self.assertFalse(suite.check(span.has_color("color", "blue")))  # TODO
+        self.assertFalse(suite.check(span.has_color("color", "gold")))
+        self.assertTrue(suite.check(span.has_color("color", "gold", allow_inheritance=True)))
+        self.assertFalse(suite.check(span.has_color("color", "blue")))
 
         # TODO #106
         # self.assertTrue(suite.check(p.has_color("color", "gold")))
@@ -284,6 +288,7 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(p.has_styling("font-weight", "bold", important=True)))
 
         self.assertFalse(suite.check(span.has_styling("background-color")))
+        self.assertTrue(suite.check(span.has_styling("background-color", allow_inheritance=True)))
         self.assertFalse(suite.check(phantom.has_styling("border")))
 
     def test_no_loose_text(self):
@@ -308,8 +313,8 @@ class TestElement(unittest.TestCase):
         self.assertFalse(
             suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment("some-other-fragment")))
         self.assertTrue(suite.check(suite.element("a", id="internal_link").has_url_with_fragment("section2")))
-        self.assertTrue(suite.check(suite.element("a", id="no_link").has_url_with_fragment("section42")))
-        self.assertTrue(suite.check(suite.element("a", id="no_href").has_url_with_fragment("section101")))
+        self.assertFalse(suite.check(suite.element("a", id="no_link").has_url_with_fragment("section42")))
+        self.assertFalse(suite.check(suite.element("a", id="no_href").has_url_with_fragment("section101")))
         self.assertFalse(suite.check(phantom.has_url_with_fragment()))
 
     def test_has_outgoing_url(self):
@@ -376,16 +381,19 @@ class TestElement(unittest.TestCase):
 
         body_element = suite.element("body")
         img_element = suite.element("img")
+        p_elements = suite.all_elements("p")
         h3_element = body_element.get_child("h3")  # Does not exist
 
         self.assertTrue(suite.check(any_of(body_element.exists(), body_element.has_child("div"),
                                            img_element.exists(), h3_element.exists())))
+        self.assertTrue(suite.check(any_of([p_element.has_content() for p_element in p_elements])))
 
     def test_at_least(self):
         suite = UnitTestSuite("test_1")
 
         body_element = suite.element("body")
         img_element = suite.element("img")
+        p_elements = suite.all_elements("p")
         h3_element = body_element.get_child("h3")  # Does not exist
 
         self.assertTrue(suite.check(at_least(2, body_element.exists(), body_element.has_child("div"),
@@ -394,6 +402,8 @@ class TestElement(unittest.TestCase):
                                              img_element.exists(), h3_element.exists())))
         self.assertFalse(suite.check(at_least(4, body_element.exists(), body_element.has_child("div"),
                                               img_element.exists(), h3_element.exists())))
+        self.assertTrue(suite.check(at_least(2, (p_element.has_content() for p_element in p_elements))))
+        self.assertFalse(suite.check(at_least(3, (p_element.has_content() for p_element in p_elements))))
 
     def test_fail_if(self):
         suite = UnitTestSuite("test_1")

@@ -4,7 +4,7 @@ from tinycss2.ast import *
 from lxml.html import fromstring
 from lxml.etree import ElementBase
 from cssselect import GenericTranslator, SelectorError
-from typing import Optional
+from typing import Optional, List, Tuple, Dict
 
 from utils.color_converter import Color
 
@@ -43,7 +43,7 @@ USAGE:
 """
 
 
-def strip(ls: []) -> []:
+def strip(ls: List) -> List:
     """strips leading & trailing whitespace tokens"""
     while ls and ls[0].type == WhitespaceToken.type:
         ls.pop(0)
@@ -98,7 +98,7 @@ class Rule:
         return any(c in self.color.values() for c in Color(color).values())
 
 
-def calc_specificity(selector_str: str) -> (int, int, int):  # see https://specificity.keegan.st/
+def calc_specificity(selector_str: str) -> Tuple[int, int, int]:  # see https://specificity.keegan.st/
     """calculates how specific a css-selector is"""
     # count selectors: ID
     a = selector_str.count("#")
@@ -197,7 +197,7 @@ class Rules:
 
         return dom_rule
 
-    def find_all(self, root: ElementBase, solution_element: ElementBase) -> dict[str, Rule]:
+    def find_all(self, root: ElementBase, solution_element: ElementBase) -> Dict[str, Rule]:
         """find all the css rule for the solution_element,
             root is the root of the html-document (etree)"""
         dom_css = {}

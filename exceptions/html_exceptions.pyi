@@ -9,21 +9,8 @@ class HtmlValidationError(FeedbackException):
         ...
 
 class LocatableHtmlValidationError(HtmlValidationError):
-    _tag_location: List[str]
-    position: Tuple[int, int]
-
     def __init__(self, trans: Translator, msg: str, line: int, pos: int):
         ...
-
-    def location(self) -> str: ...
-
-    def fpos(self) -> str: ...
-
-    def annotation(self) -> str: ...
-
-    def __str__(self): ...
-
-
 
 class MissingOpeningTagError(LocatableHtmlValidationError):
     def __init__(self, trans: Translator, tag: str, line: int, pos: int):
@@ -50,10 +37,10 @@ class UnexpectedClosingTagError(LocatableHtmlValidationError):
         ...
 
 
-
 class InvalidAttributeError(LocatableHtmlValidationError):
     def __init__(self, trans: Translator, tag: str, attribute: str, line: int, pos: int):
         ...
+
 
 class MissingRequiredAttributesError(LocatableHtmlValidationError):
     def __init__(self, trans: Translator, tag: str, attribute: str, line: int, pos: int):

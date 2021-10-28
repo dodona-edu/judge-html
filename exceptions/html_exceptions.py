@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 from dodona.translator import Translator
 from exceptions.utils import DelayedExceptions, FeedbackException
 
@@ -24,6 +26,7 @@ class MissingOpeningTagError(LocatableHtmlValidationError):
     def __init__(self, trans: Translator, tag: str, line: int, pos: int):
         msg = f"{trans.translate(Translator.Text.MISSING_OPENING_TAG)} <{tag}>"
         super(MissingOpeningTagError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
+
 
 
 class MissingClosingTagError(LocatableHtmlValidationError):

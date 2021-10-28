@@ -9,7 +9,7 @@ from urllib.parse import urlsplit
 from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
 
-from decorators import flatten_varargs
+from decorators import flatten_varargs, html_check, css_check
 from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
@@ -19,11 +19,11 @@ from exceptions.utils import EvaluationAborted
 from utils.flatten import flatten_queue
 from utils.regexes import doctype_re
 from utils.html_navigation import find_child, compare_content, match_emmet, find_emmet, contains_comment
-from validators.css_validator import CssValidator, CssParsingError
+from validators.css_validator import CssValidator, CssParsingError, Rule
 from validators.html_validator import HtmlValidator
 
 
-# Emmet string type
+# Custom type hints
 Emmet = TypeVar("Emmet", bound=str)
 Checks = TypeVar("Checks", bound=Union["Check", Iterable["Check"]])
 
@@ -160,22 +160,21 @@ class Element:
 
         return Check(_inner)
 
-    def has_child(self, tag: str, direct: bool = True, **kwargs) -> Check:
+    @html_check
+    def has_child(self, tag: Optional[Union[str, Emmet]] = None, direct: bool = True, **kwargs) -> Check:
         """Check that this element has a child with the given tag
 
         :param tag:     the tag to search for
         :param direct:  indicate that only direct children should be considered,
                         not children of children
         """
-
         def _inner(_: BeautifulSoup) -> bool:
-            if self._element is None:
-                return False
-
-            return self._element.find(tag, recursive=not direct, **kwargs) is not None
+            child = find_child(self._element, tag=tag, from_root=direct, **kwargs)
+            return child is not None
 
         return Check(_inner)
 
+    @html_check
     def has_content(self, text: Optional[str] = None, case_insensitive: bool = False) -> Check:
         """Check if this element has given text as content.
         In case no text is passed, any non-empty string will make the test pass
@@ -192,12 +191,9 @@ class Element:
         """
 
         def _inner(_: BeautifulSoup) -> bool:
-            # Element doesn't exist
-            if self._element is None:
-                return False
-
+            # No text in this element
             if self._element.text is None:
-                return text is None
+                return False
 
             if text is not None:
                 return compare_content(self._element.text, text, case_insensitive)
@@ -208,8 +204,9 @@ class Element:
 
     def _has_tag(self, tag: str) -> bool:
         """Internal function that checks if this element has the required tag"""
-        return self._element is not None and self._element.name.lower() == tag.lower()
+        return self._element.name.lower() == tag.lower()
 
+    @html_check
     def has_tag(self, tag: str) -> Check:
         """Check that this element has the required tag"""
 
@@ -218,17 +215,11 @@ class Element:
 
         return Check(_inner)
 
+    @html_check
     def no_loose_text(self) -> Check:
         """Check that there is no content floating around in this tag"""
 
         def _inner(_: BeautifulSoup) -> bool:
-            # Even though a non-existent element has no text,
-            # so it may seem as this should always pass,
-            # the standard behaviour is that Checks for these elements
-            # should always fail
-            if self._element is None:
-                return False
-
             children = self._element.children
 
             for child in children:
@@ -244,9 +235,6 @@ class Element:
 
     def _get_attribute(self, attr: str) -> Optional[Union[List[str], str]]:
         """Internal function that gets an attribute"""
-        if self._element is None:
-            return None
-
         attribute = self._element.get(attr.lower())
 
         return attribute
@@ -290,6 +278,7 @@ class Element:
         # Possible future modes
         return False
 
+    @html_check
     def attribute_exists(self, attr: str, value: Optional[str] = None, case_insensitive: bool = False) -> Check:
         """Check that this element has the required attribute, optionally with a value
         :param attr:                The name of the attribute to check.
@@ -318,6 +307,7 @@ class Element:
 
         return Check(_inner)
 
+    @html_check
     def attribute_contains(self, attr: str, substr: str, case_insensitive: bool = False) -> Check:
         """Check that the value of this attribute contains a substring"""
 
@@ -338,6 +328,7 @@ class Element:
 
         return Check(_inner)
 
+    @html_check
     def attribute_matches(self, attr: str, regex: str, flags: Union[int, re.RegexFlag] = 0) -> Check:
         """Check that the value of an attribute matches a regex pattern"""
 
@@ -355,11 +346,12 @@ class Element:
 
         return Check(_inner)
 
+    @html_check
     def has_table_header(self, header: List[str]) -> Check:
         """If this element is a table, check that the header content matches up"""
 
         def _inner(_: BeautifulSoup) -> bool:
-            # This element is either None or not a table
+            # This element is not a table
             if not self._has_tag("table"):
                 return False
 
@@ -379,6 +371,7 @@ class Element:
 
         return Check(_inner)
 
+    @html_check
     def has_table_content(self, rows: List[List[str]], has_header: bool = True, case_insensitive: bool = False) -> Check:
         """Check that a table's rows have the requested content
         :param rows:                The data of all the rows to check
@@ -388,7 +381,7 @@ class Element:
         """
 
         def _inner(_: BeautifulSoup) -> bool:
-            # This element is either None or not a table
+            # This element is not a table
             if not self._has_tag("table"):
                 return False
 
@@ -428,11 +421,12 @@ class Element:
 
         return Check(_inner)
 
+    @html_check
     def table_row_has_content(self, row: List[str], case_insensitive: bool = False) -> Check:
         """Check the content of one row instead of the whole table"""
 
         def _inner(_: BeautifulSoup) -> bool:
-            # Check that this element exists and is a <tr>
+            # Check that this element is a <tr>
             if not self._has_tag("tr"):
                 return False
 
@@ -451,13 +445,14 @@ class Element:
 
         return Check(_inner)
 
+    @html_check
     def has_url_with_fragment(self, fragment: Optional[str] = None) -> Check:
         """Check if a url has a fragment
         If no fragment is passed, any non-empty fragment will do
         """
 
         def _inner(_: BeautifulSoup) -> bool:
-            if self._element is None or self.tag.lower() != "a":
+            if not self._has_tag("a"):
                 return False
 
             url = self._get_attribute("href")
@@ -480,6 +475,7 @@ class Element:
 
         return Check(_inner)
 
+    @html_check
     def has_outgoing_url(self, allowed_domains: Optional[List[str]] = None, attr: str = "href") -> Check:
         """Check if a tag has an outgoing link
         :param allowed_domains: A list of domains that should not be considered "outgoing",
@@ -490,9 +486,6 @@ class Element:
             allowed_domains = ["dodona.ugent.be", "users.ugent.be"]
 
         def _inner(_: BeautifulSoup) -> bool:
-            if self._element is None:
-                return False
-
             url = self._get_attribute(attr.lower())
 
             # No url present
@@ -510,6 +503,7 @@ class Element:
 
         return Check(_inner)
 
+    @html_check
     def contains_comment(self, comment: Optional[str] = None) -> Check:
         """Check if the element contains a comment, optionally matching a value"""
 
@@ -519,23 +513,50 @@ class Element:
         return Check(_inner)
 
     # CSS checks
-    def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None) -> Check:
+    def _find_css_property(self, prop: str, inherit: bool) -> Optional[Rule]:
+        """Find a css property recursively if necessary
+        Properties by parent elements are applied onto their children, so
+        an element can inherit a property from its parent
+        """
+        prop = prop.lower()
+
+        # Inheritance is not allowed
+        if not inherit:
+            return self._css_validator.find(self._element, prop)
+
+        current_element = self._element
+        prop_value = None
+
+        # Keep going higher up the tree until a match is found
+        while prop_value is None and current_element is not None:
+            # Check if the current element has this rule & applies it onto the child
+            prop_value = self._css_validator.find(current_element, prop)
+
+            if prop_value is None:
+                parents = current_element.find_parents()
+
+                # find_parents() always returns the entire document as well,
+                # even when the current element is the root
+                # So at least 2 parents are required
+                if len(parents) <= 2:
+                    current_element = None
+                else:
+                    current_element = parents[0]
+
+        return prop_value
+
+    @css_check
+    def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None, allow_inheritance: bool = False) -> Check:
         """Check that this element has a CSS property
-        :param prop:        the required CSS property to check
-        :param value:       an optional value to add that must be checked against,
-                            in case nothing is supplied any value will pass
-        :param important:   indicate that this must (or may not be) marked as important
+        :param prop:                the required CSS property to check
+        :param value:               an optional value to add that must be checked against,
+                                    in case nothing is supplied any value will pass
+        :param important:           indicate that this must (or may not be) marked as important
+        :param allow_inheritance:   allow a parent element to have this property and apply it onto the child
         """
 
         def _inner(_: BeautifulSoup) -> bool:
-            if self._element is None:
-                return False
-
-            # This shouldn't happen if the element exists, but just in case
-            if self._css_validator is None:
-                return False
-
-            prop_value = self._css_validator.find(self._element, prop.lower())
+            prop_value = self._find_css_property(prop, allow_inheritance)
 
             # Property not found
             if prop_value is None:
@@ -553,21 +574,24 @@ class Element:
 
         return Check(_inner)
 
-    def has_color(self, prop: str, color: str, important: Optional[bool] = None) -> Check:
+    @css_check
+    def has_color(self, prop: str, color: str, important: Optional[bool] = None, allow_inheritance: bool = False) -> Check:
         """Check that this element has a given color
         More flexible version of has_styling because it also allows RGB(r, g, b), hex format, ...
 
-        :param prop:        the required CSS property to check (background-color, color, ...)
-        :param color:       the color to check this property's value against, in any format
-        :param important:   indicate that this must (or may not be) marked as important
+        :param prop:                the required CSS property to check (background-color, color, ...)
+        :param color:               the color to check this property's value against, in any format
+        :param important:           indicate that this must (or may not be) marked as important
+        :param allow_inheritance:   allow a parent element to have this property and apply it onto the child
         """
 
         def _inner(_: BeautifulSoup) -> bool:
-            if self._element is None or self._css_validator is None:
-                return False
-
             # Find the CSS Rule
-            prop_rule = self._css_validator.find(self._element, prop.lower())
+            prop_rule = self._find_css_property(prop, allow_inheritance)
+
+            # Property not found
+            if prop_rule is None:
+                return False
 
             # !important modifier is incorrect
             if important is not None and prop_rule.important != important:
@@ -584,6 +608,9 @@ class EmptyElement(Element):
 
     def __init__(self):
         super().__init__("", None, None, None)
+
+    def __str__(self) -> str:
+        return "<EmptyElement>"
 
 
 @dataclass

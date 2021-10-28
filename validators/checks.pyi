@@ -6,10 +6,11 @@ from typing import Callable, List, Optional, Union, Dict, TypeVar, Iterable, Ite
 
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
-from validators.css_validator import CssValidator
+from validators.css_validator import CssValidator, Rule
 from validators.html_validator import HtmlValidator
 
 
+# Custom type hints
 Emmet = TypeVar("Emmet", bound=str)
 Checks = TypeVar("Checks", bound=Union["Check", Iterable["Check"]])
 
@@ -31,7 +32,7 @@ class Check:
         """This is an alias to or_abort, and can be used in the exact same way."""
         ...
 
-    def then(self, *args: "Check") -> "Check":
+    def then(self, *args: Checks) -> "Check":
         """This function registers one or more checks that should only run if the current check succeeds."""
         ...
 
@@ -59,7 +60,7 @@ class Element:
         """Check that an element exists, and is not empty."""
         ...
 
-    def has_child(self, tag: str, direct: bool = True, **kwargs) -> Check:
+    def has_child(self, tag: Optional[Union[str, Emmet]] = ..., direct: bool = True, **kwargs) -> Check:
         """Check that the element has a child that meets the specifications"""
         ...
 
@@ -119,18 +120,26 @@ class Element:
         """Check if the element contains a comment, optionally matching a value"""
         ...
 
+    def _find_css_property(self, prop: str, inherit: bool) -> Optional[Rule]:
+        """Find a css property recursively if necessary
+        Properties by parent elements are applied onto their children, so
+        an element can inherit a property from its parent
+        """
+        ...
 
-    def has_styling(self, attr: str, value: Optional[str] = ..., important: Optional[bool] = ...) -> Check:
+    def has_styling(self, prop: str, value: Optional[str] = ..., important: Optional[bool] = ..., allow_inheritance: bool = False) -> Check:
         """Check that this element is matched by a CSS selector to give it a particular styling. A value can be passed to match the value of the styling exactly."""
         ...
 
-    def has_color(self, prop: str, color: str, important: Optional[bool] = None) -> Check:
+    def has_color(self, prop: str, color: str, important: Optional[bool] = None, allow_inheritance: bool = False) -> Check:
         """Check that this element has a given color on a CSS property."""
         ...
 
 
 class EmptyElement(Element):
     def __init__(self): ...
+
+    def __str__(self) -> str: ...
 
 
 class ElementContainer:
@@ -214,7 +223,7 @@ class TestSuite:
         """Shortcut for TestSuite.checklist.append(item)"""
         ...
 
-    def make_item(self, message: str, *args: Check):
+    def make_item(self, message: str, *args: Checks):
         """Shortcut for suite.checklist.append(ChecklistItem(message, checks))"""
         ...
 

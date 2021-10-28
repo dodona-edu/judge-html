@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Dict, List, Tuple
 
 from bs4.element import Tag
 from lxml.etree import ElementBase
@@ -7,7 +7,7 @@ from tinycss2.ast import Declaration
 from utils.color_converter import Color
 
 
-def strip(ls: []) -> []: ...
+def strip(ls: List) -> List: ...
 
 
 class CssParsingError(Exception):
@@ -18,17 +18,17 @@ def _get_xpath(selector: str) -> str: ...
 
 
 class Rule:
-    selector: []
+    selector: List
     selector_str: str
     xpath: str
     name: str
-    value: []
+    value: List
     important: bool
-    specificity: (int, int, int)
+    specificity: Tuple[int, int, int]
     value_str: str
     color: Optional[Color]
 
-    def __init__(self, selector: [], content: Declaration): ...
+    def __init__(self, selector: List, content: Declaration): ...
 
     def __repr__(self) -> str: ...
 
@@ -38,12 +38,12 @@ class Rule:
 
 
 
-def calc_specificity(selector_str: str) -> (int, int, int):  ...
+def calc_specificity(selector_str: str) -> Tuple[int, int, int]:  ...
 
 class Rules:
     root: ElementBase
-    rules: []
-    map: {}
+    rules: List
+    map: Dict
 
     def __init__(self, css_content: str): ...
 
@@ -53,7 +53,7 @@ class Rules:
 
     def find(self, root: ElementBase, solution_element: ElementBase, key: str) -> Optional[Rule]: ...
 
-    def find_all(self, root: ElementBase, solution_element: ElementBase) -> dict[str, Rule]: ...
+    def find_all(self, root: ElementBase, solution_element: ElementBase) -> Dict[str, Rule]: ...
 
 
 class AmbiguousXpath(Exception):
@@ -63,7 +63,7 @@ class AmbiguousXpath(Exception):
 class CssValidator:
     root: Optional[ElementBase]
     rules: Rules
-    xpaths: {}
+    xpaths: Dict
 
     def __init__(self, html: str): ...
     

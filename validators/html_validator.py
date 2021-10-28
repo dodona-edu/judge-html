@@ -1,5 +1,6 @@
 import ntpath
 from html.parser import HTMLParser
+from typing import Dict
 
 from dodona.translator import Translator
 from exceptions.html_exceptions import *
@@ -149,7 +150,7 @@ class HtmlValidator(HTMLParser):
         if tag not in self.valid_dict:
             self.error(InvalidTagError(trans=self.translator, tag=tag, line=self.getpos()[0], pos=self.getpos()[1]))
 
-    def _valid_attributes(self, tag: str, attributes: dict[str, str]):
+    def _valid_attributes(self, tag: str, attributes: Dict[str, str]):
         """validate attributes
             check whether all required attributes are there, if not, raise an error
             check whether all recommended attributes are there, if not, add a warning
