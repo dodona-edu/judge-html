@@ -1,4 +1,3 @@
-from typing import List, Tuple
 
 from dodona.translator import Translator
 from exceptions.utils import DelayedExceptions, FeedbackException

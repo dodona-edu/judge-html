@@ -4,14 +4,14 @@ from exceptions.utils import DelayedExceptions, FeedbackException
 
 class DoubleCharError(FeedbackException):
     """Base class for double char related exceptions in this module."""
-    def __init__(self, trans: Translator, msg: str, line: int, pos: int, *args):
+    def __init__(self, trans: Translator, msg: str, line: int, pos: int):
         super(DoubleCharError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
 class LocatableDoubleCharError(DoubleCharError):
     """Exceptions that can be located"""
 
-    def __init__(self, trans: Translator, msg: str, line: int, pos: int, *args):
+    def __init__(self, trans: Translator, msg: str, line: int, pos: int):
         super(LocatableDoubleCharError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
 
     def __lt__(self, other):
@@ -35,14 +35,14 @@ class LocatableDoubleCharError(DoubleCharError):
 
 class MissingOpeningCharError(LocatableDoubleCharError):
     """Exception that indicates that an opening equivalent of a certain character is missing"""
-    def __init__(self, trans: Translator, char: str, line: int, pos: int, *args):
+    def __init__(self, trans: Translator, char: str, line: int, pos: int):
         msg = f"{trans.translate(Translator.Text.MISSING_OPENING_CHARACTER)} '{char}'"
         super(MissingOpeningCharError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
 class MissingClosingCharError(LocatableDoubleCharError):
     """Exception that indicates that a closing equivalent of a certain character is missing"""
-    def __init__(self, trans: Translator, char: str, line: int, pos: int, *args):
+    def __init__(self, trans: Translator, char: str, line: int, pos: int):
         msg = f"{trans.translate(Translator.Text.MISSING_CLOSING_CHARACTER)} '{char}'"
         super(MissingClosingCharError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
 
