@@ -201,7 +201,7 @@ In a lot of cases you're going to want the students to write _something_ or to g
 
     ```python
     html.make_item_from_emmet("The body has a table.", "body>table")
-    html.make_item_from_emmet("The table has a two rows.", "body>table>tr*2")
+    html.make_item_from_emmet("The table has two rows.", "body>table>tr*2")
     ```
 
 5. *Optional*: Add translations for the checklist just before the `return` keyword. Available languages: `nl` (Dutch, **n**eder**l**ands) and `en` (English, **en**glish). The language code needs to be lower case.
