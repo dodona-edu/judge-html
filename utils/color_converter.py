@@ -318,14 +318,14 @@ hex_name = {name_hex[k]: k for k in name_hex}
 rgb_name = {name_rgb[k]: k for k in name_rgb}
 
 
-def name_to_hex(name_str: str) -> Optional[str]:
+def name_to_hex(name_str: Optional[str]) -> Optional[str]:
     if not name_str:
         return None
     name_str = name_str.lower().strip()
     return name_hex.get(name_str, None)
 
 
-def name_to_rgb(name_str: str) -> Optional[str]:
+def name_to_rgb(name_str: Optional[str]) -> Optional[str]:
     if not name_str:
         return None
     name_str = name_str.lower().strip()
@@ -334,7 +334,7 @@ def name_to_rgb(name_str: str) -> Optional[str]:
     return None
 
 
-def name_to_rgba(name_str: str) -> Optional[str]:
+def name_to_rgba(name_str: Optional[str]) -> Optional[str]:
     if not name_str:
         return None
     name_str = name_str.lower().strip()
@@ -345,21 +345,21 @@ def name_to_rgba(name_str: str) -> Optional[str]:
     return None
 
 
-def hex_to_name(hex_str: str) -> Optional[str]:
+def hex_to_name(hex_str: Optional[str]) -> Optional[str]:
     if not hex_str:
         return None
     hex_str = hex_str.lower().strip()
     return hex_name.get(hex_str, None)
 
 
-def rgb_to_name(rgb_str: str) -> Optional[str]:
+def rgb_to_name(rgb_str: Optional[str]) -> Optional[str]:
     if not rgb_str:
         return None
     rgb_str = ", ".join(rgb_str.lower().replace(" ", "").removeprefix("rgb(").removesuffix(")").split(","))
     return rgb_name.get(rgb_str, None)
 
 
-def rgba_to_name(rgba_str: str) -> Optional[str]:
+def rgba_to_name(rgba_str: Optional[str]) -> Optional[str]:
     if not rgba_str:
         return None
     rgba = rgba_str.replace(" ", "").split(",")
@@ -407,7 +407,7 @@ class Color:
             return False
         return self.values() == other.values()
 
-    def values(self) -> Tuple[str, str, str, str]:
+    def values(self) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str]]:
         return self.as_name, self.as_hex, self.as_rgb, self.as_rgba
 
     def _from_name(self, name: str):

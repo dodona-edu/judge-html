@@ -15,7 +15,7 @@ class HtmlValidator(HTMLParser):
     check_required: bool
     check_recommended: bool
     check_nesting: bool
-    _id_set: set[str]
+    _id_set: Set[str]
 
     def __init__(self, translator: Translator, **kwargs): ...
 
@@ -52,6 +52,6 @@ class HtmlValidator(HTMLParser):
 
     def _valid_tag(self, tag: str): ...
 
-    def _valid_attributes(self, tag: str, attributes: dict[str, str]): ...
+    def _valid_attributes(self, tag: str, attributes: Dict[str, str]): ...
 
     def _valid_nesting(self, tag): ...

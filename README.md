@@ -182,7 +182,7 @@ In a lot of cases you're going to want the students to write _something_ or to g
 
 2. Create an `evaluator.py` file in the `evaluation` folder with the following code:
 
-    > `evaluator.py` (Python 3.9+ recommended)
+    > `evaluator.py` (Python 3.9+ **required**)
     >
     > ```python
     > from validators.checks import HtmlSuite, CssSuite, TestSuite, ChecklistItem
