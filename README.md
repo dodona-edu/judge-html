@@ -233,7 +233,7 @@ In a lot of cases you're going to want the students to write _something_ or to g
 >     html = HtmlSuite(content)
 > 
 >     html.make_item_from_emmet("The body has a table.", "body>table")
->     html.make_item_from_emmet("The table has a two rows.", "body>table>tr*2")
+>     html.make_item_from_emmet("The table has two rows.", "body>table>tr*2")
 > 
 >     html.translations["nl"] = [
 >         "De body heeft een tabel.",
