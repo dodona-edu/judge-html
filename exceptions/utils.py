@@ -44,7 +44,7 @@ class InvalidTranslation(ValueError):
         super().__init__(*args)
 
 
-class DelayedExceptions(FeedbackException):
+class DelayedExceptions(Exception):
     """class made to gather multiple exceptions"""
     def __init__(self):
         self.exceptions: [FeedbackException] = []

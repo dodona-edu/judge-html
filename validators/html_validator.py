@@ -161,8 +161,8 @@ class HtmlValidator(HTMLParser):
         # id's may not contain spaces
         if "id" in attributes and any(whitespace in attributes["id"] for whitespace in [" ", "\t", "\n"]):
             self.error(
-                AttributeValueError(self.translator, self.tag_stack, self.getpos(),
-                                    self.translator.translate(Translator.Text.NO_WHITESPACE, attr='id')))
+                AttributeValueError(trans=self.translator, msg=self.translator.translate(Translator.Text.NO_WHITESPACE, attr='id'),
+                                    line=self.getpos()[0], pos=self.getpos()[1]))
 
         # Unique id's
         if 'id' in attributes:
@@ -177,14 +177,15 @@ class HtmlValidator(HTMLParser):
                 attr_val = attributes[attr]
                 if not attr_val:
                     self.error(
-                        AttributeValueError(self.translator, self.tag_stack, self.getpos(),
-                                            self.translator.translate(Translator.Text.AT_LEAST_ONE_CHAR, attr=attr)))
+                        AttributeValueError(trans=self.translator, msg=self.translator.translate(Translator.Text.AT_LEAST_ONE_CHAR, attr=attr), line=self.getpos()[0], pos=self.getpos()[1]))
 
         # check src attribute for absolute filepaths
         if 'src' in attributes:
             link = attributes['src']
             if ntpath.isabs(link):
-                self.error(AttributeValueError(self.translator, self.tag_stack, self.getpos(), self.translator.translate(Translator.Text.NO_ABS_PATHS)))
+                self.error(AttributeValueError(trans=self.translator, msg=self.translator.translate(Translator.Text.NO_ABS_PATHS),
+                                    line=self.getpos()[0], pos=self.getpos()[1]))
+
         tag_info = self.valid_dict[tag]
 
         if self.check_required:

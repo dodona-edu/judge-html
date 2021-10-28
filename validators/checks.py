@@ -806,22 +806,22 @@ class TestSuite:
             try:
                 self._html_validator.validate_content(self.content)
             except Warnings as war:
-                with Message(description=war.message_str(), format=MessageFormat.CODE):
+                with Message(description=str(war), format=MessageFormat.CODE):
                     for exc in war.exceptions:
-                        with Annotation(row=exc.position[0], text=exc.annotation(), type="warning"):
+                        with Annotation(row=exc.line, text=exc.annotation_str(), type="warning"):
                             pass
                     self._html_validated = allow_warnings
                     return allow_warnings
             except LocatableHtmlValidationError as err:
                 with Message(description=err.message_str(), format=MessageFormat.CODE):
-                    with Annotation(row=err.position[0], text=err.annotation(), type="error"):
+                    with Annotation(row=err.line, text=err.annotation_str(), type="error"):
                         pass
                     return False
             except MultipleMissingCharsError as errs:
                 with Message(description=str(errs), format=MessageFormat.CODE):
                     err: LocatableDoubleCharError
                     for err in errs.exceptions:
-                        with Annotation(row=err.position[0], text=err.annotation(), type="error"):
+                        with Annotation(row=err.line, text=err.annotation_str(), type="error"):
                             pass
                     return False
             # If no validation errors were raised, the HTML is valid
