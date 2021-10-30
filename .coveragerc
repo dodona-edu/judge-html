@@ -1,5 +1,5 @@
 [run]
 omit =
-    /tests/*
-    /docs/*
-    /.github/*
+    tests/*
+    docs/*
+    .github/*
