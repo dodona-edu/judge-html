@@ -1,0 +1,6 @@
+coverage:
+  round: down
+  precision: 5
+
+ignore:
+  - "./tests/*"
