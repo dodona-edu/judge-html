@@ -1,3 +1,3 @@
 #!/bin/sh
 
-python -m unittest discover -s tests -t tests
+coverage run -m unittest discover -s tests -t tests
