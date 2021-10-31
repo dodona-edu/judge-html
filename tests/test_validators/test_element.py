@@ -5,6 +5,16 @@ from validators.checks import all_of, any_of, at_least, fail_if
 
 
 class TestElement(unittest.TestCase):
+    def test_str(self):
+        suite = UnitTestSuite("test_1")
+        div = suite.element("div", id="first_div")
+        body = suite.element("body")
+        h3 = suite.element("h3")
+
+        self.assertEqual(str(div), "<div id=first_div>")
+        self.assertEqual(str(body), "<body>")
+        self.assertEqual(str(h3), "<EmptyElement>")
+
     def test_get_child(self):
         suite = UnitTestSuite("test_1")
         body_element = suite.element("body")
@@ -37,6 +47,8 @@ class TestElement(unittest.TestCase):
 
     def test_get_children(self):
         suite = UnitTestSuite("test_1")
+
+        self.assertTrue(suite.check(suite.element("img").get_children("body>html").exactly(0)))
         self.assertTrue(suite.check(suite.element("html").get_children("body>div").exactly(2)))
         self.assertFalse(suite.check(suite.element("html").get_children("body>div>p").exactly(2)))
         self.assertTrue(suite.check(suite.element("html").get_children("img", direct=False).exactly(1)))
@@ -99,7 +111,6 @@ class TestElement(unittest.TestCase):
         self.assertFalse(suite.check(paragraph1.has_content("SOME", case_insensitive=True)))
 
         self.assertFalse(suite.check(paragraph3.has_content()))
-        self.assertTrue(suite.check(paragraph3.has_content("")))
         self.assertFalse(suite.check(phantom.has_content()))
 
     def test_el_from_elementcontainer(self):
@@ -178,9 +189,17 @@ class TestElement(unittest.TestCase):
         div_element = body_element.get_child("div")
 
         self.assertFalse(suite.check(body_element.attribute_matches("class", r"[0-9]")))
+        self.assertFalse(suite.check(div_element.attribute_matches("class", r"^[0-9]+$")))
         self.assertTrue(suite.check(div_element.attribute_matches("class", r"^[A-Z]+$")))
         self.assertTrue(suite.check(div_element.attribute_matches("class", r"^[a-z]+$")))
         self.assertTrue(suite.check(div_element.attribute_matches("class", r"^[a-zA-Z]+$", flags=re.IGNORECASE)))
+
+    def test_attribute_list(self):
+        suite = UnitTestSuite("test_1")
+        h2 = suite.element("h2")
+
+        self.assertFalse(h2._compare_attribute_list([]))
+        self.assertFalse(h2._compare_attribute_list(["some_value"], value="test", mode=-1))
 
     def test_has_table_header(self):
         suite = UnitTestSuite("submission_example")

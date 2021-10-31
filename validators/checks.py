@@ -192,7 +192,7 @@ class Element:
 
         def _inner(_: BeautifulSoup) -> bool:
             # No text in this element
-            if self._element.text is None:
+            if self._element.text is None or len(self._element.text) == 0:
                 return False
 
             if text is not None:
