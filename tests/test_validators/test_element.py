@@ -359,9 +359,9 @@ class TestElement(unittest.TestCase):
         body_checks_div = body_element.exists().then(div_element.exists()).then(p_element.exists())
         body_checks_img = body_element.exists().then(img_element.exists())
         body_checks_h3 = body_element.exists().then(h3_element.exists())
-        self.assertTrue(suite.check(body_checks_div))
-        self.assertTrue(suite.check(body_checks_img))
-        self.assertFalse(suite.check(body_checks_h3))
+        self.assertTrue(suite.checklist_item(suite.item(body_checks_div)))
+        self.assertTrue(suite.checklist_item(suite.item(body_checks_img)))
+        self.assertFalse(suite.checklist_item(suite.item(body_checks_h3)))
 
     def test_all_of(self):
         suite = UnitTestSuite("test_1")
