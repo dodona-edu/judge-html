@@ -29,8 +29,11 @@ class FeedbackException(Exception):
     def annotation_str(self):
         """Create the message that should be displayed in the annotation in the Code Tab"""
         # Don't show line number in annotations
-        return self.msg
+        # (#137)
+        if self.line < 0:
+            return self.msg
 
+        return f"{self.msg} {self.trans.translate(Translator.Text.AT_LINE)} {self.line + 1}"
 
 class EvaluationAborted(RuntimeError):
     """Exception raised when evaluation is aborted because a crucial test did not pass"""
