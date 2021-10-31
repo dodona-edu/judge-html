@@ -70,7 +70,7 @@ def find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, ind: int
 
     # Cannot start with a digit, two hyphens or a hyphen followed by a number.
     illegal_class_regex = re.compile(r"\.([0-9]|--|-[0-9])")
-    class_regex = re.compile(r"\.([a-zA-z0-9_-]+)")
+    class_regex = re.compile(r"\.([a-zA-Z0-9_-]+)")
 
     path_stack: List[str] = path.split(">")
 

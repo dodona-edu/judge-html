@@ -2,10 +2,7 @@ from os import path
 from types import ModuleType
 from typing import List, Optional
 
-from dodona.dodona_command import MessagePermission, MessageFormat, Message
 from dodona.dodona_config import DodonaConfig
-from dodona.translator import Translator
-from utils.messages import missing_evaluator_file
 from validators.checks import TestSuite
 
 
