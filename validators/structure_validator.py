@@ -6,9 +6,14 @@ from validators.css_validator import CssValidator
 from utils.html_navigation import compare_content
 
 
-def get_similarity(sol: str, sub: str) -> (float, float, float):
+def get_similarity(sol: str, sub: str) -> (float, float):
     from html_similarity import style_similarity, structural_similarity, similarity
-    return similarity(sol, sub), structural_similarity(sol, sub), style_similarity(sol, sub)
+    a = sol.find("<style")
+    b = sub.find("<style")
+    if a != -1 or b != -1:
+        return structural_similarity(sol, sub), style_similarity(sol, sub)
+    else:
+        return structural_similarity(sol, sub), 1
 
 
 def compare(solution_str: str, submission_str: str, trans: Translator, **kwargs):

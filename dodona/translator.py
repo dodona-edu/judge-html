@@ -56,6 +56,7 @@ class Translator:
         EXPECTED_COMMENT = auto()
         COMMENT_CORRECT_TEXT = auto()
         AT_LINE = auto()
+        SIMILARITY = auto()
         # normal text
         ERRORS = auto()
         WARNINGS = auto()
@@ -170,6 +171,7 @@ class Translator:
             Text.EXPECTED_COMMENT: "Expected a comment",
             Text.COMMENT_CORRECT_TEXT: "The comment does not have the correct text",
             Text.AT_LINE: "at line",
+            Text.SIMILARITY: "similarity",
             # normal text
             Text.ERRORS: "Error(s)",
             Text.WARNINGS: "Warning(s)",
@@ -214,6 +216,7 @@ class Translator:
             Text.EXPECTED_COMMENT: "Verwachte een comment",
             Text.COMMENT_CORRECT_TEXT: "De comment heeft niet de correcte tekst",
             Text.AT_LINE: "op regel",
+            Text.SIMILARITY: "gelijkaardigheid",
             # normal text
             Text.ERRORS: "Fout(en)",
             Text.WARNINGS: "Waarschuwing(en)",
