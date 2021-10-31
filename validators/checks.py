@@ -885,12 +885,13 @@ class TestSuite:
         """Compare the submission to the solution html."""
 
         def _inner(_: BeautifulSoup):
-            from validators.structure_validator import compare
+            from validators.structure_validator import compare, get_similarity
             from exceptions.structure_exceptions import NotTheSame
             try:
                 compare(solution, self.content, translator, **kwargs)
             except NotTheSame as err:
-                with Message(err.message_str()):
+                res = get_similarity(solution, self.content)
+                with Message(description=f"{err.message_str()}\n Html similarity: {round(res[1] * 100)}%\n Css similarity: {round(res[2] * 100)}%", format=MessageFormat.CODE):
                     # Only add annotation if line number is positive
                     if err.line >= 0:
                         with Annotation(err.line, err.annotation_str()):

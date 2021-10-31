@@ -6,7 +6,12 @@ from validators.css_validator import CssValidator
 from utils.html_navigation import compare_content
 
 
-def compare(solution: str, submission: str, trans: Translator, **kwargs):
+def get_similarity(sol: str, sub: str) -> (float, float, float):
+    from html_similarity import style_similarity, structural_similarity, similarity
+    return similarity(sol, sub), structural_similarity(sol, sub), style_similarity(sol, sub)
+
+
+def compare(solution_str: str, submission_str: str, trans: Translator, **kwargs):
     """compare submission structure to the solution structure (html)
     possible kwargs:
     * attributes: (default: False) check whether attributes are exactly the same in solution and submission
@@ -18,8 +23,9 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
 
     the submission html should be valid html
     """
-    if not submission.strip():
+    if not submission_str.strip():
         raise NotTheSame(trans=trans, msg=trans.translate(Translator.Text.EMPTY_SUBMISSION), line=-1, pos=-1)
+
 
     # structure is always checked
     check_attributes = kwargs.get("attributes", False)
@@ -32,15 +38,15 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
     sub_css = None
     if check_css:
         try:
-            sol_css = CssValidator(solution)
-            sub_css = CssValidator(submission)
+            sol_css = CssValidator(solution_str)
+            sub_css = CssValidator(submission_str)
             if not sol_css.rules:  # no rules in solution file
                 check_css = False
         except Exception:
             check_css = False
 
-    solution: HtmlElement = fromstring(solution)
-    submission: HtmlElement = fromstring(submission)
+    solution: HtmlElement = fromstring(solution_str)
+    submission: HtmlElement = fromstring(submission_str)
     # start checking structure
 
     def attrs_a_contains_attrs_b(attrs_a, attrs_b, exact_match):

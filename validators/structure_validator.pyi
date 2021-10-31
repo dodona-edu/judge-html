@@ -1,3 +1,6 @@
 from dodona.translator import Translator
 
+
+def get_similarity(sol: str, sub: str) -> (float, float, float): ...
+
 def compare(solution: str, submission: str, trans: Translator, **kwargs): ...
