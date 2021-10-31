@@ -35,3 +35,19 @@ class TestChecks(unittest.TestCase):
         self.assertEqual(len(img_exists.on_success), 1)
         self.assertEqual(len(img_exists.on_success[0].on_success), 1)
         self.assertEqual(len(img_exists.on_success[0].on_success[0].on_success), 0)
+
+    def test_then(self):
+        suite = UnitTestSuite("test_1")
+        body_element = suite.element("body")
+        div_element = body_element.get_child("div")
+        p_element = div_element.get_child("p")
+
+        img_element = body_element.get_child("img")
+        h3_element = body_element.get_child("h3")  # Does not exist
+
+        body_checks_div = body_element.exists().then(div_element.exists()).then(p_element.exists())
+        body_checks_img = body_element.exists().then(img_element.exists())
+        body_checks_h3 = body_element.exists().then(h3_element.exists())
+        self.assertTrue(suite.checklist_item(suite.item(body_checks_div)))
+        self.assertTrue(suite.checklist_item(suite.item(body_checks_img)))
+        self.assertFalse(suite.checklist_item(suite.item(body_checks_h3)))
