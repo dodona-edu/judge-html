@@ -197,7 +197,7 @@ In a lot of cases you're going to want the students to write _something_ or to g
     >     return [html, css]
     > ```
 
-4. Make a `ChecklistItem` (with Emmet syntax) and append it to a TestSuite. Combine several ChecklistItems in one check if you want.
+4. Make a `ChecklistItem` (with Emmet syntax) and append it to a TestSuite. Combine several Checks in one ChecklistItem if you want to.
 
     ```python
     html.make_item_from_emmet("The body has a table.", "body>table")
