@@ -1,5 +1,7 @@
 import unittest
 from unittest.mock import Mock
+
+from exceptions.utils import EvaluationAborted
 from tests.helpers import UnitTestSuite
 
 
@@ -51,3 +53,25 @@ class TestChecks(unittest.TestCase):
         self.assertTrue(suite.checklist_item(suite.item(body_checks_div)))
         self.assertTrue(suite.checklist_item(suite.item(body_checks_img)))
         self.assertFalse(suite.checklist_item(suite.item(body_checks_h3)))
+
+    def test_abort(self):
+        suite = UnitTestSuite("test_1")
+        body_exists = suite.element("body").exists()
+        body_exists.callback = Mock()
+
+        """Test succeeding"""
+        div_exists = suite.element("div").exists().is_crucial()
+        div_exists.then(body_exists)
+        self.assertTrue(suite.checklist_item(suite.item(div_exists)))
+        body_exists.callback.assert_called()
+
+        """Test failing"""
+        body_exists.callback.reset_mock()
+        h3_exists = suite.element("h3").exists().is_crucial()
+        h3_exists.then(body_exists)
+
+        with self.assertRaises(EvaluationAborted):
+            suite.checklist_item(suite.item(h3_exists))
+
+        # The on_success checks should not be called if a crucial test failed
+        body_exists.callback.assert_not_called()
