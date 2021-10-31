@@ -204,6 +204,7 @@ class TestElement(unittest.TestCase):
     def test_has_table_header(self):
         suite = UnitTestSuite("submission_example")
         table_elements = suite.all_elements("table")
+        body = suite.element("body")
         phantom = suite.element("video")  # does not exist
 
         header = ["Column 1", "Column 2", "Column 3"]
@@ -211,12 +212,14 @@ class TestElement(unittest.TestCase):
         self.assertFalse(suite.check(table_elements[1].has_table_header(header)))
         self.assertFalse(suite.check(table_elements[0].has_table_header(list(reversed(header)))))
 
+        self.assertFalse(suite.check(body.has_table_header(["header", "content"])))
         self.assertFalse(suite.check(phantom.has_table_header(['no content'])))
         self.assertFalse(suite.check(table_elements[4].has_table_header(header)))  # does not exist
 
     def test_has_table_content(self):
         suite = UnitTestSuite("submission_example")
         table_elements = suite.all_elements("table")
+        body = suite.element("body")
         phantom = suite.element("video")  # does not exist
 
         content = [
@@ -242,12 +245,14 @@ class TestElement(unittest.TestCase):
 
         self.assertFalse(suite.check(table_elements[2].has_table_content([['no content']])))
 
+        self.assertFalse(suite.check(body.has_table_content(content)))
         self.assertFalse(suite.check(phantom.has_table_content(content)))
 
     def test_table_row_has_content(self):
         suite = UnitTestSuite("submission_example")
         table_elements = suite.all_elements("table")
         rows = table_elements[0].get_children("tr")
+        body = suite.element("body")
         phantom = suite.element("video")  # does not exist
         ph_row = phantom.get_child("tr")
 
@@ -258,6 +263,7 @@ class TestElement(unittest.TestCase):
         self.assertTrue(
             suite.check(rows[2].table_row_has_content(["Value 4", "Value \t5", "VALUE      6"], case_insensitive=True)))
 
+        self.assertFalse(suite.check(body.table_row_has_content(["table", "row", "content"])))
         self.assertFalse(suite.check(ph_row.table_row_has_content(["Column 1", "Column 2", "Column 3"])))
 
     def test_has_color(self):
@@ -308,6 +314,7 @@ class TestElement(unittest.TestCase):
 
         self.assertFalse(suite.check(span.has_styling("background-color")))
         self.assertTrue(suite.check(span.has_styling("background-color", allow_inheritance=True)))
+        self.assertFalse(suite.check(span.has_styling("align-content", allow_inheritance=True)))
         self.assertFalse(suite.check(phantom.has_styling("border")))
 
     def test_no_loose_text(self):
