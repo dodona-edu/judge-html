@@ -22,10 +22,10 @@ class FeedbackException(Exception):
         # Line number < 0 means no line number should be shown (eg. empty submission)
         # Same for position
         out = self.msg
-        if self.line > 0:
+        if self.line >= 0:
             out += f" {self.trans.translate(Translator.Text.AT_LINE)} {self.line + 1}"
-        if self.pos > 0:
-            out += f" {self.pos + 1}"
+        if self.pos >= 0:
+            out += f" {self.trans.translate(Translator.Text.POSITION)} {self.pos + 1}"
 
         return out
 
@@ -36,7 +36,7 @@ class FeedbackException(Exception):
         if self.line < 0:
             return self.msg
 
-        return f"{self.msg} {self.trans.translate(Translator.Text.AT_LINE)} {self.line + 1}"
+        return f"{self.msg}"
 
 
 class EvaluationAborted(RuntimeError):
