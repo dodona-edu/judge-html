@@ -1,7 +1,7 @@
 """Basic checking library to create evaluation tests for exercises"""
 import re
 from collections import deque
-from copy import deepcopy
+from copy import copy
 from dataclasses import dataclass, field
 from typing import Deque, List, Optional, Callable, Union, Dict, TypeVar, Iterable, Iterator
 from urllib.parse import urlsplit
@@ -75,7 +75,7 @@ class Check:
         complete for z to start. This makes the overall use more fluent and avoids
         a big mess of brackets when it's not necessary at all.
 
-        Returns a reference to the last entry to allow a fluent interface.
+        Returns a reference to itself to allow a fluent interface.
         """
         if not self.on_success:
             self.on_success = list(args)
@@ -84,7 +84,7 @@ class Check:
             deepest: "Check" = self._find_deepest_nested()
             deepest.on_success = list(args)
 
-        return args[-1]
+        return self
 
 
 @dataclass
@@ -192,7 +192,7 @@ class Element:
 
         def _inner(_: BeautifulSoup) -> bool:
             # No text in this element
-            if self._element.text is None:
+            if self._element.text is None or len(self._element.text) == 0:
                 return False
 
             if text is not None:
@@ -734,13 +734,22 @@ class ChecklistItem:
 
     def evaluate(self, bs: BeautifulSoup) -> bool:
         """Evaluate all checks inside of this item"""
-        for check in self._checks:
+        queue = copy(self._checks)
+
+        while queue:
+            check = queue.pop(0)
+
+            # Check failed
             if not check.callback(bs):
                 # Abort testing if necessary
                 if check.abort_on_fail:
                     raise EvaluationAborted()
 
                 return False
+
+            # Check succeeded, add all on_success checks
+            for os_check in reversed(check.on_success):
+                queue.insert(0, os_check)
 
         return True
 
@@ -835,20 +844,20 @@ class TestSuite:
             except Warnings as war:
                 with Message(description=str(war), format=MessageFormat.CODE):
                     for exc in war.exceptions:
-                        with Annotation(row=exc.position[0], text=str(exc), type="warning"):
+                        with Annotation(row=exc.line, text=exc.annotation_str(), type="warning"):
                             pass
                     self._html_validated = allow_warnings
                     return allow_warnings
             except LocatableHtmlValidationError as err:
-                with Message(description=str(err), format=MessageFormat.CODE):
-                    with Annotation(row=err.position[0], text=str(err), type="error"):
+                with Message(description=err.message_str(), format=MessageFormat.CODE):
+                    with Annotation(row=err.line, text=err.annotation_str(), type="error"):
                         pass
                     return False
             except MultipleMissingCharsError as errs:
                 with Message(description=str(errs), format=MessageFormat.CODE):
                     err: LocatableDoubleCharError
                     for err in errs.exceptions:
-                        with Annotation(row=err.position[0], text=str(err), type="error"):
+                        with Annotation(row=err.line, text=err.annotation_str(), type="error"):
                             pass
                     return False
             # If no validation errors were raised, the HTML is valid
@@ -876,14 +885,15 @@ class TestSuite:
         """Compare the submission to the solution html."""
 
         def _inner(_: BeautifulSoup):
-            from validators.structure_validator import compare, NotTheSame
+            from validators.structure_validator import compare
+            from exceptions.structure_exceptions import NotTheSame
             try:
                 compare(solution, self.content, translator, **kwargs)
             except NotTheSame as err:
-                with Message(str(err)):
+                with Message(err.message_str()):
                     # Only add annotation if line number is positive
                     if err.line >= 0:
-                        with Annotation(err.line, str(err)):
+                        with Annotation(err.line, err.annotation_str()):
                             pass
 
                     return False
@@ -1120,7 +1130,7 @@ def all_of(*args: Checks) -> Check:
     otherwise returns False.
     """
     # Flatten list of checks
-    flattened = flatten_queue(deepcopy(list(args)))
+    flattened = flatten_queue(copy(list(args)))
     queue: Deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:
@@ -1147,7 +1157,7 @@ def any_of(*args: Checks) -> Check:
     evaluating the rest at that point.
     """
     # Flatten list of checks
-    flattened = flatten_queue(deepcopy(list(args)))
+    flattened = flatten_queue(copy(list(args)))
     queue: Deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:
@@ -1171,7 +1181,7 @@ def any_of(*args: Checks) -> Check:
 def at_least(amount: int, *args: Checks) -> Check:
     """Check that at least [amount] checks passed"""
     # Flatten list of checks
-    flattened = flatten_queue(deepcopy(list(args)))
+    flattened = flatten_queue(copy(list(args)))
     queue: Deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:

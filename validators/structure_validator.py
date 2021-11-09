@@ -1,21 +1,9 @@
 from dodona.translator import Translator
 from lxml.html import fromstring, HtmlElement, HtmlComment
 
+from exceptions.structure_exceptions import NotTheSame
 from validators.css_validator import CssValidator
 from utils.html_navigation import compare_content
-
-
-class NotTheSame(Exception):
-    def __init__(self, msg: str, line: int, trans: Translator):
-        self.msg = msg
-        self.line = line - 1  # 1 based to 0 based
-        self.trans = trans
-
-    def __repr__(self):
-        return f"{self.msg} {self.trans.translate(Translator.Text.AT_LINE)} {self.line + 1}"
-
-    def __str__(self):
-        return self.__repr__()
 
 
 def compare(solution: str, submission: str, trans: Translator, **kwargs):
@@ -31,7 +19,7 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
     the submission html should be valid html
     """
     if not submission.strip():
-        raise NotTheSame(trans.translate(Translator.Text.EMPTY_SUBMISSION), 0, trans)
+        raise NotTheSame(trans=trans, msg=trans.translate(Translator.Text.EMPTY_SUBMISSION), line=-1, pos=-1)
 
     # structure is always checked
     check_attributes = kwargs.get("attributes", False)
@@ -81,11 +69,11 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
         node_sol, node_sub = queue.pop()
         if check_comments and isinstance(node_sol, HtmlComment):
             if not isinstance(node_sub, HtmlComment):
-                raise NotTheSame(trans.translate(Translator.Text.EXPECTED_COMMENT), node_sub.sourceline, trans)
+                raise NotTheSame(trans=trans, msg=trans.translate(Translator.Text.EXPECTED_COMMENT), line=node_sub.sourceline, pos=-1)
             node_sol.text = node_sol.text.strip().lower() if node_sol.text is not None else ''
             node_sub.text = node_sub.text.strip().lower() if node_sub.text is not None else ''
             if node_sol.text != "dummy" and not compare_content(node_sol.text, node_sub.text):
-                raise NotTheSame(trans.translate(Translator.Text.COMMENT_CORRECT_TEXT), node_sub.sourceline, trans)
+                raise NotTheSame(trans=trans, msg=trans.translate(Translator.Text.COMMENT_CORRECT_TEXT), line=node_sub.sourceline, pos=-1)
             continue
         node_sol.tag = node_sol.tag.lower()
         node_sub.tag = node_sub.tag.lower()
@@ -93,18 +81,18 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
         node_sub.text = node_sub.text.strip() if node_sub.text is not None else ''
         # check name of the node
         if node_sol.tag != node_sub.tag:
-            raise NotTheSame(trans.translate(Translator.Text.TAGS_DIFFER), node_sub.sourceline, trans)
+            raise NotTheSame(trans=trans, msg=trans.translate(Translator.Text.TAGS_DIFFER), line=node_sub.sourceline, pos=-1)
         # check attributes if wanted
         if check_attributes:
             if not attrs_a_contains_attrs_b(node_sol.attrib, node_sub.attrib, True):
-                raise NotTheSame(trans.translate(Translator.Text.ATTRIBUTES_DIFFER), node_sub.sourceline, trans)
+                raise NotTheSame(trans=trans, msg=trans.translate(Translator.Text.ATTRIBUTES_DIFFER), line=node_sub.sourceline, pos=-1)
         if check_minimal_attributes:
             if not attrs_a_contains_attrs_b(node_sol.attrib, node_sub.attrib, False):
-                raise NotTheSame(trans.translate(Translator.Text.NOT_ALL_ATTRIBUTES_PRESENT), node_sub.sourceline, trans)
+                raise NotTheSame(trans=trans, msg=trans.translate(Translator.Text.NOT_ALL_ATTRIBUTES_PRESENT), line=node_sub.sourceline, pos=-1)
         # check content if wanted
         if check_contents:
             if node_sol.text != "DUMMY" and not compare_content(node_sol.text, node_sub.text):
-                raise NotTheSame(trans.translate(Translator.Text.CONTENTS_DIFFER), node_sub.sourceline, trans)
+                raise NotTheSame(trans=trans, msg=trans.translate(Translator.Text.CONTENTS_DIFFER), line=node_sub.sourceline, pos=-1)
         # check css
         if check_css:
             rs_sol = sol_css.rules.find_all(solution, node_sol)
@@ -112,10 +100,10 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
             if rs_sol:
                 for r_key in rs_sol:
                     if r_key not in rs_sub:
-                        raise NotTheSame(trans.translate(Translator.Text.STYLES_DIFFER, tag=node_sub.tag), node_sub.sourceline, trans)
+                        raise NotTheSame(trans=trans, msg=trans.translate(Translator.Text.STYLES_DIFFER, tag=node_sub.tag), line=node_sub.sourceline, pos=-1)
                     if rs_sol[r_key].value_str != rs_sub[r_key].value_str:
                         if not (rs_sol[r_key].is_color() and rs_sol[r_key].has_color(rs_sub[r_key].value_str)):
-                            raise NotTheSame(trans.translate(Translator.Text.STYLES_DIFFER, tag=node_sub.tag), node_sub.sourceline, trans)
+                            raise NotTheSame(trans=trans, msg=trans.translate(Translator.Text.STYLES_DIFFER, tag=node_sub.tag), line=node_sub.sourceline, pos=-1)
         # check whether the children of the nodes have the same amount of children
         node_sol_children = node_sol.getchildren()
         node_sub_children = node_sub.getchildren()
@@ -123,7 +111,7 @@ def compare(solution: str, submission: str, trans: Translator, **kwargs):
             node_sol_children = [x for x in node_sol_children if isinstance(x, HtmlElement)]
             node_sub_children = [x for x in node_sub_children if isinstance(x, HtmlElement)]
         if len(node_sol_children) != len(node_sub_children):
-            raise NotTheSame(trans.translate(Translator.Text.AMOUNT_CHILDREN_DIFFER), node_sub.sourceline, trans)
+            raise NotTheSame(trans=trans, msg=trans.translate(Translator.Text.AMOUNT_CHILDREN_DIFFER), line=node_sub.sourceline, pos=-1)
         # reverse children bc for some reason they are in bottom up order (and we want to review top down)
         queue += zip(reversed(node_sol_children), reversed(node_sub_children))
 

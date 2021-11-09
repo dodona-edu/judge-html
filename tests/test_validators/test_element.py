@@ -5,6 +5,16 @@ from validators.checks import all_of, any_of, at_least, fail_if
 
 
 class TestElement(unittest.TestCase):
+    def test_str(self):
+        suite = UnitTestSuite("test_1")
+        div = suite.element("div", id="first_div")
+        body = suite.element("body")
+        h3 = suite.element("h3")
+
+        self.assertEqual(str(div), "<div id=first_div>")
+        self.assertEqual(str(body), "<body>")
+        self.assertEqual(str(h3), "<EmptyElement>")
+
     def test_get_child(self):
         suite = UnitTestSuite("test_1")
         body_element = suite.element("body")
@@ -37,6 +47,8 @@ class TestElement(unittest.TestCase):
 
     def test_get_children(self):
         suite = UnitTestSuite("test_1")
+
+        self.assertTrue(suite.check(suite.element("img").get_children("body>html").exactly(0)))
         self.assertTrue(suite.check(suite.element("html").get_children("body>div").exactly(2)))
         self.assertFalse(suite.check(suite.element("html").get_children("body>div>p").exactly(2)))
         self.assertTrue(suite.check(suite.element("html").get_children("img", direct=False).exactly(1)))
@@ -99,7 +111,6 @@ class TestElement(unittest.TestCase):
         self.assertFalse(suite.check(paragraph1.has_content("SOME", case_insensitive=True)))
 
         self.assertFalse(suite.check(paragraph3.has_content()))
-        self.assertTrue(suite.check(paragraph3.has_content("")))
         self.assertFalse(suite.check(phantom.has_content()))
 
     def test_el_from_elementcontainer(self):
@@ -178,13 +189,22 @@ class TestElement(unittest.TestCase):
         div_element = body_element.get_child("div")
 
         self.assertFalse(suite.check(body_element.attribute_matches("class", r"[0-9]")))
+        self.assertFalse(suite.check(div_element.attribute_matches("class", r"^[0-9]+$")))
         self.assertTrue(suite.check(div_element.attribute_matches("class", r"^[A-Z]+$")))
         self.assertTrue(suite.check(div_element.attribute_matches("class", r"^[a-z]+$")))
         self.assertTrue(suite.check(div_element.attribute_matches("class", r"^[a-zA-Z]+$", flags=re.IGNORECASE)))
 
+    def test_attribute_list(self):
+        suite = UnitTestSuite("test_1")
+        h2 = suite.element("h2")
+
+        self.assertFalse(h2._compare_attribute_list([]))
+        self.assertFalse(h2._compare_attribute_list(["some_value"], value="test", mode=-1))
+
     def test_has_table_header(self):
         suite = UnitTestSuite("submission_example")
         table_elements = suite.all_elements("table")
+        body = suite.element("body")
         phantom = suite.element("video")  # does not exist
 
         header = ["Column 1", "Column 2", "Column 3"]
@@ -192,12 +212,14 @@ class TestElement(unittest.TestCase):
         self.assertFalse(suite.check(table_elements[1].has_table_header(header)))
         self.assertFalse(suite.check(table_elements[0].has_table_header(list(reversed(header)))))
 
+        self.assertFalse(suite.check(body.has_table_header(["header", "content"])))
         self.assertFalse(suite.check(phantom.has_table_header(['no content'])))
         self.assertFalse(suite.check(table_elements[4].has_table_header(header)))  # does not exist
 
     def test_has_table_content(self):
         suite = UnitTestSuite("submission_example")
         table_elements = suite.all_elements("table")
+        body = suite.element("body")
         phantom = suite.element("video")  # does not exist
 
         content = [
@@ -223,12 +245,14 @@ class TestElement(unittest.TestCase):
 
         self.assertFalse(suite.check(table_elements[2].has_table_content([['no content']])))
 
+        self.assertFalse(suite.check(body.has_table_content(content)))
         self.assertFalse(suite.check(phantom.has_table_content(content)))
 
     def test_table_row_has_content(self):
         suite = UnitTestSuite("submission_example")
         table_elements = suite.all_elements("table")
         rows = table_elements[0].get_children("tr")
+        body = suite.element("body")
         phantom = suite.element("video")  # does not exist
         ph_row = phantom.get_child("tr")
 
@@ -239,6 +263,7 @@ class TestElement(unittest.TestCase):
         self.assertTrue(
             suite.check(rows[2].table_row_has_content(["Value 4", "Value \t5", "VALUE      6"], case_insensitive=True)))
 
+        self.assertFalse(suite.check(body.table_row_has_content(["table", "row", "content"])))
         self.assertFalse(suite.check(ph_row.table_row_has_content(["Column 1", "Column 2", "Column 3"])))
 
     def test_has_color(self):
@@ -257,6 +282,7 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(div.has_color("color", "rgba(255,0,0,1)")))
         self.assertTrue(suite.check(div.has_color("color", "#FF0000")))
 
+        self.assertFalse(suite.check(div.has_color("color", "red", important=False)))
         self.assertFalse(suite.check(phantom.has_color("color", "gold")))
         self.assertFalse(suite.check(span.has_color("color", "gold")))
         self.assertTrue(suite.check(span.has_color("color", "gold", allow_inheritance=True)))
@@ -289,6 +315,7 @@ class TestElement(unittest.TestCase):
 
         self.assertFalse(suite.check(span.has_styling("background-color")))
         self.assertTrue(suite.check(span.has_styling("background-color", allow_inheritance=True)))
+        self.assertFalse(suite.check(span.has_styling("align-content", allow_inheritance=True)))
         self.assertFalse(suite.check(phantom.has_styling("border")))
 
     def test_no_loose_text(self):
@@ -346,22 +373,6 @@ class TestElement(unittest.TestCase):
         self.assertFalse(suite.check(suite.element("body>div").contains_comment("This is a comment")))
         self.assertFalse(suite.check(suite.element("body>div").contains_comment("Random garbage")))
         self.assertFalse(suite.check(phantom.contains_comment("no content")))
-
-    def test_then(self):
-        suite = UnitTestSuite("test_1")
-        body_element = suite.element("body")
-        div_element = body_element.get_child("div")
-        p_element = div_element.get_child("p")
-
-        img_element = body_element.get_child("img")
-        h3_element = body_element.get_child("h3")  # Does not exist
-
-        body_checks_div = body_element.exists().then(div_element.exists()).then(p_element.exists())
-        body_checks_img = body_element.exists().then(img_element.exists())
-        body_checks_h3 = body_element.exists().then(h3_element.exists())
-        self.assertTrue(suite.check(body_checks_div))
-        self.assertTrue(suite.check(body_checks_img))
-        self.assertFalse(suite.check(body_checks_h3))
 
     def test_all_of(self):
         suite = UnitTestSuite("test_1")

@@ -1,32 +1,18 @@
-from typing import List, Tuple
 
 from dodona.translator import Translator
-from exceptions.utils import DelayedExceptions
+from exceptions.utils import DelayedExceptions, FeedbackException
 
 
-class HtmlValidationError(Exception):
+class HtmlValidationError(FeedbackException):
     """Base class for HTML related exceptions in this module."""
-    def __init__(self, translator: Translator):
-        self.translator = translator
+    def __init__(self, trans: Translator, msg: str, line: int, pos: int):
+        super(HtmlValidationError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
 class LocatableHtmlValidationError(HtmlValidationError):
     """Exceptions that can be located"""
-    def __init__(self, translator: Translator, tag_location: List[str], position: Tuple[int, int]):
-        self._tag_location = tag_location
-        self.position = position
-        self.translator = translator
-
-    def tag_location(self) -> str:
-        if self._tag_location:
-            return f"{self.translator.translate(Translator.Text.LOCATED_AT)}: " \
-                   f"{self.fpos()} | {' -> '.join([f'<{x}>' for x in self._tag_location])}"
-        else:
-            return f"{self.translator.translate(Translator.Text.LOCATED_AT)}: {self.fpos()}"
-
-    def fpos(self) -> str:
-        return f"{self.translator.translate(Translator.Text.LINE)} {self.position[0] + 1} " \
-               f"{self.translator.translate(Translator.Text.POSITION)} {self.position[1] + 1}"
+    def __init__(self, trans: Translator, msg: str, line: int, pos: int):
+        super(LocatableHtmlValidationError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
 """
@@ -34,50 +20,50 @@ EXCEPTIONS FOR TAGS
 """
 
 
-class TagError(LocatableHtmlValidationError):
-    """Exception that contains a tag"""
-    def __init__(self, translator: Translator, tag_location: List[str], position: Tuple[int, int], tag: str):
-        super(TagError, self).__init__(translator, tag_location, position)
-        self.tag = tag
-
-
-class MissingClosingTagError(TagError):
-    """Exception that indicates that the closing tag is missing for a tag"""
-    def __str__(self):
-        return f"{self.translator.translate(Translator.Text.MISSING_CLOSING_TAG)} <{self.tag}> ({self.tag_location()})"
-
-
-class MissingOpeningTagError(TagError):
+class MissingOpeningTagError(LocatableHtmlValidationError):
     """Exception that indicates that the opening tag is missing for a tag"""
-    def __str__(self):
-        return f"{self.translator.translate(Translator.Text.MISSING_OPENING_TAG)} <{self.tag}> ({self.tag_location()})"
+    def __init__(self, trans: Translator, tag: str, line: int, pos: int):
+        msg = f"{trans.translate(Translator.Text.MISSING_OPENING_TAG)} <{tag}>"
+        super(MissingOpeningTagError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
-class InvalidTagError(TagError):
+
+class MissingClosingTagError(LocatableHtmlValidationError):
+    """Exception that indicates that the closing tag is missing for a tag"""
+    def __init__(self, trans: Translator, tag: str, line: int, pos: int):
+        msg = f"{trans.translate(Translator.Text.MISSING_CLOSING_TAG)} <{tag}>"
+        super(MissingClosingTagError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
+
+
+class InvalidTagError(LocatableHtmlValidationError):
     """Exception that indicates that a tag is invalid (tag doesn't exist or isn't allowed to be used"""
-    def __str__(self):
-        return f"{self.translator.translate(Translator.Text.INVALID_TAG)}: <{self.tag}> ({self.tag_location()})"
+    def __init__(self, trans: Translator, tag: str, line: int, pos: int):
+        msg = f"{trans.translate(Translator.Text.INVALID_TAG)}: <{tag}>"
+        super(InvalidTagError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
-class NoSelfClosingTagError(TagError):
-    def __str__(self):
-        return f"{self.translator.translate(Translator.Text.NO_SELF_CLOSING_TAG)}: <{self.tag}> ({self.tag_location()})"
+class NoSelfClosingTagError(LocatableHtmlValidationError):
+    def __init__(self, trans: Translator, tag: str, line: int, pos: int):
+        msg = f"{trans.translate(Translator.Text.NO_SELF_CLOSING_TAG)}: <{tag}>"
+        super(NoSelfClosingTagError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
-class UnexpectedTagError(TagError):
+class UnexpectedTagError(LocatableHtmlValidationError):
     """Exception that indicates that a certain tag was not expected
         ex: you don't expect a <html> tag inside of a <body> tag
     """
-    def __str__(self):
-        return f"{self.translator.translate(Translator.Text.UNEXPECTED_TAG)}: <{self.tag}> ({self.tag_location()})"
+    def __init__(self, trans: Translator, tag: str, line: int, pos: int):
+        msg = f"{trans.translate(Translator.Text.UNEXPECTED_TAG)}: <{tag}>"
+        super(UnexpectedTagError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
-class UnexpectedClosingTagError(TagError):
+class UnexpectedClosingTagError(LocatableHtmlValidationError):
     """Exception that indicates that a certain tag was not expected to have a closing tag
         ex: you don't expect an <img> tag to have a </img> closer later on
     """
-    def __str__(self):
-        return f"{self.translator.translate(Translator.Text.UNEXPECTED_CLOSING_TAG, tag=self.tag)} ({self.tag_location()})"
+    def __init__(self, trans: Translator, tag: str, line: int, pos: int):
+        msg = f"{trans.translate(Translator.Text.UNEXPECTED_CLOSING_TAG, tag=tag)}"
+        super(UnexpectedClosingTagError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
 """
@@ -85,59 +71,51 @@ EXCEPTIONS FOR ATTRIBUTES
 """
 
 
-class TagAttributeError(LocatableHtmlValidationError):
-    def __init__(self, translator: Translator, tag: str, tag_location: List[str], position: Tuple[int, int], attribute: str):
-        super(TagAttributeError, self).__init__(translator, tag_location, position)
-        self.tag = tag
-        self.attribute = attribute
-
-
-class InvalidAttributeError(TagAttributeError):
+class InvalidAttributeError(LocatableHtmlValidationError):
     """Exception that indicates that an attribute is invalid for a tag"""
-    def __str__(self):
-        return f"{self.translator.translate(Translator.Text.INVALID_ATTRIBUTE)} <{self.tag}>: " \
-               f"{self.attribute} ({self.tag_location()})"
+    def __init__(self, trans: Translator, tag: str, attribute: str, line: int, pos: int):
+        msg = f"{trans.translate(Translator.Text.INVALID_ATTRIBUTE)} <{tag}>: " \
+               f"{attribute}"
+        super(InvalidAttributeError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
-class MissingRequiredAttributesError(TagAttributeError):
+class MissingRequiredAttributesError(LocatableHtmlValidationError):
     """Exception that indicates that a required attribute for a tag is missing"""
-    def __str__(self):
-        return f"{self.translator.translate(Translator.Text.MISSING_REQUIRED_ATTRIBUTE)} <{self.tag}>: " \
-               f"{self.attribute} ({self.tag_location()})"
+    def __init__(self, trans: Translator, tag: str, attribute: str, line: int, pos: int):
+        msg = f"{trans.translate(Translator.Text.MISSING_REQUIRED_ATTRIBUTE)} <{tag}>: " \
+               f"{attribute}"
+        super(MissingRequiredAttributesError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
-class DuplicateIdError(TagAttributeError):
+class DuplicateIdError(LocatableHtmlValidationError):
     """Exception that indicates that an id is used twice"""
-    def __str__(self) -> str:
-        return f"{self.translator.translate(Translator.Text.DUPLICATE_ID, id=self.attribute, tag=self.tag)} " \
-               f"({self.tag_location()})"
+    def __init__(self, trans: Translator, tag: str, attribute: str, line: int, pos: int):
+        msg = f"{trans.translate(Translator.Text.DUPLICATE_ID, id=attribute, tag=tag)}"
+        super(DuplicateIdError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
 class AttributeValueError(LocatableHtmlValidationError):
-    def __init__(self, translator: Translator, tag_location: List[str], position: Tuple[int, int], message: str):
-        super().__init__(translator, tag_location, position)
-        self.msg = message
-
-    def __str__(self) -> str:
-        return self.msg
+    def __init__(self, trans: Translator, msg: str, line: int, pos: int):
+        super(AttributeValueError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
-class MissingRecommendedAttributesWarning(TagAttributeError):
+class MissingRecommendedAttributesWarning(LocatableHtmlValidationError):
     """Exception that indicates that a recommended attribute is missing
             this is considered a warning, and all instances of this class will be
             gathered and thrown at the very end if no other exceptions appear
     """
-    def __str__(self):
-        return f"{self.translator.translate(Translator.Text.MISSING_RECOMMENDED_ATTRIBUTE)} <{self.tag}>: " \
-               f"{self.attribute} ({self.tag_location()})"
+    def __init__(self, trans: Translator, tag: str, attribute: str, line: int, pos: int):
+        msg = f"{trans.translate(Translator.Text.MISSING_RECOMMENDED_ATTRIBUTE)} <{tag}>: " \
+               f"{attribute}"
+        super(MissingRecommendedAttributesWarning, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
 class Warnings(DelayedExceptions):
     def __init__(self, translator: Translator):
         super().__init__()
         self.translator = translator
-        self.exceptions: LocatableHtmlValidationError  # makes them sortable
+        self.exceptions: [LocatableHtmlValidationError]  # makes them sortable
 
     def __str__(self):
-        self.exceptions.sort(key=lambda x: x.position)
+        self.exceptions.sort(key=lambda x: (x.line, x.pos))
         return f"{self.translator.translate(Translator.Text.WARNINGS)} ({len(self)}):\n{self._print_exceptions()}"
