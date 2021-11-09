@@ -5,8 +5,10 @@ from exceptions.structure_exceptions import NotTheSame
 from validators.css_validator import CssValidator
 from utils.html_navigation import compare_content
 
+from typing import Tuple
 
-def get_similarity(sol: str, sub: str) -> (float, float):
+
+def get_similarity(sol: str, sub: str) -> Tuple[float, float]:
     from html_similarity import style_similarity, structural_similarity, similarity
     a = sol.find("<style")
     b = sub.find("<style")
