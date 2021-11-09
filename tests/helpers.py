@@ -2,7 +2,7 @@ from utils.file_loaders import html_loader as _html_loader
 from os import path
 
 # Location of this test file
-from validators.checks import TestSuite, Check, ChecklistItem
+from validators.checks import TestSuite, Check, ChecklistItem, Checks
 
 basepath = path.dirname(__file__)
 
@@ -28,3 +28,6 @@ class UnitTestSuite(TestSuite):
 
     def checklist_item(self, c: ChecklistItem) -> bool:
         return c.evaluate(self._bs)
+
+    def item(self, *args: Checks) -> ChecklistItem:
+        return ChecklistItem("TEST", *args)

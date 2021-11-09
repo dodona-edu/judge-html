@@ -56,3 +56,22 @@ class TestElementContainer(unittest.TestCase):
         self.assertFalse(suite.check(all_trs.exactly(3)))
         self.assertTrue(suite.check(all_trs.exactly(4)))
         self.assertFalse(suite.check(all_trs.exactly(5)))
+
+    def test_length(self):
+        suite = UnitTestSuite("test_1")
+        ps = suite.all_elements("p")
+        h3s = suite.all_elements("h3")
+
+        self.assertEqual(len(ps), 3)
+        self.assertEqual(len(h3s), 0)
+
+    def test_utility_functions(self):
+        suite = UnitTestSuite("test_1")
+
+        divs = suite.all_elements("div")
+        self.assertTrue(suite.check(divs.all(lambda x: x.attribute_exists("id"))))
+        self.assertTrue(suite.check(divs.any(lambda x: x.attribute_exists("id", "first_div"))))
+
+        h3s = suite.all_elements("h3")
+        self.assertFalse(suite.check(h3s.all(lambda x: x.attribute_exists("id"))))
+        self.assertFalse(suite.check(h3s.any(lambda x: x.attribute_exists("id"))))
