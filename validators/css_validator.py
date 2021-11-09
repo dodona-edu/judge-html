@@ -95,7 +95,7 @@ class Rule:
         if not self.is_color():
             return False
 
-        return any(c in self.color.values() for c in Color(color).values())
+        return self.color == Color(color)
 
 
 def calc_specificity(selector_str: str) -> Tuple[int, int, int]:  # see https://specificity.keegan.st/
