@@ -11,6 +11,8 @@ class FeedbackException(Exception):
 
     def __init__(self, trans: Translator, msg: str, line: int, pos: int, *args): ...
 
+    def __str__(self) -> str: ...
+
     def message_str(self) -> str:
         """Create the message that should be displayed in the Dodona Tab"""
         ...
@@ -22,6 +24,7 @@ class FeedbackException(Exception):
 
 class EvaluationAborted(RuntimeError):
     def __init__(self, *args): ...
+
 
 class InvalidTranslation(ValueError):
     def __init__(self, *args): ...

@@ -14,7 +14,10 @@ class FeedbackException(Exception):
         self.pos = pos
         self.trans = trans
 
-    def message_str(self):
+    def __str__(self) -> str:
+        return self.message_str()
+
+    def message_str(self) -> str:
         """Create the message that should be displayed in the Dodona Tab"""
         # Line number < 0 means no line number should be shown (eg. empty submission)
         # Same for position
@@ -34,6 +37,7 @@ class FeedbackException(Exception):
             return self.msg
 
         return f"{self.msg} {self.trans.translate(Translator.Text.AT_LINE)} {self.line + 1}"
+
 
 class EvaluationAborted(RuntimeError):
     """Exception raised when evaluation is aborted because a crucial test did not pass"""
@@ -67,4 +71,3 @@ class DelayedExceptions(Exception):
     def _print_exceptions(self) -> str:
         x: FeedbackException
         return "\n".join([x.message_str() for x in self.exceptions])
-
