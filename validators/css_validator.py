@@ -80,7 +80,10 @@ class Rule:
         self.value_str = tinycss2.serialize(self.value)
         self.color = None
         if self.is_color():
-            self.color = Color(self.value_str)
+            try:
+                self.color = Color(self.value_str)
+            except ValueError:
+                raise CssParsingError()
 
     def __repr__(self):
         return f"(Rule: {self.selector_str} | {self.name} {self.value} {'important' if self.important else ''})"
@@ -95,7 +98,11 @@ class Rule:
         if not self.is_color():
             return False
 
-        return self.color == Color(color)
+        try:
+            other = Color(color)
+        except ValueError:
+            return False  # if the other color is not-parsable than it is the programmers fault
+        return self.color == other
 
 
 def calc_specificity(selector_str: str) -> Tuple[int, int, int]:  # see https://specificity.keegan.st/

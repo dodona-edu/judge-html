@@ -1,9 +1,11 @@
 from colour import Color as Col
 
+from exceptions.utils import FeedbackException
 
-class BadFormatError(Exception):
+
+class BadFormatError(FeedbackException):
     def __init__(self):
-        super(BadFormatError, self).__init__()
+        super(BadFormatError, self).__init__("")
 
 
 class Color(Col):
