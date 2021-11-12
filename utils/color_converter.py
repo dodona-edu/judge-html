@@ -1,12 +1,5 @@
 from colour import Color as Col
 
-from exceptions.utils import FeedbackException
-
-
-class BadFormatError(FeedbackException):
-    def __init__(self):
-        super(BadFormatError, self).__init__("")
-
 
 class Color(Col):
 
@@ -24,7 +17,7 @@ class Color(Col):
         def parse_triple(s: str):
             ls = s[1:-1].split(",")
             if len(ls) != 3:
-                raise BadFormatError()
+                raise ValueError()
             return tuple(parse_float(x) for x in ls[:3])
 
         def parse_quadruple(s: str):
