@@ -127,7 +127,7 @@ Add your solution/evaluator file (`solution.html` for comparison mode or `evalua
     "html"
   ],
   "evaluation": {
-    "handler": "judge-html"
+    "handler": "html"
   }
 }
 ````
