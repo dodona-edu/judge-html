@@ -9,7 +9,7 @@ from typing import Tuple
 
 
 def get_similarity(sol: str, sub: str) -> Tuple[float, float]:
-    from html_similarity import style_similarity, structural_similarity, similarity
+    from html_similarity import style_similarity, structural_similarity
     a = sol.find("<style")
     b = sub.find("<style")
     if a != -1 or b != -1:
