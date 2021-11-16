@@ -96,7 +96,7 @@ Add your solution/evaluator file (`solution.html` for comparison mode or `evalua
   "programming_language": "html",
   "access": "public",
   "evaluation": {
-    "handler": "judge-html",
+    "handler": "html",
     "time_limit": 10,
     "memory_limit": 50000000
   },
@@ -127,11 +127,10 @@ Add your solution/evaluator file (`solution.html` for comparison mode or `evalua
     "html"
   ],
   "evaluation": {
-    "handler": "judge-html"
+    "handler": "html"
   }
 }
 ````
-
 
 ## Quick start guide for **comparison mode** (with `solution.html`)
 
@@ -162,7 +161,7 @@ In the `config.json` file of the exercise you can give some options as to how th
 {
   ...
   "evaluation": {
-    "handler": "judge-html",
+    "handler": "html",
     "minimal_attributes": true,
     "contents": true
   },
