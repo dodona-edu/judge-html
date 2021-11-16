@@ -5,6 +5,7 @@ class Color(Col):
 
     def __init__(self, val: str):
         val = val.replace(" ", "")
+        self.__dict__.__setitem__("alpha", 1.0)
 
         def parse_float(s: str):  # convert any number to float in range [0,1]
             if s.endswith("%"):
@@ -31,10 +32,10 @@ class Color(Col):
             if len(val[1:]) == 3 or len(val[1:]) == 6:  # hex is in web format
                 super(Color, self).__init__(val)
             elif len(val[1:]) == 4:
-                alpha: int = int(val[-1:], 16)
+                self.__dict__.__setitem__("alpha", int(val[-1:], 16) / 15)
                 super(Color, self).__init__(val[:-1])
             elif len(val[1:]) == 8:
-                alpha: int = int(val[-2:], 16)
+                self.__dict__.__setitem__("alpha", int(val[-2:], 16) / 255)
                 super(Color, self).__init__(val[:-2])
         elif val.startswith("rgba"):
             triple, alpha = parse_quadruple(val[4:])
@@ -50,3 +51,12 @@ class Color(Col):
             super(Color, self).__init__(hsl=triple)
         elif val[0].isalpha():
             super(Color, self).__init__(val)
+
+    def __eq__(self, other):
+        if other is None or type(other) != type(self):
+            return False
+        if self.alpha != other.alpha:
+            return False
+        return super(Color, self).__eq__(other)
+
+

@@ -11,9 +11,9 @@ class TestColorConverter(unittest.TestCase):
         self.assertEqual(correct, Color("red"), "test name")
 
         self.assertEqual(correct, Color("#ff0000"), "test hex")
-        self.assertEqual(correct, Color("#ff000000"), "test hex")
+        self.assertEqual(correct, Color("#ff0000ff"), "test hex")
         self.assertEqual(correct, Color("#f00"), "test hex")
-        self.assertEqual(correct, Color("#f000"), "test hex")
+        self.assertEqual(correct, Color("#f00f"), "test hex")
 
         self.assertEqual(correct, Color("rgb(255,0,0)"), "test rgb")
         self.assertEqual(correct, Color("rgb(100%,0,0)"), "test rgb")
