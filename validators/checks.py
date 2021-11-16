@@ -890,9 +890,9 @@ class TestSuite:
             try:
                 compare(solution, self.content, translator, **kwargs)
             except NotTheSame as err:
-                res = get_similarity(solution, self.content)
-                html_sim_str = f"\n Html {translator.translate(Translator.Text.SIMILARITY)}: {round(res[0] * 100)}%"
-                css_sim_str = f"\n Css {translator.translate(Translator.Text.SIMILARITY)}: {round(res[1] * 100)}%" if res[1] != 1 else ""
+                html_sim, css_sim = get_similarity(solution, self.content)
+                html_sim_str = f"\n Html {translator.translate(Translator.Text.SIMILARITY)}: {round(html_sim * 100)}%"
+                css_sim_str = f"\n Css {translator.translate(Translator.Text.SIMILARITY)}: {round(css_sim* 100)}%" if css_sim != 1 else ""
                 with Message(description=f"{err.message_str()}{html_sim_str}{css_sim_str}", format=MessageFormat.CODE):
                     # Only add annotation if line number is positive
                     if err.line >= 0:
