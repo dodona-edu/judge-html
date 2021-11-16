@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
 
 from decorators import flatten_varargs, html_check, css_check
-from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation
+from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation, Test, ErrorType
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
@@ -717,12 +717,16 @@ class ChecklistItem:
     """An item to add to the checklist
 
     Attributes:
-        message     The message displayed on the Dodona checklist for this item
-        checklist   List of Checks to run, all of which should pass for this item
-                    to be marked as passed/successful on the final list
+        message         The message displayed on the Dodona checklist for this item
+        checks          List of Checks to run, all of which should pass for this item
+                        to be marked as passed/successful on the final list
+        _is_verbose     Run all checks inside of this item, even if some fail. This is useful when
+                        extending this class to make custom case-specific ChecklistItems, where
+                        you may want to display the (entire!) list to the student.
     """
     message: str
     _checks: List[Check] = field(init=False)
+    _is_verbose: bool = False
 
     def __init__(self, message: str, *checks: Checks):
         self.message = message
@@ -732,26 +736,77 @@ class ChecklistItem:
         checks = flatten_queue(checks)
         self._checks = flatten_queue(checks)
 
-    def evaluate(self, bs: BeautifulSoup) -> bool:
+    def _process_one(self, check: Check, bs: BeautifulSoup, translator: Translator, language: str) -> bool:
+        """Process a single check inside of this item
+        Inner function to make future modifications cleaner, and allows a bit of abstraction
+        """
+        return check.callback(bs)
+
+    def evaluate(self, bs: BeautifulSoup, translator: Translator) -> bool:
         """Evaluate all checks inside of this item"""
         queue = copy(self._checks)
+
+        should_abort = False
+        success = True
 
         while queue:
             check = queue.pop(0)
 
             # Check failed
-            if not check.callback(bs):
+            if not self._process_one(check, bs, translator, translator.language.name.lower()):
                 # Abort testing if necessary
                 if check.abort_on_fail:
-                    raise EvaluationAborted()
+                    # Only abort instantly if the item is not verbose,
+                    # otherwise continue but abort future tests afterwards
+                    if not self._is_verbose:
+                        raise EvaluationAborted()
+                    else:
+                        should_abort = True
 
-                return False
+                # If the item is not verbose, skip future tests
+                if not self._is_verbose:
+                    return False
+                else:
+                    success = False
 
             # Check succeeded, add all on_success checks
             for os_check in reversed(check.on_success):
                 queue.insert(0, os_check)
 
-        return True
+        # Abort future items
+        if should_abort:
+            raise EvaluationAborted()
+
+        return success
+
+
+@dataclass(init=False)
+class VerboseChecklistItem(ChecklistItem):
+    """A ChecklistItem that displays the entire checklist when being evaluated
+
+    Supports translations, but requires all languages to have the same amount of translations.
+    Default values are NOT supported, and this class is PRIVATE to this file (and the judge)!
+    """
+    messages: Dict[str, List[str]] = field(default_factory=Dict)
+    _is_verbose: bool = field(init=False)
+
+    def __init__(self, message: str, messages: Dict[str, List[str]], *checks: Checks):
+        self.messages = messages
+        super().__init__(message, checks)
+
+        # Check that all translations have the correct amount of items
+        for k, v in self.messages.items():
+            assert len(v) == len(self._checks), f"Incorrect amount of translations for language {k} ({len(v)} instead of {len(self._checks)})."
+
+    def _process_one(self, check: Check, bs: BeautifulSoup, translator: Translator, language: str) -> bool:
+        """Modify the processing function to show the checks inside of it"""
+        # Status is always marked as correct to avoid the GENERATED/EXPECTED view
+        # Expected and Generated are empty strings so Dodona doesn't show them
+        with Test(description="description", expected="") as test:
+            test.generated = ""
+            test.status = translator.error_status(ErrorType.CORRECT)
+
+        return True if self._checks.index(check) == 0 else False
 
 
 @dataclass
@@ -989,7 +1044,7 @@ class TestSuite:
 
                 # Can't set items on tuples so overwrite it
                 try:
-                    test_case.accepted = item.evaluate(self._bs)
+                    test_case.accepted = item.evaluate(self._bs, translator)
                 except EvaluationAborted:
                     # Crucial test failed, stop evaluation and let the next tests
                     # all be marked as wrong
@@ -1047,8 +1102,9 @@ class BoilerplateTestSuite(TestSuite):
 class HtmlSuite(BoilerplateTestSuite):
     """TestSuite that does HTML validation by default"""
     allow_warnings: bool
+    minimal_template: bool
 
-    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True):
+    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True, minimal_template: bool = False):
         super().__init__("HTML", content, check_recommended)
 
         # Only abort if necessary
@@ -1060,6 +1116,28 @@ class HtmlSuite(BoilerplateTestSuite):
         self._default_translations = {"en": ["The HTML is valid."], "nl": ["De HTML is geldig."]}
 
         self.allow_warnings = allow_warnings
+        self.minimal_template = minimal_template
+
+    def _has_minimal_template(self, translator: Translator):
+        """Check that the minimal required HTML template is present"""
+        # Translations have to be separated here because they work differently than
+        # the regular translations do (subchecks instead of separate items)
+
+        translations = {
+            "nl": ["Doctype NL", "Lang NL"],
+            "en": ["Doctype EN", "Lang EN"]
+        }
+
+        self._default_checks.insert(0, VerboseChecklistItem("The solution contains the minimal required HTML code.", translations, self.has_doctype(), self.element("html").attribute_exists("lang")))
+        self._default_translations["en"].insert(0, "The solution contains the minimal required HTML code.")
+        self._default_translations["nl"].insert(0, "De oplossing bevat de minimale vereiste HTML-code.")
+
+    def evaluate(self, translator: Translator) -> int:
+        # Add minimal HTML template check
+        if self.minimal_template:
+            self._has_minimal_template(translator)
+
+        return super().evaluate(translator)
 
 
 class CssSuite(BoilerplateTestSuite):
