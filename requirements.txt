@@ -6,3 +6,4 @@ cssselect==1.1.0
 lxml==4.6.4
 tinycss2==1.1.0
 py-emmet==1.1.10
+html-similarity==0.3.3
