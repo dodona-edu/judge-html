@@ -1,6 +1,7 @@
 import unittest
 from bs4 import BeautifulSoup
 
+from utils.color_converter import Color
 from validators.css_validator import CssValidator
 
 html = """<!DOCTYPE html>
@@ -34,7 +35,7 @@ html = """<!DOCTYPE html>
   .test_most_precise,
   .test_order
   {color: green;margin:2px;}
-
+  .test_color_1 {color:#008000;margin:2px}
 
 </style>
 </head>
@@ -107,6 +108,8 @@ html = """<!DOCTYPE html>
 
 <div class="test_important"></div>
 
+<div class="test_color_1"></div>
+
 </body>
 </html>
 """
@@ -142,7 +145,8 @@ class TestCssValidator(unittest.TestCase):
             "test_element_with_attribute_contains_substring_value",
             "test_most_precise",  # this is already checked implicitly hence everything is color: red
             "test_order",
-            "test_important"
+            "test_important",
+            "test_color_1"
         ]
 
         # Change amount of times this is run to benchmark
@@ -152,7 +156,7 @@ class TestCssValidator(unittest.TestCase):
         for _ in range(num_tests):
             for green_class in test_classes:
                 sol_el = self.bs.find("div", attrs={"class": green_class})
-                self.assertEqual("green", self.validator.find(sol_el, "color").value_str, green_class)
+                self.assertEqual(Color("green"), self.validator.find(sol_el, "color").color, green_class)
         for _ in range(num_tests):
             for green_class in test_classes:
                 sol_el = self.bs.find("div", attrs={"class": green_class})
