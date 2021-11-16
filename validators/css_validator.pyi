@@ -55,6 +55,8 @@ class Rules:
 
     def find_all(self, root: ElementBase, solution_element: ElementBase) -> Dict[str, Rule]: ...
 
+    def find_by_css_selector(self, css_selector: str, key: str): ...
+
 
 class AmbiguousXpath(Exception):
     pass
