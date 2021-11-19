@@ -10,7 +10,7 @@
 >
 > This Dodona course contains some sample exercises that were used in developing the HTML judge:
 >
-> * https://dodona.ugent.be/nl/courses/941/
+> * https://dodona.ugent.be/en/courses/941/
 >
 > There are a number of sample exercises on Dodona's sample exercises repository to demonstrate the use of the judge:
 >
