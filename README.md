@@ -1,5 +1,22 @@
 # HTML&CSS judge for [Dodona](https://dodona.ugent.be/)
 
+> The HTML judge has two ways to evaluate a student's submitted solution. In *comparison mode*, the structure of the submitted solution is compared to a model solution based on generic comparison criteria. The teacher can set how strictly that comparison should be done.
+>
+> *Checklist mode* offers even more possibilities because the submitted solution is checked against the criteria explicitly set up for the exercise by the teacher. The students get to see as feedback which criteria have or have not been met.  
+>
+> In both modes, the submitted code is checked against a number of conditions for valid HTML code. In addition, the result of the submitted HTML and CSS code in Dodona is also shown in a separate tab of the feedback page.
+>
+> ![judge-html](docs/media/judge-html.png)
+>
+> This Dodona course contains some sample exercises that were used in developing the HTML judge:
+>
+> * https://dodona.ugent.be/nl/courses/941/
+>
+> There are a number of sample exercises on Dodona's sample exercises repository to demonstrate the use of the judge:
+>
+> * https://github.com/dodona-edu/example-exercises
+>
+
 ## Judge features
 
 * Checklist (correct, fail, warning, error)
@@ -136,7 +153,7 @@ Add your solution/evaluator file (`solution.html` for comparison mode or `evalua
 
 > [Full documentation for **comparison mode**](/docs/pages/evaluating-by-comparing.md)
 
-The **easiest** and **fastest** way of evaluating an exercise is by comparing it to the `solution.html` file in the `evaluation` folder. This is the default if no `evaluator.py` file is present. In this case, the structure of the student's submission will be compared to your solution, and you can provide extra options to specify how strict this comparison should be.
+The **easiest** and **fastest** way of evaluating an exercise is by comparing it to the `solution.html` file in the `evaluation` folder. This is the default if no `evaluator.py` file is present. In this case, the structure of the student's submission will be compared to your solution, and you can provide extra options to specify how strict this comparison should be. If submission and solution don't match, a similarity percentage is shown.
 
 It does have to be noted that this way of evaluation allows for a lot less freedom. **For flexible tests, consider using the [checklist mode](#quick-start-guide-for-checklist-mode-with-evaluatorpy).**
 
