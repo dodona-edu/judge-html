@@ -213,7 +213,19 @@ In a lot of cases you're going to want the students to write _something_ or to g
     >     return [html, css]
     > ```
 
-4. Make a `ChecklistItem` (with Emmet syntax) and append it to a TestSuite. Combine several Checks in one ChecklistItem if you want to.
+4. Make a `ChecklistItem` (in regular or Emmet syntax) and append it to a TestSuite. Combine several Checks in one ChecklistItem if you want to.
+
+    **Regular syntax**
+
+    ```python
+    body = html.element("body")
+    table = body.get_child('table', direct=True)
+
+    html.make_item("The body has a table. (regular)", table.exists())
+    html.make_item("The table has two rows. (regular)", table.get_children('tr').at_least(2))
+    ```
+
+    **Emmet syntax**
 
     ```python
     html.make_item_from_emmet("The body has a table.", "body>table")
@@ -247,14 +259,22 @@ In a lot of cases you're going to want the students to write _something_ or to g
 > 
 > def create_suites(content: str) -> list[TestSuite]:
 >     html = HtmlSuite(content)
-> 
->     html.make_item_from_emmet("The body has a table.", "body>table")
->     html.make_item_from_emmet("The table has two rows.", "body>table>tr*2")
-> 
->     html.translations["nl"] = [
->         "De body heeft een tabel.",
->         "De tabel heeft twee rijen."
->     ]
+>
+>    body = html.element("body")
+>    table = body.get_child('table', direct=True)
+>
+>    html.make_item("The body has a table. (regular)", table.exists())
+>    html.make_item("The table has two rows. (regular)", table.get_children('tr').at_least(2))
+>
+>    html.make_item_from_emmet("The body has a table. (Emmet)", "body>table")
+>    html.make_item_from_emmet("The table has two rows. (Emmet)", "body>table>tr*2")
+>
+>    html.translations["nl"] = [
+>        "De body heeft een tabel. (normaal)",
+>        "De tabel heeft twee rijen. (normaal)",
+>        "De body heeft een tabel. (Emmet)",
+>        "De tabel heeft twee rijen. (Emmet)"
+>    ]
 > 
 >     return [html]
 > ```
