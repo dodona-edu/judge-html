@@ -9,6 +9,10 @@ from typing import Tuple
 
 
 def get_similarity(sol: str, sub: str) -> Tuple[float, float]:
+    # Empty submission is 0% similar
+    if not sub.strip():
+        return 0, 0
+
     from html_similarity import style_similarity, structural_similarity
     a = sol.find("<style")
     b = sub.find("<style")
@@ -32,7 +36,6 @@ def compare(solution_str: str, submission_str: str, trans: Translator, **kwargs)
     """
     if not submission_str.strip():
         raise NotTheSame(trans=trans, msg=trans.translate(Translator.Text.EMPTY_SUBMISSION), line=-1, pos=-1)
-
 
     # structure is always checked
     check_attributes = kwargs.get("attributes", False)

@@ -860,6 +860,11 @@ class TestSuite:
                         with Annotation(row=err.line, text=err.annotation_str(), type="error"):
                             pass
                     return False
+
+            # Empty submission is invalid HTML
+            if not self.content.strip():
+                return False
+
             # If no validation errors were raised, the HTML is valid
             self._html_validated = True
             return True
