@@ -2,7 +2,7 @@
 
 > The HTML judge has two ways to evaluate a student's submitted solution. In *comparison mode*, the structure of the submitted solution is compared to a model solution based on generic comparison criteria. The teacher can set how strictly that comparison should be done.
 >
-> *Checklist mode* offers even more possibilities because the submitted solution is checked against the criteria explicitly set up for the exercise by the teacher. The students get to see as feedback which criteria have or have not been met.  
+> *Checklist mode* offers even more possibilities because the submitted solution is checked against the criteria explicitly set up for the exercise by the teacher. The feedback that students get to see shows which criteria have or have not been met.  
 >
 > In both modes, the submitted code is checked against a number of conditions for valid HTML code. In addition, the result of the submitted HTML and CSS code in Dodona is also shown in a separate tab of the feedback page.
 >
