@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
 
 from decorators import flatten_varargs, html_check, css_check
-from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation, Test, ErrorType
+from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation, SafeAnnotation, Test, ErrorType
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
@@ -914,24 +914,21 @@ class TestSuite:
             except Warnings as war:
                 with Message(description=str(war), format=MessageFormat.CODE):
                     for exc in war.exceptions:
-                        if exc.line >= 0:
-                            with Annotation(row=exc.line, text=exc.annotation_str(), type="warning"):
-                                pass
+                        with SafeAnnotation(row=exc.line, text=exc.annotation_str(), type="warning"):
+                            pass
                     self._html_validated = allow_warnings
                     return allow_warnings
             except LocatableHtmlValidationError as err:
                 with Message(description=err.message_str(), format=MessageFormat.CODE):
-                    if err.line >= 0:
-                        with Annotation(row=err.line, text=err.annotation_str(), type="error"):
-                            pass
+                    with SafeAnnotation(row=err.line, text=err.annotation_str(), type="error"):
+                        pass
                     return False
             except MultipleMissingCharsError as errs:
                 with Message(description=str(errs), format=MessageFormat.CODE):
                     err: LocatableDoubleCharError
                     for err in errs.exceptions:
-                        if err.line >= 0:
-                            with Annotation(row=err.line, text=err.annotation_str(), type="error"):
-                                pass
+                        with SafeAnnotation(row=err.line, text=err.annotation_str(), type="error"):
+                            pass
                     return False
 
             # Empty submission is invalid HTML
@@ -978,10 +975,8 @@ class TestSuite:
                     description += html_sim_str + css_sim_str
 
                 with Message(description=description, format=MessageFormat.CODE):
-                    # Only add annotation if line number is positive
-                    if err.line >= 0:
-                        with Annotation(err.line, err.annotation_str()):
-                            pass
+                    with SafeAnnotation(row=err.line, text=err.annotation_str(), type="error"):
+                        pass
 
                     return False
             return True

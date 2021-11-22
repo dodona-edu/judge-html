@@ -5,7 +5,7 @@ import sys
 from abc import ABC
 from enum import Enum
 from types import SimpleNamespace, TracebackType
-from typing import Union, Dict, Type
+from typing import Union, Dict, Type, Optional
 
 
 class ErrorType(str, Enum):
@@ -316,3 +316,17 @@ class Annotation(DodonaCommand):
 
     def close_msg(self) -> None:
         """don't print anything when exiting the 'with' block"""
+
+
+class SafeAnnotation(Annotation):
+    """Annotation that isn't displayed for negative line numbers"""
+
+    def __init__(self, row: int, text: str, **kwargs):
+        super().__init__(row=row, text=text, **kwargs)
+
+    def start_msg(self) -> Optional[dict]:
+        """If the row number was less than 0, don't print the annotation"""
+        if self.start_args.row < 0:
+            return None
+
+        return super().start_msg()
