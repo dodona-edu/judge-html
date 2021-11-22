@@ -1080,8 +1080,6 @@ class BoilerplateTestSuite(TestSuite):
     def __init__(self, name: str,
                  content: str,
                  check_recommended: bool = True,
-                 _default_translations: Optional[Dict[str, List[str]]] = None,
-                 _default_checks: Optional[List[ChecklistItem]] = None,
                  check_minimal: bool = False):
         super().__init__(name, content, check_recommended)
         self.check_minimal = check_minimal
@@ -1188,7 +1186,7 @@ class CssSuite(BoilerplateTestSuite):
     """TestSuite that does HTML and CSS validation by default"""
     allow_warnings: bool
 
-    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True, check_minimal: bool = True):
+    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True, check_minimal: bool = False):
         super().__init__("CSS", content, check_recommended, check_minimal)
 
         # Only abort if necessary
