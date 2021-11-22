@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
 
 from decorators import flatten_varargs, html_check, css_check
-from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation, SafeAnnotation, Test, ErrorType
+from dodona.dodona_command import Context, TestCase, Message, MessageFormat, SafeAnnotation
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
