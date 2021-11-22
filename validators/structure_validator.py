@@ -4,13 +4,14 @@ from lxml.html import fromstring, HtmlElement, HtmlComment
 from exceptions.structure_exceptions import NotTheSame
 from validators.css_validator import CssValidator
 from utils.html_navigation import compare_content
+from utils.html_checks import is_empty_document
 
 from typing import Tuple
 
 
 def get_similarity(sol: str, sub: str) -> Tuple[float, float]:
     # Empty submission is 0% similar
-    if not sub.strip():
+    if is_empty_document(sub):
         return 0, 0
 
     from html_similarity import style_similarity, structural_similarity
@@ -34,7 +35,7 @@ def compare(solution_str: str, submission_str: str, trans: Translator, **kwargs)
 
     the submission html should be valid html
     """
-    if not submission_str.strip():
+    if is_empty_document(submission_str):
         raise NotTheSame(trans=trans, msg=trans.translate(Translator.Text.EMPTY_SUBMISSION), line=-1, pos=-1)
 
     # structure is always checked
