@@ -1,3 +1,6 @@
+from bs4 import BeautifulSoup
+
+
 def is_empty_document(document: str) -> bool:
     """Check if a document is empty, not allowing comments"""
     document = document.strip()
@@ -6,24 +9,13 @@ def is_empty_document(document: str) -> bool:
     if not document:
         return True
 
-    # Allow multiline comments
-    in_comment = False
+    try:
+        parsed = BeautifulSoup(document, "html.parser")
+    except Exception:
+        # The document was not empty, but it also wasn't valid
+        # the HTML validator should catch this and warn about it, ignore it here
+        return False
 
-    for line in document.splitlines():
-        line = line.strip()
-
-        # Line is empty
-        if not line:
-            continue
-
-        # New comment started
-        if line.startswith("<!--"):
-            in_comment = True
-        elif line.endswith("-->"):
-            in_comment = False
-        elif not in_comment and line.startswith("<"):
-            # At least one line was not a comment
-            return False
-
-    # Not a single line was found
-    return True
+    # Find() doesn't return comments by default, so if None comes out of this
+    # then we know that there's no content in the document
+    return parsed.find() is None
