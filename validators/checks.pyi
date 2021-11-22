@@ -195,11 +195,11 @@ class ChecklistItem:
 
     def __post_init__(self): ...
 
-    def _process_one(self, check: Check, bs: BeautifulSoup, translator: Translator, language: str) -> bool:
+    def _process_one(self, check: Check, bs: BeautifulSoup, language: str) -> bool:
         """Process a single check inside of this item"""
         ...
 
-    def evaluate(self, bs: BeautifulSoup, translator: Translator) -> bool:
+    def evaluate(self, bs: BeautifulSoup, language: str) -> bool:
         """Evaluate all checks inside of this item"""
         ...
 
@@ -285,19 +285,19 @@ class BoilerplateTestSuite(TestSuite):
     _default_translations: Optional[Dict[str, List[str]]] = ...
     _default_checks: Optional[List[ChecklistItem]] = ...
 
-    def __init__(self, name: str, content: str, check_recommended: bool = True): ...
+    def __init__(self, name: str, content: str, check_recommended: bool = True, check_minimal: bool = False): ...
 
 
 class HtmlSuite(BoilerplateTestSuite):
     allow_warnings: bool
 
-    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True, minimal_template: bool = False): ...
+    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True, check_minimal: bool = False): ...
 
 
 class CssSuite(BoilerplateTestSuite):
     allow_warnings: bool
 
-    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True): ...
+    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True, check_minimal: bool = False): ...
 
 
 class _CompareSuite(HtmlSuite):
