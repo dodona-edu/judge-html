@@ -317,6 +317,13 @@ class TestElement(unittest.TestCase):
         self.assertFalse(suite.check(span.has_styling("align-content", allow_inheritance=True)))
         self.assertFalse(suite.check(phantom.has_styling("border")))
 
+        self.assertTrue(suite.check(div.has_styling("border", "1em solid blue")))
+        self.assertTrue(suite.check(div.has_styling("border", "1em solid blue", any_order=True)))
+        self.assertFalse(suite.check(div.has_styling("border", "solid 1em blue")))
+        self.assertTrue(suite.check(div.has_styling("border", "solid 1em blue", any_order=True)))
+        self.assertFalse(suite.check(div.has_styling("border", "blue solid 1em")))
+        self.assertTrue(suite.check(div.has_styling("border", "blue solid 1em", any_order=True)))
+
     def test_no_loose_text(self):
         suite = UnitTestSuite("loose_text")
         phantom = suite.element("video")  # does not exist

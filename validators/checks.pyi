@@ -127,7 +127,7 @@ class Element:
         """
         ...
 
-    def has_styling(self, prop: str, value: Optional[str] = ..., important: Optional[bool] = ..., allow_inheritance: bool = False) -> Check:
+    def has_styling(self, prop: str, value: Optional[str] = ..., important: Optional[bool] = ..., allow_inheritance: bool = False, any_order: bool = True) -> Check:
         """Check that this element is matched by a CSS selector to give it a particular styling. A value can be passed to match the value of the styling exactly."""
         ...
 
