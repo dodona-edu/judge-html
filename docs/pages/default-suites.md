@@ -21,6 +21,7 @@ The `HtmlSuite` will automatically create a TestSuite called "HTML", and add a `
 | `check_recommended` | <a id="check-recommended-image"/> A boolean that indicates if the student should see warnings about missing recommended attributes.<br /><br /><img src="../media/warnings-dodona.png" alt="image: warnings on Dodona."> These warnings do **not** cause their submission to be marked incorrect, and are purely informational.<br /><br /> | | `True` |
 | `allow_warnings` | Boolean that indicates that the check should *not* be marked incorrect if any warnings arise. |  | `True` |
 | `abort` | Boolean that indicates that testing should abort (and all future checks should be marked incorrect) when validation fails. This is default `True`, because you usually don't want to keep evaluating an exercise if the code isn't valid. |  | `True` |
+| `check_minimal` | Boolean that indicates that the minimal HTML-code required for a valid document should be present. <pre lang="html"><code><html>test</html></code></pre> Shortcut to adding **8** checks manually. | | `False` |
 
 #### Example usage
 
