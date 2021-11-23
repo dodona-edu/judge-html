@@ -599,7 +599,7 @@ value of the styling exactly.
 #### Signature
 
 ```python
-def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None, allow_inheritance: bool = False) -> Check
+def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None, allow_inheritance: bool = False, any_order: bool = True) -> Check
 ```
 
 #### Parameters
@@ -610,6 +610,7 @@ def has_styling(self, prop: str, value: Optional[str] = None, important: Optiona
 | `value`     | A value to match the property against.                                                                    |           | `None`, which will make any value pass and only checks if the element has this style property.  |
 | `important` | A boolean indicating that this element should (or may not be) marked as important using **`!important`**. |           | `None`, which won't check this.                                                                 |
 | `allow_inheritance` | A boolean indicating that a parent element can also have this styling and pass it down onto the child instead.  | | `False`, which will require the element itself to have this property. |
+| `any_order` | A boolean indicating that the order of the components does not matter, useful for [`shorthand properties`](https://developer.mozilla.org/en-US/docs/Web/CSS/Shorthand_properties) defined using [`double bar syntax`](https://developer.mozilla.org/en-US/docs/Web/CSS/Value_definition_syntax#double_bar). | | `False` |
 
 #### Example usage
 
@@ -626,6 +627,10 @@ div_tag.has_styling("background-color", allow_inheritance=True)
 
 # Check that the div has a horizontal margin of exactly 3px marked as !important
 div_tag.has_styling("margin", "3px", important=True)
+
+# Check that the div has a border with components width=1em, style=solid, color=blue
+# Will match every permutation, eg. "solid 1em blue", "blue solid 1em", ...
+div_tag.has_styling("border", "1em solid blue", any_order=True)
 ```
 
 ### `has_color()`

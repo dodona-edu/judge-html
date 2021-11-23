@@ -546,13 +546,15 @@ class Element:
         return prop_value
 
     @css_check
-    def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None, allow_inheritance: bool = False) -> Check:
+    def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None, allow_inheritance: bool = False, any_order: bool = False) -> Check:
         """Check that this element has a CSS property
         :param prop:                the required CSS property to check
         :param value:               an optional value to add that must be checked against,
                                     in case nothing is supplied any value will pass
         :param important:           indicate that this must (or may not be) marked as important
         :param allow_inheritance:   allow a parent element to have this property and apply it onto the child
+        :param any_order:           indicate that the order of the properties doesn't matter (double bar syntax for
+                                    shorthand properties)
         """
 
         def _inner(_: BeautifulSoup) -> bool:
@@ -569,6 +571,13 @@ class Element:
             # Value doesn't matter
             if value is None:
                 return True
+
+            # Any order should be allowed, so just split the values on spaces
+            # and sort them alphabetically
+            if any_order:
+                prop_value_sorted = list(sorted(prop_value.value_str.split(" ")))
+                value_sorted = list(sorted(value.split(" ")))
+                return prop_value_sorted == value_sorted
 
             return prop_value.value_str == value
 

@@ -271,7 +271,7 @@ class TestElement(unittest.TestCase):
         div = suite.element("div")
         span = suite.element('span')
         phantom = suite.element("video")  # does not exist
-        # p = suite.element("p")
+        p = suite.element("p")
 
         self.assertTrue(suite.check(div.has_color("color", "red")))
         self.assertTrue(suite.check(div.has_color("color", "rgb(255, 0, 0)")))
@@ -288,11 +288,10 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(span.has_color("color", "gold", allow_inheritance=True)))
         self.assertFalse(suite.check(span.has_color("color", "blue")))
 
-        # TODO #106
-        # self.assertTrue(suite.check(p.has_color("color", "gold")))
-        # self.assertTrue(suite.check(p.has_color("color", "#FFD700FF")))
-        # self.assertTrue(suite.check(p.has_color("color", "rgb(255, 215, 0)")))
-        # self.assertTrue(suite.check(p.has_color("color", "rgba(255, 215, 0, 1)")))
+        self.assertTrue(suite.check(p.has_color("color", "gold")))
+        self.assertTrue(suite.check(p.has_color("color", "#FFD700FF")))
+        self.assertTrue(suite.check(p.has_color("color", "rgb(255, 215, 0)")))
+        self.assertTrue(suite.check(p.has_color("color", "rgba(255, 215, 0, 1)")))
 
     def test_has_styling(self):
         suite = UnitTestSuite("css_1")
@@ -317,6 +316,13 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(span.has_styling("background-color", allow_inheritance=True)))
         self.assertFalse(suite.check(span.has_styling("align-content", allow_inheritance=True)))
         self.assertFalse(suite.check(phantom.has_styling("border")))
+
+        self.assertTrue(suite.check(div.has_styling("border", "1em solid blue")))
+        self.assertTrue(suite.check(div.has_styling("border", "1em solid blue", any_order=True)))
+        self.assertFalse(suite.check(div.has_styling("border", "solid 1em blue")))
+        self.assertTrue(suite.check(div.has_styling("border", "solid 1em blue", any_order=True)))
+        self.assertFalse(suite.check(div.has_styling("border", "blue solid 1em")))
+        self.assertTrue(suite.check(div.has_styling("border", "blue solid 1em", any_order=True)))
 
     def test_no_loose_text(self):
         suite = UnitTestSuite("loose_text")
