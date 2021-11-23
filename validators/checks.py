@@ -559,27 +559,8 @@ class Element:
 
         def _inner(_: BeautifulSoup) -> bool:
             prop_value = self._find_css_property(prop, allow_inheritance)
-
-            # Property not found
-            if prop_value is None:
-                return False
-
-            # !important modifier is incorrect
-            if important is not None and prop_value.important != important:
-                return False
-
-            # Value doesn't matter
-            if value is None:
-                return True
-
-            # Any order should be allowed, so just split the values on spaces
-            # and sort them alphabetically
-            if any_order:
-                prop_value_sorted = list(sorted(prop_value.value_str.split(" ")))
-                value_sorted = list(sorted(value.split(" ")))
-                return prop_value_sorted == value_sorted
-
-            return prop_value.value_str == value
+            # If the property is not found, it is None
+            return False if prop_value is None else prop_value.compare_to(value, important, any_order)
 
         return Check(_inner)
 
@@ -1003,15 +984,12 @@ class TestSuite:
 
         return Check(_inner)
 
-    def contains_css(self, css_selector: str, key: str, value: str) -> Check:
+    def contains_css(self, css_selector: str, prop: str, value: Optional[str] = None, important: Optional[bool] = None, any_order: bool = False) -> Check:
         """Check if the given css rule exists for the given css selector"""
         def _inner(_: BeautifulSoup) -> bool:
-            r: Rule = self._css_validator.find_by_css_selector(css_selector, key)
-            # no rule found
-            if r is None:
-                return False
-
-            return False
+            rule: Rule = self._css_validator.find_by_css_selector(css_selector, prop)
+            # If the property is not found, it is None
+            return False if rule is None else rule.compare_to(value, important, any_order)
 
         return Check(_inner)
 

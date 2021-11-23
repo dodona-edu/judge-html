@@ -104,6 +104,26 @@ class Rule:
             return False  # if the other color is not-parsable than it is the programmers fault
         return self.color == other
 
+    def compare_to(self, value: Optional[str] = None, important: Optional[bool] = None, any_order: bool = False):
+        """Compares this Rule to a given value string and or important specifier,
+            any_order can be used when value string may contain multiple values"""
+        # !important modifier is incorrect
+        if important is not None and self.important != important:
+            return False
+
+        # Value doesn't matter
+        if value is None:
+            return True
+
+        # Any order should be allowed, so just split the values on spaces
+        # and sort them alphabetically
+        if any_order:
+            prop_value_sorted = list(sorted(self.value_str.split(" ")))
+            value_sorted = list(sorted(value.split(" ")))
+            return prop_value_sorted == value_sorted
+
+        return self.value_str == value
+
 
 def calc_specificity(selector_str: str) -> Tuple[int, int, int]:  # see https://specificity.keegan.st/
     """calculates how specific a css-selector is"""

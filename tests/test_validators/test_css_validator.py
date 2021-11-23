@@ -130,7 +130,7 @@ class TestCssValidator(unittest.TestCase):
         </style>
         </head></html>""")
         r = cssval.rules.rules[0]
-        self.assertEqual(cssval.find_by_css_selector("#yellow:hover", "background-color")[0], r)
+        self.assertEqual(cssval.find_by_css_selector("#yellow:hover", "background-color"), r)
 
     def test_green_tests(self):
         test_classes = [
