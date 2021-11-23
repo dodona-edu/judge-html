@@ -121,3 +121,12 @@ class Annotation(DodonaCommand):
     def start_msg(self) -> Dict: ...
 
     def close_msg(self) -> Dict: ...
+
+
+class SafeAnnotation(Annotation):
+    """Annotation that isn't displayed for negative line numbers"""
+
+    def __init__(self, row: int, text: str, **kwargs):
+        super().__init__(row=row, text=text, **kwargs)
+
+    def start_msg(self) -> Optional[dict]: ...
