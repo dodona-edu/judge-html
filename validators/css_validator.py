@@ -237,13 +237,16 @@ class Rules:
             dom_css[dom_rule.name] = dom_rule
         return dom_css
 
-    def find_by_css_selector(self, css_selector: str, key: str) -> [Rule]:
-        out: [Rule] = []
+    def find_by_css_selector(self, css_selector: str, key: str) -> Optional[Rule]:
+        dom_rule: Rule = None
         rule: Rule
         for rule in self.rules:
             if rule.selector_str == css_selector and rule.name == key:
-                out.append(rule)
-        return out
+                if dom_rule is None:
+                    dom_rule = rule
+                elif rule.specificity > dom_rule.specificity:
+                    dom_rule = rule
+        return dom_rule
 
 
 class AmbiguousXpath(Exception):
@@ -289,7 +292,8 @@ class CssValidator:
             self.xpaths.update({id(element): self._get_xpath_soup(element)})
         return self.xpaths[id(element)]
 
-    def _get_xpath_soup(self, element: Tag) -> str:
+    @staticmethod
+    def _get_xpath_soup(element: Tag) -> str:
         """converts an element from bs4 soup to an xpath expression"""
         components = []
         child = element if element.name else element.parent
@@ -318,7 +322,7 @@ class CssValidator:
             raise AmbiguousXpath()
         return self.rules.find(self.root, sols[0], key)
 
-    def find_by_css_selector(self, css_selector: str, key: str) -> [Rule]:
+    def find_by_css_selector(self, css_selector: str, key: str) -> Optional[Rule]:
         if self.root is None:
             return None
         return self.rules.find_by_css_selector(css_selector.replace("\n", "").replace(" ", "").lower(),

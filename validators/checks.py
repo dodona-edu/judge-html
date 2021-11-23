@@ -1003,6 +1003,18 @@ class TestSuite:
 
         return Check(_inner)
 
+    def contains_css(self, css_selector: str, key: str, value: str) -> Check:
+        """Check if the given css rule exists for the given css selector"""
+        def _inner(_: BeautifulSoup) -> bool:
+            r: Rule = self._css_validator.find_by_css_selector(css_selector, key)
+            # no rule found
+            if r is None:
+                return False
+
+            return False
+
+        return Check(_inner)
+
     def has_doctype(self) -> Check:
         """Check if the document starts with <!DOCTYPE HTML"""
         def _inner(_: BeautifulSoup) -> bool:
