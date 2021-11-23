@@ -104,6 +104,26 @@ class Rule:
             return False  # if the other color is not-parsable than it is the programmers fault
         return self.color == other
 
+    def compare_to(self, value: Optional[str] = None, important: Optional[bool] = None, any_order: bool = False):
+        """Compares this Rule to a given value string and or important specifier,
+            any_order can be used when value string may contain multiple values"""
+        # !important modifier is incorrect
+        if important is not None and self.important != important:
+            return False
+
+        # Value doesn't matter
+        if value is None:
+            return True
+
+        # Any order should be allowed, so just split the values on spaces
+        # and sort them alphabetically
+        if any_order:
+            prop_value_sorted = list(sorted(self.value_str.split(" ")))
+            value_sorted = list(sorted(value.split(" ")))
+            return prop_value_sorted == value_sorted
+
+        return self.value_str == value
+
 
 def calc_specificity(selector_str: str) -> Tuple[int, int, int]:  # see https://specificity.keegan.st/
     """calculates how specific a css-selector is"""
@@ -237,6 +257,17 @@ class Rules:
             dom_css[dom_rule.name] = dom_rule
         return dom_css
 
+    def find_by_css_selector(self, css_selector: str, key: str) -> Optional[Rule]:
+        dom_rule: Rule = None
+        rule: Rule
+        for rule in self.rules:
+            if rule.selector_str == css_selector and rule.name == key:
+                if dom_rule is None:
+                    dom_rule = rule
+                elif rule.specificity > dom_rule.specificity:
+                    dom_rule = rule
+        return dom_rule
+
 
 class AmbiguousXpath(Exception):
     """Thrown when an xpath can select multiple elements when it should only select one element"""
@@ -281,7 +312,8 @@ class CssValidator:
             self.xpaths.update({id(element): self._get_xpath_soup(element)})
         return self.xpaths[id(element)]
 
-    def _get_xpath_soup(self, element: Tag) -> str:
+    @staticmethod
+    def _get_xpath_soup(element: Tag) -> str:
         """converts an element from bs4 soup to an xpath expression"""
         components = []
         child = element if element.name else element.parent
@@ -309,3 +341,11 @@ class CssValidator:
         if not len(sols) == 1:
             raise AmbiguousXpath()
         return self.rules.find(self.root, sols[0], key)
+
+    def find_by_css_selector(self, css_selector: str, key: str) -> Optional[Rule]:
+        if self.root is None:
+            return None
+        return self.rules.find_by_css_selector(css_selector.replace("\n", "").replace(" ", "").lower(),
+                                               key.replace(" ", "").lower())
+
+

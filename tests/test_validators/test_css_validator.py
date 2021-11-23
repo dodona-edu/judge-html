@@ -121,6 +121,17 @@ class TestCssValidator(unittest.TestCase):
         self.bs: BeautifulSoup = BeautifulSoup(html, "html.parser")
         self.validator = CssValidator(html)
 
+    def test_selector(self):
+        cssval = CssValidator("""<html><head>
+        <style>
+        #yellow:hover {
+            background-color: rgb(255, 210, 0);
+        }
+        </style>
+        </head></html>""")
+        r = cssval.rules.rules[0]
+        self.assertEqual(cssval.find_by_css_selector("#yellow:hover", "background-color"), r)
+
     def test_green_tests(self):
         test_classes = [
             "test_classname",
