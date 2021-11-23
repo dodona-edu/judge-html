@@ -860,6 +860,11 @@ class TestSuite:
                         with Annotation(row=err.line, text=err.annotation_str(), type="error"):
                             pass
                     return False
+
+            # Empty submission is invalid HTML
+            if not self.content.strip():
+                return False
+
             # If no validation errors were raised, the HTML is valid
             self._html_validated = True
             return True
@@ -890,14 +895,21 @@ class TestSuite:
             try:
                 compare(solution, self.content, translator, **kwargs)
             except NotTheSame as err:
-                html_sim, css_sim = get_similarity(solution, self.content)
-                html_sim_str = f"\n HTML{translator.translate(Translator.Text.SIMILARITY)}: {round(html_sim * 100)}%"
-                css_sim_str = f"\n CSS{translator.translate(Translator.Text.SIMILARITY)}: {round(css_sim* 100)}%" if css_sim != 1 else ""
-                with Message(description=f"{err.message_str()}{html_sim_str}{css_sim_str}", format=MessageFormat.CODE):
+                description = err.message_str()
+
+                # Only calculate similarity for valid HTML
+                if self._html_validated:
+                    html_sim, css_sim = get_similarity(solution, self.content)
+                    html_sim_str = f"\n Html{translator.translate(Translator.Text.SIMILARITY)}: {round(html_sim * 100)}%"
+                    css_sim_str = f"\n Css{translator.translate(Translator.Text.SIMILARITY)}: {round(css_sim* 100)}%" if css_sim != 1 else ""
+                    description += html_sim_str + css_sim_str
+
+                with Message(description=description, format=MessageFormat.CODE):
                     # Only add annotation if line number is positive
                     if err.line >= 0:
                         with Annotation(err.line, err.annotation_str()):
                             pass
+
                     return False
             return True
 
