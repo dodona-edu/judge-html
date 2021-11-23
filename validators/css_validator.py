@@ -237,7 +237,7 @@ class Rules:
             dom_css[dom_rule.name] = dom_rule
         return dom_css
 
-    def find_by_css_selector(self, css_selector: str, key: str):
+    def find_by_css_selector(self, css_selector: str, key: str) -> [Rule]:
         out: [Rule] = []
         rule: Rule
         for rule in self.rules:
@@ -318,16 +318,10 @@ class CssValidator:
             raise AmbiguousXpath()
         return self.rules.find(self.root, sols[0], key)
 
-    def find_by_css_selector(self, css_selector: str, key: str) -> Optional[Rule]:
+    def find_by_css_selector(self, css_selector: str, key: str) -> [Rule]:
         if self.root is None:
             return None
         return self.rules.find_by_css_selector(css_selector.replace("\n", "").replace(" ", "").lower(),
                                                key.replace(" ", "").lower())
 
-rs = Rules("""
-#yellow:hover {
-    background-color: rgb(255, 210, 0);
-}
-""")
-r: Rule = rs.rules[0]
-print(rs.find_by_css_selector("#yellow:hover", "background-color"))
+
