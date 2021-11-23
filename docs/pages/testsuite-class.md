@@ -15,6 +15,7 @@ A `TestSuite` contains a checklist of all checks that should be performed on the
   - [`validate_css()`](#validate_css)
   - [`validate_html()`](#validate_html)
   - [`contains_comment()`](#contains_comment)
+  - [`contains_css()`](#contains_css)
   - [`document_matches()`](#document_matches)
   - [`has_doctype()`](#has_doctype)
 
@@ -327,6 +328,33 @@ suite.contains_comment()
 
 # Check if the document contains a comment that says "Example"
 suite.contains_comment("Example")
+```
+
+## `contains_css()`
+```python
+    def contains_css(self, css_selector: str, prop: str, value: Optional[str] = None, important: Optional[bool] = None, any_order: bool = False) -> Check:
+```
+
+#### Parameters
+
+| Name | Description | Required? | Default |
+|:-----|:------------|:---------:|:--------|
+| `css_selector` | The css selector you want to check | ✔ |  |
+| `prop`      | The name of the CSS property to look for.                                                                 |     ✔     |                                                                                               |
+| `value`     | A value to match the property against.                                                                    |           | `None`, which will make any value pass and only checks if the element has this style property.  |
+| `important` | A boolean indicating that this element should (or may not be) marked as important using **`!important`**. |           | `None`, which won't check this.                                                                 |
+| `any_order` | A boolean indicating that the order of the components does not matter, useful for [`shorthand properties`](https://developer.mozilla.org/en-US/docs/Web/CSS/Shorthand_properties) defined using [`double bar syntax`](https://developer.mozilla.org/en-US/docs/Web/CSS/Value_definition_syntax#double_bar). | | `False` |
+
+#### Example usage
+
+```python
+suite = TestSuite("HTML", content)
+
+# Check if the document contains a rule for background-color on the body tag
+suite.contains_css("body", "background-color")
+
+# Check if the document contains a rule for a red background-color on the body tag
+suite.contains_css("body", "background-color", "red")
 ```
 
 ### `document_matches()`
