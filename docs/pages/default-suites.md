@@ -8,6 +8,7 @@ Remember that these are still `TestSuite`s, so you can still **add your own Chec
 
 - [`HtmlSuite`](#htmlsuite)
 - [`CssSuite`](#csssuite)
+- [`Minimal HTML Template`](#minimal-html-template)
 
 ## `HtmlSuite`
 
@@ -21,6 +22,7 @@ The `HtmlSuite` will automatically create a TestSuite called "HTML", and add a `
 | `check_recommended` | <a id="check-recommended-image"/> A boolean that indicates if the student should see warnings about missing recommended attributes.<br /><br /><img src="../media/warnings-dodona.png" alt="image: warnings on Dodona."> These warnings do **not** cause their submission to be marked incorrect, and are purely informational.<br /><br /> | | `True` |
 | `allow_warnings` | Boolean that indicates that the check should *not* be marked incorrect if any warnings arise. |  | `True` |
 | `abort` | Boolean that indicates that testing should abort (and all future checks should be marked incorrect) when validation fails. This is default `True`, because you usually don't want to keep evaluating an exercise if the code isn't valid. |  | `True` |
+| `check_minimal` | Boolean that indicates that the [minimal HTML code](#minimal-html-template) required for a valid document should be present. Shortcut to adding 8 checks manually. | | `False` |
 
 #### Example usage
 
@@ -77,6 +79,7 @@ The `CssSuite` will automatically create a TestSuite called "CSS", and add `Chec
 | `check_recommended` | <a id="check-recommended-image"/> A boolean that indicates if the student should see warnings about missing recommended attributes.<br /><br /><img src="../media/warnings-dodona.png" alt="image: warnings on Dodona."> These warnings do **not** cause their submission to be marked incorrect, and are purely informational.<br /><br /> | | `True` |
 | `allow_warnings` | Boolean that indicates that the check should *not* be marked incorrect if any warnings arise. |  | `True` |
 | `abort` | Boolean that indicates that testing should abort (and all future checks should be marked incorrect) when validation fails. This is default `True`, because you usually don't want to keep evaluating an exercise if the code isn't valid. |  | `True` |
+| `check_minimal` | Boolean that indicates that the [minimal HTML code](#minimal-html-template) required for a valid document should be present. Shortcut to adding 8 checks manually. | | `False` |
 
 #### Example usage
 
@@ -125,4 +128,22 @@ def create_suites(content: str) -> List[TestSuite]:
 
     # Or even shorter in case you only want validation:
     # return [CssSuite(content, allow_warnings=False)]
+```
+
+## `Minimal HTML Template`
+
+Both the [`HtmlSuite`](#htmlsuite) and the [`CssSuite`](#csssuite) have a `check_minimal`-kwarg that checks if the code below is present in the submission:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!--  Any non-empty title suffices  -->
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+</html>
 ```

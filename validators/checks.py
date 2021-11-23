@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
 
 from decorators import flatten_varargs, html_check, css_check
-from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation
+from dodona.dodona_command import Context, TestCase, Message, MessageFormat, Annotation, Test, ErrorType
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
@@ -717,12 +717,16 @@ class ChecklistItem:
     """An item to add to the checklist
 
     Attributes:
-        message     The message displayed on the Dodona checklist for this item
-        checklist   List of Checks to run, all of which should pass for this item
-                    to be marked as passed/successful on the final list
+        message         The message displayed on the Dodona checklist for this item
+        checks          List of Checks to run, all of which should pass for this item
+                        to be marked as passed/successful on the final list
+        _is_verbose     Run all checks inside of this item, even if some fail. This is useful when
+                        extending this class to make custom case-specific ChecklistItems, where
+                        you may want to display the (entire!) list to the student.
     """
     message: str
     _checks: List[Check] = field(init=False)
+    _is_verbose: bool = False
 
     def __init__(self, message: str, *checks: Checks):
         self.message = message
@@ -732,26 +736,83 @@ class ChecklistItem:
         checks = flatten_queue(checks)
         self._checks = flatten_queue(checks)
 
-    def evaluate(self, bs: BeautifulSoup) -> bool:
+    def _process_one(self, check: Check, bs: BeautifulSoup, language: str) -> bool:
+        """Process a single check inside of this item
+        Inner function to make future modifications cleaner, and allows a bit of abstraction
+        """
+        return check.callback(bs)
+
+    def evaluate(self, bs: BeautifulSoup, language: str) -> bool:
         """Evaluate all checks inside of this item"""
         queue = copy(self._checks)
+
+        should_abort = False
+        success = True
 
         while queue:
             check = queue.pop(0)
 
             # Check failed
-            if not check.callback(bs):
+            if not self._process_one(check, bs, language):
                 # Abort testing if necessary
                 if check.abort_on_fail:
-                    raise EvaluationAborted()
+                    # Only abort instantly if the item is not verbose,
+                    # otherwise continue but abort future tests afterwards
+                    if not self._is_verbose:
+                        raise EvaluationAborted()
+                    else:
+                        should_abort = True
 
-                return False
+                # If the item is not verbose, skip future tests
+                if not self._is_verbose:
+                    return False
+                else:
+                    success = False
 
             # Check succeeded, add all on_success checks
             for os_check in reversed(check.on_success):
                 queue.insert(0, os_check)
 
-        return True
+        # Abort future items
+        if should_abort:
+            raise EvaluationAborted()
+
+        return success
+
+
+class VerboseChecklistItem(ChecklistItem):
+    """A ChecklistItem that displays the entire checklist when evaluated
+
+    Supports translations, but requires all languages to have the same amount of translations.
+    Default values are NOT supported, and this class is meant for internal use.
+    """
+    # Print the messages depending on when a Check fails or succeeds,
+    # True for only on success, False for only on failure, None for always
+    only_when_status: Optional[bool]
+    messages: Dict[str, List[str]] = field(default_factory=Dict)
+    _is_verbose: bool = field(init=False)
+
+    def __init__(self, message: str, messages: Dict[str, List[str]], only_when_status: bool, *checks: Checks):
+        self.only_when_status = only_when_status
+        self.messages = messages
+        self._is_verbose = True
+        super().__init__(message, checks)
+
+        # Check that all translations have the correct amount of items
+        for k, v in self.messages.items():
+            assert len(v) == len(self._checks), f"Incorrect amount of translations for language {k} ({len(v)} instead of {len(self._checks)})."
+
+    def _process_one(self, check: Check, bs: BeautifulSoup, language: str) -> bool:
+        """Modify the processing function to show the checks inside of it"""
+        res = check.callback(bs)
+        # Check if message should be printed
+        if self.only_when_status is None or res == self.only_when_status:
+            message = self.messages[language][self._checks.index(check)]
+
+            with Message(description=message, format="plain"):
+                pass
+
+        return res
 
 
 @dataclass
@@ -844,21 +905,24 @@ class TestSuite:
             except Warnings as war:
                 with Message(description=str(war), format=MessageFormat.CODE):
                     for exc in war.exceptions:
-                        with Annotation(row=exc.line, text=exc.annotation_str(), type="warning"):
-                            pass
+                        if exc.line >= 0:
+                            with Annotation(row=exc.line, text=exc.annotation_str(), type="warning"):
+                                pass
                     self._html_validated = allow_warnings
                     return allow_warnings
             except LocatableHtmlValidationError as err:
                 with Message(description=err.message_str(), format=MessageFormat.CODE):
-                    with Annotation(row=err.line, text=err.annotation_str(), type="error"):
-                        pass
+                    if err.line >= 0:
+                        with Annotation(row=err.line, text=err.annotation_str(), type="error"):
+                            pass
                     return False
             except MultipleMissingCharsError as errs:
                 with Message(description=str(errs), format=MessageFormat.CODE):
                     err: LocatableDoubleCharError
                     for err in errs.exceptions:
-                        with Annotation(row=err.line, text=err.annotation_str(), type="error"):
-                            pass
+                        if err.line >= 0:
+                            with Annotation(row=err.line, text=err.annotation_str(), type="error"):
+                                pass
                     return False
 
             # Empty submission is invalid HTML
@@ -1001,7 +1065,7 @@ class TestSuite:
 
                 # Can't set items on tuples so overwrite it
                 try:
-                    test_case.accepted = item.evaluate(self._bs)
+                    test_case.accepted = item.evaluate(self._bs, lang_abr)
                 except EvaluationAborted:
                     # Crucial test failed, stop evaluation and let the next tests
                     # all be marked as wrong
@@ -1022,13 +1086,14 @@ class BoilerplateTestSuite(TestSuite):
     """Base class for TestSuites that handle some boilerplate things"""
     _default_translations: Optional[Dict[str, List[str]]] = None
     _default_checks: Optional[List[ChecklistItem]] = None
+    check_minimal: bool
 
     def __init__(self, name: str,
                  content: str,
                  check_recommended: bool = True,
-                 _default_translations: Optional[Dict[str, List[str]]] = None,
-                 _default_checks: Optional[List[ChecklistItem]] = None):
+                 check_minimal: bool = False):
         super().__init__(name, content, check_recommended)
+        self.check_minimal = check_minimal
 
     def _add_default_translations(self):
         self._create_language_lists()
@@ -1049,7 +1114,61 @@ class BoilerplateTestSuite(TestSuite):
         for item in reversed(self._default_checks):
             self.checklist.insert(0, item)
 
+    def _has_minimal_template(self):
+        """Check that the minimal required HTML template is present"""
+        # Translations have to be separated here because they work differently than
+        # the regular translations do (subchecks instead of separate items)
+
+        translations = {
+            "nl": [
+                "Het type van het document is niet (correct) gedeclareerd",
+                "De <html>-tag heeft geen taal-attribuut",
+                "De <html>-tag bevat geen <head>-tag",
+                "De <head>-tag bevat geen <title>-tag",
+                "De <title>-tag is bevat geen tekst",
+                "De <head>-tag bevat geen <meta>-tag",
+                "Het charset-attribuut van de <meta>-tag staat niet ingesteld op UTF-8",
+                "De <html>-tag bevat geen <body>-tag"
+            ],
+            "en": [
+                "The type of the document was not declared (correctly)",
+                "The <html> tag does not contain a language attribute",
+                "The <html> tag does not contain a <head> tag",
+                "The <head> tag does not contain a <title> tag",
+                "The <title> tag does not contain any content",
+                "The <head> tag does not contain a <meta> tag",
+                "The <meta> tag does not have its charset attribute set to UTF-8",
+                "The <html> tag does not contain a <body> tag"
+            ]
+        }
+
+        # Elements
+        _html = self.element("html")
+        _head = _html.get_child("head")
+        _title = _head.get_child("title")
+        _meta = _head.get_child("meta", charset=True)
+        _body = _html.get_child("body")
+
+        self._default_checks.insert(0, VerboseChecklistItem("The solution contains the minimal required HTML code.", translations, False,
+                                                            self.has_doctype(),
+                                                            _html.attribute_exists("lang"),
+                                                            _head.exists(),
+                                                            _title.exists(),
+                                                            _title.has_content(),
+                                                            _meta.exists(),
+                                                            _meta.attribute_exists("charset", "UTF-8", case_insensitive=True),
+                                                            _body.exists()
+                                                            )
+                                    )
+
+        self._default_translations["en"].insert(0, "The solution contains the minimal required HTML code.")
+        self._default_translations["nl"].insert(0, "De oplossing bevat de minimale vereiste HTML-code.")
+
     def evaluate(self, translator: Translator) -> int:
+        # Add minimal HTML template check
+        if self.check_minimal:
+            self._has_minimal_template()
+
         self._add_default_translations()
         self._add_default_checks()
 
@@ -1060,8 +1179,8 @@ class HtmlSuite(BoilerplateTestSuite):
     """TestSuite that does HTML validation by default"""
     allow_warnings: bool
 
-    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True):
-        super().__init__("HTML", content, check_recommended)
+    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True, check_minimal: bool = False):
+        super().__init__("HTML", content, check_recommended, check_minimal)
 
         # Only abort if necessary
         if abort:
@@ -1078,8 +1197,8 @@ class CssSuite(BoilerplateTestSuite):
     """TestSuite that does HTML and CSS validation by default"""
     allow_warnings: bool
 
-    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True):
-        super().__init__("CSS", content, check_recommended)
+    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True, check_minimal: bool = False):
+        super().__init__("CSS", content, check_recommended, check_minimal)
 
         # Only abort if necessary
         if abort:

@@ -1,3 +1,4 @@
+from dodona.translator import Translator
 from utils.file_loaders import html_loader as _html_loader
 from os import path
 
@@ -22,12 +23,13 @@ class UnitTestSuite(TestSuite):
         :param file: The HTML file to run the test against. The file extension (.html) can be left out.
         """
         super().__init__(name="TEST", content=html_loader(file), **kwargs)
+        self.translator = Translator(Translator.Language.EN)
 
     def check(self, c: Check) -> bool:
         return c.callback(self._bs)
 
     def checklist_item(self, c: ChecklistItem) -> bool:
-        return c.evaluate(self._bs)
+        return c.evaluate(self._bs, self.translator)
 
     def item(self, *args: Checks) -> ChecklistItem:
         return ChecklistItem("TEST", *args)
