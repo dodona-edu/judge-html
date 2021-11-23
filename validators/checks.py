@@ -805,7 +805,6 @@ class VerboseChecklistItem(ChecklistItem):
     def _process_one(self, check: Check, bs: BeautifulSoup, language: str) -> bool:
         """Modify the processing function to show the checks inside of it"""
         res = check.callback(bs)
-        # print(res)
         # Check if message should be printed
         if self.only_when_status is None or res == self.only_when_status:
             message = self.messages[language][self._checks.index(check)]
