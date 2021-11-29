@@ -161,7 +161,7 @@ class Translator:
             Text.NO_ABS_PATHS: "The src attribute may not contain an absolute path.",
             Text.MISSING_RECOMMENDED_ATTRIBUTE: "Missing recommended attribute(s) for",
             # comparer text
-            Text.EMPTY_SUBMISSION: "The submission is empty",
+            Text.EMPTY_SUBMISSION: "The submission is empty.",
             Text.TAGS_DIFFER: "Tags differ",
             Text.ATTRIBUTES_DIFFER: "Attributes differ",
             Text.NOT_ALL_ATTRIBUTES_PRESENT: "Not all minimal required attributes are present",
@@ -206,7 +206,7 @@ class Translator:
             Text.NO_ABS_PATHS: "Het attribuut src mag geen absoluut pad zijn.",
             Text.MISSING_RECOMMENDED_ATTRIBUTE: "Ontbrekende aanbevolen attributen voor",
             # comparer text
-            Text.EMPTY_SUBMISSION: "De indiening was leeg",
+            Text.EMPTY_SUBMISSION: "De indiening was leeg.",
             Text.TAGS_DIFFER: "Tags verschillen",
             Text.ATTRIBUTES_DIFFER: "Attributen verschillen",
             Text.NOT_ALL_ATTRIBUTES_PRESENT: "Niet alle minimaal vereiste attributen zijn aanwezig",

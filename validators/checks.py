@@ -951,8 +951,8 @@ class TestSuite:
                 # Only calculate similarity for valid HTML
                 if self._html_validated:
                     html_sim, css_sim = get_similarity(solution, self.content)
-                    html_sim_str = f"\n Html{translator.translate(Translator.Text.SIMILARITY)}: {round(html_sim * 100)}%"
-                    css_sim_str = f"\n Css{translator.translate(Translator.Text.SIMILARITY)}: {round(css_sim* 100)}%" if css_sim != 1 else ""
+                    html_sim_str = f"\n HTML{translator.translate(Translator.Text.SIMILARITY)}: {round(html_sim * 100)}%"
+                    css_sim_str = f"\n CSS{translator.translate(Translator.Text.SIMILARITY)}: {round(css_sim* 100)}%" if css_sim != 1 else ""
                     description += html_sim_str + css_sim_str
 
                 with Message(description=description, format=MessageFormat.CODE):
@@ -1115,24 +1115,24 @@ class BoilerplateTestSuite(TestSuite):
 
         translations = {
             "nl": [
-                "Het type van het document is niet (correct) gedeclareerd",
-                "De <html>-tag heeft geen taal-attribuut",
-                "De <html>-tag bevat geen <head>-tag",
-                "De <head>-tag bevat geen <title>-tag",
-                "De <title>-tag is bevat geen tekst",
-                "De <head>-tag bevat geen <meta>-tag",
-                "Het charset-attribuut van de <meta>-tag staat niet ingesteld op UTF-8",
-                "De <html>-tag bevat geen <body>-tag"
+                "Het type van het document is niet (correct) gedeclareerd.",
+                "De <html>-tag heeft geen taal-attribuut.",
+                "De <html>-tag bevat geen <head>-tag.",
+                "De <head>-tag bevat geen <title>-tag.",
+                "De <title>-tag is bevat geen tekst.",
+                "De <head>-tag bevat geen <meta>-tag.",
+                "Het charset-attribuut van de <meta>-tag staat niet ingesteld op UTF-8.",
+                "De <html>-tag bevat geen <body>-tag."
             ],
             "en": [
-                "The type of the document was not declared (correctly)",
-                "The <html> tag does not contain a language attribute",
-                "The <html> tag does not contain a <head> tag",
-                "The <head> tag does not contain a <title> tag",
-                "The <title> tag does not contain any content",
-                "The <head> tag does not contain a <meta> tag",
-                "The <meta> tag does not have its charset attribute set to UTF-8",
-                "The <html> tag does not contain a <body> tag"
+                "The type of the document was not declared (correctly).",
+                "The <html> tag does not contain a language attribute.",
+                "The <html> tag does not contain a <head> tag.",
+                "The <head> tag does not contain a <title> tag.",
+                "The <title> tag does not contain any content.",
+                "The <head> tag does not contain a <meta> tag.",
+                "The <meta> tag does not have its charset attribute set to UTF-8.",
+                "The <html> tag does not contain a <body> tag."
             ]
         }
 

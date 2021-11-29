@@ -264,6 +264,10 @@ class TestSuite:
         """Check if the document contains a comment, optionally matching a value."""
         ...
 
+    def contains_css(self, css_selector: str, prop: str, value: Optional[str] = None, important: Optional[bool] = None, any_order: bool = False) -> Check:
+        """Check if the given css rule exists for the given css selector"""
+        ...
+
     def has_doctype(self) -> Check:
         """Check if the document has a DOCTYPE tag, optionally matching a value"""
         ...
