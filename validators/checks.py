@@ -192,11 +192,11 @@ class Element:
                 return True
 
             # Get direct parent
-            direct_parent = self._element.find_parents(limit=1)
+            direct_parent = self._element.find_parent()
 
             # No parents found
             # shouldn't happen, but just in case
-            if not direct_parent:
+            if direct_parent is None:
                 return False
 
             # Check if the direct parent is the same as the first parent that matched
