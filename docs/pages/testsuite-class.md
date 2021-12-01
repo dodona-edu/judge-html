@@ -330,9 +330,9 @@ suite.contains_comment()
 suite.contains_comment("Example")
 ```
 
-## `contains_css()`
+### `contains_css()`
 ```python
-    def contains_css(self, css_selector: str, prop: str, value: Optional[str] = None, important: Optional[bool] = None, any_order: bool = False) -> Check:
+def contains_css(self, css_selector: str, prop: str, value: Optional[str] = None, important: Optional[bool] = None, any_order: bool = False) -> Check
 ```
 
 #### Parameters
