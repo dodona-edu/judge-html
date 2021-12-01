@@ -1143,7 +1143,7 @@ class BoilerplateTestSuite(TestSuite):
         _meta = _head.get_child("meta", charset=True)
         _body = _html.get_child("body")
 
-        self._default_checks.insert(0, VerboseChecklistItem("The solution contains the minimal required HTML code.", translations, False,
+        self._default_checks.append(VerboseChecklistItem("The solution contains the minimal required HTML code.", translations, False,
                                                             self.has_doctype(),
                                                             _html.attribute_exists("lang"),
                                                             _head.exists(),
@@ -1155,8 +1155,8 @@ class BoilerplateTestSuite(TestSuite):
                                                             )
                                     )
 
-        self._default_translations["en"].insert(0, "The solution contains the minimal required HTML code.")
-        self._default_translations["nl"].insert(0, "De oplossing bevat de minimale vereiste HTML-code.")
+        self._default_translations["en"].append("The solution contains the minimal required HTML code.")
+        self._default_translations["nl"].append("De oplossing bevat de minimale vereiste HTML-code.")
 
     def evaluate(self, translator: Translator) -> int:
         # Add minimal HTML template check
