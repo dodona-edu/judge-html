@@ -174,6 +174,38 @@ class Element:
 
         return Check(_inner)
 
+    def has_parent(self, tag: str, direct: bool = True, **kwargs) -> Check:
+        """Check that this element has a parent with the given tag"""
+        def _inner(_: BeautifulSoup) -> bool:
+            if self._element is None:
+                return False
+
+            first_matching_parent = self._element.find_parent(name=tag, **kwargs)
+
+            # No parents matched
+            if first_matching_parent is None:
+                return False
+
+            if not direct:
+                # Not direct, any matching parent will do
+                # we already have one (found above) so we can return True here
+                return True
+
+            # Get direct parent
+            direct_parent = self._element.find_parent()
+
+            # No parents found
+            # shouldn't happen, but just in case
+            if direct_parent is None:
+                return False
+
+            # Check if the direct parent is the same as the first parent that matched
+            # Using eq should be safe here because different levels of parents should have
+            # different child elements
+            return first_matching_parent == direct_parent
+
+        return Check(_inner)
+
     @html_check
     def has_content(self, text: Optional[str] = None, case_insensitive: bool = False) -> Check:
         """Check if this element has given text as content.

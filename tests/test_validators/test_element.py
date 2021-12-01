@@ -88,6 +88,22 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(div_first.has_child("p", direct=False)))
         self.assertFalse(suite.check(div_first.has_child("img", direct=False)))
 
+    def test_has_parent(self):
+        suite = UnitTestSuite("test_1")
+        body_element = suite.element("body")
+        p_nested = suite.element("p", index=1)
+        video_element = suite.element("video")
+
+        self.assertTrue(suite.check(body_element.has_parent("html")))
+        self.assertFalse(suite.check(body_element.has_parent("html", lang="esp")))
+
+        self.assertTrue(suite.check(p_nested.has_parent("div", id="nested")))
+        self.assertFalse(suite.check(p_nested.has_parent("div", id="first_div")))
+        self.assertTrue(suite.check(p_nested.has_parent("div", id="first_div", direct=False)))
+        self.assertFalse(suite.check(p_nested.has_parent("div", id="non_existent_id")))
+        self.assertFalse(suite.check(p_nested.has_parent("div", id="non_existent_id", direct=False)))
+        self.assertFalse(suite.check(video_element.has_parent("html")))
+
     def test_has_tag(self):
         suite = UnitTestSuite("test_1")
         body_element = suite.element("body")

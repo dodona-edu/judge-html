@@ -16,6 +16,7 @@ This class is **not** meant for you to instantiate manually, but instances are r
   - [`exists()`](#exists)
   - [`has_child()`](#has_child)
   - [`has_content()`](#has_content)
+  - [`has_parent()`](#has_parent)
   - [`has_tag()`](#has_tag)
   - [`has_outgoing_url()`](#has_outgoing_url)
   - [`has_url_with_fragment()`](#has_url_with_fragment)
@@ -247,8 +248,7 @@ def has_child(tag: Optional[Union[str, Emmet]] = None, direct: bool = True, **kw
 | `tag`    | The tag to search for.                                                                    |           | `None`, which will make any child element pass.        |
 | `direct` | Boolean that indicates only *direct* children should be searched, so not nested elements. |           | `True` |
 
-Extra `kwargs` can be passed to filter the results down even more. For example, to check that an element has a child
-with a given `id` use `has_child(tag, id="some_id")`.
+Extra `kwargs` can be passed to filter the results down even more. For example, to check that an element has a child with a given `id` use `has_child(tag, id="some_id")`.
 
 #### Example usage
 
@@ -315,6 +315,42 @@ paragraphs_exist = ChecklistItem("The body has two paragraphs that meet the requ
     first_p.has_content("Hello"),
     second_p.has_content()
 ])
+```
+
+### `has_parent()`
+
+Check that the element has a parent that meets the specifications.
+
+#### Signature
+
+```python
+def has_parent(tag: str, direct: bool = True, **kwargs) -> Check
+```
+
+#### Parameters
+
+| Name | Description | Required? | Default |
+|:-----|:------------|:---------:|:--------|
+| `tag`    | The tag to search for.                                                                    |     ✔     ||
+| `direct` | Boolean that indicates only the *direct* parent should count, so not parents of parents higher up the tree. |           | `True` |
+
+Extra `kwargs` can be passed to filter the results down even more. For example, to check that an element has a parent with a given `id` and/or `class`, use `has_parent(tag, id="some_id", _class="some_class")`.
+
+#### Example usage
+
+```python
+suite = HtmlSuite(content)
+body = suite.element("body")
+li = suite.element("li")
+
+# Check that the body has a parent <html> tag
+body_in_html = ChecklistItem("The <body> is inside an <html> tag", body.has_parent("html"))
+
+# Passing extra filters through kwargs
+li_in_ul_with_id = ChecklistItem("The <li> is inside an <ul> with id 'example'", li.has_parent("ul", id="example"))
+
+# Checking for indirect parents
+li_in_div = ChecklistItem("The <li> is inside of a <div>", li.has_parent("div", direct=False))
 ```
 
 ### `has_tag()`

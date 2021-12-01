@@ -64,6 +64,10 @@ class Element:
         """Check that the element has a child that meets the specifications"""
         ...
 
+    def has_parent(self, tag: str, direct: bool = True, **kwargs) -> Check:
+        """Check that this element has a parent with the given tag"""
+        ...
+
     def has_content(self, text: Optional[str] = ..., case_insensitive: bool = False) -> Check:
         """Check that the element has specific content, or any content at all."""
         ...
