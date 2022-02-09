@@ -258,7 +258,7 @@ In a lot of cases you're going to want the students to write _something_ or to g
 > 
 > 
 > def create_suites(content: str) -> list[TestSuite]:
->     html = HtmlSuite(content)
+>    html = HtmlSuite(content)
 >
 >    body = html.element("body")
 >    table = body.get_child('table', direct=True)
