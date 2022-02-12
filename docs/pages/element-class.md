@@ -635,7 +635,7 @@ value of the styling exactly.
 #### Signature
 
 ```python
-def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None, allow_inheritance: bool = False, any_order: bool = True) -> Check
+def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None, pseudo: Optional[str] = None, allow_inheritance: bool = False, any_order: bool = True) -> Check
 ```
 
 #### Parameters
@@ -645,6 +645,7 @@ def has_styling(self, prop: str, value: Optional[str] = None, important: Optiona
 | `prop`      | The name of the CSS property to look for.                                                                 |     ✔     |                                                                                               |
 | `value`     | A value to match the property against.                                                                    |           | `None`, which will make any value pass and only checks if the element has this style property.  |
 | `important` | A boolean indicating that this element should (or may not be) marked as important using **`!important`**. |           | `None`, which won't check this.                                                                 |
+| `pseudo` | The name of the pseudoclass for which the styling is defined. |       | `None`, which won't look for pseudoclasses. |
 | `allow_inheritance` | A boolean indicating that a parent element can also have this styling and pass it down onto the child instead.  | | `False`, which will require the element itself to have this property. |
 | `any_order` | A boolean indicating that the order of the components does not matter, useful for [`shorthand properties`](https://developer.mozilla.org/en-US/docs/Web/CSS/Shorthand_properties) defined using [`double bar syntax`](https://developer.mozilla.org/en-US/docs/Web/CSS/Value_definition_syntax#double_bar). | | `False` |
 
@@ -667,6 +668,9 @@ div_tag.has_styling("margin", "3px", important=True)
 # Check that the div has a border with components width=1em, style=solid, color=blue
 # Will match every permutation, eg. "solid 1em blue", "blue solid 1em", ...
 div_tag.has_styling("border", "1em solid blue", any_order=True)
+
+# Check that, when hovered, the div is colored green
+div_tag.has_styling("color", "green", pseudo="hover")
 ```
 
 ### `has_color()`
@@ -677,7 +681,7 @@ of [`has_styling`](#has_styling) because it allows the value to be in multiple d
 #### Signature
 
 ```python
-def has_color(prop: str, color: str, important: Optional[bool] = None, allow_inheritance: bool = False) -> Check
+def has_color(prop: str, color: str, important: Optional[bool] = None, pseudo: Optional[str] = None, allow_inheritance: bool = False) -> Check
 ```
 
 #### Parameters
@@ -687,6 +691,7 @@ def has_color(prop: str, color: str, important: Optional[bool] = None, allow_inh
 | `prop`      | The name of the CSS attribute to look for.                                                                             |     ✔     |                                                                                               |
 | `value`     | A value to match the property against. This value may be in any of the accepted formats: `name`, `rgb`, `rgba`, `hex`. |     ✔     |                                                                                               |
 | `important` | A boolean indicating that this element should (or may not be) marked as important using **`!important`**.              |           | `None`, which won't check this.                                                                 |
+| `pseudo` | The name of the pseudoclass for which the styling is defined. |      | `None`, which won't look for pseudoclasses. |
 | `allow_inheritance` | A boolean indicating that a parent element can also have this styling and pass it down onto the child instead.  | | `False`, which will require the element itself to have this property. |
 
 #### Example usage
@@ -717,6 +722,7 @@ div.has_color("background-color", "blue")  # By name
 div.has_color("background-color", "rgb(0, 0, 255)")  # By rgb value
 div.has_color("background-color", "rgba(0, 0, 255, 1.0)")  # By rgba value
 div.has_color("background-color", "#0000FF")  # By hex value
+div.has_color("background-color", "#0000FF", "hover")  # By hex value, with pseudoclass hover
 
 div.has_color("background-color", "blue", allow_inheritance=True)  # Allow inheriting from the parent <body>
 ```
