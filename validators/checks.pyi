@@ -124,18 +124,18 @@ class Element:
         """Check if the element contains a comment, optionally matching a value"""
         ...
 
-    def _find_css_property(self, prop: str, inherit: bool) -> Optional[Rule]:
+    def _find_css_property(self, prop: str, inherit: bool, pseudo: Optional[str] = None) -> Optional[Rule]:
         """Find a css property recursively if necessary
         Properties by parent elements are applied onto their children, so
         an element can inherit a property from its parent
         """
         ...
 
-    def has_styling(self, prop: str, value: Optional[str] = ..., important: Optional[bool] = ..., allow_inheritance: bool = False, any_order: bool = True) -> Check:
+    def has_styling(self, prop: str, value: Optional[str] = ..., important: Optional[bool] = ..., pseudo: Optional[str] = None, allow_inheritance: bool = False, any_order: bool = True) -> Check:
         """Check that this element is matched by a CSS selector to give it a particular styling. A value can be passed to match the value of the styling exactly."""
         ...
 
-    def has_color(self, prop: str, color: str, important: Optional[bool] = None, allow_inheritance: bool = False) -> Check:
+    def has_color(self, prop: str, color: str, important: Optional[bool] = None,  pseudo: Optional[str] = None, allow_inheritance: bool = False) -> Check:
         """Check that this element has a given color on a CSS property."""
         ...
 

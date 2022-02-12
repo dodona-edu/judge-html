@@ -1,4 +1,7 @@
+import cssselect
 import tinycss2
+import tinycss2.nth
+from bs4 import BeautifulSoup
 from bs4.element import Tag
 from tinycss2.ast import *
 from lxml.html import fromstring
@@ -73,6 +76,12 @@ class Rule:
         self.selector = strip(selector)
         self.selector_str = tinycss2.serialize(self.selector)
         self.xpath = _get_xpath(self.selector_str)
+        if ":" in self.selector_str:
+            self.pseudo = self.selector_str.split(":")[1]
+            if self.xpath.endswith("[0]"):
+                self.xpath = self.xpath[:len(self.xpath) - 3]
+        else:
+            self.pseudo = None
         self.name = content.name
         self.value: [Node] = strip(content.value)
         self.important = content.important
@@ -180,6 +189,7 @@ class Rules:
                 # flatten rules -> grouped selectors are seperated and then grouped rules are seperated
                 for selector in split_on_comma(x.prelude):
                     for declaration in content:
+
                         self.rules.append(Rule(selector, declaration))
             elif x.type == ParseError.type:
                 raise CssParsingError
@@ -191,7 +201,7 @@ class Rules:
         return len(self.rules)
 
     # of doing serialize() at the end, to access the !important property
-    def find(self, root: ElementBase, solution_element: ElementBase, key: str) -> Optional[Rule]:
+    def find(self, root: ElementBase, solution_element: ElementBase, key: str, pseudo: Optional[str] = None) -> Optional[Rule]:
         """find the css rule for key (ex: color) for the solution_element,
             root is the root of the html-document (etree)"""
         rs: [Rule] = []
@@ -200,12 +210,14 @@ class Rules:
         # find all rules defined for the solution element for the specified key
         for r in reversed(self.rules):
             if r.name == key:
-                for element in root.xpath(r.xpath):
-                    if element == solution_element:
-                        if r.important:
-                            imp.append(r)
-                        else:
-                            rs.append(r)
+                if r.pseudo == pseudo:
+                    for element in root.xpath(r.xpath):
+                        if element == solution_element:
+                            if r.important:
+                                imp.append(r)
+                            else:
+                                rs.append(r)
+
         # check if there are rules containing !important
         if imp:
             rs = imp
@@ -329,7 +341,7 @@ class CssValidator:
         components.reverse()
         return '/%s' % '/'.join(components)
 
-    def find(self, element: Tag, key: str) -> Optional[Rule]:
+    def find(self, element: Tag, key: str, pseudo: Optional[str] = None) -> Optional[Rule]:
         """find the css rule for key (ex: color) for the solution_element
         the element should be a BeautifulSoup Tag"""
         # Tree couldn't be parsed so can't perform searching
@@ -340,12 +352,10 @@ class CssValidator:
         sols = self.root.xpath(xpath_solution)
         if not len(sols) == 1:
             raise AmbiguousXpath()
-        return self.rules.find(self.root, sols[0], key)
+        return self.rules.find(self.root, sols[0], key, pseudo)
 
     def find_by_css_selector(self, css_selector: str, key: str) -> Optional[Rule]:
         if self.root is None:
             return None
         return self.rules.find_by_css_selector(css_selector.replace("\n", "").replace(" ", "").lower(),
                                                key.replace(" ", "").lower())
-
-

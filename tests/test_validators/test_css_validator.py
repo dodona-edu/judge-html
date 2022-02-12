@@ -2,7 +2,7 @@ import unittest
 from bs4 import BeautifulSoup
 
 from utils.color_converter import Color
-from validators.css_validator import CssValidator
+from validators.css_validator import CssValidator, Rule, Rules
 
 html = """<!DOCTYPE html>
 <html lang="en">
@@ -131,6 +131,23 @@ class TestCssValidator(unittest.TestCase):
         </head></html>""")
         r = cssval.rules.rules[0]
         self.assertEqual(cssval.find_by_css_selector("#yellow:hover", "background-color"), r)
+
+    def test_pseudo(self):
+        x = """
+        <html><head><style>
+        div { color:red; }
+        div:hover { color:green; }
+        </style></head>
+        <body>
+        <div></div>
+        </body></html>
+        """
+        cssval = CssValidator(x)
+        bs: BeautifulSoup = BeautifulSoup(x, "html.parser")
+        tag = bs.find("div")
+
+        self.assertEqual(str(cssval.find(tag, "color").color), "red")
+        self.assertEqual(str(cssval.find(tag, "color", "hover").color), "green")
 
     def test_green_tests(self):
         test_classes = [

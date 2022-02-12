@@ -545,7 +545,7 @@ class Element:
         return Check(_inner)
 
     # CSS checks
-    def _find_css_property(self, prop: str, inherit: bool) -> Optional[Rule]:
+    def _find_css_property(self, prop: str, inherit: bool, pseudo: Optional[str] = None) -> Optional[Rule]:
         """Find a css property recursively if necessary
         Properties by parent elements are applied onto their children, so
         an element can inherit a property from its parent
@@ -554,7 +554,7 @@ class Element:
 
         # Inheritance is not allowed
         if not inherit:
-            return self._css_validator.find(self._element, prop)
+            return self._css_validator.find(self._element, prop, pseudo)
 
         current_element = self._element
         prop_value = None
@@ -562,7 +562,7 @@ class Element:
         # Keep going higher up the tree until a match is found
         while prop_value is None and current_element is not None:
             # Check if the current element has this rule & applies it onto the child
-            prop_value = self._css_validator.find(current_element, prop)
+            prop_value = self._css_validator.find(current_element, prop, pseudo)
 
             if prop_value is None:
                 parents = current_element.find_parents()
@@ -578,26 +578,27 @@ class Element:
         return prop_value
 
     @css_check
-    def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None, allow_inheritance: bool = False, any_order: bool = False) -> Check:
+    def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None, pseudo: Optional[str] = None, allow_inheritance: bool = False, any_order: bool = False) -> Check:
         """Check that this element has a CSS property
         :param prop:                the required CSS property to check
         :param value:               an optional value to add that must be checked against,
                                     in case nothing is supplied any value will pass
         :param important:           indicate that this must (or may not be) marked as important
+        :param pseudo:              the css selector pseudo class to check the property for (example "hover", or "clicked")
         :param allow_inheritance:   allow a parent element to have this property and apply it onto the child
         :param any_order:           indicate that the order of the properties doesn't matter (double bar syntax for
                                     shorthand properties)
         """
 
         def _inner(_: BeautifulSoup) -> bool:
-            prop_value = self._find_css_property(prop, allow_inheritance)
+            prop_value = self._find_css_property(prop, allow_inheritance, pseudo)
             # If the property is not found, it is None
             return False if prop_value is None else prop_value.compare_to(value, important, any_order)
 
         return Check(_inner)
 
     @css_check
-    def has_color(self, prop: str, color: str, important: Optional[bool] = None, allow_inheritance: bool = False) -> Check:
+    def has_color(self, prop: str, color: str, important: Optional[bool] = None, pseudo: Optional[str] = None, allow_inheritance: bool = False) -> Check:
         """Check that this element has a given color
         More flexible version of has_styling because it also allows RGB(r, g, b), hex format, ...
 
@@ -609,7 +610,7 @@ class Element:
 
         def _inner(_: BeautifulSoup) -> bool:
             # Find the CSS Rule
-            prop_rule = self._find_css_property(prop, allow_inheritance)
+            prop_rule = self._find_css_property(prop, allow_inheritance, pseudo)
 
             # Property not found
             if prop_rule is None:
