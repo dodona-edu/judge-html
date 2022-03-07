@@ -117,6 +117,7 @@ class HtmlValidator(HTMLParser):
     def handle_endtag(self, tag: str):
         """handles a html tag that closes, like <body/>"""
         tag = tag.lower()
+        self._valid_tag(tag)
         if self._is_void_tag(tag):
             self.error(UnexpectedClosingTagError(trans=self.translator, tag=tag, line=self.getpos()[0], pos=self.getpos()[1]))
         self._validate_corresponding_tag(tag)
