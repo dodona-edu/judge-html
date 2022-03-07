@@ -40,6 +40,10 @@ class TestHtmlValidator(unittest.TestCase):
         # incorrect tag test
         with self.assertRaises(InvalidTagError):
             self.validator.validate_content("<jibberjabber></jibberjabber>")
+        with self.assertRaises(InvalidTagError):
+            self.validator.validate_content("<body></jibberjabber>")
+        with self.assertRaises(InvalidTagError):
+            self.validator.validate_content("<jibberjabber></body>")
         # script tag is also seen as an invalid tag
         with self.assertRaises(InvalidTagError):
             self.validator.validate_content("<script>")
