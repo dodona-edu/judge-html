@@ -1176,6 +1176,9 @@ class BoilerplateTestSuite(TestSuite):
         _meta = _head.get_child("meta", charset=True)
         _body = _html.get_child("body")
 
+        if self._default_checks is None:
+            self._default_checks = []
+
         self._default_checks.append(VerboseChecklistItem("The solution contains the minimal required HTML code.", translations, False,
                                                             self.has_doctype(),
                                                             _html.attribute_exists("lang"),
