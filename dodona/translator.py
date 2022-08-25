@@ -141,7 +141,7 @@ class Translator:
             Text.TESTCASE_ABORTED: "Evaluation was aborted because this test failed. All subsequent tests were not executed.",
             Text.TESTCASE_NO_LONGER_EVALUATED: "This test was not evaluated.",
             Text.FAILED_TESTS: "{amount} test(s) failed.",
-            Text.INVALID_LANGUAGE_TRANSLATION: "Translation for language {language} has less items then the checklist ({translation} instead of {checklist}). Some items will use the default value.",
+            Text.INVALID_LANGUAGE_TRANSLATION: "Translation for language {language} has less items than the checklist ({translation} instead of {checklist}). Some items will use the default value.",
             Text.INVALID_TESTSUITE_STUDENTS: "Your submission could not be evaluated because of an error in the solution file.",
             # double char exceptions
             Text.MISSING_OPENING_CHARACTER: "Missing opening character for",
