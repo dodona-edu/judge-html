@@ -1101,6 +1101,10 @@ class TestSuite:
                     with Message(description=translator.translate(translator.Text.TESTCASE_ABORTED),
                                  format=MessageFormat.TEXT):
                         pass
+                except Exception:
+                    # If anything else fails while evaluating, tell the student instead of crashing completely
+                    with Message(description=translator.translate(translator.Text.EVALUATION_FAILED), format=MessageFormat.TEXT):
+                        pass
 
                 # If the test wasn't marked as True above, increase the counter for failed tests
                 if not test_case.accepted:
