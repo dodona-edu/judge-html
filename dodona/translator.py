@@ -47,6 +47,7 @@ class Translator:
         NO_WHITESPACE = auto()
         NO_ABS_PATHS = auto()
         MISSING_RECOMMENDED_ATTRIBUTE = auto()
+        AMBIGUOUS_XPATH = auto()
         # comparer text
         EMPTY_SUBMISSION = auto()
         TAGS_DIFFER = auto()
@@ -164,6 +165,7 @@ class Translator:
             Text.NO_WHITESPACE: "The value of {attr} may not contain whitespace.",
             Text.NO_ABS_PATHS: "The src attribute may not contain an absolute path.",
             Text.MISSING_RECOMMENDED_ATTRIBUTE: "Missing recommended attribute(s) for",
+            Text.AMBIGUOUS_XPATH: "We were unable to unambiguously locate this element. Make sure the submission is wrapped in a single root element.",
             # comparer text
             Text.EMPTY_SUBMISSION: "The submission is empty.",
             Text.TAGS_DIFFER: "Tags differ",
@@ -211,6 +213,7 @@ class Translator:
             Text.NO_WHITESPACE: "De waarde van {attr} mag geen spaties bevatten.",
             Text.NO_ABS_PATHS: "Het attribuut src mag geen absoluut pad zijn.",
             Text.MISSING_RECOMMENDED_ATTRIBUTE: "Ontbrekende aanbevolen attributen voor",
+            Text.AMBIGUOUS_XPATH: "Dit HTML-element kon niet ondubbelzinnig gevonden worden. Zorg dat er slechts één enkele omsluitende tag op het hoogste niveau van de indiening is.",
             # comparer text
             Text.EMPTY_SUBMISSION: "De indiening was leeg.",
             Text.TAGS_DIFFER: "Tags verschillen",

@@ -1,13 +1,12 @@
-import cssselect
+from typing import Optional, List, Tuple, Dict
+
 import tinycss2
 import tinycss2.nth
-from bs4 import BeautifulSoup
 from bs4.element import Tag
-from tinycss2.ast import *
-from lxml.html import fromstring
-from lxml.etree import ElementBase
 from cssselect import GenericTranslator, SelectorError
-from typing import Optional, List, Tuple, Dict
+from lxml.etree import ElementBase
+from lxml.html import fromstring
+from tinycss2.ast import *
 
 from utils.color_converter import Color
 
@@ -91,7 +90,7 @@ class Rule:
         if self.is_color():
             try:
                 self.color = Color(self.value_str)
-            except ValueError:
+            except (IndexError, ValueError):
                 raise CssParsingError()
 
     def __repr__(self):
@@ -350,8 +349,15 @@ class CssValidator:
 
         xpath_solution = self.get_xpath_soup(element)
         sols = self.root.xpath(xpath_solution)
+
+        # Found nothing
+        if not sols:
+            return None
+
+        # Found more than one match
         if not len(sols) == 1:
             raise AmbiguousXpath()
+
         return self.rules.find(self.root, sols[0], key, pseudo)
 
     def find_by_css_selector(self, css_selector: str, key: str) -> Optional[Rule]:

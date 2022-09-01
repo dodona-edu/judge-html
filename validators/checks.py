@@ -19,7 +19,7 @@ from exceptions.utils import EvaluationAborted
 from utils.flatten import flatten_queue
 from utils.regexes import doctype_re
 from utils.html_navigation import find_child, compare_content, match_emmet, find_emmet, contains_comment
-from validators.css_validator import CssValidator, CssParsingError, Rule
+from validators.css_validator import CssValidator, CssParsingError, Rule, AmbiguousXpath
 from validators.html_validator import HtmlValidator
 
 
@@ -924,6 +924,7 @@ class TestSuite:
 
         def _inner(_: BeautifulSoup) -> bool:
             try:
+                # Do basic HTML checks first
                 self._html_validator.validate_content(self.content)
             except Warnings as war:
                 with Message(description=str(war), format=MessageFormat.CODE):
@@ -1100,6 +1101,9 @@ class TestSuite:
 
                     with Message(description=translator.translate(translator.Text.TESTCASE_ABORTED),
                                  format=MessageFormat.TEXT):
+                        pass
+                except AmbiguousXpath:
+                    with Message(description=translator.translate(translator.Text.AMBIGUOUS_XPATH), format=MessageFormat.TEXT):
                         pass
                 except Exception:
                     # If anything else fails while evaluating, tell the student instead of crashing completely
