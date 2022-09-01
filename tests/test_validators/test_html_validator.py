@@ -91,11 +91,15 @@ class TestHtmlValidator(unittest.TestCase):
         self.validator.validate_content("<html><table><caption></caption><tr><td></td></tr></table></html>")
         #   partial html
         self.validator.validate_content("<tr></tr>")
+        # list
+        self.validator.validate_content("<ol><li><ul><li>Text</li></ul></li></ol>")
         # incorrect nesting
         with self.assertRaises(UnexpectedTagError):
             self.validator.validate_content("<body><html><html></body>")
         with self.assertRaises(UnexpectedTagError):
             self.validator.validate_content("<html><html></html></html>")
+        with self.assertRaises(UnexpectedTagError):
+            self.validator.validate_content("<ol><ul><ul></ol>")
 
     def test_void_tags(self):
         self.setup(False, False, False)
