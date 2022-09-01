@@ -17,11 +17,10 @@ from exceptions.double_char_exceptions import MultipleMissingCharsError, Locatab
 from exceptions.html_exceptions import Warnings, LocatableHtmlValidationError
 from exceptions.utils import EvaluationAborted
 from utils.flatten import flatten_queue
-from utils.regexes import doctype_re
 from utils.html_navigation import find_child, compare_content, match_emmet, find_emmet, contains_comment
-from validators.css_validator import CssValidator, CssParsingError, Rule, AmbiguousXpath
+from utils.regexes import doctype_re
+from validators.css_validator import CssValidator, CssParsingError, Rule, AmbiguousXpath, ElementNotFound
 from validators.html_validator import HtmlValidator
-
 
 # Custom type hints
 Emmet = TypeVar("Emmet", bound=str)
@@ -1102,7 +1101,7 @@ class TestSuite:
                     with Message(description=translator.translate(translator.Text.TESTCASE_ABORTED),
                                  format=MessageFormat.TEXT):
                         pass
-                except AmbiguousXpath:
+                except (AmbiguousXpath, ElementNotFound,):
                     with Message(description=translator.translate(translator.Text.AMBIGUOUS_XPATH), format=MessageFormat.TEXT):
                         pass
                 except Exception:
