@@ -45,3 +45,12 @@ def missing_create_suite(translator: Translator):
             format=MessageFormat.TEXT
     ):
         pass
+
+
+def no_suites_found(translator: Translator):
+    with Message(
+        permission=MessagePermission.STAFF,
+        description=translator.translate(Translator.Text.MISSING_SUITES),
+        format=MessageFormat.TEXT
+    ):
+        pass

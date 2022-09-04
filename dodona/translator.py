@@ -23,11 +23,13 @@ class Translator:
 
         MISSING_EVALUATION_FILE = auto()
         MISSING_CREATE_SUITE = auto()
+        MISSING_SUITES = auto()
         TESTCASE_ABORTED = auto()
         TESTCASE_NO_LONGER_EVALUATED = auto()
         FAILED_TESTS = auto()
         INVALID_LANGUAGE_TRANSLATION = auto()
         INVALID_TESTSUITE_STUDENTS = auto()
+        EVALUATION_FAILED = auto()
         # double char exceptions
         MISSING_OPENING_CHARACTER = auto()
         MISSING_CLOSING_CHARACTER = auto()
@@ -45,6 +47,7 @@ class Translator:
         NO_WHITESPACE = auto()
         NO_ABS_PATHS = auto()
         MISSING_RECOMMENDED_ATTRIBUTE = auto()
+        AMBIGUOUS_XPATH = auto()
         # comparer text
         EMPTY_SUBMISSION = auto()
         TAGS_DIFFER = auto()
@@ -138,11 +141,13 @@ class Translator:
         Language.EN: {
             Text.MISSING_EVALUATION_FILE: "The evaluator.py and solution.html files are missing.",
             Text.MISSING_CREATE_SUITE: "The evaluator.py file does not implement the 'create_suites(content)' method.",
+            Text.MISSING_SUITES: "The 'create_suites(content)' method in the evaluator.py-file did not return any evaluation suites.",
             Text.TESTCASE_ABORTED: "Evaluation was aborted because this test failed. All subsequent tests were not executed.",
             Text.TESTCASE_NO_LONGER_EVALUATED: "This test was not evaluated.",
             Text.FAILED_TESTS: "{amount} test(s) failed.",
             Text.INVALID_LANGUAGE_TRANSLATION: "Translation for language {language} has less items than the checklist ({translation} instead of {checklist}). Some items will use the default value.",
             Text.INVALID_TESTSUITE_STUDENTS: "Your submission could not be evaluated because of an error in the solution file.",
+            Text.EVALUATION_FAILED: "This check could not be executed successfully. Make sure that the HTML in your submission is valid.",
             # double char exceptions
             Text.MISSING_OPENING_CHARACTER: "Missing opening character for",
             Text.MISSING_CLOSING_CHARACTER: "Missing closing character for",
@@ -160,6 +165,7 @@ class Translator:
             Text.NO_WHITESPACE: "The value of {attr} may not contain whitespace.",
             Text.NO_ABS_PATHS: "The src attribute may not contain an absolute path.",
             Text.MISSING_RECOMMENDED_ATTRIBUTE: "Missing recommended attribute(s) for",
+            Text.AMBIGUOUS_XPATH: "We were unable to unambiguously locate this element. Make sure the submission is wrapped in a single root element.",
             # comparer text
             Text.EMPTY_SUBMISSION: "The submission is empty.",
             Text.TAGS_DIFFER: "Tags differ",
@@ -182,12 +188,14 @@ class Translator:
         },
         Language.NL: {
             Text.MISSING_EVALUATION_FILE: "De evaluator.py en solution.html bestanden ontbreken.",
-            Text.MISSING_CREATE_SUITE: "Het evaluator.py-bestand bevat de 'create_suites(content)' methode niet.",
+            Text.MISSING_CREATE_SUITE: "Het evaluator.py-bestand bevat de 'create_suites(content)'-methode niet.",
+            Text.MISSING_SUITES: "De 'create_suites(content)'-methode in het evaluator.py-bestand returnde geen test suites.",
             Text.TESTCASE_ABORTED: "Het evalueren is onderbroken omdat deze test faalde. De hierop volgende tests werden niet uitgevoerd.",
             Text.TESTCASE_NO_LONGER_EVALUATED: "Deze test werd niet uitgevoerd.",
             Text.FAILED_TESTS: "{amount} test(en) gefaald.",
             Text.INVALID_LANGUAGE_TRANSLATION: "De vertaling voor {language} bevat minder elementen dan de checklist ({translation} in plaats van {checklist}). De default waarde zal worden gebruikt voor sommige items.",
             Text.INVALID_TESTSUITE_STUDENTS: "Jouw indiening kon niet geëvalueerd worden door een fout in het oplossingsbestand.",
+            Text.EVALUATION_FAILED: "Deze test kon niet uitgevoerd worden. Controleer dat de HTML in de indiening geldig is.",
             # double char exceptions
             Text.MISSING_OPENING_CHARACTER: "Ontbrekend openend karakter voor",
             Text.MISSING_CLOSING_CHARACTER: "Ontbrekend sluitend karakter voor",
@@ -205,6 +213,7 @@ class Translator:
             Text.NO_WHITESPACE: "De waarde van {attr} mag geen spaties bevatten.",
             Text.NO_ABS_PATHS: "Het attribuut src mag geen absoluut pad zijn.",
             Text.MISSING_RECOMMENDED_ATTRIBUTE: "Ontbrekende aanbevolen attributen voor",
+            Text.AMBIGUOUS_XPATH: "Dit HTML-element kon niet ondubbelzinnig gevonden worden. Zorg dat er slechts één enkele omsluitende tag op het hoogste niveau van de indiening is.",
             # comparer text
             Text.EMPTY_SUBMISSION: "De indiening was leeg.",
             Text.TAGS_DIFFER: "Tags verschillen",

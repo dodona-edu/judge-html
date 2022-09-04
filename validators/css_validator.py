@@ -1,13 +1,12 @@
-import cssselect
+from typing import Optional, List, Tuple, Dict
+
 import tinycss2
 import tinycss2.nth
-from bs4 import BeautifulSoup
 from bs4.element import Tag
-from tinycss2.ast import *
-from lxml.html import fromstring
-from lxml.etree import ElementBase
 from cssselect import GenericTranslator, SelectorError
-from typing import Optional, List, Tuple, Dict
+from lxml.etree import ElementBase
+from lxml.html import fromstring
+from tinycss2.ast import *
 
 from utils.color_converter import Color
 
@@ -91,7 +90,7 @@ class Rule:
         if self.is_color():
             try:
                 self.color = Color(self.value_str)
-            except ValueError:
+            except (IndexError, ValueError):
                 raise CssParsingError()
 
     def __repr__(self):
@@ -270,7 +269,7 @@ class Rules:
         return dom_css
 
     def find_by_css_selector(self, css_selector: str, key: str) -> Optional[Rule]:
-        dom_rule: Rule = None
+        dom_rule: Optional[Rule] = None
         rule: Rule
         for rule in self.rules:
             if rule.selector_str == css_selector and rule.name == key:
@@ -283,7 +282,10 @@ class Rules:
 
 class AmbiguousXpath(Exception):
     """Thrown when an xpath can select multiple elements when it should only select one element"""
-    pass
+
+
+class ElementNotFound(Exception):
+    """Thrown when an xpath expects to find something, but it wasn't able to"""
 
 
 class CssValidator:
@@ -297,7 +299,7 @@ class CssValidator:
     """
 
     def __init__(self, html: str):
-        # Invalid HTML makes fromstring() crash so it can be None
+        # Invalid HTML makes fromstring() crash, so it can be None
         self.root: Optional[ElementBase] = None
         try:
             self.root = fromstring(html)
@@ -349,9 +351,20 @@ class CssValidator:
             return None
 
         xpath_solution = self.get_xpath_soup(element)
-        sols = self.root.xpath(xpath_solution)
+
+        # LXML adds a root HTML tag if there is none present, which results in
+        # root.xpath(path) failing because our parsed solution technically doesn't exist
+        # If nothing was found, try again with "/html" as a prefix
+        sols = self.root.xpath(xpath_solution) or self.root.xpath("/html" + xpath_solution)
+
+        # Found nothing
+        if not sols:
+            raise ElementNotFound()
+
+        # Found more than one match
         if not len(sols) == 1:
             raise AmbiguousXpath()
+
         return self.rules.find(self.root, sols[0], key, pseudo)
 
     def find_by_css_selector(self, css_selector: str, key: str) -> Optional[Rule]:

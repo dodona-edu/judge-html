@@ -17,11 +17,10 @@ from exceptions.double_char_exceptions import MultipleMissingCharsError, Locatab
 from exceptions.html_exceptions import Warnings, LocatableHtmlValidationError
 from exceptions.utils import EvaluationAborted
 from utils.flatten import flatten_queue
-from utils.regexes import doctype_re
 from utils.html_navigation import find_child, compare_content, match_emmet, find_emmet, contains_comment
-from validators.css_validator import CssValidator, CssParsingError, Rule
+from utils.regexes import doctype_re
+from validators.css_validator import CssValidator, CssParsingError, Rule, AmbiguousXpath, ElementNotFound
 from validators.html_validator import HtmlValidator
-
 
 # Custom type hints
 Emmet = TypeVar("Emmet", bound=str)
@@ -924,6 +923,7 @@ class TestSuite:
 
         def _inner(_: BeautifulSoup) -> bool:
             try:
+                # Do basic HTML checks first
                 self._html_validator.validate_content(self.content)
             except Warnings as war:
                 with Message(description=str(war), format=MessageFormat.CODE):
@@ -1101,6 +1101,13 @@ class TestSuite:
                     with Message(description=translator.translate(translator.Text.TESTCASE_ABORTED),
                                  format=MessageFormat.TEXT):
                         pass
+                except (AmbiguousXpath, ElementNotFound,):
+                    with Message(description=translator.translate(translator.Text.AMBIGUOUS_XPATH), format=MessageFormat.TEXT):
+                        pass
+                except Exception:
+                    # If anything else fails while evaluating, tell the student instead of crashing completely
+                    with Message(description=translator.translate(translator.Text.EVALUATION_FAILED), format=MessageFormat.TEXT):
+                        pass
 
                 # If the test wasn't marked as True above, increase the counter for failed tests
                 if not test_case.accepted:
@@ -1175,6 +1182,9 @@ class BoilerplateTestSuite(TestSuite):
         _title = _head.get_child("title")
         _meta = _head.get_child("meta", charset=True)
         _body = _html.get_child("body")
+
+        if self._default_checks is None:
+            self._default_checks = []
 
         self._default_checks.append(VerboseChecklistItem("The solution contains the minimal required HTML code.", translations, False,
                                                             self.has_doctype(),

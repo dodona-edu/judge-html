@@ -15,6 +15,7 @@ base_path = path.dirname(__file__)
 # keynames for the json
 REQUIRED_ATR_KEY = "required_attributes"
 RECOMMENDED_ATR_KEY = "recommended_attributes"
+PERMITTED_CHILDREN_KEY = "permitted_children"
 PERMITTED_PARENTS_KEY = "permitted_parents"
 VOID_KEY = "void_tag"
 
@@ -216,3 +217,18 @@ class HtmlValidator(HTMLParser):
             elif prev_tag is not None and prev_tag not in tag_info[PERMITTED_PARENTS_KEY]:
                 self.error(UnexpectedTagError(trans=self.translator, tag=tag, line=self.getpos()[0], pos=self.getpos()[1]))
 
+        # Check if this tag is allowed to be inside its parent
+        parent = self.tag_stack[-1] if self.tag_stack else None
+
+        # No parent tag
+        if parent is None:
+            return
+
+        parent_info = self.valid_dict[parent]
+
+        # Parent tag isn't special
+        if PERMITTED_CHILDREN_KEY not in parent_info:
+            return
+
+        if tag not in parent_info[PERMITTED_CHILDREN_KEY]:
+            self.error(UnexpectedTagError(trans=self.translator, tag=tag, line=self.getpos()[0], pos=self.getpos()[1]))

@@ -65,6 +65,10 @@ class AmbiguousXpath(Exception):
     pass
 
 
+class ElementNotFound(Exception):
+    pass
+
+
 class CssValidator:
     root: Optional[ElementBase]
     rules: Rules

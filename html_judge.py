@@ -11,7 +11,7 @@ from utils.file_loaders import html_loader
 from validators import checks
 from validators.checks import TestSuite
 from utils.render_ready import prep_render
-from utils.messages import invalid_suites, invalid_evaluator_file, missing_create_suite, missing_evaluator_file
+from utils.messages import invalid_suites, invalid_evaluator_file, missing_create_suite, missing_evaluator_file, no_suites_found
 
 
 def main():
@@ -62,6 +62,12 @@ def main():
         except Exception as e:
             # Something else went wrong
             invalid_evaluator_file(e)
+            invalid_suites(judge, config)
+            return
+
+        # No suites found, either no return or an empty list
+        if test_suites is None or not test_suites:
+            no_suites_found(config.translator)
             invalid_suites(judge, config)
             return
 
