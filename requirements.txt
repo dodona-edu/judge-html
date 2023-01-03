@@ -2,7 +2,7 @@
 beautifulsoup4==4.10.0
 
 coverage==7.0.2
-cssselect==1.1.0
+cssselect==1.2.0
 lxml==4.8.0
 tinycss2==1.1.1
 py-emmet==1.1.10
