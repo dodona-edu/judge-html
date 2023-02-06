@@ -1,5 +1,5 @@
 # BeautifulSoup: HTML parsing & interpreting library
-beautifulsoup4==4.10.0
+beautifulsoup4==4.11.2
 
 coverage==7.0.2
 cssselect==1.1.0
