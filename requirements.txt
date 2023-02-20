@@ -5,6 +5,6 @@ coverage==7.1.0
 cssselect==1.2.0
 lxml==4.9.2
 tinycss2==1.2.1
-py-emmet==1.1.10
+py-emmet==1.2.0
 colour==0.1.5
 html-similarity==0.3.3
