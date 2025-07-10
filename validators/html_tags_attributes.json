@@ -268,7 +268,11 @@
     },
     "output": {},
     "progress": {},
-    "select": {},
+    "select": {
+        "recommended_attributes": [
+            "name"
+        ]
+    },
     "textarea": {},
     "details": {},
     "dialog": {},
