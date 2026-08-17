@@ -56,6 +56,7 @@ def strip(ls: List) -> List:
 
 class CssParsingError(Exception):
     """Thrown when the css is not in a correct format"""
+
     pass
 
 
@@ -78,7 +79,7 @@ class Rule:
         if ":" in self.selector_str:
             self.pseudo = self.selector_str.split(":")[1]
             if self.xpath.endswith("[0]"):
-                self.xpath = self.xpath[:len(self.xpath) - 3]
+                self.xpath = self.xpath[: len(self.xpath) - 3]
         else:
             self.pseudo = None
         self.name = content.name
@@ -114,7 +115,7 @@ class Rule:
 
     def compare_to(self, value: Optional[str] = None, important: Optional[bool] = None, any_order: bool = False):
         """Compares this Rule to a given value string and or important specifier,
-            any_order can be used when value string may contain multiple values"""
+        any_order can be used when value string may contain multiple values"""
         # !important modifier is incorrect
         if important is not None and self.important != important:
             return False
@@ -161,6 +162,7 @@ def calc_specificity(selector_str: str) -> Tuple[int, int, int]:  # see https://
 
 class Rules:
     """represents a set of css rules"""
+
     root: ElementBase
 
     def __init__(self, css_content: str):
@@ -178,7 +180,7 @@ class Rules:
                     start = index + 1  # +1 because we skip the comma
                 index += 1
             if start < len(prelude):
-                ps.append(strip(prelude[start: len(prelude)]))
+                ps.append(strip(prelude[start : len(prelude)]))
             return [y for y in ps if y]  # remove empty sublist(s) and return
 
         """convert a 'rule' made by tinycss2 to the Rule class I made"""
@@ -188,7 +190,6 @@ class Rules:
                 # flatten rules -> grouped selectors are seperated and then grouped rules are seperated
                 for selector in split_on_comma(x.prelude):
                     for declaration in content:
-
                         self.rules.append(Rule(selector, declaration))
             elif x.type == ParseError.type:
                 raise CssParsingError
@@ -200,9 +201,11 @@ class Rules:
         return len(self.rules)
 
     # of doing serialize() at the end, to access the !important property
-    def find(self, root: ElementBase, solution_element: ElementBase, key: str, pseudo: Optional[str] = None) -> Optional[Rule]:
+    def find(
+        self, root: ElementBase, solution_element: ElementBase, key: str, pseudo: Optional[str] = None
+    ) -> Optional[Rule]:
         """find the css rule for key (ex: color) for the solution_element,
-            root is the root of the html-document (etree)"""
+        root is the root of the html-document (etree)"""
         rs: [Rule] = []
         imp: [Rule] = []
         r: Rule
@@ -237,7 +240,7 @@ class Rules:
 
     def find_all(self, root: ElementBase, solution_element: ElementBase) -> Dict[str, Rule]:
         """find all the css rule for the solution_element,
-            root is the root of the html-document (etree)"""
+        root is the root of the html-document (etree)"""
         dom_css = {}
         by_keyword: {str: ([Rule], [Rule])} = {}
         r: Rule
@@ -290,12 +293,12 @@ class ElementNotFound(Exception):
 
 class CssValidator:
     """interface for using the classes / functions defined above
-    USAGE (html_content is a string containing the html itself):
-    >> validator = CssValidator(html_content)
-    >> import bs4
-    >> element = BeautifulSoup(html_content, "html.parser").find("div", attrs={"id":"div_you_want_to_query_on"})
-    >> validator.find(element, "color")  # will return None if no rules for "color" are defined for that element
-"green"
+        USAGE (html_content is a string containing the html itself):
+        >> validator = CssValidator(html_content)
+        >> import bs4
+        >> element = BeautifulSoup(html_content, "html.parser").find("div", attrs={"id":"div_you_want_to_query_on"})
+        >> validator.find(element, "color")  # will return None if no rules for "color" are defined for that element
+    "green"
     """
 
     def __init__(self, html: str):
@@ -334,14 +337,13 @@ class CssValidator:
         for parent in child.parents:
             siblings = parent.find_all(child.name, recursive=False)
             components.append(
-                child.name if 1 == len(siblings) else '%s[%d]' % (
-                    child.name,
-                    next(i for i, s in enumerate(siblings, 1) if s is child)
-                )
+                child.name
+                if 1 == len(siblings)
+                else "%s[%d]" % (child.name, next(i for i, s in enumerate(siblings, 1) if s is child))
             )
             child = parent
         components.reverse()
-        return '/%s' % '/'.join(components)
+        return "/%s" % "/".join(components)
 
     def find(self, element: Tag, key: str, pseudo: Optional[str] = None) -> Optional[Rule]:
         """find the css rule for key (ex: color) for the solution_element
@@ -370,5 +372,6 @@ class CssValidator:
     def find_by_css_selector(self, css_selector: str, key: str) -> Optional[Rule]:
         if self.root is None:
             return None
-        return self.rules.find_by_css_selector(css_selector.replace("\n", "").replace(" ", "").lower(),
-                                               key.replace(" ", "").lower())
+        return self.rules.find_by_css_selector(
+            css_selector.replace("\n", "").replace(" ", "").lower(), key.replace(" ", "").lower()
+        )

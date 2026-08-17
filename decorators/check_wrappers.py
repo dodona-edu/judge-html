@@ -14,6 +14,7 @@ def fail():
 
 def html_check(func):
     """Decorator that checks if an HTML element is not None"""
+
     def wrapper(*args, **kwargs):
         if args[0]._element is None:
             return fail()
@@ -25,6 +26,7 @@ def html_check(func):
 
 def css_check(func):
     """Decorator that checks if an element's HTML tag and CSS validator are not None"""
+
     def wrapper(*args, **kwargs):
         if args[0]._element is None or args[0]._css_validator is None:
             return fail()

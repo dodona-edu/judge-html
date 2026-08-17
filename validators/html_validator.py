@@ -53,11 +53,11 @@ class HtmlValidator(HTMLParser):
 
     def __init__(self, translator: Translator, **kwargs):
         """
-        kwargs:
-        * required: whether or not to check required arguments
-        * recommended: whether or not to check recommended arguments
-        * nesting: whether or not to check the nesting of tags
-µ        """
+                kwargs:
+                * required: whether or not to check required arguments
+                * recommended: whether or not to check recommended arguments
+                * nesting: whether or not to check the nesting of tags
+        µ"""
         super().__init__()
         self.lineno = 0  # override the default starting at 1 instead of 0
         self.translator = translator
@@ -85,7 +85,7 @@ class HtmlValidator(HTMLParser):
 
     def warning(self, warning: MissingRecommendedAttributesWarning):
         """gathers the warnings,
-            these will be thrown at the end if no Errors occur
+        these will be thrown at the end if no Errors occur
         """
         self.warnings.add(warning)
 
@@ -109,7 +109,9 @@ class HtmlValidator(HTMLParser):
         self.feed(text)
         # clear tag stack
         if self.tag_stack:
-            raise MissingClosingTagError(trans=self.translator, tag=self.tag_stack.pop(), line=self.getpos()[0], pos=self.getpos()[1])
+            raise MissingClosingTagError(
+                trans=self.translator, tag=self.tag_stack.pop(), line=self.getpos()[0], pos=self.getpos()[1]
+            )
         # show warnings if any
         if self.warnings:
             raise self.warnings
@@ -120,7 +122,7 @@ class HtmlValidator(HTMLParser):
 
     def handle_starttag(self, tag: str, attributes: [(str, str)]):
         """handles a html tag that opens, like <body>
-            attributes hold the (name, value) of the attributes supplied in the tag"""
+        attributes hold the (name, value) of the attributes supplied in the tag"""
         tag = tag.lower()
         self._valid_tag(tag)
         if self.check_nesting:
@@ -134,7 +136,9 @@ class HtmlValidator(HTMLParser):
         tag = tag.lower()
         self._valid_tag(tag)
         if self._is_void_tag(tag):
-            self.error(UnexpectedClosingTagError(trans=self.translator, tag=tag, line=self.getpos()[0], pos=self.getpos()[1]))
+            self.error(
+                UnexpectedClosingTagError(trans=self.translator, tag=tag, line=self.getpos()[0], pos=self.getpos()[1])
+            )
         self._validate_corresponding_tag(tag)
         self.tag_stack.pop()
 
@@ -142,7 +146,9 @@ class HtmlValidator(HTMLParser):
         """handles a html tag that opens and instantly closes, like <meta/>"""
         tag = tag.lower()
         if not self._is_void_tag(tag):
-            self.error(NoSelfClosingTagError(trans=self.translator, tag=tag, line=self.getpos()[0], pos=self.getpos()[1]))
+            self.error(
+                NoSelfClosingTagError(trans=self.translator, tag=tag, line=self.getpos()[0], pos=self.getpos()[1])
+            )
         else:
             self.handle_starttag(tag, attrs)
 
@@ -151,9 +157,15 @@ class HtmlValidator(HTMLParser):
         if not (self.tag_stack and self.tag_stack[-1] == tag):
             if self.tag_stack:
                 missing_closing = self.tag_stack.pop()
-                self.error(MissingClosingTagError(trans=self.translator, tag=missing_closing, line=self.getpos()[0], pos=self.getpos()[1]))
+                self.error(
+                    MissingClosingTagError(
+                        trans=self.translator, tag=missing_closing, line=self.getpos()[0], pos=self.getpos()[1]
+                    )
+                )
             elif not self._is_void_tag(tag):
-                self.error(MissingOpeningTagError(trans=self.translator, tag=tag, line=self.getpos()[0], pos=self.getpos()[1]))
+                self.error(
+                    MissingOpeningTagError(trans=self.translator, tag=tag, line=self.getpos()[0], pos=self.getpos()[1])
+                )
 
     @lru_cache()
     def _is_void_tag(self, tag: str) -> bool:
@@ -168,25 +180,42 @@ class HtmlValidator(HTMLParser):
 
     def _valid_attributes(self, tag: str, attributes: Dict[str, str]):
         """validate attributes
-            check whether all required attributes are there, if not, raise an error
-            check whether all recommended attributes are there, if not, add a warning
+        check whether all required attributes are there, if not, raise an error
+        check whether all recommended attributes are there, if not, add a warning
         """
         # no inline css allowed
         if "style" in attributes:
-            self.error(InvalidAttributeError(trans=self.translator, tag=tag, attribute="style", line=self.getpos()[0], pos=self.getpos()[1]))
+            self.error(
+                InvalidAttributeError(
+                    trans=self.translator, tag=tag, attribute="style", line=self.getpos()[0], pos=self.getpos()[1]
+                )
+            )
 
         # id's may not contain spaces
         if "id" in attributes and any(whitespace in attributes["id"] for whitespace in [" ", "\t", "\n"]):
             self.error(
-                AttributeValueError(trans=self.translator, msg=self.translator.translate(Translator.Text.NO_WHITESPACE, attr='id'),
-                                    line=self.getpos()[0], pos=self.getpos()[1]))
+                AttributeValueError(
+                    trans=self.translator,
+                    msg=self.translator.translate(Translator.Text.NO_WHITESPACE, attr="id"),
+                    line=self.getpos()[0],
+                    pos=self.getpos()[1],
+                )
+            )
 
         # Unique id's
-        if 'id' in attributes:
-            if attributes['id'] in self._id_set:
-                self.error(DuplicateIdError(trans=self.translator, tag=tag, attribute=attributes['id'], line=self.getpos()[0], pos=self.getpos()[1]))
+        if "id" in attributes:
+            if attributes["id"] in self._id_set:
+                self.error(
+                    DuplicateIdError(
+                        trans=self.translator,
+                        tag=tag,
+                        attribute=attributes["id"],
+                        line=self.getpos()[0],
+                        pos=self.getpos()[1],
+                    )
+                )
             else:
-                self._id_set.add(attributes['id'])
+                self._id_set.add(attributes["id"])
 
         # id's and classnames must be at least one character
         for attr in ["id", "class"]:
@@ -194,30 +223,58 @@ class HtmlValidator(HTMLParser):
                 attr_val = attributes[attr]
                 if not attr_val:
                     self.error(
-                        AttributeValueError(trans=self.translator, msg=self.translator.translate(Translator.Text.AT_LEAST_ONE_CHAR, attr=attr), line=self.getpos()[0], pos=self.getpos()[1]))
+                        AttributeValueError(
+                            trans=self.translator,
+                            msg=self.translator.translate(Translator.Text.AT_LEAST_ONE_CHAR, attr=attr),
+                            line=self.getpos()[0],
+                            pos=self.getpos()[1],
+                        )
+                    )
 
         # check src attribute for absolute filepaths
-        if 'src' in attributes:
-            link = attributes['src']
+        if "src" in attributes:
+            link = attributes["src"]
             if _is_absolute_path(link):
-                self.error(AttributeValueError(trans=self.translator, msg=self.translator.translate(Translator.Text.NO_ABS_PATHS),
-                                    line=self.getpos()[0], pos=self.getpos()[1]))
+                self.error(
+                    AttributeValueError(
+                        trans=self.translator,
+                        msg=self.translator.translate(Translator.Text.NO_ABS_PATHS),
+                        line=self.getpos()[0],
+                        pos=self.getpos()[1],
+                    )
+                )
 
         tag_info = self.valid_dict[tag]
 
         if self.check_required:
             required = set(tag_info[REQUIRED_ATR_KEY]) if REQUIRED_ATR_KEY in tag_info else set()
             if missing_req := (required - attributes.keys()):
-                self.error(MissingRequiredAttributesError(trans=self.translator, tag=tag, attribute=", ".join(missing_req), line=self.getpos()[0], pos=self.getpos()[1]))
+                self.error(
+                    MissingRequiredAttributesError(
+                        trans=self.translator,
+                        tag=tag,
+                        attribute=", ".join(missing_req),
+                        line=self.getpos()[0],
+                        pos=self.getpos()[1],
+                    )
+                )
 
         if self.check_recommended:
             recommended = set(tag_info[RECOMMENDED_ATR_KEY]) if RECOMMENDED_ATR_KEY in tag_info else set()
             if missing_rec := (recommended - attributes.keys()):
-                self.warning(MissingRecommendedAttributesWarning(trans=self.translator, tag=tag, attribute=", ".join(missing_rec), line=self.getpos()[0], pos=self.getpos()[1]))
+                self.warning(
+                    MissingRecommendedAttributesWarning(
+                        trans=self.translator,
+                        tag=tag,
+                        attribute=", ".join(missing_rec),
+                        line=self.getpos()[0],
+                        pos=self.getpos()[1],
+                    )
+                )
 
     def _valid_nesting(self, tag):
         """check whether the nesting is html-approved,
-            some tags can only have specific parent tags
+        some tags can only have specific parent tags
         """
         tag_info = self.valid_dict[tag]
         if PERMITTED_PARENTS_KEY in tag_info:
@@ -227,9 +284,13 @@ class HtmlValidator(HTMLParser):
             #   if you want a tag without a parent you need to add "permitted_parent: []" in the json for that tag
             if not tag_info[PERMITTED_PARENTS_KEY]:
                 if prev_tag is not None:
-                    self.error(UnexpectedTagError(trans=self.translator, tag=tag, line=self.getpos()[0], pos=self.getpos()[1]))
+                    self.error(
+                        UnexpectedTagError(trans=self.translator, tag=tag, line=self.getpos()[0], pos=self.getpos()[1])
+                    )
             elif prev_tag is not None and prev_tag not in tag_info[PERMITTED_PARENTS_KEY]:
-                self.error(UnexpectedTagError(trans=self.translator, tag=tag, line=self.getpos()[0], pos=self.getpos()[1]))
+                self.error(
+                    UnexpectedTagError(trans=self.translator, tag=tag, line=self.getpos()[0], pos=self.getpos()[1])
+                )
 
         # Check if this tag is allowed to be inside its parent
         parent = self.tag_stack[-1] if self.tag_stack else None

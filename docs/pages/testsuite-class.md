@@ -34,6 +34,7 @@ A `TestSuite` contains a checklist of all checks that should be performed on the
 ```python
 from validators.checks import TestSuite
 
+
 def create_suites(content: str):
     html_suite = TestSuite("HTML", content)
     css_suite = TestSuite("CSS", content)
@@ -228,9 +229,7 @@ suite.make_item_from_emmet("Item 4", "body>div#mydiv")
 # Just like make_item, this can take multiple arguments that will be grouped under one ChecklistItem
 suite.make_item_from_emmet("Item 5", "body>div#mydiv", "body>table>tr*4", "body>.classname", ...)
 
-suite.make_item("All images have height equal to 300 pixels",
-               (img.has_styling("height", "300px") for img in imgs))
-
+suite.make_item("All images have height equal to 300 pixels", (img.has_styling("height", "300px") for img in imgs))
 ```
 
 ## `suite.translations` : Adding multiple languages
@@ -244,18 +243,17 @@ Accepted languages are currently `nl` and `en`.
 ```python
 from validators.checks import TestSuite, ChecklistItem
 
+
 def create_suites(content: str):
     html_suite = TestSuite("HTML", content)
 
     # Check that the HTML is valid, the default message is in English here
     valid_check = ChecklistItem("The HTML is valid.", html_suite.validate_html())
     html_suite.add_item(valid_check)
-    
+
     # Add Dutch translation
-    html_suite.translations["nl"] = [
-      "De HTML is geldig."
-    ]
-    
+    html_suite.translations["nl"] = ["De HTML is geldig."]
+
     return [html_suite]
 ```
 

@@ -67,7 +67,7 @@ body = suite.element("body")
 img_element = body.get_child("img", index=1, direct=False, height="500")
 
 # Examples with a kwarg
-p_element = body.get_child("p", id="myHeader")  
+p_element = body.get_child("p", id="myHeader")
 img_element_with_alt = body.get_child("img", alt="This is a cat.")
 ```
 
@@ -136,9 +136,12 @@ body = suite.element("body")
 img_element = body.get_child("img")
 
 # Check if the src of the image contains "dodona".
-img_attributes = ChecklistItem("The image's src contains \"dodona\".", [
-    img_element.attribute_contains("src", "dodona"),
-])
+img_attributes = ChecklistItem(
+    'The image\'s src contains "dodona".',
+    [
+        img_element.attribute_contains("src", "dodona"),
+    ],
+)
 ```
 
 ### `attribute_exists()`
@@ -167,11 +170,14 @@ body = suite.element("body")
 img_element = body.get_child("img")
 
 # Check if the image has the src and alt attributes, and a width of 500.
-img_attributes = ChecklistItem("The image has the correct attributes.", [
-    img_element.attribute_exists("src"),
-    img_element.attribute_exists("alt"),
-    img_element.attribute_exists("width", "500")
-])
+img_attributes = ChecklistItem(
+    "The image has the correct attributes.",
+    [
+        img_element.attribute_exists("src"),
+        img_element.attribute_exists("alt"),
+        img_element.attribute_exists("width", "500"),
+    ],
+)
 ```
 
 ### `attribute_matches()`
@@ -203,9 +209,12 @@ img_element = body.get_child("img")
 
 # Check if the src of the image starts with "https://", contains "dodona", and ends on ".png", case-insensitive.
 pattern = r"^https://.*dodona.*\.png$"
-img_attributes = ChecklistItem("The image has the correct attributes.", [
-    img_element.attribute_matches("src", pattern, re.IGNORECASE),
-])
+img_attributes = ChecklistItem(
+    "The image has the correct attributes.",
+    [
+        img_element.attribute_matches("src", pattern, re.IGNORECASE),
+    ],
+)
 ```
 
 ### `exists()`
@@ -276,7 +285,7 @@ behind this is that HTML does the same, so these spaces shouldn't matter.
 This means that
 
 ```python
-x = "this text" 
+x = "this text"
 ```
 
 and
@@ -311,10 +320,9 @@ first_p = body.get_child("p", index=0)
 second_p = body.get_child("p", index=1)
 
 # Check that the first <p> has the text "Hello" and the second has anything inside of it
-paragraphs_exist = ChecklistItem("The body has two paragraphs that meet the requirements", [
-    first_p.has_content("Hello"),
-    second_p.has_content()
-])
+paragraphs_exist = ChecklistItem(
+    "The body has two paragraphs that meet the requirements", [first_p.has_content("Hello"), second_p.has_content()]
+)
 ```
 
 ### `has_parent()`
@@ -378,10 +386,9 @@ body_children = body.get_children()
 
 # Verify that the first child of the body is a <table>
 # and the second a <div>
-body_structure = ChecklistItem("The body has a table followed by a div.", [
-    body_children[0].has_tag("table"),
-    body_children[1].has_tag("div")
-])
+body_structure = ChecklistItem(
+    "The body has a table followed by a div.", [body_children[0].has_tag("table"), body_children[1].has_tag("div")]
+)
 ```
 
 ### `has_outgoing_url()`
@@ -537,10 +544,7 @@ def has_table_content(rows: List[List[str]], has_header: bool = True, case_insen
 suite = HtmlSuite(content)
 table_element = suite.element("table")
 
-rows = [
-    ["Row 1 Col 1", "Row 1 Col 2"],
-    ["Row 2 Col 1", "Row 2 Col 2"]
-]
+rows = [["Row 1 Col 1", "Row 1 Col 2"], ["Row 2 Col 1", "Row 2 Col 2"]]
 table_element.has_table_content(rows, has_header=True)
 ```
 

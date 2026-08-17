@@ -1,4 +1,5 @@
 """Basic checking library to create evaluation tests for exercises"""
+
 import re
 from collections import deque
 from copy import copy
@@ -40,6 +41,7 @@ class Check:
                     to the user, because an element that doesn't exist never has
                     the correct specifications.
     """
+
     callback: Callable[[BeautifulSoup], bool]
     on_success: List["Check"] = field(default_factory=list)
     abort_on_fail: bool = False
@@ -97,6 +99,7 @@ class Element:
         _element    The inner HTML element that was matched in the document,
                     can be None if nothing was found.
     """
+
     tag: str
     id: Optional[str] = None
     _element: Optional[Tag] = None
@@ -109,7 +112,9 @@ class Element:
         return f"<{self.tag}>"
 
     # HTML utilities
-    def get_child(self, tag: Optional[Union[str, Emmet]] = None, index: int = 0, direct: bool = True, **kwargs) -> "Element":
+    def get_child(
+        self, tag: Optional[Union[str, Emmet]] = None, index: int = 0, direct: bool = True, **kwargs
+    ) -> "Element":
         """Find the child element that matches the specifications
 
         :param tag:     the tag to search for
@@ -124,7 +129,9 @@ class Element:
 
         return Element(child.name, child.get("id", None), child, self._css_validator)
 
-    def get_children(self, tag: Optional[Union[str, Emmet]] = None, direct: bool = True, **kwargs) -> "ElementContainer":
+    def get_children(
+        self, tag: Optional[Union[str, Emmet]] = None, direct: bool = True, **kwargs
+    ) -> "ElementContainer":
         """Get all children of this element that match the requested input"""
         # This element doesn't exist so it has no children
         if self._element is None:
@@ -167,6 +174,7 @@ class Element:
         :param direct:  indicate that only direct children should be considered,
                         not children of children
         """
+
         def _inner(_: BeautifulSoup) -> bool:
             child = find_child(self._element, tag=tag, from_root=direct, **kwargs)
             return child is not None
@@ -175,6 +183,7 @@ class Element:
 
     def has_parent(self, tag: str, direct: bool = True, **kwargs) -> Check:
         """Check that this element has a parent with the given tag"""
+
         def _inner(_: BeautifulSoup) -> bool:
             if self._element is None:
                 return False
@@ -270,9 +279,14 @@ class Element:
 
         return attribute
 
-    def _compare_attribute_list(self, attribute: List[str], value: Optional[str] = None,
-                                case_insensitive: bool = False,
-                                mode: int = 0, flags: Union[int, re.RegexFlag] = 0) -> bool:
+    def _compare_attribute_list(
+        self,
+        attribute: List[str],
+        value: Optional[str] = None,
+        case_insensitive: bool = False,
+        mode: int = 0,
+        flags: Union[int, re.RegexFlag] = 0,
+    ) -> bool:
         """Attribute check for attributes that contain lists (eg. Class). Can handle all 3 modes.
         0: exact match (exists)
         1: substring (contains)
@@ -403,7 +417,9 @@ class Element:
         return Check(_inner)
 
     @html_check
-    def has_table_content(self, rows: List[List[str]], has_header: bool = True, case_insensitive: bool = False) -> Check:
+    def has_table_content(
+        self, rows: List[List[str]], has_header: bool = True, case_insensitive: bool = False
+    ) -> Check:
         """Check that a table's rows have the requested content
         :param rows:                The data of all the rows to check
         :param has_header:          Boolean that indicates that this table has a header,
@@ -577,7 +593,15 @@ class Element:
         return prop_value
 
     @css_check
-    def has_styling(self, prop: str, value: Optional[str] = None, important: Optional[bool] = None, pseudo: Optional[str] = None, allow_inheritance: bool = False, any_order: bool = False) -> Check:
+    def has_styling(
+        self,
+        prop: str,
+        value: Optional[str] = None,
+        important: Optional[bool] = None,
+        pseudo: Optional[str] = None,
+        allow_inheritance: bool = False,
+        any_order: bool = False,
+    ) -> Check:
         """Check that this element has a CSS property
         :param prop:                the required CSS property to check
         :param value:               an optional value to add that must be checked against,
@@ -597,7 +621,14 @@ class Element:
         return Check(_inner)
 
     @css_check
-    def has_color(self, prop: str, color: str, important: Optional[bool] = None, pseudo: Optional[str] = None, allow_inheritance: bool = False) -> Check:
+    def has_color(
+        self,
+        prop: str,
+        color: str,
+        important: Optional[bool] = None,
+        pseudo: Optional[str] = None,
+        allow_inheritance: bool = False,
+    ) -> Check:
         """Check that this element has a given color
         More flexible version of has_styling because it also allows RGB(r, g, b), hex format, ...
 
@@ -663,6 +694,7 @@ class ElementContainer:
     Attributes:
         elements       the elements to add into this container
     """
+
     elements: List[Element]
     _size: int = field(init=False)
 
@@ -746,6 +778,7 @@ class ChecklistItem:
                         extending this class to make custom case-specific ChecklistItems, where
                         you may want to display the (entire!) list to the student.
     """
+
     message: str
     _checks: List[Check] = field(init=False)
     _is_verbose: bool = False
@@ -808,6 +841,7 @@ class VerboseChecklistItem(ChecklistItem):
     Supports translations, but requires all languages to have the same amount of translations.
     Default values are NOT supported, and this class is meant for internal use.
     """
+
     # Print the messages depending on when a Check fails or succeeds,
     # True for only on success, False for only on failure, None for always
     only_when_status: Optional[bool]
@@ -822,7 +856,9 @@ class VerboseChecklistItem(ChecklistItem):
 
         # Check that all translations have the correct amount of items
         for k, v in self.messages.items():
-            assert len(v) == len(self._checks), f"Incorrect amount of translations for language {k} ({len(v)} instead of {len(self._checks)})."
+            assert len(v) == len(self._checks), (
+                f"Incorrect amount of translations for language {k} ({len(v)} instead of {len(self._checks)})."
+            )
 
     def _process_one(self, check: Check, bs: BeautifulSoup, language: str) -> bool:
         """Modify the processing function to show the checks inside of it"""
@@ -845,6 +881,7 @@ class TestSuite:
         content     The HTML of the document to perform the tests on
         checklist   A list of all checks to perform on this document
     """
+
     name: str
     content: str
     check_recommended: bool = True
@@ -901,8 +938,8 @@ class TestSuite:
 
     def make_item_from_emmet(self, message: str, *emmets: Emmet):
         """Create a new ChecklistItem, the check will compare the submission to the emmet expression.
-            The emmet expression is seen as the minimal required elements/attributes, so the submission may contain more
-            or equal elements"""
+        The emmet expression is seen as the minimal required elements/attributes, so the submission may contain more
+        or equal elements"""
         from utils.emmet import emmet_to_check
 
         emmet_checks = []
@@ -976,6 +1013,7 @@ class TestSuite:
         def _inner(_: BeautifulSoup):
             from validators.structure_validator import compare, get_similarity
             from exceptions.structure_exceptions import NotTheSame
+
             try:
                 compare(solution, self.content, translator, **kwargs)
             except NotTheSame as err:
@@ -984,8 +1022,14 @@ class TestSuite:
                 # Only calculate similarity for valid HTML
                 if self._html_validated:
                     html_sim, css_sim = get_similarity(solution, self.content)
-                    html_sim_str = f"\n HTML{translator.translate(Translator.Text.SIMILARITY)}: {round(html_sim * 100)}%"
-                    css_sim_str = f"\n CSS{translator.translate(Translator.Text.SIMILARITY)}: {round(css_sim* 100)}%" if css_sim != 1 else ""
+                    html_sim_str = (
+                        f"\n HTML{translator.translate(Translator.Text.SIMILARITY)}: {round(html_sim * 100)}%"
+                    )
+                    css_sim_str = (
+                        f"\n CSS{translator.translate(Translator.Text.SIMILARITY)}: {round(css_sim * 100)}%"
+                        if css_sim != 1
+                        else ""
+                    )
                     description += html_sim_str + css_sim_str
 
                 with Message(description=description, format=MessageFormat.CODE):
@@ -1007,13 +1051,22 @@ class TestSuite:
 
     def contains_comment(self, comment: Optional[str] = None) -> Check:
         """Check if the document contains a comment, optionally matching a value"""
+
         def _inner(_: BeautifulSoup) -> bool:
             return contains_comment(self._bs, comment)
 
         return Check(_inner)
 
-    def contains_css(self, css_selector: str, prop: str, value: Optional[str] = None, important: Optional[bool] = None, any_order: bool = False) -> Check:
+    def contains_css(
+        self,
+        css_selector: str,
+        prop: str,
+        value: Optional[str] = None,
+        important: Optional[bool] = None,
+        any_order: bool = False,
+    ) -> Check:
         """Check if the given css rule exists for the given css selector"""
+
         def _inner(_: BeautifulSoup) -> bool:
             rule: Rule = self._css_validator.find_by_css_selector(css_selector, prop)
             # If the property is not found, it is None
@@ -1023,6 +1076,7 @@ class TestSuite:
 
     def has_doctype(self) -> Check:
         """Check if the document starts with <!DOCTYPE HTML"""
+
         def _inner(_: BeautifulSoup) -> bool:
             # Do NOT use the BS Doctype for this, because it repairs
             # incorrect/broken HTML which invalidates this function
@@ -1030,7 +1084,9 @@ class TestSuite:
 
         return Check(_inner)
 
-    def element(self, tag: Optional[Union[str, Emmet]] = None, index: int = 0, from_root: bool = False, **kwargs) -> Element:
+    def element(
+        self, tag: Optional[Union[str, Emmet]] = None, index: int = 0, from_root: bool = False, **kwargs
+    ) -> Element:
         """Create a reference to an HTML element
         :param tag:         the name of the HTML tag to search for
         :param index:       in case multiple elements match, specify which should be chosen
@@ -1044,7 +1100,9 @@ class TestSuite:
 
         return Element(element.name, kwargs.get("id", None), element, self._css_validator)
 
-    def all_elements(self, tag: Optional[Union[str, Emmet]] = None, from_root: bool = False, **kwargs) -> ElementContainer:
+    def all_elements(
+        self, tag: Optional[Union[str, Emmet]] = None, from_root: bool = False, **kwargs
+    ) -> ElementContainer:
         """Get references to ALL HTML elements that match a query"""
         if match_emmet(tag):
             elements = find_emmet(self._bs, tag, 0, from_root=from_root, match_multiple=True, **kwargs)
@@ -1075,9 +1133,11 @@ class TestSuite:
         # Run all items on the checklist & mark them as successful if they pass
         for i, item in enumerate(self.checklist):
             # Get translated version if possible, else use the message in the item
-            message: str = item.message \
-                if lang_abr not in self.translations or i >= len(self.translations[lang_abr]) \
+            message: str = (
+                item.message
+                if lang_abr not in self.translations or i >= len(self.translations[lang_abr])
                 else self.translations[lang_abr][i]
+            )
 
             with Context(), TestCase(message) as test_case:
                 # Make it False by default so crashing doesn't make it default to True
@@ -1085,8 +1145,10 @@ class TestSuite:
 
                 # Evaluation was aborted, print a message and skip this test
                 if aborted >= 0:
-                    with Message(description=translator.translate(translator.Text.TESTCASE_NO_LONGER_EVALUATED),
-                                 format=MessageFormat.TEXT):
+                    with Message(
+                        description=translator.translate(translator.Text.TESTCASE_NO_LONGER_EVALUATED),
+                        format=MessageFormat.TEXT,
+                    ):
                         failed_tests += 1
                         continue
 
@@ -1098,15 +1160,23 @@ class TestSuite:
                     # all be marked as wrong
                     aborted = i
 
-                    with Message(description=translator.translate(translator.Text.TESTCASE_ABORTED),
-                                 format=MessageFormat.TEXT):
+                    with Message(
+                        description=translator.translate(translator.Text.TESTCASE_ABORTED), format=MessageFormat.TEXT
+                    ):
                         pass
-                except (AmbiguousXpath, ElementNotFound,):
-                    with Message(description=translator.translate(translator.Text.AMBIGUOUS_XPATH), format=MessageFormat.TEXT):
+                except (
+                    AmbiguousXpath,
+                    ElementNotFound,
+                ):
+                    with Message(
+                        description=translator.translate(translator.Text.AMBIGUOUS_XPATH), format=MessageFormat.TEXT
+                    ):
                         pass
                 except Exception:
                     # If anything else fails while evaluating, tell the student instead of crashing completely
-                    with Message(description=translator.translate(translator.Text.EVALUATION_FAILED), format=MessageFormat.TEXT):
+                    with Message(
+                        description=translator.translate(translator.Text.EVALUATION_FAILED), format=MessageFormat.TEXT
+                    ):
                         pass
 
                 # If the test wasn't marked as True above, increase the counter for failed tests
@@ -1118,14 +1188,12 @@ class TestSuite:
 
 class BoilerplateTestSuite(TestSuite):
     """Base class for TestSuites that handle some boilerplate things"""
+
     _default_translations: Optional[Dict[str, List[str]]] = None
     _default_checks: Optional[List[ChecklistItem]] = None
     check_minimal: bool
 
-    def __init__(self, name: str,
-                 content: str,
-                 check_recommended: bool = True,
-                 check_minimal: bool = False):
+    def __init__(self, name: str, content: str, check_recommended: bool = True, check_minimal: bool = False):
         super().__init__(name, content, check_recommended)
         self.check_minimal = check_minimal
 
@@ -1162,7 +1230,7 @@ class BoilerplateTestSuite(TestSuite):
                 "De <title>-tag is bevat geen tekst.",
                 "De <head>-tag bevat geen <meta>-tag.",
                 "Het charset-attribuut van de <meta>-tag staat niet ingesteld op UTF-8.",
-                "De <html>-tag bevat geen <body>-tag."
+                "De <html>-tag bevat geen <body>-tag.",
             ],
             "en": [
                 "The type of the document was not declared (correctly).",
@@ -1172,8 +1240,8 @@ class BoilerplateTestSuite(TestSuite):
                 "The <title> tag does not contain any content.",
                 "The <head> tag does not contain a <meta> tag.",
                 "The <meta> tag does not have its charset attribute set to UTF-8.",
-                "The <html> tag does not contain a <body> tag."
-            ]
+                "The <html> tag does not contain a <body> tag.",
+            ],
         }
 
         # Elements
@@ -1186,17 +1254,21 @@ class BoilerplateTestSuite(TestSuite):
         if self._default_checks is None:
             self._default_checks = []
 
-        self._default_checks.append(VerboseChecklistItem("The solution contains the minimal required HTML code.", translations, False,
-                                                            self.has_doctype(),
-                                                            _html.attribute_exists("lang"),
-                                                            _head.exists(),
-                                                            _title.exists(),
-                                                            _title.has_content(),
-                                                            _meta.exists(),
-                                                            _meta.attribute_exists("charset", "UTF-8", case_insensitive=True),
-                                                            _body.exists()
-                                                            )
-                                    )
+        self._default_checks.append(
+            VerboseChecklistItem(
+                "The solution contains the minimal required HTML code.",
+                translations,
+                False,
+                self.has_doctype(),
+                _html.attribute_exists("lang"),
+                _head.exists(),
+                _title.exists(),
+                _title.has_content(),
+                _meta.exists(),
+                _meta.attribute_exists("charset", "UTF-8", case_insensitive=True),
+                _body.exists(),
+            )
+        )
 
         self._default_translations["en"].append("The solution contains the minimal required HTML code.")
         self._default_translations["nl"].append("De oplossing bevat de minimale vereiste HTML-code.")
@@ -1214,9 +1286,17 @@ class BoilerplateTestSuite(TestSuite):
 
 class HtmlSuite(BoilerplateTestSuite):
     """TestSuite that does HTML validation by default"""
+
     allow_warnings: bool
 
-    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True, check_minimal: bool = False):
+    def __init__(
+        self,
+        content: str,
+        check_recommended: bool = True,
+        allow_warnings: bool = True,
+        abort: bool = True,
+        check_minimal: bool = False,
+    ):
         super().__init__("HTML", content, check_recommended, check_minimal)
 
         # Only abort if necessary
@@ -1232,24 +1312,34 @@ class HtmlSuite(BoilerplateTestSuite):
 
 class CssSuite(BoilerplateTestSuite):
     """TestSuite that does HTML and CSS validation by default"""
+
     allow_warnings: bool
 
-    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True, check_minimal: bool = False):
+    def __init__(
+        self,
+        content: str,
+        check_recommended: bool = True,
+        allow_warnings: bool = True,
+        abort: bool = True,
+        check_minimal: bool = False,
+    ):
         super().__init__("CSS", content, check_recommended, check_minimal)
 
         # Only abort if necessary
         if abort:
-            self._default_checks = [ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings).or_abort()),
-                                    ChecklistItem("The CSS is valid.", self.validate_css().or_abort())
-                                    ]
+            self._default_checks = [
+                ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings).or_abort()),
+                ChecklistItem("The CSS is valid.", self.validate_css().or_abort()),
+            ]
         else:
-            self._default_checks = [ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings)),
-                                    ChecklistItem("The CSS is valid.", self.validate_css())
-                                    ]
+            self._default_checks = [
+                ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings)),
+                ChecklistItem("The CSS is valid.", self.validate_css()),
+            ]
 
         self._default_translations = {
             "en": ["The HTML is valid.", "The CSS is valid."],
-            "nl": ["De HTML is geldig.", "De CSS is geldig."]
+            "nl": ["De HTML is geldig.", "De CSS is geldig."],
         }
 
         self.allow_warnings = allow_warnings
@@ -1257,12 +1347,19 @@ class CssSuite(BoilerplateTestSuite):
 
 class _CompareSuite(HtmlSuite):
     """TestSuite that does:
-     * HTML validation
-     * CSS validation (if css is present)
-     * evaluation by comparing to the solution.html"""
+    * HTML validation
+    * CSS validation (if css is present)
+    * evaluation by comparing to the solution.html"""
 
-    def __init__(self, content: str, solution: str, config: DodonaConfig, check_recommended: bool = True,
-                 allow_warnings: bool = True, abort: bool = True):
+    def __init__(
+        self,
+        content: str,
+        solution: str,
+        config: DodonaConfig,
+        check_recommended: bool = True,
+        allow_warnings: bool = True,
+        abort: bool = True,
+    ):
         super().__init__(content, check_recommended, allow_warnings, abort)
 
         # Adds a check for CSS-validation only if there is some CSS supplied
@@ -1276,13 +1373,18 @@ class _CompareSuite(HtmlSuite):
             self._default_translations["nl"].append("De CSS is geldig.")
 
         # Adds a check for comparing to solution
-        params = {"attributes": getattr(config, "attributes", False),
-                  "minimal_attributes": getattr(config, "minimal_attributes", False),
-                  "contents": getattr(config, "contents", False)}
+        params = {
+            "attributes": getattr(config, "attributes", False),
+            "minimal_attributes": getattr(config, "minimal_attributes", False),
+            "contents": getattr(config, "contents", False),
+        }
 
         self._default_checks.append(
-            ChecklistItem("The submission resembles the solution.",
-                          self.compare_to_solution(solution, config.translator, **params)))
+            ChecklistItem(
+                "The submission resembles the solution.",
+                self.compare_to_solution(solution, config.translator, **params),
+            )
+        )
         # Translations
         self._default_translations["en"].append("The submission resembles the solution.")
         self._default_translations["nl"].append("De ingediende code lijkt op die van de oplossing.")

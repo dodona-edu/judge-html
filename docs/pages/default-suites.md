@@ -94,23 +94,17 @@ from validators.checks import TestSuite
 
 def create_suites(content: str) -> List[TestSuite]:
     css_suite = TestSuite("CSS", content)
-    
+
     # Create ChecklistItems
     css_suite.make_item("The HTML is valid.", css_suite.validate_html(allow_warnings=False).or_abort())
     css_suite.make_item("The CSS is valid.", css_suite.validate_css().or_abort())
-    
+
     # Add English translation
-    css_suite.translations["en"] = [
-        "The HTML is valid.",
-        "The CSS is valid."
-    ]
-    
+    css_suite.translations["en"] = ["The HTML is valid.", "The CSS is valid."]
+
     # Add Dutch translation
-    css_suite.translations["nl"] = [
-        "De HTML is geldig.",
-        "De CSS is geldig."
-    ]
-    
+    css_suite.translations["nl"] = ["De HTML is geldig.", "De CSS is geldig."]
+
     return [css_suite]
 ```
 

@@ -7,15 +7,11 @@ from validators.checks import TestSuite
 
 
 def do(emmet, document) -> bool:
-    return emmet_to_check(
-        emmet,
-        TestSuite("My test suite", document)
-    ).callback(BeautifulSoup(document, "html.parser"))
+    return emmet_to_check(emmet, TestSuite("My test suite", document)).callback(BeautifulSoup(document, "html.parser"))
 
 
 @unittest.skip("TODO")
 class TestEmmet(unittest.TestCase):
-
     def test_child(self):
         doc = """
             <div>

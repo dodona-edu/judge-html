@@ -12,6 +12,7 @@ The built-in [`HtmlSuite`](default-suites.md#htmlsuite) or [`CssSuite`](default-
 ```python
 from validators.checks import CssSuite, TestSuite
 
+
 def create_suites(content: str) -> List[TestSuite]:
     # CssSuite automatically validates both HTML and CSS
     suite = CssSuite(content)
@@ -28,17 +29,15 @@ When using an instance of <code>TestSuite</code>, this means it is required to c
 ```python
 from validators.checks import TestSuite, ChecklistItem
 
+
 def create_suites(content: str) -> List[TestSuite]:
     suite = TestSuite("CSS", content)
-    
+
     # Create a ChecklistItem that validates HTML and CSS
-    suite.make_item("The HTML and CSS are valid.",
-                    suite.validate_html(),
-                    suite.validate_css()
-                    )
+    suite.make_item("The HTML and CSS are valid.", suite.validate_html(), suite.validate_css())
 
     # ... other checks
-    
+
     return [suite]
 ```
 </details>

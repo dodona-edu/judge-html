@@ -30,7 +30,7 @@ suite = HtmlSuite(content)
 
 body_element = suite.element("body")
 table_element = body_element.get_child("table")
-links = suite.all_elements('a')
+links = suite.all_elements("a")
 
 # Check if the <body> exists AND it has a <table> child
 all_of(body_element.exists(), table_element.exists())
@@ -59,7 +59,7 @@ suite = HtmlSuite(content)
 
 head_element = suite.element("head")
 body_element = suite.element("body")
-links = suite.all_elements('a')
+links = suite.all_elements("a")
 
 # Check if the <body> exists OR <head> exists
 any_of(body_element.exists(), head_element.exists())
@@ -89,7 +89,7 @@ suite = HtmlSuite(content)
 head_element = suite.element("head")  # Exists
 body_element = head_element.get_child("body")  # Exists
 div_element = body_element.get_child("div")  # Doesn't exist
-links = suite.all_elements('a')
+links = suite.all_elements("a")
 
 # Check if at least two of [<head>, <body>, <div>] exist
 at_least(2, head_element.exists(), body_element.exists(), div_element.exists())

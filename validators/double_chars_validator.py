@@ -49,13 +49,13 @@ class DoubleChar:
     def match_open(self, s: str) -> bool:
         if len(s) < self.len_open():
             return False
-        s = s[0:self.len_open()]
+        s = s[0 : self.len_open()]
         return self.open == s
 
     def match_close(self, s: str) -> bool:
         if len(s) < self.len_close():
             return False
-        s = s[0:self.len_close()]
+        s = s[0 : self.len_close()]
         return self.close == s
 
 
@@ -69,7 +69,9 @@ class Angle(DoubleChar):
     type = "angle"
     open = "<"
     close = ">"
-    check_in_between = False  # content does not need to be checked. ex: <p>This doesn't need to be checked, it is just a string</p>
+    check_in_between = (
+        False  # content does not need to be checked. ex: <p>This doesn't need to be checked, it is just a string</p>
+    )
 
 
 class Curly(DoubleChar):
@@ -120,15 +122,15 @@ class Generator:
         self.ls: [DoubleChar] = sorted(
             [Round(), Angle(), Curly(), Square(), Single(), Double(), HtmlComment(), CssComment()],
             key=lambda x: x.len_open() if x.len_open() > x.len_close() else x.len_close(),
-            reverse=True
+            reverse=True,
         )
 
     def create(self, s: str, line: int, pos: int) -> (DoubleChar, str):
         for x in self.ls:
             if x.match_open(s):
-                return x.create(True, line, pos), s[x.len_open():]
+                return x.create(True, line, pos), s[x.len_open() :]
             if x.match_close(s):
-                return x.create(False, line, pos), s[x.len_close():]
+                return x.create(False, line, pos), s[x.len_close() :]
         return None, s
 
 
@@ -143,6 +145,7 @@ class DoubleCharsValidator:
         * ' '
         * " "
     """
+
     def __init__(self, translator: Translator):
         self.translator = translator
 
@@ -210,12 +213,18 @@ class DoubleCharsValidator:
             if isinstance(dc, DoubleChar):
                 if not wait_until_seen:
                     dc: DoubleChar
-                    if (stack and stack[-1].type != dc.type) or (dc.is_unambiguous and dc.is_open()) or not dc.is_unambiguous:
+                    if (
+                        (stack and stack[-1].type != dc.type)
+                        or (dc.is_unambiguous and dc.is_open())
+                        or not dc.is_unambiguous
+                    ):
                         wait_until_seen = push_stack(dc)
                     elif stack and stack[-1].type == dc.type:
                         wait_until_seen = pop_stack(dc)
                     else:
-                        errors.add(MissingOpeningCharError(trans=self.translator, char=dc.close, line=dc.line, pos=dc.pos))
+                        errors.add(
+                            MissingOpeningCharError(trans=self.translator, char=dc.close, line=dc.line, pos=dc.pos)
+                        )
 
                 else:  # we're inside something that we don't need to check, just whether we need to leave this state
                     if dc.type == wait_until_seen.type:

@@ -12,11 +12,14 @@ def create_suites(content: str) -> List[checks.TestSuite]:
     css_suite.add_item(css_valid)
 
     img_element = css_suite.element("img")
-    border = checks.ChecklistItem("The image has a border as shown in the image.", [
-        img_element.exists(),
-        img_element.has_styling("border-style", "dashed"),
-        img_element.has_styling("width", "200px")
-    ])
+    border = checks.ChecklistItem(
+        "The image has a border as shown in the image.",
+        [
+            img_element.exists(),
+            img_element.has_styling("border-style", "dashed"),
+            img_element.has_styling("width", "200px"),
+        ],
+    )
     css_suite.add_item(border)
 
     return [css_suite]

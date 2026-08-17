@@ -3,7 +3,6 @@ from utils.color_converter import Color
 
 
 class TestColorConverter(unittest.TestCase):
-
     def test_conversion_red(self):
         correct = Color("red")
 
@@ -24,4 +23,3 @@ class TestColorConverter(unittest.TestCase):
         self.assertEqual(correct, Color("hsl(0, 100%, 50%)"), "test hsl")
 
         self.assertEqual(correct, Color("hsla(0, 100%, 50%,1)"), "test hsla")
-

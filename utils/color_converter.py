@@ -2,7 +2,6 @@ from colour import Color as Col
 
 
 class Color(Col):
-
     def __init__(self, val: str):
         val = val.replace(" ", "")
         self.__dict__.__setitem__("alpha", 1.0)
@@ -58,5 +57,3 @@ class Color(Col):
         if self.alpha != other.alpha:
             return False
         return super(Color, self).__eq__(other)
-
-

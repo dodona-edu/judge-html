@@ -3,7 +3,6 @@ from enum import Enum
 from types import SimpleNamespace, TracebackType
 from typing import Dict, Optional, Union, Type
 
-
 class ErrorType(str, Enum):
     INTERNAL_ERROR = ...
     COMPILATION_ERROR = ...
@@ -18,14 +17,12 @@ class ErrorType(str, Enum):
 
     def __str__(self) -> str: ...
 
-
 class MessagePermission(str, Enum):
     STUDENT = ...
     STAFF = ...
     ZEUS = ...
 
     def __str__(self) -> str: ...
-
 
 class MessageFormat(str, Enum):
     PLAIN = ...
@@ -41,7 +38,6 @@ class MessageFormat(str, Enum):
 
     def __str__(self) -> str: ...
 
-
 class AnnotationSeverity(str, Enum):
     ERROR = ...
     WARNING = ...
@@ -49,79 +45,56 @@ class AnnotationSeverity(str, Enum):
 
     def __str__(self) -> str: ...
 
-
 class DodonaException(Exception):
     status: Dict[str, str]
     message: Optional[Message]
 
     def __init__(self, status: Dict[str, str], *args, **kwargs): ...
 
-
 class DodonaCommand(ABC):
     start_args: SimpleNamespace
     close_args: SimpleNamespace
 
     def __init__(self, **kwargs): ...
-
     def name(self) -> str: ...
-
     def start_msg(self) -> Dict: ...
-
     def close_msg(self) -> Dict: ...
-
     @staticmethod
     def __print_command(result: Union[None, Dict]): ...
-
     def __enter__(self) -> SimpleNamespace: ...
-
     def handle_dodona_exception(self, exception: DodonaException) -> bool: ...
-
     def __exit__(self, exc_type: Type[BaseException], exc_val: BaseException, exc_tb: TracebackType) -> bool: ...
-
 
 class DodonaCommandWithAccepted(DodonaCommand):
     def handle_dodona_exception(self, exception: DodonaException) -> bool: ...
 
-
 class DodonaCommandWithStatus(DodonaCommandWithAccepted):
     def handle_dodona_exception(self, exception: DodonaException) -> bool: ...
-
 
 class Judgement(DodonaCommandWithStatus):
     def handle_dodona_exception(self, exception: DodonaException) -> bool: ...
 
-
 class Tab(DodonaCommand):
     def __init__(self, title: str, **kwargs): ...
-
 
 class Context(DodonaCommandWithAccepted):
     pass
 
-
 class TestCase(DodonaCommandWithAccepted):
     def __init__(self, *args, **kwargs): ...
-
 
 class Test(DodonaCommandWithStatus):
     def __init__(self, description: str, expected: str, **kwargs): ...
 
-
 class Message(DodonaCommand):
     def __init__(self, *args, **kwargs): ...
-
     def start_msg(self) -> Dict: ...
-
     def close_msg(self) -> Dict: ...
-
 
 class Annotation(DodonaCommand):
     def __init__(self, row: int, text: str, **kwargs): ...
-
     def start_msg(self) -> Dict: ...
-
     def close_msg(self) -> Dict: ...
-
 
 class SafeAnnotation(Annotation):
     """Annotation that isn't displayed for negative line numbers"""

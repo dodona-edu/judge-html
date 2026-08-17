@@ -19,7 +19,9 @@ class TestEmmetMethods(unittest.TestCase):
         self.assertTrue(suite.check(suite.element("body>div#the_second_div").has_child("table")))
 
         # Pass classnames and id's
-        self.assertTrue(suite.check(suite.element("body>div#the_second_div>table>tr.tr-class-name>td").has_content("Some td")))
+        self.assertTrue(
+            suite.check(suite.element("body>div#the_second_div>table>tr.tr-class-name>td").has_content("Some td"))
+        )
 
         # Allow kwargs
         self.assertTrue(suite.check(suite.element("body>div", id="the_second_div").has_child("table")))
