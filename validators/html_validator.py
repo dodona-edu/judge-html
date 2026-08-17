@@ -5,7 +5,21 @@ from pathlib import PureWindowsPath
 from typing import Dict
 
 from dodona.translator import Translator
-from exceptions.html_exceptions import *
+from exceptions.html_exceptions import (
+    AttributeValueError,
+    DuplicateIdError,
+    HtmlValidationError,
+    InvalidAttributeError,
+    InvalidTagError,
+    MissingClosingTagError,
+    MissingOpeningTagError,
+    MissingRecommendedAttributesWarning,
+    MissingRequiredAttributesError,
+    NoSelfClosingTagError,
+    UnexpectedClosingTagError,
+    UnexpectedTagError,
+    Warnings,
+)
 from utils.file_loaders import html_loader, json_loader
 from validators.double_chars_validator import DoubleCharsValidator
 
