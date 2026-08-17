@@ -1,5 +1,6 @@
-from utils.html_navigation import compare_content
 import unittest
+
+from utils.html_navigation import compare_content
 
 
 class TestCompareContent(unittest.TestCase):

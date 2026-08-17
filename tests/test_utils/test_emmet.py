@@ -1,8 +1,8 @@
+import unittest
+
 from bs4 import BeautifulSoup
 
 from utils.emmet import emmet_to_check
-import unittest
-
 from validators.checks import TestSuite
 
 
@@ -41,11 +41,11 @@ class TestEmmet(unittest.TestCase):
         doc = """
             <body>
                 <table>
-                    <tr></tr> 
+                    <tr></tr>
                     <tr>
                         <td>test</td>
                         <td>text</td>
-                    </tr>                   
+                    </tr>
                 </table>
             </body>
         """
@@ -200,7 +200,7 @@ class TestEmmet(unittest.TestCase):
                     <tr>
                         <td>test</td>
                     </tr>
-                    <tr></tr>                            
+                    <tr></tr>
                 </table>
             </body>
         """

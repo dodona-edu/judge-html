@@ -1,7 +1,8 @@
 import re
-from typing import Optional, Union, List
+from typing import List, Optional, Union
+
 from bs4 import BeautifulSoup
-from bs4.element import Tag, Comment
+from bs4.element import Comment, Tag
 
 
 def match_emmet(tag: Optional[str]) -> bool:

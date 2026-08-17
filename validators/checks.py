@@ -4,23 +4,23 @@ import re
 from collections import deque
 from copy import copy
 from dataclasses import dataclass, field
-from typing import Deque, List, Optional, Callable, Union, Dict, TypeVar, Iterable, Iterator
+from typing import Callable, Deque, Dict, Iterable, Iterator, List, Optional, TypeVar, Union
 from urllib.parse import urlsplit
 
 from bs4 import BeautifulSoup
-from bs4.element import Tag, NavigableString
+from bs4.element import NavigableString, Tag
 
-from decorators import flatten_varargs, html_check, css_check
-from dodona.dodona_command import Context, TestCase, Message, MessageFormat, SafeAnnotation
+from decorators import css_check, flatten_varargs, html_check
+from dodona.dodona_command import Context, Message, MessageFormat, SafeAnnotation, TestCase
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
-from exceptions.double_char_exceptions import MultipleMissingCharsError, LocatableDoubleCharError
-from exceptions.html_exceptions import Warnings, LocatableHtmlValidationError
+from exceptions.double_char_exceptions import LocatableDoubleCharError, MultipleMissingCharsError
+from exceptions.html_exceptions import LocatableHtmlValidationError, Warnings
 from exceptions.utils import EvaluationAborted
 from utils.flatten import flatten_queue
-from utils.html_navigation import find_child, compare_content, match_emmet, find_emmet, contains_comment
+from utils.html_navigation import compare_content, contains_comment, find_child, find_emmet, match_emmet
 from utils.regexes import doctype_re
-from validators.css_validator import CssValidator, CssParsingError, Rule, AmbiguousXpath, ElementNotFound
+from validators.css_validator import AmbiguousXpath, CssParsingError, CssValidator, ElementNotFound, Rule
 from validators.html_validator import HtmlValidator
 
 # Custom type hints
@@ -607,7 +607,8 @@ class Element:
         :param value:               an optional value to add that must be checked against,
                                     in case nothing is supplied any value will pass
         :param important:           indicate that this must (or may not be) marked as important
-        :param pseudo:              the css selector pseudo class to check the property for (example "hover", or "clicked")
+        :param pseudo:              the css selector pseudo class to check the property for (example "hover", or
+                                    "clicked")
         :param allow_inheritance:   allow a parent element to have this property and apply it onto the child
         :param any_order:           indicate that the order of the properties doesn't matter (double bar syntax for
                                     shorthand properties)
@@ -1011,8 +1012,8 @@ class TestSuite:
         """Compare the submission to the solution html."""
 
         def _inner(_: BeautifulSoup):
-            from validators.structure_validator import compare, get_similarity
             from exceptions.structure_exceptions import NotTheSame
+            from validators.structure_validator import compare, get_similarity
 
             try:
                 compare(solution, self.content, translator, **kwargs)

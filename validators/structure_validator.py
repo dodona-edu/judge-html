@@ -1,12 +1,12 @@
-from dodona.translator import Translator
-from lxml.html import fromstring, HtmlElement, HtmlComment
-
-from exceptions.structure_exceptions import NotTheSame
-from validators.css_validator import CssValidator
-from utils.html_navigation import compare_content
-from utils.html_checks import is_empty_document
-
 from typing import Tuple
+
+from lxml.html import HtmlComment, HtmlElement, fromstring
+
+from dodona.translator import Translator
+from exceptions.structure_exceptions import NotTheSame
+from utils.html_checks import is_empty_document
+from utils.html_navigation import compare_content
+from validators.css_validator import CssValidator
 
 
 def get_similarity(sol: str, sub: str) -> Tuple[float, float]:
@@ -14,7 +14,7 @@ def get_similarity(sol: str, sub: str) -> Tuple[float, float]:
     if is_empty_document(sub):
         return 0, 0
 
-    from html_similarity import style_similarity, structural_similarity
+    from html_similarity import structural_similarity, style_similarity
 
     a = sol.find("<style")
     b = sub.find("<style")
@@ -28,10 +28,14 @@ def compare(solution_str: str, submission_str: str, trans: Translator, **kwargs)
     """compare submission structure to the solution structure (html)
     possible kwargs:
     * attributes: (default: False) check whether attributes are exactly the same in solution and submission
-    * minimal_attributes: (default: False) check whether at least the attributes in solution are supplied in the submission
-    * contents: (default: False) check whether the contents of each tag in the solution are exactly the same as in the submission
-    * css: (default: True) if there are css rules defined in the solution, check if the submission can match these rules.
-            We don't compare the css rules itself, but rather whether every element in the submission has at least the css-rules defined in the solution.
+    * minimal_attributes: (default: False) check whether at least the attributes in solution are supplied in the
+            submission
+    * contents: (default: False) check whether the contents of each tag in the solution are exactly the same as
+            in the submission
+    * css: (default: True) if there are css rules defined in the solution, check if the submission can match
+            these rules.
+            We don't compare the css rules itself, but rather whether every element in the submission has at least
+            the css-rules defined in the solution.
     Raises a NotTheSame exception if the solution and the submission are not alike
 
     the submission html should be valid html

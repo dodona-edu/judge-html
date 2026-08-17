@@ -1,4 +1,4 @@
-from typing import Optional, Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from bs4.element import Tag
 from lxml.etree import ElementBase

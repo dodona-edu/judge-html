@@ -1,8 +1,7 @@
-from typing import Tuple, List
+from typing import List, Tuple
 
-from exceptions.double_char_exceptions import *
-from exceptions.double_char_exceptions import *
 from dodona.translator import Translator
+from exceptions.double_char_exceptions import *
 
 class DoubleChar:
     type: str

@@ -5,7 +5,7 @@ import sys
 from abc import ABC
 from enum import Enum
 from types import SimpleNamespace, TracebackType
-from typing import Union, Dict, Type, Optional
+from typing import Dict, Optional, Type, Union
 
 
 class ErrorType(str, Enum):

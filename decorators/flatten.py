@@ -1,4 +1,5 @@
 from inspect import getfullargspec
+
 from utils.flatten import flatten_queue
 
 

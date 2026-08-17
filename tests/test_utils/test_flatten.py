@@ -1,6 +1,7 @@
 import unittest
-from validators.checks import ChecklistItem, all_of, any_of
+
 from tests.helpers import UnitTestSuite
+from validators.checks import ChecklistItem, all_of, any_of
 
 
 class TestFlatten(unittest.TestCase):

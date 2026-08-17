@@ -1,7 +1,9 @@
+from ntpath import basename
+
 import bs4
 from bs4.element import Tag
-from ntpath import basename
-from validators.css_validator import Rules, Rule
+
+from validators.css_validator import Rule, Rules
 
 
 def prep_render(html_content: str, render_css: bool) -> (str, str):

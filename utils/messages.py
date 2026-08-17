@@ -1,9 +1,9 @@
+import traceback
 from types import SimpleNamespace
 
-from dodona.dodona_command import Message, MessageFormat, ErrorType, MessagePermission
+from dodona.dodona_command import ErrorType, Message, MessageFormat, MessagePermission
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
-import traceback
 
 
 def invalid_suites(judge: SimpleNamespace, config: DodonaConfig):

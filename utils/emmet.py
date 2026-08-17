@@ -1,6 +1,6 @@
-from emmet import parse_markup_abbreviation, AbbreviationAttribute, AbbreviationNode
+from emmet import AbbreviationAttribute, AbbreviationNode, parse_markup_abbreviation
 
-from validators.checks import TestSuite, Element, all_of, EmptyElement, Check
+from validators.checks import Check, Element, EmptyElement, TestSuite, all_of
 
 
 def emmet_to_check(emmet_str: str, suite: TestSuite) -> Check:

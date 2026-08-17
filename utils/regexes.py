@@ -1,6 +1,5 @@
-from collections import namedtuple
 import re
-
+from collections import namedtuple
 
 Regex = namedtuple("Regex", "pattern flags")
 

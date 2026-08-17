@@ -1,5 +1,6 @@
-from tests.helpers import UnitTestSuite
 import unittest
+
+from tests.helpers import UnitTestSuite
 
 
 class TestEmmetMethods(unittest.TestCase):

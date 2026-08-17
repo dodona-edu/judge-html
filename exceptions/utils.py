@@ -72,5 +72,4 @@ class DelayedExceptions(Exception):
         self.exceptions.clear()
 
     def _print_exceptions(self) -> str:
-        x: FeedbackException
         return "\n".join([x.message_str() for x in self.exceptions])

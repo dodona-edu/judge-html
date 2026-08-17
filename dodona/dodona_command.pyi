@@ -1,7 +1,7 @@
 from abc import ABC
 from enum import Enum
 from types import SimpleNamespace, TracebackType
-from typing import Dict, Optional, Union, Type
+from typing import Dict, Optional, Type, Union
 
 class ErrorType(str, Enum):
     INTERNAL_ERROR = ...

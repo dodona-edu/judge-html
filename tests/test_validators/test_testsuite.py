@@ -1,7 +1,8 @@
 import re
 import unittest
-from tests.helpers import html_loader, UnitTestSuite
-from validators.checks import TestSuite, ChecklistItem
+
+from tests.helpers import UnitTestSuite, html_loader
+from validators.checks import ChecklistItem, TestSuite
 
 
 class TestTestSuite(unittest.TestCase):
