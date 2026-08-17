@@ -124,12 +124,16 @@ class DodonaCommand(ABC):
         """name used in start and close messages, defaults to the lowercase version of the classname"""
         return self.__class__.__name__.lower()
 
-    def start_msg(self) -> dict:
-        """start message that is printed as JSON to stdout when entering the 'with' block"""
+    def start_msg(self) -> Optional[dict]:
+        """start message that is printed as JSON to stdout when entering the 'with' block
+        Subclasses return None when nothing should be printed, '__print_command' skips those.
+        """
         return {"command": f"start-{self.name()}", **self.start_args.__dict__}
 
-    def close_msg(self) -> dict:
-        """close message that is printed as JSON to stdout when exiting the 'with' block"""
+    def close_msg(self) -> Optional[dict]:
+        """close message that is printed as JSON to stdout when exiting the 'with' block
+        Subclasses return None when nothing should be printed, '__print_command' skips those.
+        """
         return {"command": f"close-{self.name()}", **self.close_args.__dict__}
 
     @staticmethod
@@ -173,9 +177,9 @@ class DodonaCommand(ABC):
 
     def __exit__(
         self,
-        exc_type: Type[BaseException],
-        exc_val: BaseException,
-        exc_tb: TracebackType,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
     ) -> bool:
         """print the close message when exiting the 'with' block & handle enclosed exceptions
         If a DodonaException was thrown in the enclosed 'with' block, the 'handle_dodona_exception'
@@ -312,7 +316,8 @@ class Annotation(DodonaCommand):
     def __init__(self, row: int, text: str, **kwargs):
         super().__init__(row=row, text=text, **kwargs)
 
-    def start_msg(self) -> dict:
+    # Optional because SafeAnnotation below overrides this to return None for negative line numbers
+    def start_msg(self) -> Optional[dict]:
         """print the "annotate-code" command and parameters when entering the 'with' block"""
         return {"command": "annotate-code", **self.start_args.__dict__}
 
