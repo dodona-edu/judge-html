@@ -1,0 +1,10 @@
+[tool.coverage.run]
+omit = [
+    ".github/*",
+    "docs/*",
+    "htmlcov/*",
+    "*/site-packages/*",
+    "tests/*",
+    "venv/*",
+]
+source = ["."]
