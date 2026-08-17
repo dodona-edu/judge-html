@@ -20,6 +20,15 @@ PERMITTED_PARENTS_KEY = "permitted_parents"
 VOID_KEY = "void_tag"
 
 
+def _is_absolute_path(link: str) -> bool:
+    """Check whether a link is an absolute filepath, in POSIX or Windows spelling.
+
+    Python 3.13 made ntpath.isabs stop treating a leading (back)slash as absolute, so
+    it no longer catches "/home/student/image.png" on its own.
+    """
+    return link.startswith(("/", "\\")) or ntpath.isabs(link)
+
+
 class HtmlValidator(HTMLParser):
     """
     parses & validates the html
@@ -185,7 +194,7 @@ class HtmlValidator(HTMLParser):
         # check src attribute for absolute filepaths
         if 'src' in attributes:
             link = attributes['src']
-            if ntpath.isabs(link):
+            if _is_absolute_path(link):
                 self.error(AttributeValueError(trans=self.translator, msg=self.translator.translate(Translator.Text.NO_ABS_PATHS),
                                     line=self.getpos()[0], pos=self.getpos()[1]))
 
