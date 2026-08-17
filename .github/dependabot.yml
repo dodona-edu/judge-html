@@ -4,3 +4,27 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
+      day: monday
+      time: "04:00"
+      timezone: Europe/Brussels
+    open-pull-requests-limit: 99
+    labels:
+      - dependencies
+    groups:
+      pytest:
+        patterns:
+          - "pytest*"
+      linters:
+        patterns:
+          - "ruff"
+          - "ty"
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "04:00"
+      timezone: Europe/Brussels
+    open-pull-requests-limit: 99
+    labels:
+      - dependencies
