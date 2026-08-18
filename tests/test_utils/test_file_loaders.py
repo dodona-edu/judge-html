@@ -1,6 +1,6 @@
 import tempfile
 import unittest
-from os import path
+from pathlib import Path
 
 from bs4 import BeautifulSoup
 
@@ -12,9 +12,9 @@ class TestFileLoaders(unittest.TestCase):
 
     def setUp(self):
         self.tmpdir = tempfile.TemporaryDirectory()
-        self.file_path = path.join(self.tmpdir.name, "fragment.html")
-        with open(self.file_path, "w") as f:
-            f.write(self.CONTENT)
+        file_path = Path(self.tmpdir.name) / "fragment.html"
+        file_path.write_text(self.CONTENT)
+        self.file_path = str(file_path)
 
     def tearDown(self):
         self.tmpdir.cleanup()

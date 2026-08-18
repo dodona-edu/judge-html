@@ -1,4 +1,4 @@
-from os import path
+from pathlib import Path
 from types import ModuleType
 from typing import Optional
 
@@ -33,14 +33,14 @@ class EvaluationModule(ModuleType):
     def build(cls, config: DodonaConfig) -> Optional["EvaluationModule"]:
         """Create a new EvaluationModule from a DodonaConfig configuration"""
         # Create filepath
-        custom_evaluator_path = path.join(config.resources, "./evaluator.py")
+        custom_evaluator_path = Path(config.resources) / "evaluator.py"
 
         # Evaluator doesn't exist, show an exception
-        if not path.exists(custom_evaluator_path):
+        if not custom_evaluator_path.exists():
             return None
 
         # Read raw content of .py file
-        with open(custom_evaluator_path) as fp:
+        with custom_evaluator_path.open() as fp:
             # Compile the code into bytecode
             evaluator_script = compile(fp.read(), "<string>", "exec")
 

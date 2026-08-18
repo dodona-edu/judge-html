@@ -1,5 +1,5 @@
-import os
 import sys
+from pathlib import Path
 
 from dodona.dodona_command import ErrorType, Judgement, Message, MessageFormat, Tab
 from dodona.dodona_config import DodonaConfig
@@ -46,7 +46,7 @@ def main():
             if evaluator is not None:
                 test_suites: list[TestSuite] = evaluator.create_suites(html_content)
             else:
-                solution = html_loader(os.path.join(config.resources, "./solution.html"))
+                solution = html_loader(str(Path(config.resources) / "solution.html"))
                 if not solution:
                     missing_evaluator_file(config.translator)
                     invalid_suites(judge, config)

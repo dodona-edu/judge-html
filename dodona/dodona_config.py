@@ -1,7 +1,7 @@
 """Dodona Judge configuration"""
 
 import json
-import os
+from pathlib import Path
 from types import SimpleNamespace
 from typing import TextIO
 
@@ -59,11 +59,9 @@ class DodonaConfig(SimpleNamespace):
         Also, this Python file (and all other Python judge files) should be located in the 'judge' dir.
         """
         # Make sure that the current working dir is the workdir
-        cwd = os.getcwd()
-        assert os.path.realpath(cwd) == os.path.realpath(self.workdir)
+        assert Path.cwd().resolve() == Path(self.workdir).resolve()
 
         # Make sure that this file is located right below the judge folder
-        script_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        assert os.path.realpath(script_path) == os.path.realpath(self.judge), (
-            f"{os.path.realpath(script_path)} | {os.path.realpath(self.judge)}"
-        )
+        script_path = Path(__file__).resolve().parent.parent
+        judge_path = Path(self.judge).resolve()
+        assert script_path == judge_path, f"{script_path} | {judge_path}"
