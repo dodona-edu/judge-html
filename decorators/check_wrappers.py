@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import functools
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Concatenate, Protocol, cast
 
@@ -47,6 +48,7 @@ def html_check[S: _HasElement, **P, R](
 ) -> Callable[Concatenate[S, P], R]:
     """Decorator that checks if an HTML element is not None"""
 
+    @functools.wraps(func)
     def wrapper(self: S, *args: P.args, **kwargs: P.kwargs) -> R:
         if self._element is None:
             return cast("R", fail())
@@ -61,6 +63,7 @@ def css_check[S: _HasCssValidator, **P, R](
 ) -> Callable[Concatenate[S, P], R]:
     """Decorator that checks if an element's HTML tag and CSS validator are not None"""
 
+    @functools.wraps(func)
     def wrapper(self: S, *args: P.args, **kwargs: P.kwargs) -> R:
         if self._element is None or self._css_validator is None:
             return cast("R", fail())
