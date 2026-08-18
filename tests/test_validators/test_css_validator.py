@@ -120,6 +120,20 @@ html = """<!DOCTYPE html>
 
 
 class TestCssValidator(unittest.TestCase):
+    def test_empty_style_tag(self):
+        """An empty <style></style> has no CSS, which is not the same as being unparseable"""
+        # style.text is None here, which used to reach Rules() and raise a TypeError that
+        # TestSuite.__post_init__ doesn't catch, so the whole judge run fell over
+        validator = CssValidator("<html><head><style></style></head><body><p>x</p></body></html>")
+        self.assertEqual(validator.rules.rules, [])
+        self.assertFalse(validator)
+
+    def test_missing_style_tag(self):
+        """A document with no <style> at all behaves the same way"""
+        validator = CssValidator("<html><head></head><body><p>x</p></body></html>")
+        self.assertEqual(validator.rules.rules, [])
+        self.assertFalse(validator)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bs: BeautifulSoup = BeautifulSoup(html, "html.parser")
