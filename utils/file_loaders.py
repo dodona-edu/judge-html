@@ -33,9 +33,9 @@ def html_loader(file_path: str, **kwargs) -> str:
 
 def json_loader(file_path: str, **kwargs) -> dict:
     """Utility function to load a JSON file in order to use the content
-        param file_path: the full path to the file
-        kwargs:
-            param: shorted=False => dont extend the path with .html (default is True)
+    param file_path: the full path to the file
+    kwargs:
+        param: shorted=False => dont extend the path with .html (default is True)
 
     """
     # Allow only the name to be passed (shorter)
@@ -44,4 +44,5 @@ def json_loader(file_path: str, **kwargs) -> dict:
 
     with open(file_path, "r") as f:
         import json
+
         return json.load(f)

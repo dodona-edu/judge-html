@@ -33,7 +33,9 @@ class TestChecks(unittest.TestCase):
 
         """Test chaining"""
         img_exists = suite.element("img").exists()
-        img_exists.then(suite.element("div").exists()).then(suite.element("body").exists()).then(suite.element("html").exists())
+        img_exists.then(suite.element("div").exists()).then(suite.element("body").exists()).then(
+            suite.element("html").exists()
+        )
         self.assertEqual(len(img_exists.on_success), 1)
         self.assertEqual(len(img_exists.on_success[0].on_success), 1)
         self.assertEqual(len(img_exists.on_success[0].on_success[0].on_success), 1)

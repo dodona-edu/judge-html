@@ -64,4 +64,6 @@ class DodonaConfig(SimpleNamespace):
 
         # Make sure that this file is located right below the judge folder
         script_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-        assert os.path.realpath(script_path) == os.path.realpath(self.judge), f"{os.path.realpath(script_path)} | {os.path.realpath(self.judge)}"
+        assert os.path.realpath(script_path) == os.path.realpath(self.judge), (
+            f"{os.path.realpath(script_path)} | {os.path.realpath(self.judge)}"
+        )

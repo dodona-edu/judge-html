@@ -184,7 +184,7 @@ class Translator:
             Text.LOCATED_AT: "located at",
             Text.LINE: "line",
             Text.POSITION: "position",
-            Text.SUBMISSION: "Submission"
+            Text.SUBMISSION: "Submission",
         },
         Language.NL: {
             Text.MISSING_EVALUATION_FILE: "De evaluator.py en solution.html bestanden ontbreken.",
@@ -232,6 +232,6 @@ class Translator:
             Text.LOCATED_AT: "gevonden op",
             Text.LINE: "regel",
             Text.POSITION: "positie",
-            Text.SUBMISSION: "Indiening"
-        }
+            Text.SUBMISSION: "Indiening",
+        },
     }

@@ -20,6 +20,7 @@ Below is the boilerplate to create your own Check:
 from bs4 import BeautifulSoup
 from validators.checks import Check
 
+
 # Function that creates a custom check
 def my_custom_check() -> Check:
     # Inner function that will evaluate something
@@ -47,10 +48,11 @@ from bs4 import BeautifulSoup
 from typing import List
 from validators.checks import Check
 
+
 def interval_passed(minimum: int, maximum: int, checks: List[Check]) -> Check:
     def _inner(bs: BeautifulSoup) -> bool:
         passed_checks = 0
-        
+
         # Run every check
         for check in checks:
             # If the current Check passed, increase the counter
@@ -69,13 +71,10 @@ suite = HtmlSuite(content)
 html_element = suite.element("html")
 body_element = html_element.get_child("body")
 
-checklist_item = ChecklistItem("At least 1 and at most 2 checks passed",
-                               interval_passed(1, 2, [
-                                   html_element.exists(),
-                                   body_element.exists(),
-                                   body_element.has_child("div", id="example")
-                               ])
-                               )
+checklist_item = ChecklistItem(
+    "At least 1 and at most 2 checks passed",
+    interval_passed(1, 2, [html_element.exists(), body_element.exists(), body_element.has_child("div", id="example")]),
+)
 ```
 
 ### Element has a list of attributes
@@ -113,7 +112,7 @@ suite = HtmlSuite(content)
 img_element = suite.element("img")
 
 required_attributes = ["src", "alt", "width", "height"]
-checklist_item = ChecklistItem("The <img> has the required attributes.",
-                               has_all_attributes(img_element, required_attributes)
-                               )
+checklist_item = ChecklistItem(
+    "The <img> has the required attributes.", has_all_attributes(img_element, required_attributes)
+)
 ```

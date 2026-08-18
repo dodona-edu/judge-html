@@ -155,7 +155,9 @@ class TestCssValidator(unittest.TestCase):
             "test_multiple_classname test_multiple_classname2",
             "test_class_descendant",
             "test_id",
-            "test_select_all1", "test_select_all2", "test_select_all3",
+            "test_select_all1",
+            "test_select_all2",
+            "test_select_all3",
             "test_element_div",
             "test_element_with_classname",
             "test_element_comma_element",  # this is already checked implicitly
@@ -174,7 +176,7 @@ class TestCssValidator(unittest.TestCase):
             "test_most_precise",  # this is already checked implicitly hence everything is color: red
             "test_order",
             "test_important",
-            "test_color_1"
+            "test_color_1",
         ]
 
         # Change amount of times this is run to benchmark

@@ -18,8 +18,8 @@ def flatten_varargs(func):
 
         # Cut out the normal arguments & only leave varargs behind
         # then flatten them into a single list
-        varargs = flatten_queue(args[len(argspec.args):])
-        args = args[:len(argspec.args)] + varargs
+        varargs = flatten_queue(args[len(argspec.args) :])
+        args = args[: len(argspec.args)] + varargs
 
         return func(*args, **kwargs)
 

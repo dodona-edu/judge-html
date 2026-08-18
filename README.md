@@ -219,10 +219,10 @@ In a lot of cases you're going to want the students to write _something_ or to g
 
     ```python
     body = html.element("body")
-    table = body.get_child('table', direct=True)
+    table = body.get_child("table", direct=True)
 
     html.make_item("The body has a table. (regular)", table.exists())
-    html.make_item("The table has two rows. (regular)", table.get_children('tr').at_least(2))
+    html.make_item("The table has two rows. (regular)", table.get_children("tr").at_least(2))
     ```
 
     **Emmet syntax**
@@ -236,10 +236,7 @@ In a lot of cases you're going to want the students to write _something_ or to g
 
     ```python
     # Add Dutch translation
-    html.translations["nl"] = [
-        "De body heeft een tabel.",
-        "De tabel heeft twee rijen."
-    ]
+    html.translations["nl"] = ["De body heeft een tabel.", "De tabel heeft twee rijen."]
     ```
 
 6. *Optional*: Add boilerplate HTML to the boilerplate file. The contents of this file is loaded automatically in the submission text area of the users. You can use this to provide some starting code or structure to your students.

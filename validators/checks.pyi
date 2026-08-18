@@ -9,11 +9,9 @@ from dodona.translator import Translator
 from validators.css_validator import CssValidator, Rule
 from validators.html_validator import HtmlValidator
 
-
 # Custom type hints
 Emmet = TypeVar("Emmet", bound=str)
 Checks = TypeVar("Checks", bound=Union["Check", Iterable["Check"]])
-
 
 class Check:
     callback: Callable[[BeautifulSoup], bool]
@@ -21,9 +19,7 @@ class Check:
     abort_on_fail: bool = False
 
     def __init__(self, callback: Callable[[BeautifulSoup], bool]): ...
-
     def _find_deepest_nested(self) -> "Check": ...
-
     def or_abort(self) -> "Check":
         """This function will cause the check's TestSuite to stop evaluating, and cause all future checks to fail. This should be used in case a first check is a necessary requirement for the following checks to succeed."""
         ...
@@ -36,19 +32,23 @@ class Check:
         """This function registers one or more checks that should only run if the current check succeeds."""
         ...
 
-
 class Element:
     tag: str
     id: Optional[str] = ...
     _element: Optional[Tag] = ...
     _css_validator: Optional[CssValidator] = None
 
-    def __init__(self, tag: str, id: Optional[str] = ..., _element: Optional[Tag] = ...,
-                 css_validator: Optional[CssValidator] = ...): ...
-
+    def __init__(
+        self,
+        tag: str,
+        id: Optional[str] = ...,
+        _element: Optional[Tag] = ...,
+        css_validator: Optional[CssValidator] = ...,
+    ): ...
     def __str__(self) -> str: ...
-
-    def get_child(self, tag: Optional[Union[str, Emmet]] = ..., index: int = 0, direct: bool = True, **kwargs) -> "Element":
+    def get_child(
+        self, tag: Optional[Union[str, Emmet]] = ..., index: int = 0, direct: bool = True, **kwargs
+    ) -> "Element":
         """This method finds a child element with tag tag, optionally with extra filters. Supports Emmet syntax through the tag parameter."""
         ...
 
@@ -73,7 +73,6 @@ class Element:
         ...
 
     def _has_tag(self, tag: str) -> bool: ...
-
     def has_tag(self, tag: str) -> Check:
         """Check that this element has the required tag."""
         ...
@@ -83,12 +82,15 @@ class Element:
         ...
 
     def _get_attribute(self, attr: str) -> Optional[Union[List[str], str]]: ...
-
-    def _compare_attribute_list(self, attribute: List[str], value: Optional[str] = None,
-                                case_insensitive: bool = False,
-                                mode: int = 0, flags: Union[int, RegexFlag] = 0) -> bool: ...
-
-    def attribute_exists(self, attr: str, value: Optional[str] = ..., case_insensitive: bool = False) ->Check:
+    def _compare_attribute_list(
+        self,
+        attribute: List[str],
+        value: Optional[str] = None,
+        case_insensitive: bool = False,
+        mode: int = 0,
+        flags: Union[int, RegexFlag] = 0,
+    ) -> bool: ...
+    def attribute_exists(self, attr: str, value: Optional[str] = ..., case_insensitive: bool = False) -> Check:
         """Check that this element has a given attribute, optionally matching a specific value."""
         ...
 
@@ -104,7 +106,9 @@ class Element:
         """This method checks if an Element with tag table has a header with content that matches a list of strings."""
         ...
 
-    def has_table_content(self, rows: List[List[str]], has_header: bool = True, case_insensitive: bool = False) -> Check:
+    def has_table_content(
+        self, rows: List[List[str]], has_header: bool = True, case_insensitive: bool = False
+    ) -> Check:
         """This method checks if an Element with tag table has rows with the required content, excluding the header."""
         ...
 
@@ -131,36 +135,43 @@ class Element:
         """
         ...
 
-    def has_styling(self, prop: str, value: Optional[str] = ..., important: Optional[bool] = ..., pseudo: Optional[str] = None, allow_inheritance: bool = False, any_order: bool = True) -> Check:
+    def has_styling(
+        self,
+        prop: str,
+        value: Optional[str] = ...,
+        important: Optional[bool] = ...,
+        pseudo: Optional[str] = None,
+        allow_inheritance: bool = False,
+        any_order: bool = True,
+    ) -> Check:
         """Check that this element is matched by a CSS selector to give it a particular styling. A value can be passed to match the value of the styling exactly."""
         ...
 
-    def has_color(self, prop: str, color: str, important: Optional[bool] = None,  pseudo: Optional[str] = None, allow_inheritance: bool = False) -> Check:
+    def has_color(
+        self,
+        prop: str,
+        color: str,
+        important: Optional[bool] = None,
+        pseudo: Optional[str] = None,
+        allow_inheritance: bool = False,
+    ) -> Check:
         """Check that this element has a given color on a CSS property."""
         ...
 
-
 class EmptyElement(Element):
     def __init__(self): ...
-
     def __str__(self) -> str: ...
-
 
 class ElementContainer:
     elements: List[Element]
     _size: int = ...
 
     def __init__(self, elements: List[Element]): ...
-
     def __getitem__(self, item) -> Union[Element, List[Element]]: ...
-
     def __iter__(self) -> Iterator[Element]: ...
-
     def __len__(self) -> int: ...
-
     @classmethod
     def from_tags(cls, tags: List[Tag], css_validator: CssValidator) -> "ElementContainer": ...
-
     def get(self, index: int) -> Element:
         """Get the Element at a specific index of the container. In case there aren't enough elements in the container this returns an empty element instead."""
         ...
@@ -189,16 +200,13 @@ class ElementContainer:
         """
         ...
 
-
 class ChecklistItem:
     message: str
     _checks: List[Check] = ...
     _is_verbose: bool = False
 
     def __init__(self, message: str, *checks: Checks): ...
-
     def __post_init__(self): ...
-
     def _process_one(self, check: Check, bs: BeautifulSoup, language: str) -> bool:
         """Process a single check inside of this item"""
         ...
@@ -206,7 +214,6 @@ class ChecklistItem:
     def evaluate(self, bs: BeautifulSoup, language: str) -> bool:
         """Evaluate all checks inside of this item"""
         ...
-
 
 class TestSuite:
     name: str
@@ -221,15 +228,10 @@ class TestSuite:
     _css_validated: bool = ...
 
     def __init__(self, name: str, content: str, check_recommended: bool = ...): ...
-
     def __post_init__(self): ...
-
     def create_validator(self, config: DodonaConfig): ...
-
     def css_is_valid(self) -> bool: ...
-
     def html_is_valid(self) -> bool: ...
-
     def add_item(self, check: ChecklistItem):
         """Shortcut for TestSuite.checklist.append(item)"""
         ...
@@ -240,8 +242,8 @@ class TestSuite:
 
     def make_item_from_emmet(self, message: str, *emmets: Emmet):
         """Create a new ChecklistItem, the check will compare the submission to the emmet expression.
-            The emmet expression is seen as the minimal required elements/attributes, so the submission may contain more
-            or equal elements"""
+        The emmet expression is seen as the minimal required elements/attributes, so the submission may contain more
+        or equal elements"""
         ...
 
     def validate_html(self, allow_warnings: bool = True) -> Check:
@@ -268,7 +270,14 @@ class TestSuite:
         """Check if the document contains a comment, optionally matching a value."""
         ...
 
-    def contains_css(self, css_selector: str, prop: str, value: Optional[str] = None, important: Optional[bool] = None, any_order: bool = False) -> Check:
+    def contains_css(
+        self,
+        css_selector: str,
+        prop: str,
+        value: Optional[str] = None,
+        important: Optional[bool] = None,
+        any_order: bool = False,
+    ) -> Check:
         """Check if the given css rule exists for the given css selector"""
         ...
 
@@ -276,18 +285,20 @@ class TestSuite:
         """Check if the document has a DOCTYPE tag, optionally matching a value"""
         ...
 
-    def element(self, tag: Optional[Union[str, Emmet]] = ..., index: int = 0, from_root: bool = False, **kwargs) -> Element:
+    def element(
+        self, tag: Optional[Union[str, Emmet]] = ..., index: int = 0, from_root: bool = False, **kwargs
+    ) -> Element:
         """Create a reference to an HTML element. Supports Emmet syntax through the tag parameter."""
         ...
 
-    def all_elements(self, tag: Optional[Union[str, Emmet]] = ..., from_root: bool = False, **kwargs) -> ElementContainer:
+    def all_elements(
+        self, tag: Optional[Union[str, Emmet]] = ..., from_root: bool = False, **kwargs
+    ) -> ElementContainer:
         """Get references to ALL HTML elements that match a query. Supports Emmet syntax through the tag parameter."""
         ...
 
     def _create_language_lists(self): ...
-
     def evaluate(self, translator: Translator) -> int: ...
-
 
 class BoilerplateTestSuite(TestSuite):
     _default_translations: Optional[Dict[str, List[str]]] = ...
@@ -295,39 +306,52 @@ class BoilerplateTestSuite(TestSuite):
 
     def __init__(self, name: str, content: str, check_recommended: bool = True, check_minimal: bool = False): ...
 
-
 class HtmlSuite(BoilerplateTestSuite):
     allow_warnings: bool
 
-    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True, check_minimal: bool = False): ...
-
+    def __init__(
+        self,
+        content: str,
+        check_recommended: bool = True,
+        allow_warnings: bool = True,
+        abort: bool = True,
+        check_minimal: bool = False,
+    ): ...
 
 class CssSuite(BoilerplateTestSuite):
     allow_warnings: bool
 
-    def __init__(self, content: str, check_recommended: bool = True, allow_warnings: bool = True, abort: bool = True, check_minimal: bool = False): ...
-
+    def __init__(
+        self,
+        content: str,
+        check_recommended: bool = True,
+        allow_warnings: bool = True,
+        abort: bool = True,
+        check_minimal: bool = False,
+    ): ...
 
 class _CompareSuite(HtmlSuite):
-
-    def __init__(self, content: str, solution: str, config: DodonaConfig, check_recommended: bool = True,
-                 allow_warnings: bool = True, abort: bool = True): ...
-
+    def __init__(
+        self,
+        content: str,
+        solution: str,
+        config: DodonaConfig,
+        check_recommended: bool = True,
+        allow_warnings: bool = True,
+        abort: bool = True,
+    ): ...
 
 def all_of(*args: Checks) -> Check:
     """The all_of function takes a series of Checks, and will only pass if all of these checks passed too. Once one check fails, all other checks in the list will no longer be evaluated."""
     ...
 
-
 def any_of(*args: Checks) -> Check:
     """The any_of function takes a series of checks, and will pass if at least one of these checks passes as well. Once one check passes, all other checks in the list will no longer evaluated."""
     ...
 
-
 def at_least(amount: int, *args: Checks) -> Check:
     """The at_least function takes the amount of checks required, and a series of checks to evaluate. The function will pass once at least amount checks have passed, and further checks will no longer be evaluated."""
     ...
-
 
 def fail_if(check: Check) -> Check:
     """The fail_if function takes a check, and will fail if the check passes."""

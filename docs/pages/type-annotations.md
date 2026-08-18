@@ -58,6 +58,7 @@ The `Emmet` type suggests you can use [`Emmet Syntax`](emmet-syntax.md) on this 
 ```python
 def function(arg: Emmet): ...
 
+
 # Emmet parameters are equal to strings
 function("body>table>#some_id")
 ```

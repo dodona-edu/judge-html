@@ -146,7 +146,7 @@ If you have this as `evaluator.py` (`make_item_from_emmet` is explained in the n
 ```python
 suite = HtmlSuite(content)
 
-suite.make_item_from_emmet("A div in body contains some text.", 'body>div{DUMMY}')
+suite.make_item_from_emmet("A div in body contains some text.", "body>div{DUMMY}")
 ```
 
 And this as the submission
@@ -219,7 +219,7 @@ All these checks should be taken in an *at_least* context. They check that your 
 ```python
 suite = HtmlSuite(content)
 
-message = "The <table> has a <tr> with id \"example\"."
+message = 'The <table> has a <tr> with id "example".'
 
 # Without Emmet Syntax
 suite.make_item(message, suite.element("table").has_child("tr", id="example"))
@@ -253,7 +253,7 @@ The `DUMMY` keyword can be used to indicate that any content is accepted.
 ```python
 suite = HtmlSuite(content)
 
-message = "The <body> has a <table>, which contains a <tr> with a <td> with content \"example\"."
+message = 'The <body> has a <table>, which contains a <tr> with a <td> with content "example".'
 
 # Without Emmet Syntax
 table = suite.element("body").get_child("table")
@@ -265,16 +265,15 @@ for tr in table.get_children("tr"):
 
 # Without Emmet Syntax, using a complex and hard-to-read construction
 table = suite.element("body").get_child("table")
-suite.make_item(message, any_of(
-        *list(map(lambda tr: tr.has_child("td", text="example"), table.get_children("tr")))
-    )
-)
+suite.make_item(message, any_of(*list(map(lambda tr: tr.has_child("td", text="example"), table.get_children("tr")))))
 
 # With Emmet Syntax
 suite.make_item_from_emmet(message, "body>table>tr>td{example}")
 
 # Emmet Syntax with DUMMY keyword
-suite.make_item_from_emmet("The <body> has a <table>, which contains a <tr> with a <td> with any content.", "body>table>tr>td{DUMMY}")
+suite.make_item_from_emmet(
+    "The <body> has a <table>, which contains a <tr> with a <td> with any content.", "body>table>tr>td{DUMMY}"
+)
 ```
 
 #### Check that X amount of children exist
@@ -296,11 +295,16 @@ suite.make_item_from_emmet(message, "body>table>tr*6")
 ```python
 suite = HtmlSuite(content)
 
-message = "The <body> contains a <div> with id \"header\", and another <div> with class \"page\"."
+message = 'The <body> contains a <div> with id "header", and another <div> with class "page".'
 
 # Without Emmet Syntax
 body = suite.element("body")
-suite.make_item(message, body.has_child("div", id="header"), body.has_child("div", class_="page"), fail_if(body.has_child("div", id="header", class_="page")))
+suite.make_item(
+    message,
+    body.has_child("div", id="header"),
+    body.has_child("div", class_="page"),
+    fail_if(body.has_child("div", id="header", class_="page")),
+)
 
 # With Emmet Syntax
 suite.make_item_from_emmet(message, "body>div#header+div.page")
@@ -313,7 +317,7 @@ The `DUMMY` keyword can be used to indicate that any value of the attribute is a
 ```python
 suite = HtmlSuite(content)
 
-message = "The <table> has a <tr> which contains a <td> with title \"Hello world\", and colspan \"3\"."
+message = 'The <table> has a <tr> which contains a <td> with title "Hello world", and colspan "3".'
 
 # Without Emmet Syntax
 table = suite.element("table")
@@ -324,16 +328,20 @@ for tr in table.get_children("tr"):
     checks_list.append(tr.has_child("td", title="Hello world", colspan="3"))
 
 suite.make_item(message, any_of(*checks_list))
-    
+
 # Without Emmet Syntax, using a complex and hard-to-read construction
 table = suite.element("table")
-suite.make_item(message, any_of(
-    *list(map(lambda tr: tr.has_child("td", title="Hello world", colspan="3"), table.get_children("tr")))
-))
+suite.make_item(
+    message,
+    any_of(*list(map(lambda tr: tr.has_child("td", title="Hello world", colspan="3"), table.get_children("tr")))),
+)
 
 # With Emmet Syntax
 suite.make_item_from_emmet(message, "table>tr>td[title='Hello world' colspan='3']")
 
 # Emmet Syntax with DUMMY keyword
-suite.make_item_from_emmet("The <table> has a <tr> which contains a <td> with any title, and any colspan.", "table>tr>td[title='DUMMY' colspan='DUMMY']")
+suite.make_item_from_emmet(
+    "The <table> has a <tr> which contains a <td> with any title, and any colspan.",
+    "table>tr>td[title='DUMMY' colspan='DUMMY']",
+)
 ```

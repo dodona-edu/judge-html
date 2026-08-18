@@ -40,7 +40,7 @@ def emmet_to_check(emmet_str: str, suite: TestSuite) -> Check:
 
     def match_one(ls: [Element], node: AbbreviationNode):
         """when ls contains more than one item, it makes the right selection
-            if ls is empty, it returns an EmptyElement (which will result in a failing Check)&"""
+        if ls is empty, it returns an EmptyElement (which will result in a failing Check)&"""
         if not ls:
             return EmptyElement(), node
         if node.repeat:

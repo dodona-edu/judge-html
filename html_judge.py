@@ -11,7 +11,13 @@ from utils.file_loaders import html_loader
 from validators import checks
 from validators.checks import TestSuite
 from utils.render_ready import prep_render
-from utils.messages import invalid_suites, invalid_evaluator_file, missing_create_suite, missing_evaluator_file, no_suites_found
+from utils.messages import (
+    invalid_suites,
+    invalid_evaluator_file,
+    missing_create_suite,
+    missing_evaluator_file,
+    no_suites_found,
+)
 
 
 def main():
@@ -47,7 +53,9 @@ def main():
                     invalid_suites(judge, config)
                     return
                 # compare(sol, html_content, config.translator)
-                suite = checks._CompareSuite(html_content, solution, config, check_recommended=getattr(config, "recommended", True))
+                suite = checks._CompareSuite(
+                    html_content, solution, config, check_recommended=getattr(config, "recommended", True)
+                )
                 test_suites = [suite]
         except FileNotFoundError:
             # solution.html is missing
@@ -110,7 +118,13 @@ def main():
             judge.status = config.translator.error_status(ErrorType.RUNTIME_ERROR)
             judge.accepted = False
         else:
-            status = ErrorType.CORRECT_ANSWER if failed_tests == 0 else ErrorType.WRONG if failed_tests == 1 else ErrorType.WRONG_ANSWER
+            status = (
+                ErrorType.CORRECT_ANSWER
+                if failed_tests == 0
+                else ErrorType.WRONG
+                if failed_tests == 1
+                else ErrorType.WRONG_ANSWER
+            )
             judge.status = config.translator.error_status(status, amount=failed_tests)
 
 

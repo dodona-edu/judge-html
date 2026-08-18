@@ -56,7 +56,9 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(suite.element("div").get_children("p", direct=True).exactly(1)))
         self.assertTrue(suite.check(suite.element("html").get_children("p", direct=False).exactly(3)))
         self.assertTrue(suite.check(suite.element("html").get_children("h2", direct=False, class_="city").exactly(2)))
-        self.assertTrue(suite.check(suite.element("html").get_children("img", direct=False, alt="dodona-icon").exactly(1)))
+        self.assertTrue(
+            suite.check(suite.element("html").get_children("img", direct=False, alt="dodona-icon").exactly(1))
+        )
 
     def test_exists(self):
         suite = UnitTestSuite("test_1")
@@ -141,7 +143,7 @@ class TestElement(unittest.TestCase):
         self.assertTrue(len(first_and_last) == 2)
 
         with self.assertRaises(TypeError):
-            phantom_p = ps['not a number']
+            phantom_p = ps["not a number"]
             self.assertFalse(suite.check(phantom_p.has_content()))
 
     def test_attribute_exists(self):
@@ -229,7 +231,7 @@ class TestElement(unittest.TestCase):
         self.assertFalse(suite.check(table_elements[0].has_table_header(list(reversed(header)))))
 
         self.assertFalse(suite.check(body.has_table_header(["header", "content"])))
-        self.assertFalse(suite.check(phantom.has_table_header(['no content'])))
+        self.assertFalse(suite.check(phantom.has_table_header(["no content"])))
         self.assertFalse(suite.check(table_elements[4].has_table_header(header)))  # does not exist
 
     def test_has_table_content(self):
@@ -238,10 +240,7 @@ class TestElement(unittest.TestCase):
         body = suite.element("body")
         phantom = suite.element("video")  # does not exist
 
-        content = [
-            ["Value     1", "Value 2", "Value\t 3"],
-            ["Value  4", "Value \n\t\n 5", "Value 6"]
-        ]
+        content = [["Value     1", "Value 2", "Value\t 3"], ["Value  4", "Value \n\t\n 5", "Value 6"]]
 
         self.assertTrue(suite.check(table_elements[0].has_table_content(content, has_header=True)))
         self.assertFalse(suite.check(table_elements[0].has_table_content(content, has_header=False)))
@@ -250,16 +249,16 @@ class TestElement(unittest.TestCase):
         self.assertFalse(suite.check(table_elements[1].has_table_content(content, has_header=False)))
 
         self.assertFalse(
-            suite.check(table_elements[1].has_table_content([['Value 7', 'Value 8', 'Value9']], has_header=True)))
+            suite.check(table_elements[1].has_table_content([["Value 7", "Value 8", "Value9"]], has_header=True))
+        )
 
         self.assertTrue(
-            suite.check(table_elements[1].has_table_content([['Value 7', 'Value 8', 'Value 9']], has_header=False)))
-        self.assertFalse(
-            suite.check(table_elements[1].has_table_content([['7', '8', '9']], has_header=False)))
-        self.assertFalse(
-            suite.check(table_elements[1].has_table_content([['Value 7', 'Value 8']], has_header=False)))
+            suite.check(table_elements[1].has_table_content([["Value 7", "Value 8", "Value 9"]], has_header=False))
+        )
+        self.assertFalse(suite.check(table_elements[1].has_table_content([["7", "8", "9"]], has_header=False)))
+        self.assertFalse(suite.check(table_elements[1].has_table_content([["Value 7", "Value 8"]], has_header=False)))
 
-        self.assertFalse(suite.check(table_elements[2].has_table_content([['no content']])))
+        self.assertFalse(suite.check(table_elements[2].has_table_content([["no content"]])))
 
         self.assertFalse(suite.check(body.has_table_content(content)))
         self.assertFalse(suite.check(phantom.has_table_content(content)))
@@ -277,7 +276,8 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(rows[1].table_row_has_content(["Value \n1", "Value 2", "Value 3"])))
         self.assertFalse(suite.check(rows[1].table_row_has_content(["Value \n1", "Value 2", "Wrong content"])))
         self.assertTrue(
-            suite.check(rows[2].table_row_has_content(["Value 4", "Value \t5", "VALUE      6"], case_insensitive=True)))
+            suite.check(rows[2].table_row_has_content(["Value 4", "Value \t5", "VALUE      6"], case_insensitive=True))
+        )
 
         self.assertFalse(suite.check(body.table_row_has_content(["table", "row", "content"])))
         self.assertFalse(suite.check(ph_row.table_row_has_content(["Column 1", "Column 2", "Column 3"])))
@@ -285,7 +285,7 @@ class TestElement(unittest.TestCase):
     def test_has_color(self):
         suite = UnitTestSuite("css_1")
         div = suite.element("div")
-        span = suite.element('span')
+        span = suite.element("span")
         phantom = suite.element("video")  # does not exist
         p = suite.element("p")
 
@@ -358,9 +358,11 @@ class TestElement(unittest.TestCase):
         self.assertFalse(suite.check(suite.element("a", id="outgoing_link").has_url_with_fragment()))
         self.assertTrue(suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment()))
         self.assertTrue(
-            suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment("_1-create-an-api-token")))
+            suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment("_1-create-an-api-token"))
+        )
         self.assertFalse(
-            suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment("some-other-fragment")))
+            suite.check(suite.element("a", id="fragmented_link").has_url_with_fragment("some-other-fragment"))
+        )
         self.assertTrue(suite.check(suite.element("a", id="internal_link").has_url_with_fragment("section2")))
         self.assertFalse(suite.check(suite.element("a", id="no_link").has_url_with_fragment("section42")))
         self.assertFalse(suite.check(suite.element("a", id="no_href").has_url_with_fragment("section101")))
@@ -401,13 +403,13 @@ class TestElement(unittest.TestCase):
 
         body_element = suite.element("body")
         img_element = suite.element("img")
-        h2_elements = suite.all_elements('h2')
+        h2_elements = suite.all_elements("h2")
         phantom = suite.element("video")  # does not exist
 
         self.assertTrue(suite.check(all_of(body_element.exists(), body_element.has_child("div"), img_element.exists())))
         self.assertFalse(suite.check(all_of(phantom.exists(), body_element.has_child("div"), img_element.exists())))
         self.assertFalse(suite.check(all_of(body_element.exists(), phantom.exists(), img_element.exists())))
-        self.assertTrue(suite.check(all_of(h2.attribute_exists('class', 'city') for h2 in h2_elements)))
+        self.assertTrue(suite.check(all_of(h2.attribute_exists("class", "city") for h2 in h2_elements)))
 
     def test_any_of(self):
         suite = UnitTestSuite("test_1")
@@ -417,8 +419,11 @@ class TestElement(unittest.TestCase):
         p_elements = suite.all_elements("p")
         h3_element = body_element.get_child("h3")  # Does not exist
 
-        self.assertTrue(suite.check(any_of(body_element.exists(), body_element.has_child("div"),
-                                           img_element.exists(), h3_element.exists())))
+        self.assertTrue(
+            suite.check(
+                any_of(body_element.exists(), body_element.has_child("div"), img_element.exists(), h3_element.exists())
+            )
+        )
         self.assertTrue(suite.check(any_of([p_element.has_content() for p_element in p_elements])))
 
     def test_at_least(self):
@@ -429,12 +434,27 @@ class TestElement(unittest.TestCase):
         p_elements = suite.all_elements("p")
         h3_element = body_element.get_child("h3")  # Does not exist
 
-        self.assertTrue(suite.check(at_least(2, body_element.exists(), body_element.has_child("div"),
-                                             img_element.exists(), h3_element.exists())))
-        self.assertTrue(suite.check(at_least(3, body_element.exists(), body_element.has_child("div"),
-                                             img_element.exists(), h3_element.exists())))
-        self.assertFalse(suite.check(at_least(4, body_element.exists(), body_element.has_child("div"),
-                                              img_element.exists(), h3_element.exists())))
+        self.assertTrue(
+            suite.check(
+                at_least(
+                    2, body_element.exists(), body_element.has_child("div"), img_element.exists(), h3_element.exists()
+                )
+            )
+        )
+        self.assertTrue(
+            suite.check(
+                at_least(
+                    3, body_element.exists(), body_element.has_child("div"), img_element.exists(), h3_element.exists()
+                )
+            )
+        )
+        self.assertFalse(
+            suite.check(
+                at_least(
+                    4, body_element.exists(), body_element.has_child("div"), img_element.exists(), h3_element.exists()
+                )
+            )
+        )
         self.assertTrue(suite.check(at_least(2, (p_element.has_content() for p_element in p_elements))))
         self.assertFalse(suite.check(at_least(3, (p_element.has_content() for p_element in p_elements))))
 

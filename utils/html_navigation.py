@@ -8,8 +8,9 @@ def match_emmet(tag: Optional[str]) -> bool:
     return tag is not None and tag and re.match(r"^[a-zA-Z0-9]+$", tag) is None
 
 
-def find_child(element: Optional[Union[BeautifulSoup, Tag]],
-               tag: Optional[str], index: int = 0, from_root: bool = False, **kwargs) -> Optional[Tag]:
+def find_child(
+    element: Optional[Union[BeautifulSoup, Tag]], tag: Optional[str], index: int = 0, from_root: bool = False, **kwargs
+) -> Optional[Tag]:
     """Shortcut to find a child node with a given tag
     :param element:     the parent element to start searching from
     :param tag:         the name of the HTML tag to search for
@@ -58,7 +59,14 @@ def find_child(element: Optional[Union[BeautifulSoup, Tag]],
         return all_children[index]
 
 
-def find_emmet(element: Optional[Union[BeautifulSoup, Tag]], path: str, ind: int, from_root: bool = False, match_multiple: bool = False, **kwargs) -> Optional[List[Tag]]:
+def find_emmet(
+    element: Optional[Union[BeautifulSoup, Tag]],
+    path: str,
+    ind: int,
+    from_root: bool = False,
+    match_multiple: bool = False,
+    **kwargs,
+) -> Optional[List[Tag]]:
     """Find an element using emmet syntax"""
     if element is None:
         return None
