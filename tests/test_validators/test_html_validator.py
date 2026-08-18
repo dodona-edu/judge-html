@@ -141,3 +141,28 @@ class TestHtmlValidator(unittest.TestCase):
         with self.assertRaises(AttributeValueError):
             self.validator.validate_content("<img src='/home/q/Downloads/image.jpg'>")
 
+    def test_absolute_src_paths(self):
+        # regression test for https://github.com/python/cpython/issues/44626:
+        # ntpath.isabs stopped treating a leading (back)slash as absolute in Python 3.13
+        self.setup(False, False, False)
+        # correct: relative paths and URLs must not be flagged
+        self.validator.validate_content("<img src='image.jpg'>")
+        self.validator.validate_content("<img src='media/image.jpg'>")
+        self.validator.validate_content("<img src='../img/x.png'>")
+        self.validator.validate_content("<img src='http://example.com/x.png'>")
+        self.validator.validate_content("<img src='https://example.com/x.png'>")
+        self.validator.validate_content("<img src='www.example.com/x.png'>")
+        self.validator.validate_content(r"<img src='C:x\y.jpg'>")  # drive-relative, not absolute
+        # incorrect: absolute paths, in POSIX and Windows spelling, must be flagged
+        with self.assertRaises(AttributeValueError):
+            self.validator.validate_content("<img src='/home/q/image.jpg'>")
+        with self.assertRaises(AttributeValueError):
+            self.validator.validate_content("<img src='//server/share/x.jpg'>")
+        with self.assertRaises(AttributeValueError):
+            self.validator.validate_content(r"<img src='\\server\share\x.jpg'>")
+        with self.assertRaises(AttributeValueError):
+            self.validator.validate_content(r"<img src='\images\x.png'>")
+        with self.assertRaises(AttributeValueError):
+            self.validator.validate_content(r"<img src='C:\x\y.jpg'>")
+        with self.assertRaises(AttributeValueError):
+            self.validator.validate_content("<img src='C:/x/y.jpg'>")
