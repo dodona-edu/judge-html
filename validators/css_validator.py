@@ -1,10 +1,10 @@
-from typing import Any
+from typing import Any, cast
 
 import tinycss2
 import tinycss2.nth
 from bs4.element import Tag
 from cssselect import GenericTranslator, SelectorError
-from lxml.etree import ElementBase
+from lxml.etree import _Element
 from lxml.html import fromstring
 from tinycss2.ast import (
     Declaration,
@@ -172,7 +172,7 @@ def calc_specificity(selector_str: str) -> tuple[int, int, int]:  # see https://
 class Rules:
     """represents a set of css rules"""
 
-    root: ElementBase
+    root: _Element
 
     def __init__(self, css_content: str):
         """parses css to individual Rules"""
@@ -210,9 +210,7 @@ class Rules:
         return len(self.rules)
 
     # of doing serialize() at the end, to access the !important property
-    def find(
-        self, root: ElementBase, solution_element: ElementBase, key: str, pseudo: str | None = None
-    ) -> Rule | None:
+    def find(self, root: _Element, solution_element: _Element, key: str, pseudo: str | None = None) -> Rule | None:
         """find the css rule for key (ex: color) for the solution_element,
         root is the root of the html-document (etree)"""
         rs: list[Rule] = []
@@ -222,7 +220,7 @@ class Rules:
         for r in reversed(self.rules):
             if r.name == key:
                 if r.pseudo == pseudo:
-                    for element in root.xpath(r.xpath):
+                    for element in cast("list[_Element]", root.xpath(r.xpath)):
                         if element == solution_element:
                             if r.important:
                                 imp.append(r)
@@ -247,7 +245,7 @@ class Rules:
 
         return dom_rule
 
-    def find_all(self, root: ElementBase, solution_element: ElementBase) -> dict[str, Rule]:
+    def find_all(self, root: _Element, solution_element: _Element) -> dict[str, Rule]:
         """find all the css rule for the solution_element,
         root is the root of the html-document (etree)"""
         dom_css = {}
@@ -255,7 +253,7 @@ class Rules:
         r: Rule
         # find all rules defined for the solution element for the specified key
         for r in reversed(self.rules):
-            for element in root.xpath(r.xpath):
+            for element in cast("list[_Element]", root.xpath(r.xpath)):
                 if element == solution_element:
                     if r.name not in by_keyword:
                         by_keyword[r.name] = ([], [])
@@ -312,11 +310,18 @@ class CssValidator:
 
     def __init__(self, html: str):
         # Invalid HTML makes fromstring() crash, so it can be None
-        self.root: ElementBase | None = None
+        self.root: _Element | None = None
         try:
             self.root = fromstring(html)
-            style: ElementBase = self.root.find(".//style")
-            css = style.text
+
+            # A document without a <style> makes find() return None, and the AttributeError
+            # that follows is what the except below is there to swallow
+            style = cast("_Element", self.root.find(".//style"))
+
+            # An empty <style></style> gives text None, and Rules() then raises a TypeError
+            # that TestSuite.__post_init__ doesn't catch. That's a real bug rather than an
+            # annotation one, so it keeps its behaviour here and gets its own PR
+            css = cast("str", style.text)
         except Exception:
             css = ""
 
@@ -366,7 +371,7 @@ class CssValidator:
         # LXML adds a root HTML tag if there is none present, which results in
         # root.xpath(path) failing because our parsed solution technically doesn't exist
         # If nothing was found, try again with "/html" as a prefix
-        sols = self.root.xpath(xpath_solution) or self.root.xpath("/html" + xpath_solution)
+        sols = cast("list[_Element]", self.root.xpath(xpath_solution) or self.root.xpath("/html" + xpath_solution))
 
         # Found nothing
         if not sols:

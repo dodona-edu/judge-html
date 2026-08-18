@@ -1,6 +1,6 @@
 from collections.abc import Callable, Iterable, Iterator
 from re import RegexFlag
-from typing import TypeVar, Union
+from typing import TypeAlias, TypeVar
 
 from bs4 import BeautifulSoup
 from bs4.element import Tag
@@ -12,7 +12,7 @@ from validators.html_validator import HtmlValidator
 
 # Custom type hints
 Emmet = TypeVar("Emmet", bound=str)
-Checks = TypeVar("Checks", bound=Union["Check", Iterable["Check"]])
+Checks: TypeAlias = Check | Iterable[Check]
 
 class Check:
     callback: Callable[[BeautifulSoup], bool]
