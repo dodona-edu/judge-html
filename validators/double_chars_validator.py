@@ -123,13 +123,13 @@ class CssComment(DoubleChar):
 class Generator:
     def __init__(self):
         # sort so we always have longest match first
-        self.ls: [DoubleChar] = sorted(
+        self.ls: list[DoubleChar] = sorted(
             [Round(), Angle(), Curly(), Square(), Single(), Double(), HtmlComment(), CssComment()],
             key=lambda x: x.len_open() if x.len_open() > x.len_close() else x.len_close(),
             reverse=True,
         )
 
-    def create(self, s: str, line: int, pos: int) -> (DoubleChar, str):
+    def create(self, s: str, line: int, pos: int) -> tuple[DoubleChar | None, str]:
         for x in self.ls:
             if x.match_open(s):
                 return x.create(True, line, pos), s[x.len_open() :]
@@ -154,7 +154,7 @@ class DoubleCharsValidator:
         self.translator = translator
 
     @staticmethod
-    def parse_content(s: str) -> []:
+    def parse_content(s: str) -> list[str | DoubleChar]:
         ls = []
         generator = Generator()
         saved_text = ""
@@ -183,7 +183,7 @@ class DoubleCharsValidator:
     def validate_content(self, text: str):
         """checks the text"""
         # parse
-        text_ls: [] = self.parse_content(text)
+        text_ls: list[str | DoubleChar] = self.parse_content(text)
         # validate
         stack = []
         wait_until_seen: DoubleChar = None
