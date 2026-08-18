@@ -20,13 +20,13 @@ def html_loader(file_path: str, **kwargs) -> str:
         content = file.read()
 
         if kwargs.get("wrap_head", False):
-            content = f"<head>{content}<head>"
+            content = f"<head>{content}</head>"
 
         if kwargs.get("wrap_body", False):
-            content = f"<body>{content}<body>"
+            content = f"<body>{content}</body>"
 
         if kwargs.get("wrap_html", False):
-            content = f"<html lang='en'>{content}<html>"
+            content = f"<html lang='en'>{content}</html>"
 
         return content
 
