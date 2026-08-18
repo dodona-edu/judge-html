@@ -130,7 +130,8 @@ class Element:
         if child is None:
             return EmptyElement()
 
-        return Element(child.name, child.get("id", None), child, self._css_validator)
+        # id is not one of the attributes bs4 splits into a list, so it is never a list here
+        return Element(child.name, cast("str | None", child.get("id", None)), child, self._css_validator)
 
     def get_children(self, tag: str | Emmet | None = None, direct: bool = True, **kwargs) -> "ElementContainer":
         """Get all children of this element that match the requested input"""
@@ -138,23 +139,28 @@ class Element:
         if self._element is None:
             return ElementContainer([])
 
+        matches: list[Tag]
+
         # Emmet syntax requested
         if match_emmet(tag):
             # Index parameter is not relevant here & it won't be used anyways
-            matches = find_emmet(self._element, tag, 0, from_root=direct, match_multiple=True, **kwargs)
+            emmet_matches = find_emmet(self._element, tag, 0, from_root=direct, match_multiple=True, **kwargs)
 
             # Nothing found
-            if matches is None:
+            if emmet_matches is None:
                 return ElementContainer([])
+
+            matches = emmet_matches
         elif tag is not None:
             # If a tag was specified, only search for those
-            matches = self._element.find_all(tag, recursive=not direct, **kwargs)
+            # find_all() is typed as yielding PageElement, but a name filter only matches Tags
+            matches = cast("list[Tag]", self._element.find_all(tag, recursive=not direct, **kwargs))
         else:
             # Otherwise, use all children instead
-            matches = self._element.children if direct else self._element.descendants
+            children = self._element.children if direct else self._element.descendants
 
             # Filter out string content
-            matches = list(filter(lambda x: isinstance(x, Tag), matches))
+            matches = [child for child in children if isinstance(child, Tag)]
 
         return ElementContainer.from_tags(matches, self._css_validator)
 
@@ -417,7 +423,7 @@ class Element:
                 return False
 
             # List of all headers in this table
-            ths = element.find_all("th")
+            ths = cast("list[Tag]", element.find_all("th"))
 
             # Not the same amount of headers
             if len(ths) != len(header):
@@ -451,7 +457,7 @@ class Element:
             if not self._has_tag("table"):
                 return False
 
-            trs = element.find_all("tr")
+            trs = cast("list[Tag]", element.find_all("tr"))
 
             # No rows found
             if not trs:
@@ -499,7 +505,7 @@ class Element:
             if not self._has_tag("tr"):
                 return False
 
-            tds = element.find_all("td")
+            tds = cast("list[Tag]", element.find_all("td"))
 
             # Amount of items doesn't match up
             if len(tds) != len(row):
@@ -530,7 +536,8 @@ class Element:
             if url is None:
                 return False
 
-            split = urlsplit(url)
+            # href is not one of the attributes bs4 splits into a list
+            split = urlsplit(cast("str", url))
 
             # No fragment present
             if not split.fragment:
@@ -561,7 +568,9 @@ class Element:
             if url is None:
                 return False
 
-            spl = urlsplit(url)
+            # A multi-valued attribute (class, rel, ...) gives a list here and urlsplit
+            # raises on it, but that predates this annotation and needs its own fix
+            spl = urlsplit(cast("str", url))
 
             if spl.netloc:
                 # Ignore www. in the start to allow the arguments to be shorter
@@ -607,7 +616,8 @@ class Element:
             prop_value = css_validator.find(current_element, prop, pseudo)
 
             if prop_value is None:
-                parents = current_element.find_parents()
+                # find_parents() is typed as yielding PageElement, but a parent is a Tag
+                parents = cast("list[Tag]", current_element.find_parents())
 
                 # find_parents() always returns the entire document as well,
                 # even when the current element is the root
@@ -747,9 +757,10 @@ class ElementContainer:
         return self._size
 
     @classmethod
-    def from_tags(cls, tags: list[Tag], css_validator: CssValidator) -> "ElementContainer":
+    def from_tags(cls, tags: list[Tag], css_validator: CssValidator | None) -> "ElementContainer":
         """Construct a container from a list of bs4 Tag instances"""
-        elements = list(map(lambda x: Element(x.name, x.get("id", None), x, css_validator), tags))
+        # id is not one of the attributes bs4 splits into a list, so it is never a list here
+        elements = list(map(lambda x: Element(x.name, cast("str | None", x.get("id", None)), x, css_validator), tags))
         return ElementContainer(elements)
 
     def get(self, index: int) -> Element:
@@ -1133,13 +1144,18 @@ class TestSuite:
 
     def all_elements(self, tag: str | Emmet | None = None, from_root: bool = False, **kwargs) -> ElementContainer:
         """Get references to ALL HTML elements that match a query"""
-        if match_emmet(tag):
-            elements = find_emmet(self._bs, tag, 0, from_root=from_root, match_multiple=True, **kwargs)
+        elements: list[Tag]
 
-            if elements is None:
+        if match_emmet(tag):
+            emmet_elements = find_emmet(self._bs, tag, 0, from_root=from_root, match_multiple=True, **kwargs)
+
+            if emmet_elements is None:
                 return ElementContainer([])
+
+            elements = emmet_elements
         else:
-            elements = self._bs.find_all(tag, recursive=not from_root, **kwargs)
+            # find_all() is typed as yielding PageElement, but a name filter only matches Tags
+            elements = cast("list[Tag]", self._bs.find_all(tag, recursive=not from_root, **kwargs))
 
         return ElementContainer.from_tags(elements, self._css_validator)
 

@@ -1,4 +1,5 @@
 from ntpath import basename
+from typing import cast
 
 import bs4
 from bs4.element import Tag
@@ -17,7 +18,9 @@ def prep_render(html_content: str, render_css: bool) -> tuple[str, str]:
         soup = bs4.BeautifulSoup(html_content, "html.parser")
 
         # remove title
-        title: Tag = soup.find("title")
+        # find() and find_all() are typed as yielding PageElement, which covers
+        # NavigableString too. Searching by tag name only ever matches Tags.
+        title = cast("Tag | None", soup.find("title"))
         if title is not None:
             title_str = title.text
             title.decompose()
@@ -27,17 +30,21 @@ def prep_render(html_content: str, render_css: bool) -> tuple[str, str]:
         # wrap div around the contents of body
         div = soup.new_tag("div", attrs={"id": "solution_rendering"})
 
-        body = soup.find("body")
+        body = cast("Tag | None", soup.find("body"))
 
         if body is not None:
             body.wrap(div)
-            attrs = body.attrs
+            # bs4 types new_tag's attrs as Mapping[str, str], but Tag.attrs holds the
+            # multi-valued ones (class, rel, ...) as lists, and new_tag takes those fine
+            attrs = cast("dict[str, str]", body.attrs)
             body.unwrap()
             div.wrap(soup.new_tag("body", attrs=attrs))
 
         # Change all img src's to refer to the /media directory
-        for img in soup.find_all("img", src=True):
-            src = img.get("src")
+        for img in cast("list[Tag]", soup.find_all("img", src=True)):
+            # src=True in the search above already ruled out a missing attribute, and
+            # src is not one of the attributes bs4 splits into a list
+            src = cast("str", img.get("src"))
 
             # Ignore internet URLs, don't use some fancy package for this, this is good enough
             if not src.startswith(
@@ -52,14 +59,17 @@ def prep_render(html_content: str, render_css: bool) -> tuple[str, str]:
 
                 img["src"] = f"media/{filename}"
 
-        style = soup.find("style")
+        style = cast("Tag | None", soup.find("style"))
         if style is not None:
             # Css should not be rendered, remove it from the tree
             if not render_css:
                 style.decompose()
             else:
                 # edit the css-rules
-                rs = Rules(style.string)
+                # An empty <style></style> gives string None, and Rules() then raises a
+                # TypeError. The except below catches it and returns the html unchanged,
+                # so keep it that way rather than growing a branch for it here
+                rs = Rules(cast("str", style.string))
                 x: Rule
                 for x in rs.rules:
                     x.selector_str = f"#solution_rendering {x.selector_str}"

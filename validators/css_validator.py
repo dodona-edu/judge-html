@@ -347,7 +347,11 @@ class CssValidator:
     def _get_xpath_soup(element: Tag) -> str:
         """converts an element from bs4 soup to an xpath expression"""
         components = []
-        child = element if element.name else element.parent
+
+        # A Tag always has a name, so this only ever takes the element itself. bs4 types
+        # .parent as Tag | None, which the else branch can't reach for a Tag
+        child = cast("Tag", element if element.name else element.parent)
+
         for parent in child.parents:
             siblings = parent.find_all(child.name, recursive=False)
             components.append(
