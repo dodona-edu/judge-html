@@ -34,11 +34,11 @@ def prep_render(html_content: str, render_css: bool) -> tuple[str, str]:
 
         if body is not None:
             body.wrap(div)
+            attrs = body.attrs
+            body.unwrap()
             # bs4 types new_tag's attrs as Mapping[str, str], but Tag.attrs holds the
             # multi-valued ones (class, rel, ...) as lists, and new_tag takes those fine
-            attrs = cast("dict[str, str]", body.attrs)
-            body.unwrap()
-            div.wrap(soup.new_tag("body", attrs=attrs))
+            div.wrap(soup.new_tag("body", attrs=cast("dict[str, str]", attrs)))
 
         # Change all img src's to refer to the /media directory
         for img in cast("list[Tag]", soup.find_all("img", src=True)):
