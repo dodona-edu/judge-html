@@ -1,5 +1,6 @@
+from collections.abc import Callable, Iterable, Iterator
 from re import RegexFlag
-from typing import Callable, Dict, Iterable, Iterator, List, Optional, TypeVar, Union
+from typing import TypeVar, Union
 
 from bs4 import BeautifulSoup
 from bs4.element import Tag
@@ -15,44 +16,42 @@ Checks = TypeVar("Checks", bound=Union["Check", Iterable["Check"]])
 
 class Check:
     callback: Callable[[BeautifulSoup], bool]
-    on_success: List["Check"] = ...
+    on_success: list[Check] = ...
     abort_on_fail: bool = False
 
     def __init__(self, callback: Callable[[BeautifulSoup], bool]): ...
-    def _find_deepest_nested(self) -> "Check": ...
-    def or_abort(self) -> "Check":
+    def _find_deepest_nested(self) -> Check: ...
+    def or_abort(self) -> Check:
         """This function will cause the check's TestSuite to stop evaluating, and cause all future checks to fail. This should be used in case a first check is a necessary requirement for the following checks to succeed."""
         ...
 
-    def is_crucial(self) -> "Check":
+    def is_crucial(self) -> Check:
         """This is an alias to or_abort, and can be used in the exact same way."""
         ...
 
-    def then(self, *args: Checks) -> "Check":
+    def then(self, *args: Checks) -> Check:
         """This function registers one or more checks that should only run if the current check succeeds."""
         ...
 
 class Element:
     tag: str
-    id: Optional[str] = ...
-    _element: Optional[Tag] = ...
-    _css_validator: Optional[CssValidator] = None
+    id: str | None = ...
+    _element: Tag | None = ...
+    _css_validator: CssValidator | None = None
 
     def __init__(
         self,
         tag: str,
-        id: Optional[str] = ...,
-        _element: Optional[Tag] = ...,
-        css_validator: Optional[CssValidator] = ...,
+        id: str | None = ...,
+        _element: Tag | None = ...,
+        css_validator: CssValidator | None = ...,
     ): ...
     def __str__(self) -> str: ...
-    def get_child(
-        self, tag: Optional[Union[str, Emmet]] = ..., index: int = 0, direct: bool = True, **kwargs
-    ) -> "Element":
+    def get_child(self, tag: str | Emmet | None = ..., index: int = 0, direct: bool = True, **kwargs) -> Element:
         """This method finds a child element with tag tag, optionally with extra filters. Supports Emmet syntax through the tag parameter."""
         ...
 
-    def get_children(self, tag: Optional[Union[str, Emmet]] = ..., direct: bool = True, **kwargs) -> "ElementContainer":
+    def get_children(self, tag: str | Emmet | None = ..., direct: bool = True, **kwargs) -> ElementContainer:
         """This method finds ALL child elements, optionally with tag tag and extra filters. Supports Emmet syntax through the tag parameter."""
         ...
 
@@ -60,7 +59,7 @@ class Element:
         """Check that an element exists, and is not empty."""
         ...
 
-    def has_child(self, tag: Optional[Union[str, Emmet]] = ..., direct: bool = True, **kwargs) -> Check:
+    def has_child(self, tag: str | Emmet | None = ..., direct: bool = True, **kwargs) -> Check:
         """Check that the element has a child that meets the specifications"""
         ...
 
@@ -68,7 +67,7 @@ class Element:
         """Check that this element has a parent with the given tag"""
         ...
 
-    def has_content(self, text: Optional[str] = ..., case_insensitive: bool = False) -> Check:
+    def has_content(self, text: str | None = ..., case_insensitive: bool = False) -> Check:
         """Check that the element has specific content, or any content at all."""
         ...
 
@@ -81,16 +80,16 @@ class Element:
         """Check that there is no content floating around in this tag"""
         ...
 
-    def _get_attribute(self, attr: str) -> Optional[Union[List[str], str]]: ...
+    def _get_attribute(self, attr: str) -> list[str] | str | None: ...
     def _compare_attribute_list(
         self,
-        attribute: List[str],
-        value: Optional[str] = None,
+        attribute: list[str],
+        value: str | None = None,
         case_insensitive: bool = False,
         mode: int = 0,
-        flags: Union[int, RegexFlag] = 0,
+        flags: int | RegexFlag = 0,
     ) -> bool: ...
-    def attribute_exists(self, attr: str, value: Optional[str] = ..., case_insensitive: bool = False) -> Check:
+    def attribute_exists(self, attr: str, value: str | None = ..., case_insensitive: bool = False) -> Check:
         """Check that this element has a given attribute, optionally matching a specific value."""
         ...
 
@@ -98,37 +97,37 @@ class Element:
         """Check that this element has a given attribute, and that the attribute contains a substring. If the element doesn't exist, this check will fail as well."""
         ...
 
-    def attribute_matches(self, attr: str, regex: str, flags: Union[int, RegexFlag] = ...) -> Check:
+    def attribute_matches(self, attr: str, regex: str, flags: int | RegexFlag = ...) -> Check:
         """Check if an attribute exists, and if its value matches a regular expression. If the element doesn't exist, this check will fail as well."""
         ...
 
-    def has_table_header(self, header: List[str]) -> Check:
+    def has_table_header(self, header: list[str]) -> Check:
         """This method checks if an Element with tag table has a header with content that matches a list of strings."""
         ...
 
     def has_table_content(
-        self, rows: List[List[str]], has_header: bool = True, case_insensitive: bool = False
+        self, rows: list[list[str]], has_header: bool = True, case_insensitive: bool = False
     ) -> Check:
         """This method checks if an Element with tag table has rows with the required content, excluding the header."""
         ...
 
-    def table_row_has_content(self, row: List[str], case_insensitive: bool = False) -> Check:
+    def table_row_has_content(self, row: list[str], case_insensitive: bool = False) -> Check:
         """This method checks if an Element with tag tr has the required content."""
         ...
 
-    def has_url_with_fragment(self, fragment: Optional[str] = ...) -> Check:
+    def has_url_with_fragment(self, fragment: str | None = ...) -> Check:
         """Check that this element has a url with a fragment (#), optionally comparing the fragment to a string that it should match exactly."""
         ...
 
-    def has_outgoing_url(self, allowed_domains: Optional[List[str]] = None, attr: str = "href") -> Check:
+    def has_outgoing_url(self, allowed_domains: list[str] | None = None, attr: str = "href") -> Check:
         """Check if an attribute has an outgoing link"""
         ...
 
-    def contains_comment(self, comment: Optional[str] = None) -> Check:
+    def contains_comment(self, comment: str | None = None) -> Check:
         """Check if the element contains a comment, optionally matching a value"""
         ...
 
-    def _find_css_property(self, prop: str, inherit: bool, pseudo: Optional[str] = None) -> Optional[Rule]:
+    def _find_css_property(self, prop: str, inherit: bool, pseudo: str | None = None) -> Rule | None:
         """Find a css property recursively if necessary
         Properties by parent elements are applied onto their children, so
         an element can inherit a property from its parent
@@ -138,9 +137,9 @@ class Element:
     def has_styling(
         self,
         prop: str,
-        value: Optional[str] = ...,
-        important: Optional[bool] = ...,
-        pseudo: Optional[str] = None,
+        value: str | None = ...,
+        important: bool | None = ...,
+        pseudo: str | None = None,
         allow_inheritance: bool = False,
         any_order: bool = True,
     ) -> Check:
@@ -151,8 +150,8 @@ class Element:
         self,
         prop: str,
         color: str,
-        important: Optional[bool] = None,
-        pseudo: Optional[str] = None,
+        important: bool | None = None,
+        pseudo: str | None = None,
         allow_inheritance: bool = False,
     ) -> Check:
         """Check that this element has a given color on a CSS property."""
@@ -163,15 +162,15 @@ class EmptyElement(Element):
     def __str__(self) -> str: ...
 
 class ElementContainer:
-    elements: List[Element]
+    elements: list[Element]
     _size: int = ...
 
-    def __init__(self, elements: List[Element]): ...
-    def __getitem__(self, item) -> Union[Element, List[Element]]: ...
+    def __init__(self, elements: list[Element]): ...
+    def __getitem__(self, item) -> Element | list[Element]: ...
     def __iter__(self) -> Iterator[Element]: ...
     def __len__(self) -> int: ...
     @classmethod
-    def from_tags(cls, tags: List[Tag], css_validator: CssValidator) -> "ElementContainer": ...
+    def from_tags(cls, tags: list[Tag], css_validator: CssValidator) -> ElementContainer: ...
     def get(self, index: int) -> Element:
         """Get the Element at a specific index of the container. In case there aren't enough elements in the container this returns an empty element instead."""
         ...
@@ -202,7 +201,7 @@ class ElementContainer:
 
 class ChecklistItem:
     message: str
-    _checks: List[Check] = ...
+    _checks: list[Check] = ...
     _is_verbose: bool = False
 
     def __init__(self, message: str, *checks: Checks): ...
@@ -219,11 +218,11 @@ class TestSuite:
     name: str
     content: str
     check_recommended: bool = True
-    checklist: List[ChecklistItem] = ...
-    translations: Dict[str, List[str]] = ...
+    checklist: list[ChecklistItem] = ...
+    translations: dict[str, list[str]] = ...
     _bs: BeautifulSoup = ...
     _html_validator: HtmlValidator = ...
-    _css_validator: Optional[CssValidator] = ...
+    _css_validator: CssValidator | None = ...
     _html_validated: bool = ...
     _css_validated: bool = ...
 
@@ -262,11 +261,11 @@ class TestSuite:
         """Compare the submission to the solution html."""
         ...
 
-    def document_matches(self, regex: str, flags: Union[int, RegexFlag] = ...) -> Check:
+    def document_matches(self, regex: str, flags: int | RegexFlag = ...) -> Check:
         """Check that the student's submitted code matches a regex string."""
         ...
 
-    def contains_comment(self, comment: Optional[str] = None) -> Check:
+    def contains_comment(self, comment: str | None = None) -> Check:
         """Check if the document contains a comment, optionally matching a value."""
         ...
 
@@ -274,8 +273,8 @@ class TestSuite:
         self,
         css_selector: str,
         prop: str,
-        value: Optional[str] = None,
-        important: Optional[bool] = None,
+        value: str | None = None,
+        important: bool | None = None,
         any_order: bool = False,
     ) -> Check:
         """Check if the given css rule exists for the given css selector"""
@@ -285,15 +284,11 @@ class TestSuite:
         """Check if the document has a DOCTYPE tag, optionally matching a value"""
         ...
 
-    def element(
-        self, tag: Optional[Union[str, Emmet]] = ..., index: int = 0, from_root: bool = False, **kwargs
-    ) -> Element:
+    def element(self, tag: str | Emmet | None = ..., index: int = 0, from_root: bool = False, **kwargs) -> Element:
         """Create a reference to an HTML element. Supports Emmet syntax through the tag parameter."""
         ...
 
-    def all_elements(
-        self, tag: Optional[Union[str, Emmet]] = ..., from_root: bool = False, **kwargs
-    ) -> ElementContainer:
+    def all_elements(self, tag: str | Emmet | None = ..., from_root: bool = False, **kwargs) -> ElementContainer:
         """Get references to ALL HTML elements that match a query. Supports Emmet syntax through the tag parameter."""
         ...
 
@@ -301,8 +296,8 @@ class TestSuite:
     def evaluate(self, translator: Translator) -> int: ...
 
 class BoilerplateTestSuite(TestSuite):
-    _default_translations: Optional[Dict[str, List[str]]] = ...
-    _default_checks: Optional[List[ChecklistItem]] = ...
+    _default_translations: dict[str, list[str]] | None = ...
+    _default_checks: list[ChecklistItem] | None = ...
 
     def __init__(self, name: str, content: str, check_recommended: bool = True, check_minimal: bool = False): ...
 

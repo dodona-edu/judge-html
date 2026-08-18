@@ -2,7 +2,6 @@ from functools import lru_cache
 from html.parser import HTMLParser
 from os import path
 from pathlib import PureWindowsPath
-from typing import Dict
 
 from dodona.translator import Translator
 from exceptions.html_exceptions import (
@@ -180,18 +179,18 @@ class HtmlValidator(HTMLParser):
                     MissingOpeningTagError(trans=self.translator, tag=tag, line=self.getpos()[0], pos=self.getpos()[1])
                 )
 
-    @lru_cache()
+    @lru_cache
     def _is_void_tag(self, tag: str) -> bool:
         """indicates whether the tag its corresponding closing tag is omittable or not"""
         return VOID_KEY in self.valid_dict[tag] and self.valid_dict[tag][VOID_KEY]
 
-    @lru_cache()
+    @lru_cache
     def _valid_tag(self, tag: str):
         """validate that a tag is a valid HTML tag (if a tag isn't allowed, this wil also raise an exception"""
         if tag not in self.valid_dict:
             self.error(InvalidTagError(trans=self.translator, tag=tag, line=self.getpos()[0], pos=self.getpos()[1]))
 
-    def _valid_attributes(self, tag: str, attributes: Dict[str, str]):
+    def _valid_attributes(self, tag: str, attributes: dict[str, str]):
         """validate attributes
         check whether all required attributes are there, if not, raise an error
         check whether all recommended attributes are there, if not, add a warning

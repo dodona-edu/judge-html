@@ -6,14 +6,14 @@ class DoubleCharError(FeedbackException):
     """Base class for double char related exceptions in this module."""
 
     def __init__(self, trans: Translator, msg: str, line: int, pos: int):
-        super(DoubleCharError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
+        super().__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
 class LocatableDoubleCharError(DoubleCharError):
     """Exceptions that can be located"""
 
     def __init__(self, trans: Translator, msg: str, line: int, pos: int):
-        super(LocatableDoubleCharError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
+        super().__init__(trans=trans, msg=msg, line=line, pos=pos)
 
     def __lt__(self, other):
         return (self.line, self.pos) < (other.line, other.pos)
@@ -39,7 +39,7 @@ class MissingOpeningCharError(LocatableDoubleCharError):
 
     def __init__(self, trans: Translator, char: str, line: int, pos: int):
         msg = f"{trans.translate(Translator.Text.MISSING_OPENING_CHARACTER)} '{char}'"
-        super(MissingOpeningCharError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
+        super().__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
 class MissingClosingCharError(LocatableDoubleCharError):
@@ -47,7 +47,7 @@ class MissingClosingCharError(LocatableDoubleCharError):
 
     def __init__(self, trans: Translator, char: str, line: int, pos: int):
         msg = f"{trans.translate(Translator.Text.MISSING_CLOSING_CHARACTER)} '{char}'"
-        super(MissingClosingCharError, self).__init__(trans=trans, msg=msg, line=line, pos=pos)
+        super().__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
 class MultipleMissingCharsError(DelayedExceptions):

@@ -1,18 +1,19 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable, List
+from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from validators.checks import Check, Checks
 
 
-def flatten_queue(*queue: Checks) -> List["Check"]:
+def flatten_queue(*queue: Checks) -> list[Check]:
     """Flatten the queue to allow nested lists to be put inside of it"""
     # *args creates tuples so cast the arg into a list first
     # in case it was used in that context (usually)
     queue = list(queue)
 
-    flattened: List["Check"] = []
+    flattened: list[Check] = []
 
     while queue:
         el = queue.pop(0)

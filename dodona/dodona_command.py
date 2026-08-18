@@ -3,12 +3,11 @@
 import json
 import sys
 from abc import ABC
-from enum import Enum
+from enum import StrEnum
 from types import SimpleNamespace, TracebackType
-from typing import Dict, Optional, Type, Union
 
 
-class ErrorType(str, Enum):
+class ErrorType(StrEnum):
     """Dodona error type"""
 
     INTERNAL_ERROR = "internal error"
@@ -22,22 +21,16 @@ class ErrorType(str, Enum):
     CORRECT = "correct"
     CORRECT_ANSWER = "correct answer"
 
-    def __str__(self):
-        return str(self)
 
-
-class MessagePermission(str, Enum):
+class MessagePermission(StrEnum):
     """Dodona permission for a message"""
 
     STUDENT = "student"
     STAFF = "staff"
     ZEUS = "zeus"
 
-    def __str__(self):
-        return str(self)
 
-
-class MessageFormat(str, Enum):
+class MessageFormat(StrEnum):
     """Dodona format for a message"""
 
     PLAIN = "plain"
@@ -51,19 +44,13 @@ class MessageFormat(str, Enum):
     CODE = "code"
     SQL = "sql"
 
-    def __str__(self):
-        return str(self)
 
-
-class AnnotationSeverity(str, Enum):
+class AnnotationSeverity(StrEnum):
     """Dodona severity of an annotation"""
 
     ERROR = "error"
     WARNING = "warning"
     INFO = "info"
-
-    def __str__(self):
-        return str(self)
 
 
 class DodonaException(Exception):
@@ -78,7 +65,7 @@ class DodonaException(Exception):
 
     def __init__(
         self,
-        status: Dict[str, str],
+        status: dict[str, str],
         *args,
         **kwargs,
     ):
@@ -124,20 +111,20 @@ class DodonaCommand(ABC):
         """name used in start and close messages, defaults to the lowercase version of the classname"""
         return self.__class__.__name__.lower()
 
-    def start_msg(self) -> Optional[dict]:
+    def start_msg(self) -> dict | None:
         """start message that is printed as JSON to stdout when entering the 'with' block
         Subclasses return None when nothing should be printed, '__print_command' skips those.
         """
         return {"command": f"start-{self.name()}", **self.start_args.__dict__}
 
-    def close_msg(self) -> Optional[dict]:
+    def close_msg(self) -> dict | None:
         """close message that is printed as JSON to stdout when exiting the 'with' block
         Subclasses return None when nothing should be printed, '__print_command' skips those.
         """
         return {"command": f"close-{self.name()}", **self.close_args.__dict__}
 
     @staticmethod
-    def __print_command(result: Union[None, dict]) -> None:
+    def __print_command(result: None | dict) -> None:
         """print the provided to stdout as JSON
         :param result: dict that will be JSON encoded and printed to stdout
         """
@@ -177,9 +164,9 @@ class DodonaCommand(ABC):
 
     def __exit__(
         self,
-        exc_type: Optional[Type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
     ) -> bool:
         """print the close message when exiting the 'with' block & handle enclosed exceptions
         If a DodonaException was thrown in the enclosed 'with' block, the 'handle_dodona_exception'
@@ -317,7 +304,7 @@ class Annotation(DodonaCommand):
         super().__init__(row=row, text=text, **kwargs)
 
     # Optional because SafeAnnotation below overrides this to return None for negative line numbers
-    def start_msg(self) -> Optional[dict]:
+    def start_msg(self) -> dict | None:
         """print the "annotate-code" command and parameters when entering the 'with' block"""
         return {"command": "annotate-code", **self.start_args.__dict__}
 
@@ -331,7 +318,7 @@ class SafeAnnotation(Annotation):
     def __init__(self, row: int, text: str, **kwargs):
         super().__init__(row=row, text=text, **kwargs)
 
-    def start_msg(self) -> Optional[dict]:
+    def start_msg(self) -> dict | None:
         """If the row number was less than 0, don't print the annotation"""
         if self.start_args.row < 0:
             return None

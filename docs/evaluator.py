@@ -1,9 +1,7 @@
-from typing import List
-
 from validators import checks
 
 
-def create_suites(content: str) -> List[checks.TestSuite]:
+def create_suites(content: str) -> list[checks.TestSuite]:
     html_suite = checks.HtmlSuite(content)
     css_suite = checks.CssSuite(content)
 

@@ -1,5 +1,3 @@
-from typing import List
-
 from dodona.translator import Translator
 from exceptions.utils import DelayedExceptions, FeedbackException
 
@@ -44,7 +42,7 @@ class MissingRecommendedAttributesWarning(LocatableHtmlValidationError):
 
 class Warnings(DelayedExceptions):
     translator: Translator
-    exceptions: List[LocatableHtmlValidationError]
+    exceptions: list[LocatableHtmlValidationError]
 
     def __init__(self, translator: Translator): ...
     def __str__(self): ...

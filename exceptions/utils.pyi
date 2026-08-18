@@ -1,5 +1,3 @@
-from typing import List
-
 from dodona.translator import Translator
 
 class FeedbackException(Exception):
@@ -25,7 +23,7 @@ class InvalidTranslation(ValueError):
     def __init__(self, *args): ...
 
 class DelayedExceptions(FeedbackException):
-    exceptions: List[FeedbackException]
+    exceptions: list[FeedbackException]
 
     def __init__(self): ...
     def __len__(self) -> int: ...

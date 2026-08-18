@@ -1,5 +1,3 @@
-from typing import Tuple
-
 from lxml.html import HtmlComment, HtmlElement, fromstring
 
 from dodona.translator import Translator
@@ -9,7 +7,7 @@ from utils.html_navigation import compare_content
 from validators.css_validator import CssValidator
 
 
-def get_similarity(sol: str, sub: str) -> Tuple[float, float]:
+def get_similarity(sol: str, sub: str) -> tuple[float, float]:
     # Empty submission is 0% similar
     if is_empty_document(sub):
         return 0, 0

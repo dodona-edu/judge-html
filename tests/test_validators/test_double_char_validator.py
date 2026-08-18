@@ -1,5 +1,4 @@
 import unittest
-from typing import List
 
 from dodona.translator import Translator
 from exceptions.double_char_exceptions import MultipleMissingCharsError
@@ -11,11 +10,11 @@ class TestDoubleCharValidator(unittest.TestCase):
         super().__init__(*args, **kwargs)
         self.validator = DoubleCharsValidator(Translator(Translator.Language.EN))
 
-    def run_correct(self, xs: List[str]):
+    def run_correct(self, xs: list[str]):
         for x in xs:
             self.validator.validate_content(x)
 
-    def run_incorrect(self, xs: List[str]):
+    def run_incorrect(self, xs: list[str]):
         for x in xs:
             with self.assertRaises(MultipleMissingCharsError):
                 self.validator.validate_content(x)

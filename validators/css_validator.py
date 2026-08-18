@@ -1,5 +1,3 @@
-from typing import Dict, List, Optional, Tuple
-
 import tinycss2
 import tinycss2.nth
 from bs4.element import Tag
@@ -54,7 +52,7 @@ USAGE:
 """
 
 
-def strip(ls: List) -> List:
+def strip(ls: list) -> list:
     """strips leading & trailing whitespace tokens"""
     while ls and ls[0].type == WhitespaceToken.type:
         ls.pop(0)
@@ -122,7 +120,7 @@ class Rule:
             return False  # if the other color is not-parsable than it is the programmers fault
         return self.color == other
 
-    def compare_to(self, value: Optional[str] = None, important: Optional[bool] = None, any_order: bool = False):
+    def compare_to(self, value: str | None = None, important: bool | None = None, any_order: bool = False):
         """Compares this Rule to a given value string and or important specifier,
         any_order can be used when value string may contain multiple values"""
         # !important modifier is incorrect
@@ -143,7 +141,7 @@ class Rule:
         return self.value_str == value
 
 
-def calc_specificity(selector_str: str) -> Tuple[int, int, int]:  # see https://specificity.keegan.st/
+def calc_specificity(selector_str: str) -> tuple[int, int, int]:  # see https://specificity.keegan.st/
     """calculates how specific a css-selector is"""
     # count selectors: ID
     a = selector_str.count("#")
@@ -211,8 +209,8 @@ class Rules:
 
     # of doing serialize() at the end, to access the !important property
     def find(
-        self, root: ElementBase, solution_element: ElementBase, key: str, pseudo: Optional[str] = None
-    ) -> Optional[Rule]:
+        self, root: ElementBase, solution_element: ElementBase, key: str, pseudo: str | None = None
+    ) -> Rule | None:
         """find the css rule for key (ex: color) for the solution_element,
         root is the root of the html-document (etree)"""
         rs: [Rule] = []
@@ -247,7 +245,7 @@ class Rules:
 
         return dom_rule
 
-    def find_all(self, root: ElementBase, solution_element: ElementBase) -> Dict[str, Rule]:
+    def find_all(self, root: ElementBase, solution_element: ElementBase) -> dict[str, Rule]:
         """find all the css rule for the solution_element,
         root is the root of the html-document (etree)"""
         dom_css = {}
@@ -280,8 +278,8 @@ class Rules:
             dom_css[dom_rule.name] = dom_rule
         return dom_css
 
-    def find_by_css_selector(self, css_selector: str, key: str) -> Optional[Rule]:
-        dom_rule: Optional[Rule] = None
+    def find_by_css_selector(self, css_selector: str, key: str) -> Rule | None:
+        dom_rule: Rule | None = None
         rule: Rule
         for rule in self.rules:
             if rule.selector_str == css_selector and rule.name == key:
@@ -312,7 +310,7 @@ class CssValidator:
 
     def __init__(self, html: str):
         # Invalid HTML makes fromstring() crash, so it can be None
-        self.root: Optional[ElementBase] = None
+        self.root: ElementBase | None = None
         try:
             self.root = fromstring(html)
             style: ElementBase = self.root.find(".//style")
@@ -348,13 +346,13 @@ class CssValidator:
             components.append(
                 child.name
                 if 1 == len(siblings)
-                else "%s[%d]" % (child.name, next(i for i, s in enumerate(siblings, 1) if s is child))
+                else f"{child.name}[{next(i for i, s in enumerate(siblings, 1) if s is child)}]"
             )
             child = parent
         components.reverse()
-        return "/%s" % "/".join(components)
+        return "/{}".format("/".join(components))
 
-    def find(self, element: Tag, key: str, pseudo: Optional[str] = None) -> Optional[Rule]:
+    def find(self, element: Tag, key: str, pseudo: str | None = None) -> Rule | None:
         """find the css rule for key (ex: color) for the solution_element
         the element should be a BeautifulSoup Tag"""
         # Tree couldn't be parsed so can't perform searching
@@ -378,7 +376,7 @@ class CssValidator:
 
         return self.rules.find(self.root, sols[0], key, pseudo)
 
-    def find_by_css_selector(self, css_selector: str, key: str) -> Optional[Rule]:
+    def find_by_css_selector(self, css_selector: str, key: str) -> Rule | None:
         if self.root is None:
             return None
         return self.rules.find_by_css_selector(
