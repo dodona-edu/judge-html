@@ -6,7 +6,7 @@ from bs4.element import Tag
 from validators.css_validator import Rule, Rules
 
 
-def prep_render(html_content: str, render_css: bool) -> (str, str):
+def prep_render(html_content: str, render_css: bool) -> tuple[str, str]:
     """prepares the html for rendering:
     a body and a style tag must be present, if not returns the input html
     if both are present:
