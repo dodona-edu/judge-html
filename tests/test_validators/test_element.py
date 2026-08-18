@@ -1,5 +1,6 @@
 import re
 import unittest
+from typing import cast
 
 from tests.helpers import UnitTestSuite
 from validators.checks import all_of, any_of, at_least, fail_if
@@ -144,7 +145,8 @@ class TestElement(unittest.TestCase):
         self.assertTrue(len(first_and_last) == 2)
 
         with self.assertRaises(TypeError):
-            phantom_p = ps["not a number"]
+            # Deliberately a key the overloads forbid, to check the runtime guard is there
+            phantom_p = ps[cast("int", "not a number")]
             self.assertFalse(suite.check(phantom_p.has_content()))
 
     def test_attribute_exists(self):

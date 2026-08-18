@@ -13,7 +13,7 @@ class DoubleChar:
     open: str
     close: str
     is_unambiguous: bool = True
-    _is_open: bool = None
+    _is_open: bool | None = None
     check_inside: bool = True
     check_in_between: bool = True
     line: int
@@ -38,10 +38,10 @@ class DoubleChar:
         c.pos = pos
         return c
 
-    def is_open(self) -> bool:
+    def is_open(self) -> bool | None:
         return self._is_open if self.is_unambiguous else None
 
-    def is_close(self) -> bool:
+    def is_close(self) -> bool | None:
         return not self._is_open if self.is_unambiguous else None
 
     def len_open(self) -> int:
@@ -160,7 +160,7 @@ class DoubleCharsValidator:
         saved_text = ""
         line, pos = 0, 0
         while s:
-            res: DoubleChar
+            res: DoubleChar | None
             res, s = generator.create(s, line, pos)
             if res:
                 if saved_text:
@@ -186,7 +186,7 @@ class DoubleCharsValidator:
         text_ls: list[str | DoubleChar] = self.parse_content(text)
         # validate
         stack = []
-        wait_until_seen: DoubleChar = None
+        wait_until_seen: DoubleChar | None = None
         # Error checking
         errors = MultipleMissingCharsError(self.translator)
 

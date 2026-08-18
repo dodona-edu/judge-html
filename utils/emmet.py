@@ -1,9 +1,15 @@
+from typing import Any
+
 from emmet import AbbreviationAttribute, AbbreviationNode, parse_markup_abbreviation
 
-from validators.checks import Check, Element, ElementContainer, EmptyElement, TestSuite, all_of
+from validators.checks import Check, Element, ElementContainer, EmptyElement, all_of
 
 
-def emmet_to_check(emmet_str: str, suite: TestSuite) -> Check:
+# suite is a TestSuite, spelled Any on purpose. validators/checks.pyi sits next to
+# checks.py, so naming TestSuite here resolves to the stub, and ty reads that as a
+# different type from the class checks.py defines. checks.py is where this is called from,
+# with its own TestSuite, so the annotation would flag every call.
+def emmet_to_check(emmet_str: str, suite: Any) -> Check:
     """Converts an emmet expression to a Check"""
 
     # item numbering is not allowed, as it interferes with multiplications

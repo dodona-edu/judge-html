@@ -1,6 +1,8 @@
 import unittest
+from typing import cast
 
 from bs4 import BeautifulSoup
+from bs4.element import Tag
 
 from utils.color_converter import Color
 from validators.css_validator import CssValidator
@@ -146,10 +148,16 @@ class TestCssValidator(unittest.TestCase):
         """
         cssval = CssValidator(x)
         bs: BeautifulSoup = BeautifulSoup(x, "html.parser")
-        tag = bs.find("div")
+        tag = cast("Tag", bs.find("div"))
 
-        self.assertEqual(str(cssval.find(tag, "color").color), "red")
-        self.assertEqual(str(cssval.find(tag, "color", "hover").color), "green")
+        plain = cssval.find(tag, "color")
+        hover = cssval.find(tag, "color", "hover")
+
+        assert plain is not None
+        assert hover is not None
+
+        self.assertEqual(str(plain.color), "red")
+        self.assertEqual(str(hover.color), "green")
 
     def test_green_tests(self):
         test_classes = [
@@ -187,9 +195,15 @@ class TestCssValidator(unittest.TestCase):
 
         for _ in range(num_tests):
             for green_class in test_classes:
-                sol_el = self.bs.find("div", attrs={"class": green_class})
-                self.assertEqual(Color("green"), self.validator.find(sol_el, "color").color, green_class)
+                sol_el = cast("Tag", self.bs.find("div", attrs={"class": green_class}))
+                color = self.validator.find(sol_el, "color")
+
+                assert color is not None
+                self.assertEqual(Color("green"), color.color, green_class)
         for _ in range(num_tests):
             for green_class in test_classes:
-                sol_el = self.bs.find("div", attrs={"class": green_class})
-                self.assertEqual("2px", self.validator.find(sol_el, "margin").value_str, green_class)
+                sol_el = cast("Tag", self.bs.find("div", attrs={"class": green_class}))
+                margin = self.validator.find(sol_el, "margin")
+
+                assert margin is not None
+                self.assertEqual("2px", margin.value_str, green_class)

@@ -2,6 +2,7 @@ from functools import lru_cache
 from html.parser import HTMLParser
 from os import path
 from pathlib import PureWindowsPath
+from typing import cast
 
 from dodona.translator import Translator
 from exceptions.html_exceptions import (
@@ -132,16 +133,20 @@ class HtmlValidator(HTMLParser):
         """check whether every opening char has a corresponding closing char"""
         self.double_chars_validator.validate_content(text)
 
-    def handle_starttag(self, tag: str, attributes: list[tuple[str, str]]):
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]):
         """handles a html tag that opens, like <body>
-        attributes hold the (name, value) of the attributes supplied in the tag"""
+        attrs hold the (name, value) of the attributes supplied in the tag"""
         tag = tag.lower()
         self._valid_tag(tag)
         if self.check_nesting:
             self._valid_nesting(tag)
         if not self._is_void_tag(tag):
             self.tag_stack.append(tag)
-        self._valid_attributes(tag, {a[0].lower(): a[1] for a in attributes})
+
+        # An attribute written without a value, like <input disabled>, comes through as
+        # None. _valid_attributes has never handled that, and teaching it to means
+        # changing what the validator reports, so the cast keeps today's behaviour
+        self._valid_attributes(tag, cast("dict[str, str]", {a[0].lower(): a[1] for a in attrs}))
 
     def handle_endtag(self, tag: str):
         """handles a html tag that closes, like <body/>"""
