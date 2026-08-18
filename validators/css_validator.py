@@ -184,7 +184,11 @@ class Rules:
             ps = []
             index = start
             while index < len(prelude):
-                if prelude[index].type == LiteralToken.type and prelude[index].value == ",":
+                # tinycss2's Node base class declares neither type nor value, but it is
+                # never instantiated: every node in a prelude is a subclass that has both
+                node = cast("LiteralToken", prelude[index])
+
+                if node.type == LiteralToken.type and node.value == ",":
                     ps.append(strip(prelude[start:index]))
                     start = index + 1  # +1 because we skip the comma
                 index += 1

@@ -5,7 +5,7 @@ from collections import deque
 from collections.abc import Callable, Iterable, Iterator
 from copy import copy
 from dataclasses import dataclass, field
-from typing import TypeVar, cast
+from typing import TypeVar, cast, overload
 from urllib.parse import urlsplit
 
 from bs4 import BeautifulSoup
@@ -740,7 +740,15 @@ class ElementContainer:
         # Avoid calling len() all the time
         self._size = len(self.elements)
 
-    def __getitem__(self, item) -> Element | list[Element]:
+    @overload
+    def __getitem__(self, item: int) -> Element: ...
+
+    @overload
+    def __getitem__(self, item: slice) -> list[Element]: ...
+
+    def __getitem__(self, item: int | slice) -> Element | list[Element]:
+        # Teachers write these indexes by hand, so the runtime check stays even though
+        # the overloads above already rule it out for anything that type-checks
         if not isinstance(item, (int, slice)):
             raise TypeError(f"Key {item} was of type {item}, not int or slice.")
 

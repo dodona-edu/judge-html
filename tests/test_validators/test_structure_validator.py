@@ -1,7 +1,8 @@
 import unittest
 
 from dodona.translator import Translator
-from validators.structure_validator import NotTheSame, compare
+from exceptions.structure_exceptions import NotTheSame
+from validators.structure_validator import compare
 
 
 class TestHtmlValidator(unittest.TestCase):

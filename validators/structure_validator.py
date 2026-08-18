@@ -135,7 +135,9 @@ def compare(solution_str: str, submission_str: str, trans: Translator, **kwargs)
                     trans=trans, msg=trans.translate(Translator.Text.CONTENTS_DIFFER), line=node_sub.sourceline, pos=-1
                 )
         # check css
-        if check_css:
+        # Both validators are set together, and check_css only stays True when both made
+        # it through the block above, but that is a chain of assignments away from here
+        if check_css and sol_css is not None and sub_css is not None:
             rs_sol = sol_css.rules.find_all(solution, node_sol)
             rs_sub = sub_css.rules.find_all(submission, node_sub)
             if rs_sol:

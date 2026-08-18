@@ -30,7 +30,9 @@ class UnitTestSuite(TestSuite):
         return c.callback(self._bs)
 
     def checklist_item(self, c: ChecklistItem) -> bool:
-        return c.evaluate(self._bs, self.translator)
+        # evaluate() wants the language abbreviation, the same one TestSuite.evaluate
+        # derives from its translator, not the translator itself
+        return c.evaluate(self._bs, self.translator.language.name.lower())
 
     def item(self, *args: Checks) -> ChecklistItem:
         return ChecklistItem("TEST", *args)
