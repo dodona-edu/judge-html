@@ -1,3 +1,5 @@
+from typing import Any
+
 import tinycss2
 import tinycss2.nth
 from bs4.element import Tag
@@ -79,7 +81,7 @@ def _get_xpath(selector: str) -> str:
 class Rule:
     """represents a single css rule"""
 
-    def __init__(self, selector: [], content: Declaration):
+    def __init__(self, selector: list[Node], content: Declaration):
         self.selector = strip(selector)
         self.selector_str = tinycss2.serialize(self.selector)
         self.xpath = _get_xpath(self.selector_str)
@@ -90,7 +92,7 @@ class Rule:
         else:
             self.pseudo = None
         self.name = content.name
-        self.value: [Node] = strip(content.value)
+        self.value: list[Node] = strip(content.value)
         self.important = content.important
         self.specificity = calc_specificity(self.selector_str)
         self.value_str = tinycss2.serialize(self.value)
@@ -174,10 +176,10 @@ class Rules:
 
     def __init__(self, css_content: str):
         """parses css to individual Rules"""
-        self.rules: [] = []
-        self.map: {} = {}
+        self.rules: list[Rule] = []
+        self.map: dict[str, Any] = {}
 
-        def split_on_comma(prelude: [], start: int = 0) -> [[]]:
+        def split_on_comma(prelude: list[Node], start: int = 0) -> list[list[Node]]:
             """splits a list on LiteralToken with a value of a comma"""
             ps = []
             index = start
@@ -213,8 +215,8 @@ class Rules:
     ) -> Rule | None:
         """find the css rule for key (ex: color) for the solution_element,
         root is the root of the html-document (etree)"""
-        rs: [Rule] = []
-        imp: [Rule] = []
+        rs: list[Rule] = []
+        imp: list[Rule] = []
         r: Rule
         # find all rules defined for the solution element for the specified key
         for r in reversed(self.rules):
@@ -249,7 +251,7 @@ class Rules:
         """find all the css rule for the solution_element,
         root is the root of the html-document (etree)"""
         dom_css = {}
-        by_keyword: {str: ([Rule], [Rule])} = {}
+        by_keyword: dict[str, tuple[list[Rule], list[Rule]]] = {}
         r: Rule
         # find all rules defined for the solution element for the specified key
         for r in reversed(self.rules):

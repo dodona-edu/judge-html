@@ -132,7 +132,7 @@ class HtmlValidator(HTMLParser):
         """check whether every opening char has a corresponding closing char"""
         self.double_chars_validator.validate_content(text)
 
-    def handle_starttag(self, tag: str, attributes: [(str, str)]):
+    def handle_starttag(self, tag: str, attributes: list[tuple[str, str]]):
         """handles a html tag that opens, like <body>
         attributes hold the (name, value) of the attributes supplied in the tag"""
         tag = tag.lower()

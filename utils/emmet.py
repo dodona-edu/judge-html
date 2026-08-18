@@ -1,6 +1,6 @@
 from emmet import AbbreviationAttribute, AbbreviationNode, parse_markup_abbreviation
 
-from validators.checks import Check, Element, EmptyElement, TestSuite, all_of
+from validators.checks import Check, Element, ElementContainer, EmptyElement, TestSuite, all_of
 
 
 def emmet_to_check(emmet_str: str, suite: TestSuite) -> Check:
@@ -38,7 +38,7 @@ def emmet_to_check(emmet_str: str, suite: TestSuite) -> Check:
                 out.update({"text": " ".join(node.value)})
         return out
 
-    def match_one(ls: [Element], node: AbbreviationNode):
+    def match_one(ls: ElementContainer, node: AbbreviationNode):
         """when ls contains more than one item, it makes the right selection
         if ls is empty, it returns an EmptyElement (which will result in a failing Check)&"""
         if not ls:
