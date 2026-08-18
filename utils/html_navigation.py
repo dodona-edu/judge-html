@@ -1,11 +1,17 @@
 import re
+from typing import Any, TypeGuard, cast
 
 from bs4 import BeautifulSoup
 from bs4.element import Comment, Tag
 
 
-def match_emmet(tag: str | None) -> bool:
-    return tag is not None and tag and re.match(r"^[a-zA-Z0-9]+$", tag) is None
+def match_emmet(tag: str | None) -> TypeGuard[str]:
+    """Check whether a tag is written in emmet syntax instead of a plain tag name
+
+    A TypeGuard rather than a bool: emmet syntax is always a string, so callers that
+    branch on this can pass the tag straight into find_emmet.
+    """
+    return tag is not None and tag != "" and re.match(r"^[a-zA-Z0-9]+$", tag) is None
 
 
 def find_child(
@@ -44,9 +50,11 @@ def find_child(
 
     # No index specified, first child requested
     if index == 0:
-        return element.find(tag, recursive=not from_root, **kwargs)
+        # find() and find_all() are typed as yielding PageElement, which covers
+        # NavigableString too. Searching by tag name only ever matches Tags.
+        return cast("Tag | None", element.find(tag, recursive=not from_root, **kwargs))
 
-    all_children = element.find_all(tag, recursive=not from_root, **kwargs)
+    all_children = cast("list[Tag]", element.find_all(tag, recursive=not from_root, **kwargs))
 
     # No children found
     if len(all_children) == 0:
@@ -84,7 +92,7 @@ def find_emmet(
 
     # the from_root should only be done once, afterwards it's always True to support this syntax
     moved = False
-    current_element = element
+    current_element: BeautifulSoup | Tag | None = element
 
     # Keep going until path is empty
     while path_stack:
@@ -110,8 +118,9 @@ def find_emmet(
         class_names = class_regex.findall(current_entry)
         index = index_regex.search(current_entry)
 
-        # Kwargs to filter on
-        filter_kwargs = {}
+        # Kwargs to filter on. find_all() takes attribute filters of assorted types
+        # through **kwargs, so this can't be narrowed to dict[str, str]
+        filter_kwargs: dict[str, Any] = {}
 
         # Parse matches out
         # Tag doesn't use a capture group so take match 0 instead of 1,
@@ -146,7 +155,10 @@ def find_emmet(
 
         # Apply filters & find a matching element
         # Only use from_root if we haven't moved at least once, otherwise never go recursive
-        matches = current_element.find_all(recursive=not from_root if not moved else False, **filter_kwargs)
+        # find_all() is typed as yielding PageElement, but filtering on a name only matches Tags
+        matches = cast(
+            "list[Tag]", current_element.find_all(recursive=not from_root if not moved else False, **filter_kwargs)
+        )
 
         # No matches found, or not enough
         if not matches or len(matches) <= index:
@@ -165,7 +177,9 @@ def find_emmet(
         current_element = matches[index]
         moved = True
 
-    return current_element
+    # Unreachable: path.split(">") always yields at least one entry, so the loop runs at
+    # least once, and every path through its body returns
+    return None
 
 
 def compare_content(first: str, second: str, case_insensitive: bool = False) -> bool:
@@ -190,7 +204,8 @@ def contains_comment(element: BeautifulSoup | Tag | None, comment: str | None = 
     if element is None:
         return False
 
-    comments = element.find_all(string=lambda text: isinstance(text, Comment))
+    # The filter only lets Comments through, and a Comment is a str subclass
+    comments = cast("list[Comment]", element.find_all(string=lambda text: isinstance(text, Comment)))
 
     # No comments found
     if not comments:
