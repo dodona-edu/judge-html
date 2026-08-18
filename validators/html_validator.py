@@ -1,5 +1,5 @@
-import ntpath
 from html.parser import HTMLParser
+from pathlib import PureWindowsPath
 from typing import Dict
 
 from dodona.translator import Translator
@@ -23,10 +23,15 @@ VOID_KEY = "void_tag"
 def _is_absolute_path(link: str) -> bool:
     """Check whether a link is an absolute filepath, in POSIX or Windows spelling.
 
-    Python 3.13 made ntpath.isabs stop treating a leading (back)slash as absolute, so
-    it no longer catches "/home/student/image.png" on its own.
+    A "rooted" path is exactly what we want to reject here: PureWindowsPath(...).root
+    is non-empty for both POSIX ("/home/student/image.png") and Windows
+    ("\\server\\share\\x.jpg", "C:\\x\\y.jpg") spellings, but empty for a drive-relative
+    path like "C:x\\y.jpg". Unlike ntpath.isabs, this meaning did not change in Python
+    3.13 (see https://github.com/python/cpython/issues/44626). We check .root rather
+    than .is_absolute(), because the latter wants a drive letter under Windows
+    semantics and would miss "/home/student/image.png" entirely.
     """
-    return link.startswith(("/", "\\")) or ntpath.isabs(link)
+    return bool(PureWindowsPath(link).root)
 
 
 class HtmlValidator(HTMLParser):

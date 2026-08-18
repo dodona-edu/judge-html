@@ -152,6 +152,7 @@ class TestHtmlValidator(unittest.TestCase):
         self.validator.validate_content("<img src='http://example.com/x.png'>")
         self.validator.validate_content("<img src='https://example.com/x.png'>")
         self.validator.validate_content("<img src='www.example.com/x.png'>")
+        self.validator.validate_content(r"<img src='C:x\y.jpg'>")  # drive-relative, not absolute
         # incorrect: absolute paths, in POSIX and Windows spelling, must be flagged
         with self.assertRaises(AttributeValueError):
             self.validator.validate_content("<img src='/home/q/image.jpg'>")
