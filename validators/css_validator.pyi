@@ -1,5 +1,5 @@
 from bs4.element import Tag
-from lxml.etree import ElementBase
+from lxml.etree import _Element
 from tinycss2.ast import Declaration
 
 from utils.color_converter import Color
@@ -32,15 +32,15 @@ class Rule:
 def calc_specificity(selector_str: str) -> tuple[int, int, int]: ...
 
 class Rules:
-    root: ElementBase
+    root: _Element
     rules: list
     map: dict
 
     def __init__(self, css_content: str): ...
     def __repr__(self) -> str: ...
     def __len__(self) -> int: ...
-    def find(self, root: ElementBase, solution_element: ElementBase, key: str, pseudo: str | None) -> Rule | None: ...
-    def find_all(self, root: ElementBase, solution_element: ElementBase) -> dict[str, Rule]: ...
+    def find(self, root: _Element, solution_element: _Element, key: str, pseudo: str | None) -> Rule | None: ...
+    def find_all(self, root: _Element, solution_element: _Element) -> dict[str, Rule]: ...
     def find_by_css_selector(self, css_selector: str, key: str) -> Rule | None: ...
 
 class AmbiguousXpath(Exception):
@@ -50,7 +50,7 @@ class ElementNotFound(Exception):
     pass
 
 class CssValidator:
-    root: ElementBase | None
+    root: _Element | None
     rules: Rules
     xpaths: dict
 
