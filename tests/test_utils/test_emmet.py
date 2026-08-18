@@ -24,7 +24,7 @@ class TestEmmet(unittest.TestCase):
         self.assertFalse(do("div>ul>li>li", doc))
         self.assertFalse(do("div>ol>li", doc))
 
-    # Indexed selectors like tr[1]/td[1] aren't matched yet (#269)
+    # Indexed selectors like tr[1]/td[1] aren't matched yet (#170)
     @unittest.expectedFailure
     def test_index(self):
         doc = """
@@ -66,7 +66,7 @@ class TestEmmet(unittest.TestCase):
         self.assertTrue(do("div+blockquote+p", doc))
         self.assertFalse(do("div+img+p", doc))
 
-    # The ^^ climb-up operator matches a structure it shouldn't (#269)
+    # The ^^ climb-up operator matches a structure it shouldn't (#170)
     @unittest.expectedFailure
     def test_climb_up(self):
         doc = """
@@ -142,7 +142,7 @@ class TestEmmet(unittest.TestCase):
         """
         self.assertTrue(do("(div>dl>(dt+dd)*3)+footer>p", doc))
 
-    # A bare class selector .header matches when it shouldn't (#269)
+    # A bare class selector .header matches when it shouldn't (#170)
     @unittest.expectedFailure
     def test_id_and_class(self):
         doc = """
@@ -212,7 +212,7 @@ class TestEmmet(unittest.TestCase):
         self.assertTrue(do("body>table>tr*2", doc))
         self.assertFalse(do("body>table>tr*3", doc))
 
-    # DUMMY should require non-empty text and doesn't (#269)
+    # DUMMY should require non-empty text and doesn't (#170)
     @unittest.expectedFailure
     def test_dummy(self):
         doc = """
