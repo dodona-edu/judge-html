@@ -231,21 +231,27 @@ class Element:
         False
         """
 
+        # @html_check already returned a failing Check if there was no element
+        element = cast("Tag", self._element)
+
         def _inner(_: BeautifulSoup) -> bool:
             # No text in this element
-            if self._element.text is None or len(self._element.text) == 0:
+            if element.text is None or len(element.text) == 0:
                 return False
 
             if text is not None:
-                return compare_content(self._element.text, text, case_insensitive)
+                return compare_content(element.text, text, case_insensitive)
 
-            return len(self._element.text.strip()) > 0
+            return len(element.text.strip()) > 0
 
         return Check(_inner)
 
     def _has_tag(self, tag: str) -> bool:
         """Internal function that checks if this element has the required tag"""
-        return self._element.name.lower() == tag.lower()
+        # Only reached from methods that @html_check has already guarded
+        element = cast("Tag", self._element)
+
+        return element.name.lower() == tag.lower()
 
     @html_check
     def has_tag(self, tag: str) -> Check:
@@ -260,8 +266,11 @@ class Element:
     def no_loose_text(self) -> Check:
         """Check that there is no content floating around in this tag"""
 
+        # @html_check already returned a failing Check if there was no element
+        element = cast("Tag", self._element)
+
         def _inner(_: BeautifulSoup) -> bool:
-            children = self._element.children
+            children = element.children
 
             for child in children:
                 # Child is a text instance which is not allowed
@@ -276,7 +285,10 @@ class Element:
 
     def _get_attribute(self, attr: str) -> list[str] | str | None:
         """Internal function that gets an attribute"""
-        attribute = self._element.get(attr.lower())
+        # Only reached from methods that @html_check has already guarded
+        element = cast("Tag", self._element)
+
+        attribute = element.get(attr.lower())
 
         return attribute
 
@@ -396,13 +408,16 @@ class Element:
     def has_table_header(self, header: list[str]) -> Check:
         """If this element is a table, check that the header content matches up"""
 
+        # @html_check already returned a failing Check if there was no element
+        element = cast("Tag", self._element)
+
         def _inner(_: BeautifulSoup) -> bool:
             # This element is not a table
             if not self._has_tag("table"):
                 return False
 
             # List of all headers in this table
-            ths = self._element.find_all("th")
+            ths = element.find_all("th")
 
             # Not the same amount of headers
             if len(ths) != len(header):
@@ -428,12 +443,15 @@ class Element:
         :param case_insensitive:    Indicate that comparison should ignore casing or not
         """
 
+        # @html_check already returned a failing Check if there was no element
+        element = cast("Tag", self._element)
+
         def _inner(_: BeautifulSoup) -> bool:
             # This element is not a table
             if not self._has_tag("table"):
                 return False
 
-            trs = self._element.find_all("tr")
+            trs = element.find_all("tr")
 
             # No rows found
             if not trs:
@@ -473,12 +491,15 @@ class Element:
     def table_row_has_content(self, row: list[str], case_insensitive: bool = False) -> Check:
         """Check the content of one row instead of the whole table"""
 
+        # @html_check already returned a failing Check if there was no element
+        element = cast("Tag", self._element)
+
         def _inner(_: BeautifulSoup) -> bool:
             # Check that this element is a <tr>
             if not self._has_tag("tr"):
                 return False
 
-            tds = self._element.find_all("td")
+            tds = element.find_all("td")
 
             # Amount of items doesn't match up
             if len(tds) != len(row):
@@ -568,17 +589,22 @@ class Element:
         """
         prop = prop.lower()
 
+        # Only reached from methods that @css_check has already guarded, so neither
+        # the element nor the validator can be None here
+        element = cast("Tag", self._element)
+        css_validator = cast("CssValidator", self._css_validator)
+
         # Inheritance is not allowed
         if not inherit:
-            return self._css_validator.find(self._element, prop, pseudo)
+            return css_validator.find(element, prop, pseudo)
 
-        current_element = self._element
+        current_element = element
         prop_value = None
 
         # Keep going higher up the tree until a match is found
         while prop_value is None and current_element is not None:
             # Check if the current element has this rule & applies it onto the child
-            prop_value = self._css_validator.find(current_element, prop, pseudo)
+            prop_value = css_validator.find(current_element, prop, pseudo)
 
             if prop_value is None:
                 parents = current_element.find_parents()
@@ -1070,8 +1096,12 @@ class TestSuite:
         if self._css_validator is None:
             return fail()
 
+        # Bind it here: the narrowing above doesn't reach into the closure, and
+        # _css_validator is only ever set in __post_init__
+        css_validator = self._css_validator
+
         def _inner(_: BeautifulSoup) -> bool:
-            rule: Rule = self._css_validator.find_by_css_selector(css_selector, prop)
+            rule = css_validator.find_by_css_selector(css_selector, prop)
             # If the property is not found, it is None
             return False if rule is None else rule.compare_to(value, important, any_order)
 
