@@ -25,10 +25,10 @@ select = ["E", "W", "F", "I", "UP", "PYI036"]
 # Stub signatures and their one-line docstrings don't wrap usefully.
 # checks.pyi is also the one file we hand to other people's tooling: teachers copy it into
 # their own exercise repo so their editor can autocomplete against it. PEP 695 generics
-# (UP047) need 3.12+, and an editor that can't parse them just stops offering completions
-# rather than reporting anything, so the stub stays on the older TypeVar syntax. The judge's
-# own code runs on 3.13 and doesn't have that constraint.
-"*.pyi" = ["E501", "UP047"]
+# (UP047) and type aliases (UP040) need 3.12+, and an editor that can't parse them just stops
+# offering completions rather than reporting anything, so the stub stays on the older TypeVar
+# and TypeAlias syntax. The judge's own code runs on 3.13 and doesn't have that constraint.
+"*.pyi" = ["E501", "UP040", "UP047"]
 
 [tool.pytest.ini_options]
 # All test classes are unittest.TestCase subclasses, which pytest always collects

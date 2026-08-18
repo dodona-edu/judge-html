@@ -1,32 +1,26 @@
-from __future__ import annotations
-
 from collections.abc import Iterable
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from validators.checks import Check, Checks
 
 
-def flatten_queue(*queue: Checks) -> list[Check]:
+def flatten_queue[T](*queue: T | Iterable[T]) -> list[T]:
     """Flatten the queue to allow nested lists to be put inside of it"""
-    # *args creates tuples so cast the arg into a list first
-    # in case it was used in that context (usually)
-    queue = list(queue)
+    # *args creates a tuple, and the queue is consumed from the front and
+    # pushed onto again, so work on a list copy under its own name
+    remaining: list[T | Iterable[T]] = list(queue)
 
-    flattened: list[Check] = []
+    flattened: list[T] = []
 
-    while queue:
-        el = queue.pop(0)
+    while remaining:
+        el = remaining.pop(0)
 
         # This entry is an iterable too, unpack it
         # & add to front of the queue
         if isinstance(el, Iterable):
             # Cast to a list first (allows map, generators, ...)
-            el = list(el)
+            nested = list(el)
 
             # Iterate in reverse to keep the order of checks!
-            for nested_el in reversed(el):
-                queue.insert(0, nested_el)
+            for nested_el in reversed(nested):
+                remaining.insert(0, nested_el)
         else:
             flattened.append(el)
 

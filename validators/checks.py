@@ -5,7 +5,7 @@ from collections import deque
 from collections.abc import Callable, Iterable, Iterator
 from copy import copy
 from dataclasses import dataclass, field
-from typing import TypeVar, Union
+from typing import TypeVar, cast
 from urllib.parse import urlsplit
 
 from bs4 import BeautifulSoup
@@ -26,7 +26,7 @@ from validators.html_validator import HtmlValidator
 
 # Custom type hints
 Emmet = TypeVar("Emmet", bound=str)
-Checks = TypeVar("Checks", bound=Union["Check", Iterable["Check"]])
+type Checks = Check | Iterable[Check]
 
 
 @dataclass
@@ -79,12 +79,16 @@ class Check:
 
         Returns a reference to itself to allow a fluent interface.
         """
+        # @flatten_varargs has already unpacked any nested iterables, so every
+        # entry left in args is a Check, which the annotation can't express
+        checks = cast("list[Check]", list(args))
+
         if not self.on_success:
-            self.on_success = list(args)
+            self.on_success = checks
         else:
             # Find the deepest child check and add to that one
             deepest: Check = self._find_deepest_nested()
-            deepest.on_success = list(args)
+            deepest.on_success = checks
 
         return self
 
@@ -782,11 +786,9 @@ class ChecklistItem:
 
     def __init__(self, message: str, *checks: Checks):
         self.message = message
-        self._checks = []
 
         # Flatten the list of checks and store in internal list
-        checks = flatten_queue(checks)
-        self._checks = flatten_queue(checks)
+        self._checks = flatten_queue(*checks)
 
     def _process_one(self, check: Check, bs: BeautifulSoup, language: str) -> bool:
         """Process a single check inside of this item
@@ -849,7 +851,7 @@ class VerboseChecklistItem(ChecklistItem):
         self.only_when_status = only_when_status
         self.messages = messages
         self._is_verbose = True
-        super().__init__(message, checks)
+        super().__init__(message, *checks)
 
         # Check that all translations have the correct amount of items
         for k, v in self.messages.items():
@@ -931,7 +933,7 @@ class TestSuite:
     def make_item(self, message: str, *args: Checks):
         """Create a new ChecklistItem
         This is a shortcut for suite.checklist.append(ChecklistItem(message, check))"""
-        self.checklist.append(ChecklistItem(message, list(args)))
+        self.checklist.append(ChecklistItem(message, *args))
 
     def make_item_from_emmet(self, message: str, *emmets: Emmet):
         """Create a new ChecklistItem, the check will compare the submission to the emmet expression.
@@ -1388,13 +1390,13 @@ UTILITY FUNCTIONS
 
 
 @flatten_varargs
-def all_of[Checks: "Check" | Iterable["Check"]](*args: Checks) -> Check:
+def all_of(*args: Checks) -> Check:
     """Perform an AND-statement on a series of Checks
     Creates a new Check that requires every single one of the checks to pass,
     otherwise returns False.
     """
     # Flatten list of checks
-    flattened = flatten_queue(copy(list(args)))
+    flattened = flatten_queue(*args)
     queue: deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:
@@ -1415,13 +1417,13 @@ def all_of[Checks: "Check" | Iterable["Check"]](*args: Checks) -> Check:
 
 
 @flatten_varargs
-def any_of[Checks: "Check" | Iterable["Check"]](*args: Checks) -> Check:
+def any_of(*args: Checks) -> Check:
     """Perform an OR-statement on a series of Checks
     Returns True if at least one of the tests succeeds, and stops
     evaluating the rest at that point.
     """
     # Flatten list of checks
-    flattened = flatten_queue(copy(list(args)))
+    flattened = flatten_queue(*args)
     queue: deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:
@@ -1442,10 +1444,10 @@ def any_of[Checks: "Check" | Iterable["Check"]](*args: Checks) -> Check:
 
 
 @flatten_varargs
-def at_least[Checks: "Check" | Iterable["Check"]](amount: int, *args: Checks) -> Check:
+def at_least(amount: int, *args: Checks) -> Check:
     """Check that at least [amount] checks passed"""
     # Flatten list of checks
-    flattened = flatten_queue(copy(list(args)))
+    flattened = flatten_queue(*args)
     queue: deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:
