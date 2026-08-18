@@ -1,7 +1,6 @@
 from typing import List, Tuple
 
 from dodona.translator import Translator
-from exceptions.double_char_exceptions import *
 
 class DoubleChar:
     type: str

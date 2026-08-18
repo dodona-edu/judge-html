@@ -1,7 +1,11 @@
 import copy
 
 from dodona.translator import Translator
-from exceptions.double_char_exceptions import *
+from exceptions.double_char_exceptions import (
+    MissingClosingCharError,
+    MissingOpeningCharError,
+    MultipleMissingCharsError,
+)
 
 
 class DoubleChar:

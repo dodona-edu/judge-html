@@ -6,7 +6,14 @@ from bs4.element import Tag
 from cssselect import GenericTranslator, SelectorError
 from lxml.etree import ElementBase
 from lxml.html import fromstring
-from tinycss2.ast import *
+from tinycss2.ast import (
+    Declaration,
+    LiteralToken,
+    Node,
+    ParseError,
+    QualifiedRule,
+    WhitespaceToken,
+)
 
 from utils.color_converter import Color
 

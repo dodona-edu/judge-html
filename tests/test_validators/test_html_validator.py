@@ -1,7 +1,18 @@
 import unittest
 
 from dodona.translator import Translator
-from exceptions.html_exceptions import *
+from exceptions.html_exceptions import (
+    AttributeValueError,
+    DuplicateIdError,
+    InvalidAttributeError,
+    InvalidTagError,
+    MissingClosingTagError,
+    MissingRequiredAttributesError,
+    NoSelfClosingTagError,
+    UnexpectedClosingTagError,
+    UnexpectedTagError,
+    Warnings,
+)
 from validators.html_validator import HtmlValidator
 
 
