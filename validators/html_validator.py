@@ -53,11 +53,11 @@ class HtmlValidator(HTMLParser):
 
     def __init__(self, translator: Translator, **kwargs):
         """
-                kwargs:
-                * required: whether or not to check required arguments
-                * recommended: whether or not to check recommended arguments
-                * nesting: whether or not to check the nesting of tags
-        µ"""
+        kwargs:
+        * required: whether or not to check required arguments
+        * recommended: whether or not to check recommended arguments
+        * nesting: whether or not to check the nesting of tags
+        """
         super().__init__()
         self.lineno = 0  # override the default starting at 1 instead of 0
         self.translator = translator
