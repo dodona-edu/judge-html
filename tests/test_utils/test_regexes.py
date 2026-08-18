@@ -1,6 +1,7 @@
-from utils import regexes
-import unittest
 import re
+import unittest
+
+from utils import regexes
 
 
 class TestRegexes(unittest.TestCase):
@@ -14,7 +15,7 @@ class TestRegexes(unittest.TestCase):
         self.assertIsNotNone(regex.search("<!DOCTYPE HTML>\n<html..."))
         self.assertIsNotNone(
             regex.search("""
-        <!-- 
+        <!--
             multiline comment
         --><!--another comment with an > inside of it -->
         <!--comment--><!doctype html><html></html>

@@ -1,14 +1,13 @@
+from functools import lru_cache
 from html.parser import HTMLParser
+from os import path
 from pathlib import PureWindowsPath
 from typing import Dict
 
 from dodona.translator import Translator
 from exceptions.html_exceptions import *
-from os import path
-
-from utils.file_loaders import json_loader, html_loader
+from utils.file_loaders import html_loader, json_loader
 from validators.double_chars_validator import DoubleCharsValidator
-from functools import lru_cache
 
 # Location of this test file
 base_path = path.dirname(__file__)

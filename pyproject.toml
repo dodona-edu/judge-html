@@ -13,3 +13,18 @@ source = ["."]
 line-length = 120
 # Keep in step with .tool-versions; ruff defaults to py310 and can't infer it without a [project] table.
 target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I"]
+ignore = [
+    # The validators do `from ... import *`, which makes every name they pull in look
+    # undefined. Untangling those is its own change, see the follow-up PR.
+    "F403",
+    "F405",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Feedback strings stay on one line so they stay greppable and diff cleanly.
+"dodona/translator.py" = ["E501"]
+# Stub signatures and their one-line docstrings don't wrap usefully.
+"*.pyi" = ["E501"]

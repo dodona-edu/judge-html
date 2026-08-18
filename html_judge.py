@@ -2,22 +2,22 @@ import os
 import sys
 from typing import List, Optional
 
-from dodona.dodona_command import Judgement, Message, ErrorType, Tab, MessageFormat
+from dodona.dodona_command import ErrorType, Judgement, Message, MessageFormat, Tab
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from exceptions.utils import InvalidTranslation
 from utils.evaluation_module import EvaluationModule
 from utils.file_loaders import html_loader
-from validators import checks
-from validators.checks import TestSuite
-from utils.render_ready import prep_render
 from utils.messages import (
-    invalid_suites,
     invalid_evaluator_file,
+    invalid_suites,
     missing_create_suite,
     missing_evaluator_file,
     no_suites_found,
 )
+from utils.render_ready import prep_render
+from validators import checks
+from validators.checks import TestSuite
 
 
 def main():

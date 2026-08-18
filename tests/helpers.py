@@ -1,9 +1,10 @@
-from dodona.translator import Translator
-from utils.file_loaders import html_loader as _html_loader
 from os import path
 
+from dodona.translator import Translator
+from utils.file_loaders import html_loader as _html_loader
+
 # Location of this test file
-from validators.checks import TestSuite, Check, ChecklistItem, Checks
+from validators.checks import Check, ChecklistItem, Checks, TestSuite
 
 basepath = path.dirname(__file__)
 

@@ -1,7 +1,7 @@
 import copy
 
-from exceptions.double_char_exceptions import *
 from dodona.translator import Translator
+from exceptions.double_char_exceptions import *
 
 
 class DoubleChar:

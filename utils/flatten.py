@@ -1,8 +1,9 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, List, Iterable
+
+from typing import TYPE_CHECKING, Iterable, List
 
 if TYPE_CHECKING:
-    from validators.checks import Checks, Check
+    from validators.checks import Check, Checks
 
 
 def flatten_queue(*queue: Checks) -> List["Check"]:

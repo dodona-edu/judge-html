@@ -1,8 +1,8 @@
 from re import RegexFlag
+from typing import Callable, Dict, Iterable, Iterator, List, Optional, TypeVar, Union
 
 from bs4 import BeautifulSoup
 from bs4.element import Tag
-from typing import Callable, List, Optional, Union, Dict, TypeVar, Iterable, Iterator
 
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator

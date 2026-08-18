@@ -1,6 +1,7 @@
-from tests.helpers import UnitTestSuite
-from validators.checks import Element, EmptyElement, ElementContainer
 import unittest
+
+from tests.helpers import UnitTestSuite
+from validators.checks import Element, ElementContainer, EmptyElement
 
 
 class TestElementContainer(unittest.TestCase):

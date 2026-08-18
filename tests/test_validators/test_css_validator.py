@@ -1,8 +1,9 @@
 import unittest
+
 from bs4 import BeautifulSoup
 
 from utils.color_converter import Color
-from validators.css_validator import CssValidator, Rule, Rules
+from validators.css_validator import CssValidator
 
 html = """<!DOCTYPE html>
 <html lang="en">
@@ -100,7 +101,8 @@ html = """<!DOCTYPE html>
 
 <div class="test_element_with_attribute_endswith_value" test_element_with_attribute_endswith_value="aavalue"></div>
 
-<div class="test_element_with_attribute_contains_substring_value" test_element_with_attribute_contains_substring_value="aavalueaa"></div>
+<div class="test_element_with_attribute_contains_substring_value"
+     test_element_with_attribute_contains_substring_value="aavalueaa"></div>
 
 <div class="test_most_precise"></div>
 

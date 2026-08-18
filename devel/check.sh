@@ -5,4 +5,5 @@ ROOT="$(dirname "$(dirname "$0")")"
 
 cd "$ROOT"
 
+ruff check .
 ruff format --check .

@@ -1,8 +1,8 @@
 import unittest
 
 from dodona.translator import Translator
-from validators.html_validator import HtmlValidator
 from exceptions.html_exceptions import *
+from validators.html_validator import HtmlValidator
 
 
 class TestHtmlValidator(unittest.TestCase):

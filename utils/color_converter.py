@@ -52,7 +52,7 @@ class Color(Col):
             super(Color, self).__init__(val)
 
     def __eq__(self, other):
-        if other is None or type(other) != type(self):
+        if other is None or type(other) is not type(self):
             return False
         if self.alpha != other.alpha:
             return False

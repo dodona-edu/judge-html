@@ -1,8 +1,8 @@
 from html.parser import HTMLParser
-from typing import List, Dict, Tuple, Set
+from typing import Dict, List, Set, Tuple
 
 from dodona.translator import Translator
-from exceptions.html_exceptions import Warnings, HtmlValidationError, MissingRecommendedAttributesWarning
+from exceptions.html_exceptions import HtmlValidationError, MissingRecommendedAttributesWarning, Warnings
 from validators.double_chars_validator import DoubleCharsValidator
 
 class HtmlValidator(HTMLParser):

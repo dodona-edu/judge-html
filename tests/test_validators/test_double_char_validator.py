@@ -2,8 +2,8 @@ import unittest
 from typing import List
 
 from dodona.translator import Translator
-from validators.double_chars_validator import DoubleCharsValidator
 from exceptions.double_char_exceptions import MultipleMissingCharsError
+from validators.double_chars_validator import DoubleCharsValidator
 
 
 class TestDoubleCharValidator(unittest.TestCase):
@@ -124,7 +124,7 @@ class TestDoubleCharValidator(unittest.TestCase):
             <!--
             function displayMsg) {
               alert"Hello World!")
-            
+
             //-->
             """,
                 """<body><h1>Check if brackets/quotes open and close (`(`, '&lt;', `{`, `[`, `'`, `"`)<h1></body>""",

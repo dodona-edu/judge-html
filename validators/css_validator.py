@@ -1,4 +1,4 @@
-from typing import Optional, List, Tuple, Dict
+from typing import Dict, List, Optional, Tuple
 
 import tinycss2
 import tinycss2.nth
@@ -28,13 +28,15 @@ Specificity for single selectors from highest to lowest:
     ids (example: #main selects <div id="main">)
     classes (ex.: .myclass), attribute selectors (ex.: [href=^https:]) and pseudo-classes (ex.: :hover)
     elements (ex.: div) and pseudo-elements (ex.: ::before)
-    To compare the specificity of two combined selectors, compare the number of occurences of single selectors of each of the specificity groups above.
+    To compare the specificity of two combined selectors, compare the number of occurrences of single selectors of
+    each of the specificity groups above.
 
 Example: compare #nav ul li a:hover to #nav ul li.active a::after
 
 count the number of id selectors: there is one for each (#nav)
 count the number of class selectors: there is one for each (:hover and .active)
-count the number of element selectors: there are 3 (ul li a) for the first and 4 for the second (ul li a ::after), thus the second combined selector is more specific.
+count the number of element selectors: there are 3 (ul li a) for the first and 4 for the second (ul li a ::after),
+thus the second combined selector is more specific.
 
 USAGE:
 >>> validator = CssValidator(html_content)

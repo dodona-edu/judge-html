@@ -1,4 +1,5 @@
 import unittest
+
 from utils.color_converter import Color
 
 
