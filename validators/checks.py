@@ -11,7 +11,7 @@ from urllib.parse import urlsplit
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString, Tag
 
-from decorators import css_check, flatten_varargs, html_check
+from decorators import css_check, fail, flatten_varargs, html_check
 from dodona.dodona_command import Context, Message, MessageFormat, SafeAnnotation, TestCase
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
@@ -1063,6 +1063,10 @@ class TestSuite:
         any_order: bool = False,
     ) -> Check:
         """Check if the given css rule exists for the given css selector"""
+        # The CSS didn't parse, so there are no rules to find in it. Fail the check instead
+        # of crashing, same as the @css_check decorator does for Element.has_styling
+        if self._css_validator is None:
+            return fail()
 
         def _inner(_: BeautifulSoup) -> bool:
             rule: Rule = self._css_validator.find_by_css_selector(css_selector, prop)
@@ -1182,19 +1186,20 @@ class TestSuite:
 class BoilerplateTestSuite(TestSuite):
     """Base class for TestSuites that handle some boilerplate things"""
 
-    _default_translations: dict[str, list[str]] | None = None
-    _default_checks: list[ChecklistItem] | None = None
+    _default_translations: dict[str, list[str]]
+    _default_checks: list[ChecklistItem]
     check_minimal: bool
 
     def __init__(self, name: str, content: str, check_recommended: bool = True, check_minimal: bool = False):
         super().__init__(name, content, check_recommended)
+        # Subclasses overwrite these, but a bare BoilerplateTestSuite has to be usable too:
+        # _has_minimal_template() appends to both without asking
+        self._default_translations = {"en": [], "nl": []}
+        self._default_checks = []
         self.check_minimal = check_minimal
 
     def _add_default_translations(self):
         self._create_language_lists()
-
-        if self._default_translations is None:
-            return
 
         # Add in reverse order so we can keep inserting at index 0
         for language, translations in self._default_translations.items():
@@ -1202,9 +1207,6 @@ class BoilerplateTestSuite(TestSuite):
                 self.translations[language].insert(0, entry)
 
     def _add_default_checks(self):
-        if self._default_checks is None:
-            return
-
         # Add in reverse order so we can keep inserting at index 0
         for item in reversed(self._default_checks):
             self.checklist.insert(0, item)
@@ -1243,9 +1245,6 @@ class BoilerplateTestSuite(TestSuite):
         _title = _head.get_child("title")
         _meta = _head.get_child("meta", charset=True)
         _body = _html.get_child("body")
-
-        if self._default_checks is None:
-            self._default_checks = []
 
         self._default_checks.append(
             VerboseChecklistItem(

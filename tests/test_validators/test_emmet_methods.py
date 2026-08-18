@@ -35,3 +35,19 @@ class TestEmmetMethods(unittest.TestCase):
 
         # Path index takes priority
         self.assertTrue(suite.check(suite.element("body>div[0]", index=1).attribute_exists("id", "the_first_div")))
+
+    def test_empty_path_segment(self):
+        # A leading or trailing ">" leaves an empty segment in the path, which makes
+        # find_emmet return all children of the current element. Those used to come back as
+        # a bs4 generator: always truthy, not subscriptable, and yielding NavigableStrings
+        # (whitespace, the doctype) that the callers then called .get() on
+        suite = UnitTestSuite("emmet_finding")
+
+        # Trailing ">": the direct children of <body> are two <div>s, the whitespace
+        # in between them shouldn't be counted
+        self.assertTrue(suite.check(suite.element("body>").attribute_exists("id", "the_first_div")))
+        self.assertEqual(len(suite.all_elements("body>")), 2)
+
+        # Leading ">": the children of the document itself, so the doctype should be skipped
+        self.assertTrue(suite.check(suite.element(">div").attribute_exists("lang", "en")))
+        self.assertEqual(len(suite.all_elements(">div")), 1)
