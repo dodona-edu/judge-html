@@ -24,3 +24,9 @@ select = ["E", "W", "F", "I", "PYI036"]
 "dodona/translator.py" = ["E501"]
 # Stub signatures and their one-line docstrings don't wrap usefully.
 "*.pyi" = ["E501"]
+
+[tool.pytest.ini_options]
+# All test classes are unittest.TestCase subclasses, which pytest always collects
+# regardless of python_classes. Narrow the pattern so it stops matching bare "Test*"
+# names like validators/checks.py's TestSuite dataclass (which isn't a test).
+python_classes = []
