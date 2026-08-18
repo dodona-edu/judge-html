@@ -750,7 +750,7 @@ class ElementContainer:
         # Teachers write these indexes by hand, so the runtime check stays even though
         # the overloads above already rule it out for anything that type-checks
         if not isinstance(item, (int, slice)):
-            raise TypeError(f"Key {item} was of type {item}, not int or slice.")
+            raise TypeError(f"Key {item} was of type {type(item).__name__}, not int or slice.")
 
         # Out of range
         if isinstance(item, int) and item >= self._size:
