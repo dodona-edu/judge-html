@@ -57,7 +57,7 @@ class DelayedExceptions(Exception):
     """class made to gather multiple exceptions"""
 
     def __init__(self):
-        self.exceptions: [FeedbackException] = []
+        self.exceptions: list[FeedbackException] = []
 
     def __len__(self):
         return len(self.exceptions)
