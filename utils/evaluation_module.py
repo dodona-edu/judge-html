@@ -48,6 +48,7 @@ class EvaluationModule(ModuleType):
             evaluator_module = cls("evaluation", config)
 
             # Build the bytecode & add to the new module
-            exec(evaluator_script, evaluator_module.__dict__)
+            # Running the teacher's evaluator.py is what this class is for
+            exec(evaluator_script, evaluator_module.__dict__)  # noqa: S102
 
             return evaluator_module

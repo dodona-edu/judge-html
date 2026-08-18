@@ -54,7 +54,9 @@ def main():
                     missing_evaluator_file(config.translator)
                     invalid_suites(judge, config)
                     return
-                suite = checks._CompareSuite(
+                # Private on purpose: the comparison suite is the judge's fallback when a
+                # teacher ships no evaluator.py, not something an evaluator should build.
+                suite = checks._CompareSuite(  # noqa: SLF001
                     html_content, solution, config, check_recommended=getattr(config, "recommended", True)
                 )
                 test_suites = [suite]

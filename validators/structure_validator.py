@@ -1,3 +1,4 @@
+from html_similarity import structural_similarity, style_similarity
 from lxml.html import HtmlComment, HtmlElement, fromstring
 
 from dodona.translator import Translator
@@ -11,8 +12,6 @@ def get_similarity(sol: str, sub: str) -> tuple[float, float]:
     # Empty submission is 0% similar
     if is_empty_document(sub):
         return 0, 0
-
-    from html_similarity import structural_similarity, style_similarity
 
     a = sol.find("<style")
     b = sub.find("<style")

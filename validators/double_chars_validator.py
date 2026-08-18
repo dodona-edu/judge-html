@@ -32,7 +32,7 @@ class DoubleChar:
         """
         c = copy.copy(self)
         if self.is_unambiguous:
-            c._is_open = is_open
+            c._is_open = is_open  # noqa: SLF001
         c.line = line
         c.pos = pos
         return c
@@ -196,7 +196,7 @@ class DoubleCharsValidator:
             # don't check inside
             if not el.check_inside:
                 wus = el
-                wus._is_open = True
+                wus._is_open = True  # noqa: SLF001
             else:
                 wus = None
                 stack.append(el)

@@ -17,12 +17,14 @@ from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
 from exceptions.double_char_exceptions import LocatableDoubleCharError, MultipleMissingCharsError
 from exceptions.html_exceptions import LocatableHtmlValidationError, Warnings
+from exceptions.structure_exceptions import NotTheSame
 from exceptions.utils import EvaluationAborted
 from utils.flatten import flatten_queue
 from utils.html_navigation import compare_content, contains_comment, find_child, find_emmet, match_emmet
 from utils.regexes import doctype_re
 from validators.css_validator import AmbiguousXpath, CssParsingError, CssValidator, ElementNotFound, Rule
 from validators.html_validator import HtmlValidator
+from validators.structure_validator import compare, get_similarity
 
 # Custom type hints
 Emmet = TypeVar("Emmet", bound=str)
@@ -812,7 +814,9 @@ class ChecklistItem:
         # Flatten the list of checks and store in internal list
         self._checks = flatten_queue(*checks)
 
-    def _process_one(self, check: Check, bs: BeautifulSoup, language: str) -> bool:
+    # language is unused here, but it is part of the signature ChecklistItem subclasses
+    # override, and VerboseChecklistItem does use it to pick the right translation.
+    def _process_one(self, check: Check, bs: BeautifulSoup, language: str) -> bool:  # noqa: ARG002
         """Process a single check inside of this item
         Inner function to make future modifications cleaner, and allows a bit of abstraction
         """
@@ -959,7 +963,8 @@ class TestSuite:
         """Create a new ChecklistItem, the check will compare the submission to the emmet expression.
         The emmet expression is seen as the minimal required elements/attributes, so the submission may contain more
         or equal elements"""
-        from utils.emmet import emmet_to_check
+        # Local import: utils.emmet imports this module at the top for Check and Element
+        from utils.emmet import emmet_to_check  # noqa: PLC0415
 
         # Add multiple emmet checks under one main item
         emmet_checks = [emmet_to_check(e, self) for e in emmets]
@@ -1027,9 +1032,6 @@ class TestSuite:
         """Compare the submission to the solution html."""
 
         def _inner(_: BeautifulSoup):
-            from exceptions.structure_exceptions import NotTheSame
-            from validators.structure_validator import compare, get_similarity
-
             try:
                 compare(solution, self.content, translator, **kwargs)
             except NotTheSame as err:

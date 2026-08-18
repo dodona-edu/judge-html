@@ -259,10 +259,9 @@ class Rules:
                     else:
                         by_keyword[r.name][1].append(r)
 
-        for imp, rs in by_keyword.values():
-            # check if there are rules containing !important
-            if imp:
-                rs = imp
+        for imp, non_imp in by_keyword.values():
+            # rules containing !important win from the ones that don't
+            rs = imp or non_imp
             # get the most specific rule or the one that was defined the latest if multiple with the same specificity
             dom_rule = rs[0]  # the dominating rule
             for r in rs:
@@ -278,9 +277,12 @@ class Rules:
         dom_rule: Rule | None = None
         rule: Rule
         for rule in self.rules:
-            if rule.selector_str == css_selector and rule.name == key:
-                if dom_rule is None or rule.specificity > dom_rule.specificity:
-                    dom_rule = rule
+            if (
+                rule.selector_str == css_selector
+                and rule.name == key
+                and (dom_rule is None or rule.specificity > dom_rule.specificity)
+            ):
+                dom_rule = rule
         return dom_rule
 
 

@@ -183,12 +183,15 @@ class HtmlValidator(HTMLParser):
                     MissingOpeningTagError(trans=self.translator, tag=tag, line=self.getpos()[0], pos=self.getpos()[1])
                 )
 
-    @lru_cache
+    # lru_cache on a method keeps the instance alive for as long as the cache does. A judge
+    # process handles one submission and exits, so the validator it holds on to is one that
+    # was going to live that long anyway.
+    @lru_cache  # noqa: B019
     def _is_void_tag(self, tag: str) -> bool:
         """indicates whether the tag its corresponding closing tag is omittable or not"""
         return VOID_KEY in self.valid_dict[tag] and self.valid_dict[tag][VOID_KEY]
 
-    @lru_cache
+    @lru_cache  # noqa: B019
     def _valid_tag(self, tag: str):
         """validate that a tag is a valid HTML tag (if a tag isn't allowed, this wil also raise an exception"""
         if tag not in self.valid_dict:

@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 def fail():
     """Return a Check that always fails"""
     # Local import to avoid circular dependencies
-    from validators.checks import Check
+    from validators.checks import Check  # noqa: PLC0415
 
     def _inner(_: BeautifulSoup) -> bool:
         return False
