@@ -1,6 +1,6 @@
 from os import path
 from types import ModuleType
-from typing import List, Optional
+from typing import Optional
 
 from dodona.dodona_config import DodonaConfig
 from validators.checks import TestSuite
@@ -15,7 +15,7 @@ class EvaluationModule(ModuleType):
         super().__init__(name, *args, **kwargs)
         self.config = config
 
-    def create_suites(self, content: str) -> List[TestSuite]:
+    def create_suites(self, content: str) -> list[TestSuite]:
         """Method that we expect the TestSuite to have
         This stops PyCharm from complaining that the method doesn't exist,
         and also allows us to throw an exception in case it wasn't implemented.
@@ -40,7 +40,7 @@ class EvaluationModule(ModuleType):
             return None
 
         # Read raw content of .py file
-        with open(custom_evaluator_path, "r") as fp:
+        with open(custom_evaluator_path) as fp:
             # Compile the code into bytecode
             evaluator_script = compile(fp.read(), "<string>", "exec")
 

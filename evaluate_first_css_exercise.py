@@ -1,9 +1,7 @@
-from typing import List
-
 from validators import checks
 
 
-def create_suites(content: str) -> List[checks.TestSuite]:
+def create_suites(content: str) -> list[checks.TestSuite]:
     css_suite = checks.TestSuite("CSS", content)
 
     html_valid = checks.ChecklistItem("The HTML is valid.", css_suite.validate_html())

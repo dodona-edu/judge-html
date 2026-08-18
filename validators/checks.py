@@ -2,9 +2,10 @@
 
 import re
 from collections import deque
+from collections.abc import Callable, Iterable, Iterator
 from copy import copy
 from dataclasses import dataclass, field
-from typing import Callable, Deque, Dict, Iterable, Iterator, List, Optional, TypeVar, Union
+from typing import TypeVar, Union
 from urllib.parse import urlsplit
 
 from bs4 import BeautifulSoup
@@ -43,7 +44,7 @@ class Check:
     """
 
     callback: Callable[[BeautifulSoup], bool]
-    on_success: List["Check"] = field(default_factory=list)
+    on_success: list["Check"] = field(default_factory=list)
     abort_on_fail: bool = False
 
     def _find_deepest_nested(self) -> "Check":
@@ -82,7 +83,7 @@ class Check:
             self.on_success = list(args)
         else:
             # Find the deepest child check and add to that one
-            deepest: "Check" = self._find_deepest_nested()
+            deepest: Check = self._find_deepest_nested()
             deepest.on_success = list(args)
 
         return self
@@ -101,9 +102,9 @@ class Element:
     """
 
     tag: str
-    id: Optional[str] = None
-    _element: Optional[Tag] = None
-    _css_validator: Optional[CssValidator] = None
+    id: str | None = None
+    _element: Tag | None = None
+    _css_validator: CssValidator | None = None
 
     def __str__(self):
         if self.id is not None:
@@ -112,9 +113,7 @@ class Element:
         return f"<{self.tag}>"
 
     # HTML utilities
-    def get_child(
-        self, tag: Optional[Union[str, Emmet]] = None, index: int = 0, direct: bool = True, **kwargs
-    ) -> "Element":
+    def get_child(self, tag: str | Emmet | None = None, index: int = 0, direct: bool = True, **kwargs) -> "Element":
         """Find the child element that matches the specifications
 
         :param tag:     the tag to search for
@@ -129,9 +128,7 @@ class Element:
 
         return Element(child.name, child.get("id", None), child, self._css_validator)
 
-    def get_children(
-        self, tag: Optional[Union[str, Emmet]] = None, direct: bool = True, **kwargs
-    ) -> "ElementContainer":
+    def get_children(self, tag: str | Emmet | None = None, direct: bool = True, **kwargs) -> "ElementContainer":
         """Get all children of this element that match the requested input"""
         # This element doesn't exist so it has no children
         if self._element is None:
@@ -167,7 +164,7 @@ class Element:
         return Check(_inner)
 
     @html_check
-    def has_child(self, tag: Optional[Union[str, Emmet]] = None, direct: bool = True, **kwargs) -> Check:
+    def has_child(self, tag: str | Emmet | None = None, direct: bool = True, **kwargs) -> Check:
         """Check that this element has a child with the given tag
 
         :param tag:     the tag to search for
@@ -215,7 +212,7 @@ class Element:
         return Check(_inner)
 
     @html_check
-    def has_content(self, text: Optional[str] = None, case_insensitive: bool = False) -> Check:
+    def has_content(self, text: str | None = None, case_insensitive: bool = False) -> Check:
         """Check if this element has given text as content.
         In case no text is passed, any non-empty string will make the test pass
 
@@ -273,7 +270,7 @@ class Element:
 
         return Check(_inner)
 
-    def _get_attribute(self, attr: str) -> Optional[Union[List[str], str]]:
+    def _get_attribute(self, attr: str) -> list[str] | str | None:
         """Internal function that gets an attribute"""
         attribute = self._element.get(attr.lower())
 
@@ -281,11 +278,11 @@ class Element:
 
     def _compare_attribute_list(
         self,
-        attribute: List[str],
-        value: Optional[str] = None,
+        attribute: list[str],
+        value: str | None = None,
         case_insensitive: bool = False,
         mode: int = 0,
-        flags: Union[int, re.RegexFlag] = 0,
+        flags: int | re.RegexFlag = 0,
     ) -> bool:
         """Attribute check for attributes that contain lists (eg. Class). Can handle all 3 modes.
         0: exact match (exists)
@@ -324,7 +321,7 @@ class Element:
         return False
 
     @html_check
-    def attribute_exists(self, attr: str, value: Optional[str] = None, case_insensitive: bool = False) -> Check:
+    def attribute_exists(self, attr: str, value: str | None = None, case_insensitive: bool = False) -> Check:
         """Check that this element has the required attribute, optionally with a value
         :param attr:                The name of the attribute to check.
         :param value:               The value to check. If no value is passed, this will not be checked.
@@ -374,7 +371,7 @@ class Element:
         return Check(_inner)
 
     @html_check
-    def attribute_matches(self, attr: str, regex: str, flags: Union[int, re.RegexFlag] = 0) -> Check:
+    def attribute_matches(self, attr: str, regex: str, flags: int | re.RegexFlag = 0) -> Check:
         """Check that the value of an attribute matches a regex pattern"""
 
         def _inner(_: BeautifulSoup) -> bool:
@@ -392,7 +389,7 @@ class Element:
         return Check(_inner)
 
     @html_check
-    def has_table_header(self, header: List[str]) -> Check:
+    def has_table_header(self, header: list[str]) -> Check:
         """If this element is a table, check that the header content matches up"""
 
         def _inner(_: BeautifulSoup) -> bool:
@@ -418,7 +415,7 @@ class Element:
 
     @html_check
     def has_table_content(
-        self, rows: List[List[str]], has_header: bool = True, case_insensitive: bool = False
+        self, rows: list[list[str]], has_header: bool = True, case_insensitive: bool = False
     ) -> Check:
         """Check that a table's rows have the requested content
         :param rows:                The data of all the rows to check
@@ -469,7 +466,7 @@ class Element:
         return Check(_inner)
 
     @html_check
-    def table_row_has_content(self, row: List[str], case_insensitive: bool = False) -> Check:
+    def table_row_has_content(self, row: list[str], case_insensitive: bool = False) -> Check:
         """Check the content of one row instead of the whole table"""
 
         def _inner(_: BeautifulSoup) -> bool:
@@ -493,7 +490,7 @@ class Element:
         return Check(_inner)
 
     @html_check
-    def has_url_with_fragment(self, fragment: Optional[str] = None) -> Check:
+    def has_url_with_fragment(self, fragment: str | None = None) -> Check:
         """Check if a url has a fragment
         If no fragment is passed, any non-empty fragment will do
         """
@@ -523,7 +520,7 @@ class Element:
         return Check(_inner)
 
     @html_check
-    def has_outgoing_url(self, allowed_domains: Optional[List[str]] = None, attr: str = "href") -> Check:
+    def has_outgoing_url(self, allowed_domains: list[str] | None = None, attr: str = "href") -> Check:
         """Check if a tag has an outgoing link
         :param allowed_domains: A list of domains that should not be considered "outgoing",
                                 defaults to ["dodona.ugent.be", "users.ugent.be"]
@@ -551,7 +548,7 @@ class Element:
         return Check(_inner)
 
     @html_check
-    def contains_comment(self, comment: Optional[str] = None) -> Check:
+    def contains_comment(self, comment: str | None = None) -> Check:
         """Check if the element contains a comment, optionally matching a value"""
 
         def _inner(_: BeautifulSoup) -> bool:
@@ -560,7 +557,7 @@ class Element:
         return Check(_inner)
 
     # CSS checks
-    def _find_css_property(self, prop: str, inherit: bool, pseudo: Optional[str] = None) -> Optional[Rule]:
+    def _find_css_property(self, prop: str, inherit: bool, pseudo: str | None = None) -> Rule | None:
         """Find a css property recursively if necessary
         Properties by parent elements are applied onto their children, so
         an element can inherit a property from its parent
@@ -596,9 +593,9 @@ class Element:
     def has_styling(
         self,
         prop: str,
-        value: Optional[str] = None,
-        important: Optional[bool] = None,
-        pseudo: Optional[str] = None,
+        value: str | None = None,
+        important: bool | None = None,
+        pseudo: str | None = None,
         allow_inheritance: bool = False,
         any_order: bool = False,
     ) -> Check:
@@ -626,8 +623,8 @@ class Element:
         self,
         prop: str,
         color: str,
-        important: Optional[bool] = None,
-        pseudo: Optional[str] = None,
+        important: bool | None = None,
+        pseudo: str | None = None,
         allow_inheritance: bool = False,
     ) -> Check:
         """Check that this element has a given color
@@ -696,14 +693,14 @@ class ElementContainer:
         elements       the elements to add into this container
     """
 
-    elements: List[Element]
+    elements: list[Element]
     _size: int = field(init=False)
 
     def __post_init__(self):
         # Avoid calling len() all the time
         self._size = len(self.elements)
 
-    def __getitem__(self, item) -> Union[Element, List[Element]]:
+    def __getitem__(self, item) -> Element | list[Element]:
         if not isinstance(item, (int, slice)):
             raise TypeError(f"Key {item} was of type {item}, not int or slice.")
 
@@ -714,14 +711,13 @@ class ElementContainer:
         return self.elements[item]
 
     def __iter__(self) -> Iterator[Element]:
-        for el in self.elements:
-            yield el
+        yield from self.elements
 
     def __len__(self):
         return self._size
 
     @classmethod
-    def from_tags(cls, tags: List[Tag], css_validator: CssValidator) -> "ElementContainer":
+    def from_tags(cls, tags: list[Tag], css_validator: CssValidator) -> "ElementContainer":
         """Construct a container from a list of bs4 Tag instances"""
         elements = list(map(lambda x: Element(x.name, x.get("id", None), x, css_validator), tags))
         return ElementContainer(elements)
@@ -781,7 +777,7 @@ class ChecklistItem:
     """
 
     message: str
-    _checks: List[Check] = field(init=False)
+    _checks: list[Check] = field(init=False)
     _is_verbose: bool = False
 
     def __init__(self, message: str, *checks: Checks):
@@ -845,11 +841,11 @@ class VerboseChecklistItem(ChecklistItem):
 
     # Print the messages depending on when a Check fails or succeeds,
     # True for only on success, False for only on failure, None for always
-    only_when_status: Optional[bool]
-    messages: Dict[str, List[str]] = field(default_factory=Dict)
+    only_when_status: bool | None
+    messages: dict[str, list[str]] = field(default_factory=dict)
     _is_verbose: bool = field(init=False)
 
-    def __init__(self, message: str, messages: Dict[str, List[str]], only_when_status: bool, *checks: Checks):
+    def __init__(self, message: str, messages: dict[str, list[str]], only_when_status: bool, *checks: Checks):
         self.only_when_status = only_when_status
         self.messages = messages
         self._is_verbose = True
@@ -886,11 +882,11 @@ class TestSuite:
     name: str
     content: str
     check_recommended: bool = True
-    checklist: List[ChecklistItem] = field(default_factory=list)
-    translations: Dict[str, List[str]] = field(default_factory=dict)
+    checklist: list[ChecklistItem] = field(default_factory=list)
+    translations: dict[str, list[str]] = field(default_factory=dict)
     _bs: BeautifulSoup = field(init=False)
     _html_validator: HtmlValidator = field(init=False)
-    _css_validator: Optional[CssValidator] = field(init=False)
+    _css_validator: CssValidator | None = field(init=False)
     _html_validated: bool = field(init=False)
     _css_validated: bool = field(init=False)
 
@@ -1042,7 +1038,7 @@ class TestSuite:
 
         return Check(_inner)
 
-    def document_matches(self, regex: str, flags: Union[int, re.RegexFlag] = 0) -> Check:
+    def document_matches(self, regex: str, flags: int | re.RegexFlag = 0) -> Check:
         """Check that the document matches a regex"""
 
         def _inner(_: BeautifulSoup) -> bool:
@@ -1050,7 +1046,7 @@ class TestSuite:
 
         return Check(_inner)
 
-    def contains_comment(self, comment: Optional[str] = None) -> Check:
+    def contains_comment(self, comment: str | None = None) -> Check:
         """Check if the document contains a comment, optionally matching a value"""
 
         def _inner(_: BeautifulSoup) -> bool:
@@ -1062,8 +1058,8 @@ class TestSuite:
         self,
         css_selector: str,
         prop: str,
-        value: Optional[str] = None,
-        important: Optional[bool] = None,
+        value: str | None = None,
+        important: bool | None = None,
         any_order: bool = False,
     ) -> Check:
         """Check if the given css rule exists for the given css selector"""
@@ -1085,9 +1081,7 @@ class TestSuite:
 
         return Check(_inner)
 
-    def element(
-        self, tag: Optional[Union[str, Emmet]] = None, index: int = 0, from_root: bool = False, **kwargs
-    ) -> Element:
+    def element(self, tag: str | Emmet | None = None, index: int = 0, from_root: bool = False, **kwargs) -> Element:
         """Create a reference to an HTML element
         :param tag:         the name of the HTML tag to search for
         :param index:       in case multiple elements match, specify which should be chosen
@@ -1101,9 +1095,7 @@ class TestSuite:
 
         return Element(element.name, kwargs.get("id", None), element, self._css_validator)
 
-    def all_elements(
-        self, tag: Optional[Union[str, Emmet]] = None, from_root: bool = False, **kwargs
-    ) -> ElementContainer:
+    def all_elements(self, tag: str | Emmet | None = None, from_root: bool = False, **kwargs) -> ElementContainer:
         """Get references to ALL HTML elements that match a query"""
         if match_emmet(tag):
             elements = find_emmet(self._bs, tag, 0, from_root=from_root, match_multiple=True, **kwargs)
@@ -1190,8 +1182,8 @@ class TestSuite:
 class BoilerplateTestSuite(TestSuite):
     """Base class for TestSuites that handle some boilerplate things"""
 
-    _default_translations: Optional[Dict[str, List[str]]] = None
-    _default_checks: Optional[List[ChecklistItem]] = None
+    _default_translations: dict[str, list[str]] | None = None
+    _default_checks: list[ChecklistItem] | None = None
     check_minimal: bool
 
     def __init__(self, name: str, content: str, check_recommended: bool = True, check_minimal: bool = False):
@@ -1397,14 +1389,14 @@ UTILITY FUNCTIONS
 
 
 @flatten_varargs
-def all_of(*args: Checks) -> Check:
+def all_of[Checks: "Check" | Iterable["Check"]](*args: Checks) -> Check:
     """Perform an AND-statement on a series of Checks
     Creates a new Check that requires every single one of the checks to pass,
     otherwise returns False.
     """
     # Flatten list of checks
     flattened = flatten_queue(copy(list(args)))
-    queue: Deque[Check] = deque(flattened)
+    queue: deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:
         while queue:
@@ -1424,14 +1416,14 @@ def all_of(*args: Checks) -> Check:
 
 
 @flatten_varargs
-def any_of(*args: Checks) -> Check:
+def any_of[Checks: "Check" | Iterable["Check"]](*args: Checks) -> Check:
     """Perform an OR-statement on a series of Checks
     Returns True if at least one of the tests succeeds, and stops
     evaluating the rest at that point.
     """
     # Flatten list of checks
     flattened = flatten_queue(copy(list(args)))
-    queue: Deque[Check] = deque(flattened)
+    queue: deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:
         while queue:
@@ -1451,11 +1443,11 @@ def any_of(*args: Checks) -> Check:
 
 
 @flatten_varargs
-def at_least(amount: int, *args: Checks) -> Check:
+def at_least[Checks: "Check" | Iterable["Check"]](amount: int, *args: Checks) -> Check:
     """Check that at least [amount] checks passed"""
     # Flatten list of checks
     flattened = flatten_queue(copy(list(args)))
-    queue: Deque[Check] = deque(flattened)
+    queue: deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:
         passed = 0

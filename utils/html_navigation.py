@@ -1,17 +1,16 @@
 import re
-from typing import List, Optional, Union
 
 from bs4 import BeautifulSoup
 from bs4.element import Comment, Tag
 
 
-def match_emmet(tag: Optional[str]) -> bool:
+def match_emmet(tag: str | None) -> bool:
     return tag is not None and tag and re.match(r"^[a-zA-Z0-9]+$", tag) is None
 
 
 def find_child(
-    element: Optional[Union[BeautifulSoup, Tag]], tag: Optional[str], index: int = 0, from_root: bool = False, **kwargs
-) -> Optional[Tag]:
+    element: BeautifulSoup | Tag | None, tag: str | None, index: int = 0, from_root: bool = False, **kwargs
+) -> Tag | None:
     """Shortcut to find a child node with a given tag
     :param element:     the parent element to start searching from
     :param tag:         the name of the HTML tag to search for
@@ -61,13 +60,13 @@ def find_child(
 
 
 def find_emmet(
-    element: Optional[Union[BeautifulSoup, Tag]],
+    element: BeautifulSoup | Tag | None,
     path: str,
     ind: int,
     from_root: bool = False,
     match_multiple: bool = False,
     **kwargs,
-) -> Optional[List[Tag]]:
+) -> list[Tag] | None:
     """Find an element using emmet syntax"""
     if element is None:
         return None
@@ -81,7 +80,7 @@ def find_emmet(
     illegal_class_regex = re.compile(r"\.([0-9]|--|-[0-9])")
     class_regex = re.compile(r"\.([a-zA-Z0-9_-]+)")
 
-    path_stack: List[str] = path.split(">")
+    path_stack: list[str] = path.split(">")
 
     # the from_root should only be done once, afterwards it's always True to support this syntax
     moved = False
@@ -184,7 +183,7 @@ def compare_content(first: str, second: str, case_insensitive: bool = False) -> 
     return element_text == arg_text
 
 
-def contains_comment(element: Optional[Union[BeautifulSoup, Tag]], comment: Optional[str] = None) -> bool:
+def contains_comment(element: BeautifulSoup | Tag | None, comment: str | None = None) -> bool:
     """Check if an element contains a comment, optionally with a specific value"""
     if element is None:
         return False

@@ -17,13 +17,18 @@ target-version = "py313"
 [tool.ruff.lint]
 # PYI036 guards the __exit__ signatures: it catches the missing `| None` that made every
 # Dodona 'with' block fail ty's invalid-context-manager check.
-select = ["E", "W", "F", "I", "PYI036"]
+select = ["E", "W", "F", "I", "UP", "PYI036"]
 
 [tool.ruff.lint.per-file-ignores]
 # Feedback strings stay on one line so they stay greppable and diff cleanly.
 "dodona/translator.py" = ["E501"]
 # Stub signatures and their one-line docstrings don't wrap usefully.
-"*.pyi" = ["E501"]
+# checks.pyi is also the one file we hand to other people's tooling: teachers copy it into
+# their own exercise repo so their editor can autocomplete against it. PEP 695 generics
+# (UP047) need 3.12+, and an editor that can't parse them just stops offering completions
+# rather than reporting anything, so the stub stays on the older TypeVar syntax. The judge's
+# own code runs on 3.13 and doesn't have that constraint.
+"*.pyi" = ["E501", "UP047"]
 
 [tool.pytest.ini_options]
 # All test classes are unittest.TestCase subclasses, which pytest always collects

@@ -1,6 +1,5 @@
 import os
 import sys
-from typing import List, Optional
 
 from dodona.dodona_command import ErrorType, Judgement, Message, MessageFormat, Tab
 from dodona.dodona_config import DodonaConfig
@@ -43,9 +42,9 @@ def main():
         # If anything goes wrong, show a detailed error message to the teacher
         # and a short message to the student
         try:
-            evaluator: Optional[EvaluationModule] = EvaluationModule.build(config)
+            evaluator: EvaluationModule | None = EvaluationModule.build(config)
             if evaluator is not None:
-                test_suites: List[TestSuite] = evaluator.create_suites(html_content)
+                test_suites: list[TestSuite] = evaluator.create_suites(html_content)
             else:
                 solution = html_loader(os.path.join(config.resources, "./solution.html"))
                 if not solution:

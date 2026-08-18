@@ -16,7 +16,7 @@ def html_loader(file_path: str, **kwargs) -> str:
     if kwargs.get("shorted", True) and not file_path.endswith(".html"):
         file_path += ".html"
 
-    with open(file_path, "r") as file:
+    with open(file_path) as file:
         content = file.read()
 
         if kwargs.get("wrap_head", False):
@@ -42,7 +42,7 @@ def json_loader(file_path: str, **kwargs) -> dict:
     if kwargs.get("shorted", True) and not file_path.endswith(".json"):
         file_path += ".json"
 
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         import json
 
         return json.load(f)

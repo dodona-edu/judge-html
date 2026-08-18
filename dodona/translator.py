@@ -1,7 +1,6 @@
 """translate judge output towards Dodona"""
 
 from enum import Enum, auto
-from typing import Dict
 
 from dodona.dodona_command import ErrorType
 
@@ -92,7 +91,7 @@ class Translator:
         """
         return self.error_translations[self.language][error]
 
-    def error_status(self, error: ErrorType, **kwargs) -> Dict[str, str]:
+    def error_status(self, error: ErrorType, **kwargs) -> dict[str, str]:
         """translate an ErrorType enum into a status object
         :param error: ErrorType enum
         :return: Dodona status object
