@@ -77,10 +77,7 @@ def prep_render(html_content: str, render_css: bool) -> tuple[str, str]:
                 new_style = ""
                 for r in rs.rules:
                     new_style += (
-                        f"{r.selector_str}"
-                        + "{"
-                        + f"{r.name}:{r.value_str}{'!important' if r.important else ''}"
-                        + ";}\n   "
+                        f"{r.selector_str}{{{r.name}:{r.value_str}{'!important' if r.important else ''};}}\n   "
                     )
 
                 style.string = new_style

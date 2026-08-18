@@ -124,7 +124,7 @@ class DodonaCommand(ABC):
         return {"command": f"close-{self.name()}", **self.close_args.__dict__}
 
     @staticmethod
-    def __print_command(result: None | dict) -> None:
+    def __print_command(result: dict | None) -> None:
         """print the provided to stdout as JSON
         :param result: dict that will be JSON encoded and printed to stdout
         """

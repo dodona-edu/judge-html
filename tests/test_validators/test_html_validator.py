@@ -73,7 +73,6 @@ class TestHtmlValidator(unittest.TestCase):
         self.setup(True, False, False)
         # correct attributes test
         self.validator.validate_content("<img src='' />")
-        pass
         # incorrect (missing) required attributes test
         with self.assertRaises(MissingRequiredAttributesError):
             self.validator.validate_content("<img/>")
