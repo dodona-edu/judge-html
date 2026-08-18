@@ -14,7 +14,7 @@ All evaluators should follow a strict interface: the file should always be calle
 
 The fragment below contains the [boilerplate](https://en.wikipedia.org/wiki/Boilerplate_code) to make an evaluator:
 
-> `evaluator.py` (Python 3.9+ recommended)
+> `evaluator.py`
 >
 > ```python
 > from typing import List
