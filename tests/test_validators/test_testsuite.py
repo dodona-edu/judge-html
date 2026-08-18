@@ -1,8 +1,9 @@
 import re
 import unittest
 
+from dodona.translator import Translator
 from tests.helpers import UnitTestSuite, html_loader
-from validators.checks import ChecklistItem, TestSuite
+from validators.checks import BoilerplateTestSuite, ChecklistItem, TestSuite
 
 
 class TestTestSuite(unittest.TestCase):
@@ -70,3 +71,38 @@ class TestTestSuite(unittest.TestCase):
         self.assertEqual(len(suite.checklist), 2)
         self.assertEqual(suite.checklist[1].message, "message2")
         self.assertEqual(len(suite.checklist[1]._checks), 2)
+
+    def test_contains_css_with_invalid_css(self):
+        valid_suite = UnitTestSuite("css_1")
+        self.assertTrue(valid_suite.check(valid_suite.contains_css("p", "color", "gold")))
+
+        # A student typo in the CSS leaves _css_validator as None, and contains_css used to
+        # dereference it anyway. Fail the check instead, the same way the @css_check
+        # decorator does for the element-level Element.has_styling
+        invalid_content = """
+                  <html>
+                      <head>
+                          <style>
+                              a ;:{s :}
+                          </style>
+                      </head>
+                      <body><a href="#">link</a></body>
+                  </html>
+                  """
+        invalid_suite = TestSuite("", invalid_content)
+
+        self.assertIsNone(invalid_suite._css_validator)
+        self.assertFalse(invalid_suite.contains_css("a", "color").callback(invalid_suite._bs))
+
+    def test_check_minimal_on_bare_boilerplate_suite(self):
+        # BoilerplateTestSuite and its check_minimal argument are both part of checks.pyi, so
+        # a bare one has to work too, without an HtmlSuite/CssSuite subclass filling in the
+        # default checks & translations. _has_minimal_template() runs outside the try/except
+        # in evaluate(), so this used to take the entire judge down instead of failing a check
+        suite = BoilerplateTestSuite("TEST", html_loader("test_1"), check_minimal=True)
+
+        self.assertEqual(suite.evaluate(Translator(Translator.Language.EN)), 0)
+
+        self.assertEqual(len(suite.checklist), 1)
+        self.assertEqual(suite.translations["en"], ["The solution contains the minimal required HTML code."])
+        self.assertEqual(suite.translations["nl"], ["De oplossing bevat de minimale vereiste HTML-code."])

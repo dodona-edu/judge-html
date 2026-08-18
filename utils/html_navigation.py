@@ -96,7 +96,9 @@ def find_emmet(
 
         # Element is empty, so return all children
         if not current_entry:
-            return current_element.children
+            # .children is a generator that also yields NavigableStrings, but every other
+            # branch (and every caller) expects a list of Tags, so match that here too
+            return [child for child in current_element.children if isinstance(child, Tag)]
 
         # Illegal class name
         if illegal_class_regex.search(current_entry) is not None:
