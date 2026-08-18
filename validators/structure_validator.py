@@ -18,8 +18,7 @@ def get_similarity(sol: str, sub: str) -> tuple[float, float]:
     b = sub.find("<style")
     if a != -1 or b != -1:
         return structural_similarity(sol, sub), style_similarity(sol, sub)
-    else:
-        return structural_similarity(sol, sub), 1
+    return structural_similarity(sol, sub), 1
 
 
 def compare(solution_str: str, submission_str: str, trans: Translator, **kwargs):

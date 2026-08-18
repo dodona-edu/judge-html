@@ -66,16 +66,14 @@ def strip(ls: list) -> list:
 class CssParsingError(Exception):
     """Thrown when the css is not in a correct format"""
 
-    pass
-
 
 def _get_xpath(selector: str) -> str:
     """converts a css selector string to an xpath string"""
     try:
-        # todo filter out pseudo-elements (like or ::after)
+        # TODO filter out pseudo-elements (like or ::after)
         return GenericTranslator().css_to_xpath(selector)
     except SelectorError:
-        raise CssParsingError()
+        raise CssParsingError
 
 
 class Rule:
@@ -101,7 +99,7 @@ class Rule:
             try:
                 self.color = Color(self.value_str)
             except (IndexError, ValueError):
-                raise CssParsingError()
+                raise CssParsingError
 
     def __repr__(self):
         return f"(Rule: {self.selector_str} | {self.name} {self.value} {'important' if self.important else ''})"
@@ -136,8 +134,8 @@ class Rule:
         # Any order should be allowed, so just split the values on spaces
         # and sort them alphabetically
         if any_order:
-            prop_value_sorted = list(sorted(self.value_str.split(" ")))
-            value_sorted = list(sorted(value.split(" ")))
+            prop_value_sorted = sorted(self.value_str.split(" "))
+            value_sorted = sorted(value.split(" "))
             return prop_value_sorted == value_sorted
 
         return self.value_str == value
@@ -151,18 +149,14 @@ def calc_specificity(selector_str: str) -> tuple[int, int, int]:  # see https://
     b = 0
     prev = ""
     for x in selector_str:
-        if x == "." or x == "[":
-            b += 1
-        elif x == ":" and prev != ":":
+        if x in {".", "["} or (x == ":" and prev != ":"):
             b += 1
         prev = x
     # count selectors: ELEMENTS PSEUDO-ELEMENTS
     c = 0
     prev = ""
     for x in selector_str:
-        if x.isalpha() and prev not in ".[:=\"'":
-            c += 1
-        elif x == ":" and prev == ":":
+        if (x.isalpha() and prev not in ".[:=\"'") or (x == ":" and prev == ":"):
             c += 1
         prev = x
     # ignore pseudo-elements
@@ -287,9 +281,7 @@ class Rules:
         rule: Rule
         for rule in self.rules:
             if rule.selector_str == css_selector and rule.name == key:
-                if dom_rule is None:
-                    dom_rule = rule
-                elif rule.specificity > dom_rule.specificity:
+                if dom_rule is None or rule.specificity > dom_rule.specificity:
                     dom_rule = rule
         return dom_rule
 
@@ -356,7 +348,7 @@ class CssValidator:
             siblings = parent.find_all(child.name, recursive=False)
             components.append(
                 child.name
-                if 1 == len(siblings)
+                if len(siblings) == 1
                 else f"{child.name}[{next(i for i, s in enumerate(siblings, 1) if s is child)}]"
             )
             child = parent
@@ -379,11 +371,11 @@ class CssValidator:
 
         # Found nothing
         if not sols:
-            raise ElementNotFound()
+            raise ElementNotFound
 
         # Found more than one match
         if not len(sols) == 1:
-            raise AmbiguousXpath()
+            raise AmbiguousXpath
 
         return self.rules.find(self.root, sols[0], key, pseudo)
 

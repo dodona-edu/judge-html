@@ -125,7 +125,7 @@ class Generator:
         # sort so we always have longest match first
         self.ls: list[DoubleChar] = sorted(
             [Round(), Angle(), Curly(), Square(), Single(), Double(), HtmlComment(), CssComment()],
-            key=lambda x: x.len_open() if x.len_open() > x.len_close() else x.len_close(),
+            key=lambda x: max(x.len_close(), x.len_open()),
             reverse=True,
         )
 
@@ -230,11 +230,12 @@ class DoubleCharsValidator:
                             MissingOpeningCharError(trans=self.translator, char=dc.close, line=dc.line, pos=dc.pos)
                         )
 
-                else:  # we're inside something that we don't need to check, just whether we need to leave this state
-                    if dc.type == wait_until_seen.type:
-                        if (not dc.check_in_between and dc.is_unambiguous and dc.is_open()) or dc.check_in_between:
-                            wait_until_seen = None
-                            push_stack(dc)
+                # We're inside something that we don't need to check, so the only question is
+                # whether we need to leave this state.
+                elif dc.type == wait_until_seen.type:
+                    if (not dc.check_in_between and dc.is_unambiguous and dc.is_open()) or dc.check_in_between:
+                        wait_until_seen = None
+                        push_stack(dc)
 
         # Error checking
         # the stack should be empty, if not error remaining things

@@ -858,15 +858,13 @@ class ChecklistItem:
                     # Only abort instantly if the item is not verbose,
                     # otherwise continue but abort future tests afterwards
                     if not self._is_verbose:
-                        raise EvaluationAborted()
-                    else:
-                        should_abort = True
+                        raise EvaluationAborted
+                    should_abort = True
 
                 # If the item is not verbose, skip future tests
                 if not self._is_verbose:
                     return False
-                else:
-                    success = False
+                success = False
 
             # Check succeeded, add all on_success checks
             for os_check in reversed(check.on_success):
@@ -874,7 +872,7 @@ class ChecklistItem:
 
         # Abort future items
         if should_abort:
-            raise EvaluationAborted()
+            raise EvaluationAborted
 
         return success
 
@@ -1148,7 +1146,7 @@ class TestSuite:
         if element is None:
             return EmptyElement()
 
-        return Element(element.name, kwargs.get("id", None), element, self._css_validator)
+        return Element(element.name, kwargs.get("id"), element, self._css_validator)
 
     def all_elements(self, tag: str | Emmet | None = None, from_root: bool = False, **kwargs) -> ElementContainer:
         """Get references to ALL HTML elements that match a query"""

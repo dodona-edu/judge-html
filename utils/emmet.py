@@ -52,8 +52,7 @@ def emmet_to_check(emmet_str: str, suite: Any) -> Check:
         if node.repeat:
             if node.repeat.value < len(ls):
                 return ls[node.repeat.value], node
-            else:
-                return EmptyElement(), node
+            return EmptyElement(), node
         return ls[0], node
 
     ls = []

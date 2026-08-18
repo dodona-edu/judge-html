@@ -59,12 +59,11 @@ def find_child(
     # No children found
     if len(all_children) == 0:
         return None
-    else:
-        # Not enough children found (index out of range)
-        if index >= len(all_children):
-            return None
+    # Not enough children found (index out of range)
+    if index >= len(all_children):
+        return None
 
-        return all_children[index]
+    return all_children[index]
 
 
 def find_emmet(

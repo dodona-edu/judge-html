@@ -9,15 +9,14 @@ class Color(Col):
         def parse_float(s: str):  # convert any number to float in range [0,1]
             if s.endswith("%"):
                 return float(s[:-1]) / 100
-            elif int(s[0]) > 0:
+            if int(s[0]) > 0:
                 return float(s) / 255
-            else:
-                return float(s)
+            return float(s)
 
         def parse_triple(s: str):
             ls = s[1:-1].split(",")
             if len(ls) != 3:
-                raise ValueError()
+                raise ValueError
             return tuple(parse_float(x) for x in ls[:3])
 
         def parse_quadruple(s: str):
