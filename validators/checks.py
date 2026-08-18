@@ -276,16 +276,10 @@ class Element:
         element = cast("Tag", self._element)
 
         def _inner(_: BeautifulSoup) -> bool:
-            children = element.children
-
-            for child in children:
-                # Child is a text instance which is not allowed
-                # Empty tags shouldn't count as text, but for some reason bs4
-                # still picks these up so they're filtered out as well
-                if isinstance(child, NavigableString) and child.text.strip():
-                    return False
-
-            return True
+            # A text instance among the children is not allowed. Empty tags shouldn't count
+            # as text, but for some reason bs4 still picks these up so they're filtered out
+            # as well.
+            return not any(isinstance(child, NavigableString) and child.text.strip() for child in element.children)
 
         return Check(_inner)
 
@@ -294,9 +288,7 @@ class Element:
         # Only reached from methods that @html_check has already guarded
         element = cast("Tag", self._element)
 
-        attribute = element.get(attr.lower())
-
-        return attribute
+        return element.get(attr.lower())
 
     def _compare_attribute_list(
         self,
@@ -321,7 +313,7 @@ class Element:
 
         if case_insensitive:
             value = value.lower()
-            attribute = list(map(lambda x: x.lower(), attribute))
+            attribute = [x.lower() for x in attribute]
 
         # Exact match
         if mode == 0:
@@ -333,11 +325,7 @@ class Element:
 
         # Match regex
         if mode == 2:
-            for v in attribute:
-                if re.search(value, v, flags) is not None:
-                    return True
-
-            return False
+            return any(re.search(value, v, flags) is not None for v in attribute)
 
         # Possible future modes
         return False
@@ -430,11 +418,7 @@ class Element:
                 return False
 
             # Check if all headers have the same content in the same order
-            for i in range(len(header)):
-                if not compare_content(header[i], ths[i].text):
-                    return False
-
-            return True
+            return all(compare_content(header[i], ths[i].text) for i in range(len(header)))
 
         return Check(_inner)
 
@@ -511,12 +495,7 @@ class Element:
             if len(tds) != len(row):
                 return False
 
-            for i in range(len(row)):
-                # Text doesn't match
-                if not compare_content(row[i], tds[i].text, case_insensitive):
-                    return False
-
-            return True
+            return all(compare_content(row[i], tds[i].text, case_insensitive) for i in range(len(row)))
 
         return Check(_inner)
 
@@ -575,7 +554,7 @@ class Element:
             if spl.netloc:
                 # Ignore www. in the start to allow the arguments to be shorter
                 netloc = spl.netloc.lower().removeprefix("www.")
-                return netloc not in list(map(lambda x: x.lower(), allowed_domains))
+                return netloc not in [x.lower() for x in allowed_domains]
 
             return False
 
@@ -622,10 +601,7 @@ class Element:
                 # find_parents() always returns the entire document as well,
                 # even when the current element is the root
                 # So at least 2 parents are required
-                if len(parents) <= 2:
-                    current_element = None
-                else:
-                    current_element = parents[0]
+                current_element = None if len(parents) <= 2 else parents[0]
 
         return prop_value
 
@@ -750,7 +726,8 @@ class ElementContainer:
         # Teachers write these indexes by hand, so the runtime check stays even though
         # the overloads above already rule it out for anything that type-checks
         if not isinstance(item, (int, slice)):
-            raise TypeError(f"Key {item} was of type {type(item).__name__}, not int or slice.")
+            msg = f"Key {item} was of type {type(item).__name__}, not int or slice."
+            raise TypeError(msg)
 
         # Out of range
         if isinstance(item, int) and item >= self._size:
@@ -768,7 +745,7 @@ class ElementContainer:
     def from_tags(cls, tags: list[Tag], css_validator: CssValidator | None) -> "ElementContainer":
         """Construct a container from a list of bs4 Tag instances"""
         # id is not one of the attributes bs4 splits into a list, so it is never a list here
-        elements = list(map(lambda x: Element(x.name, cast("str | None", x.get("id", None)), x, css_validator), tags))
+        elements = [Element(x.name, cast("str | None", x.get("id", None)), x, css_validator) for x in tags]
         return ElementContainer(elements)
 
     def get(self, index: int) -> Element:
@@ -984,11 +961,8 @@ class TestSuite:
         or equal elements"""
         from utils.emmet import emmet_to_check
 
-        emmet_checks = []
-
         # Add multiple emmet checks under one main item
-        for e in emmets:
-            emmet_checks.append(emmet_to_check(e, self))
+        emmet_checks = [emmet_to_check(e, self) for e in emmets]
 
         self.make_item(message, *emmet_checks)
 

@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from dodona.dodona_command import ErrorType, Judgement, Message, MessageFormat, Tab
 from dodona.dodona_config import DodonaConfig
@@ -16,7 +17,9 @@ from utils.messages import (
 )
 from utils.render_ready import prep_render
 from validators import checks
-from validators.checks import TestSuite
+
+if TYPE_CHECKING:
+    from validators.checks import TestSuite
 
 
 def main():
@@ -51,7 +54,6 @@ def main():
                     missing_evaluator_file(config.translator)
                     invalid_suites(judge, config)
                     return
-                # compare(sol, html_content, config.translator)
                 suite = checks._CompareSuite(
                     html_content, solution, config, check_recommended=getattr(config, "recommended", True)
                 )
@@ -66,9 +68,9 @@ def main():
             missing_create_suite(config.translator)
             invalid_suites(judge, config)
             return
-        except Exception as e:
+        except Exception:
             # Something else went wrong
-            invalid_evaluator_file(e)
+            invalid_evaluator_file()
             invalid_suites(judge, config)
             return
 
@@ -109,9 +111,8 @@ def main():
         # Only render out valid HTML on Dodona
         if html_validated:
             title, html = prep_render(html_content, render_css=css_validated)
-            with Tab(f"Rendered{f': {title}' if title else ''}"):
-                with Message(format=MessageFormat.HTML, description=html):
-                    pass
+            with Tab(f"Rendered{f': {title}' if title else ''}"), Message(format=MessageFormat.HTML, description=html):
+                pass
 
         if aborted:
             judge.status = config.translator.error_status(ErrorType.RUNTIME_ERROR)

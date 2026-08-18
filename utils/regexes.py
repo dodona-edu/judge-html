@@ -1,7 +1,10 @@
 import re
-from collections import namedtuple
+from typing import NamedTuple
 
-Regex = namedtuple("Regex", "pattern flags")
+
+class Regex(NamedTuple):
+    pattern: str
+    flags: re.RegexFlag
 
 
 # Has to be the first non-empty line, ignoring comments

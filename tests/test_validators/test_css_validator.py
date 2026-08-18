@@ -1,11 +1,13 @@
 import unittest
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from bs4 import BeautifulSoup
-from bs4.element import Tag
 
 from utils.color_converter import Color
 from validators.css_validator import CssValidator
+
+if TYPE_CHECKING:
+    from bs4.element import Tag
 
 html = """<!DOCTYPE html>
 <html lang="en">

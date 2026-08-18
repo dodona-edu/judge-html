@@ -1,10 +1,12 @@
 from ntpath import basename
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import bs4
-from bs4.element import Tag
 
 from validators.css_validator import Rule, Rules
+
+if TYPE_CHECKING:
+    from bs4.element import Tag
 
 
 def prep_render(html_content: str, render_css: bool) -> tuple[str, str]:

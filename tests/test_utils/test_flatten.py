@@ -5,7 +5,7 @@ from validators.checks import ChecklistItem, all_of, any_of
 
 
 class TestFlatten(unittest.TestCase):
-    def test_checklistItems(self):
+    def test_checklist_items(self):
         """Constructor of ChecklistItem uses this"""
         suite = UnitTestSuite("test_1")
         body = suite.element("body")
@@ -20,8 +20,9 @@ class TestFlatten(unittest.TestCase):
         self.assertEqual(len(item._checks), 3)
         self.assertTrue(suite.checklist_item(item))
 
-        # Map
-        item = ChecklistItem("", map(lambda i: i.has_tag("div"), body.get_children("div")[:2]))
+        # Map. Deliberately a map object and not a comprehension: flatten_queue has to
+        # accept whatever iterable a teacher hands it, and this is the case for map.
+        item = ChecklistItem("", map(lambda i: i.has_tag("div"), body.get_children("div")[:2]))  # noqa: C417
         self.assertEqual(len(item._checks), 2)
         self.assertTrue(suite.checklist_item(item))
 

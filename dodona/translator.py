@@ -1,6 +1,7 @@
 """translate judge output towards Dodona"""
 
 from enum import Enum, auto
+from typing import ClassVar
 
 from dodona.dodona_command import ErrorType
 
@@ -109,7 +110,7 @@ class Translator:
         """
         return self.text_translations[self.language][message].format(**kwargs)
 
-    error_translations = {
+    error_translations: ClassVar[dict["Translator.Language", dict[ErrorType, str]]] = {
         Language.EN: {
             ErrorType.INTERNAL_ERROR: "Internal error",
             ErrorType.COMPILATION_ERROR: "The code is not valid",
@@ -136,7 +137,7 @@ class Translator:
         },
     }
 
-    text_translations = {
+    text_translations: ClassVar[dict["Translator.Language", dict["Translator.Text", str]]] = {
         Language.EN: {
             Text.MISSING_EVALUATION_FILE: "The evaluator.py and solution.html files are missing.",
             Text.MISSING_CREATE_SUITE: "The evaluator.py file does not implement the 'create_suites(content)' method.",

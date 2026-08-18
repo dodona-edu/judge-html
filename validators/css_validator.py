@@ -72,8 +72,8 @@ def _get_xpath(selector: str) -> str:
     try:
         # TODO filter out pseudo-elements (like or ::after)
         return GenericTranslator().css_to_xpath(selector)
-    except SelectorError:
-        raise CssParsingError
+    except SelectorError as err:
+        raise CssParsingError from err
 
 
 class Rule:
@@ -98,8 +98,8 @@ class Rule:
         if self.is_color():
             try:
                 self.color = Color(self.value_str)
-            except (IndexError, ValueError):
-                raise CssParsingError
+            except (IndexError, ValueError) as err:
+                raise CssParsingError from err
 
     def __repr__(self):
         return f"(Rule: {self.selector_str} | {self.name} {self.value} {'important' if self.important else ''})"
@@ -216,14 +216,13 @@ class Rules:
         r: Rule
         # find all rules defined for the solution element for the specified key
         for r in reversed(self.rules):
-            if r.name == key:
-                if r.pseudo == pseudo:
-                    for element in cast("list[_Element]", root.xpath(r.xpath)):
-                        if element == solution_element:
-                            if r.important:
-                                imp.append(r)
-                            else:
-                                rs.append(r)
+            if r.name == key and r.pseudo == pseudo:
+                for element in cast("list[_Element]", root.xpath(r.xpath)):
+                    if element == solution_element:
+                        if r.important:
+                            imp.append(r)
+                        else:
+                            rs.append(r)
 
         # check if there are rules containing !important
         if imp:
@@ -260,8 +259,7 @@ class Rules:
                     else:
                         by_keyword[r.name][1].append(r)
 
-        for key in by_keyword:
-            imp, rs = by_keyword[key]
+        for imp, rs in by_keyword.values():
             # check if there are rules containing !important
             if imp:
                 rs = imp

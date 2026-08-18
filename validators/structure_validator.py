@@ -79,9 +79,7 @@ def compare(solution_str: str, submission_str: str, trans: Translator, **kwargs)
                 dummies.remove(b)
             elif exact_match:
                 return False
-        if dummies or exact:
-            return False
-        return True
+        return not (dummies or exact)
 
     queue = [(solution, submission)]
     while queue:
@@ -111,28 +109,25 @@ def compare(solution_str: str, submission_str: str, trans: Translator, **kwargs)
                 trans=trans, msg=trans.translate(Translator.Text.TAGS_DIFFER), line=node_sub.sourceline, pos=-1
             )
         # check attributes if wanted
-        if check_attributes:
-            if not attrs_a_contains_attrs_b(node_sol.attrib, node_sub.attrib, True):
-                raise NotTheSame(
-                    trans=trans,
-                    msg=trans.translate(Translator.Text.ATTRIBUTES_DIFFER),
-                    line=node_sub.sourceline,
-                    pos=-1,
-                )
-        if check_minimal_attributes:
-            if not attrs_a_contains_attrs_b(node_sol.attrib, node_sub.attrib, False):
-                raise NotTheSame(
-                    trans=trans,
-                    msg=trans.translate(Translator.Text.NOT_ALL_ATTRIBUTES_PRESENT),
-                    line=node_sub.sourceline,
-                    pos=-1,
-                )
+        if check_attributes and not attrs_a_contains_attrs_b(node_sol.attrib, node_sub.attrib, True):
+            raise NotTheSame(
+                trans=trans,
+                msg=trans.translate(Translator.Text.ATTRIBUTES_DIFFER),
+                line=node_sub.sourceline,
+                pos=-1,
+            )
+        if check_minimal_attributes and not attrs_a_contains_attrs_b(node_sol.attrib, node_sub.attrib, False):
+            raise NotTheSame(
+                trans=trans,
+                msg=trans.translate(Translator.Text.NOT_ALL_ATTRIBUTES_PRESENT),
+                line=node_sub.sourceline,
+                pos=-1,
+            )
         # check content if wanted
-        if check_contents:
-            if node_sol.text != "DUMMY" and not compare_content(node_sol.text, node_sub.text):
-                raise NotTheSame(
-                    trans=trans, msg=trans.translate(Translator.Text.CONTENTS_DIFFER), line=node_sub.sourceline, pos=-1
-                )
+        if check_contents and node_sol.text != "DUMMY" and not compare_content(node_sol.text, node_sub.text):
+            raise NotTheSame(
+                trans=trans, msg=trans.translate(Translator.Text.CONTENTS_DIFFER), line=node_sub.sourceline, pos=-1
+            )
         # check css
         # Both validators are set together, and check_css only stays True when both made
         # it through the block above, but that is a chain of assignments away from here
@@ -148,14 +143,15 @@ def compare(solution_str: str, submission_str: str, trans: Translator, **kwargs)
                             line=node_sub.sourceline,
                             pos=-1,
                         )
-                    if rs_sol[r_key].value_str != rs_sub[r_key].value_str:
-                        if not (rs_sol[r_key].is_color() and rs_sol[r_key].has_color(rs_sub[r_key].value_str)):
-                            raise NotTheSame(
-                                trans=trans,
-                                msg=trans.translate(Translator.Text.STYLES_DIFFER, tag=node_sub.tag),
-                                line=node_sub.sourceline,
-                                pos=-1,
-                            )
+                    if rs_sol[r_key].value_str != rs_sub[r_key].value_str and not (
+                        rs_sol[r_key].is_color() and rs_sol[r_key].has_color(rs_sub[r_key].value_str)
+                    ):
+                        raise NotTheSame(
+                            trans=trans,
+                            msg=trans.translate(Translator.Text.STYLES_DIFFER, tag=node_sub.tag),
+                            line=node_sub.sourceline,
+                            pos=-1,
+                        )
         # check whether the children of the nodes have the same amount of children
         node_sol_children = node_sol.getchildren()
         node_sub_children = node_sub.getchildren()
@@ -170,4 +166,4 @@ def compare(solution_str: str, submission_str: str, trans: Translator, **kwargs)
                 pos=-1,
             )
         # reverse children bc for some reason they are in bottom up order (and we want to review top down)
-        queue += zip(reversed(node_sol_children), reversed(node_sub_children))
+        queue += zip(reversed(node_sol_children), reversed(node_sub_children), strict=True)

@@ -20,10 +20,9 @@ class DoubleChar:
     pos: int
 
     def __repr__(self) -> str:
+        s = ""
         if self.is_unambiguous:
             s = " open" if self.is_open() else " close"
-        else:
-            s = ""
 
         return f"<{self.type}{s}>"
 
