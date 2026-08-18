@@ -1,3 +1,4 @@
+import functools
 from inspect import getfullargspec
 
 from utils.flatten import flatten_queue
@@ -14,6 +15,7 @@ def flatten_varargs(func):
     if argspec.varargs is None:
         return func
 
+    @functools.wraps(func)
     def wrapper(*args, **kwargs):
         args = list(args)
 
