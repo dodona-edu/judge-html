@@ -165,8 +165,8 @@ def compare_content(first: str, second: str, case_insensitive: bool = False) -> 
     element_text = first.strip()
     arg_text = second.strip()
 
-    element_text = re.sub(r"\s+", " ", element_text, re.MULTILINE)
-    arg_text = re.sub(r"\s+", " ", arg_text, re.MULTILINE)
+    element_text = re.sub(r"\s+", " ", element_text)
+    arg_text = re.sub(r"\s+", " ", arg_text)
 
     if case_insensitive:
         element_text = element_text.lower()
