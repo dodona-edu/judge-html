@@ -1,0 +1,3 @@
+# Must match the base image pinned in dodona-edu/docker-images/dodona-html.dockerfile,
+# so local development runs exactly the interpreter production runs. Bump the two together.
+python 3.13.2
