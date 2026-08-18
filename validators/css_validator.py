@@ -322,10 +322,8 @@ class CssValidator:
             # that follows is what the except below is there to swallow
             style = cast("_Element", self.root.find(".//style"))
 
-            # An empty <style></style> gives text None, and Rules() then raises a TypeError
-            # that TestSuite.__post_init__ doesn't catch. That's a real bug rather than an
-            # annotation one, so it keeps its behaviour here and gets its own PR
-            css = cast("str", style.text)
+            # An empty <style></style> has no text, which is the same as having no CSS
+            css = style.text or ""
         except Exception:
             css = ""
 
