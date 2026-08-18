@@ -37,12 +37,16 @@ class Color(Col):
                 super().__init__(val[:-2])
         elif val.startswith("rgba"):
             triple, alpha = parse_quadruple(val[4:])
+            # Set before super().__init__, the same way the hex branches above do
+            self.__dict__.__setitem__("alpha", alpha)
             super().__init__(rgb=triple)
         elif val.startswith("rgb"):
             triple = parse_triple(val[3:])
             super().__init__(rgb=triple)
         elif val.startswith("hsla"):
             triple, alpha = parse_quadruple(val[4:])
+            # Set before super().__init__, the same way the hex branches above do
+            self.__dict__.__setitem__("alpha", alpha)
             super().__init__(hsl=triple)
         elif val.startswith("hsl"):
             triple = parse_triple(val[3:])
