@@ -278,6 +278,23 @@ In a lot of cases you're going to want the students to write _something_ or to g
 
 ## Testing
 
+The following command can be used to run the tests:
+
+```bash
+$ devel/run-tests.sh
+============================= test session starts ==============================
+platform darwin -- Python 3.13.2, pytest-9.1.1, pluggy-1.6.0
+...
+.................x............x.....x...x............................... [ 73%]
+..........................                                               [100%]
+================================ tests coverage ================================
+_______________ coverage: platform darwin, python 3.13.2-final-0 _______________
+
+Coverage HTML written to dir htmlcov
+Coverage XML written to file coverage.xml
+================== 94 passed, 4 xfailed, 8 warnings in 1.74s ===================
+```
+
 ## Contributors
 
 * **S. De Clercq**
