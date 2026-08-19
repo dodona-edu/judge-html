@@ -9,6 +9,17 @@ updates:
     open-pull-requests-limit: 99
     labels:
       - dependencies
+    # requirements.txt mirrors what dodona-edu/docker-images builds into
+    # ghcr.io/dodona-edu/dodona-html:latest, so those runtime pins are owned by that repo,
+    # not this one. Dependabot must not touch them. This is an allow-list rather than an
+    # ignore-list on purpose: it fails safe. If the image later gains a runtime dependency,
+    # it's ignored by default here, whereas a deny-list would silently start proposing bumps
+    # for it until someone remembered to add it to the list.
+    allow:
+      - dependency-name: "ruff"
+      - dependency-name: "ty"
+      - dependency-name: "pytest*"
+      - dependency-name: "coverage"
     groups:
       pytest:
         patterns:

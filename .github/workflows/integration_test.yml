@@ -12,6 +12,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+      - name: Check requirements.txt matches the image
+        run: python devel/check_requirements_match_image.py
       - name: Install test dependencies
         run: ./devel/install_test_deps.sh
       - name: Run tests

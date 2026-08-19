@@ -86,6 +86,9 @@ ignore = [
 # The tests reach into _bs, _checks and friends on purpose: they assert on what the checks
 # built, and the public surface only tells you whether a check passed.
 "tests/*" = ["SLF001"]
+# devel/ holds scripts CI runs directly, so printing is how they report. They are also not
+# an importable package.
+"devel/*" = ["T201", "INP001"]
 # Stub signatures and their one-line docstrings don't wrap usefully.
 # checks.pyi is also the one file we hand to other people's tooling: teachers copy it into
 # their own exercise repo so their editor can autocomplete against it. PEP 695 generics
