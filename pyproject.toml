@@ -15,13 +15,77 @@ line-length = 120
 target-version = "py313"
 
 [tool.ruff.lint]
-# PYI036 guards the __exit__ signatures: it catches the missing `| None` that made every
-# Dodona 'with' block fail ty's invalid-context-manager check.
-select = ["E", "W", "F", "I", "UP", "PYI036"]
+select = ["ALL"]
+
+ignore = [
+    # validators/ is imported by every exercise's evaluator.py, and README documents
+    # validators/checks.pyi as the autocomplete surface teachers copy into their own repo.
+    # FBT wants boolean parameters keyword-only, which would break get_children(tag, direct=True),
+    # has_content(text, case_insensitive=False), validate_html(allow_warnings=True) and friends
+    # for exercises that are already running in courses.
+    "FBT001",
+    "FBT002",
+    "FBT003",
+    # The stubs exist for their docstrings: that text is what a teacher's editor shows on hover.
+    "PYI021",
+    # Conflicts with the formatter.
+    "COM812",
+    # This repo has no copyright headers.
+    "CPY001",
+    # Exception class names reach student feedback, so renaming them changes what students read.
+    "N818",
+    # The suite is unittest-style by choice. Converting ~430 assertions is its own decision,
+    # not a side effect of turning on a rule set.
+    "PT009",
+    "PT027",
+    # assert is fine here.
+    "S101",
+    # This judge runs student HTML/CSS through bs4, lxml and tinycss2, and runs a teacher's
+    # evaluator.py. Every blind except is a deliberate "turn a crash into feedback" boundary,
+    # and narrowing one means an unexpected library error crashes the judge instead of being
+    # reported. See the noqa'd exec in utils/evaluation_module.py for the other half of that.
+    "BLE001",
+    # All of these fire on functions that already exist. The two argument-count ones sit on
+    # public validators/checks.py methods whose signatures are frozen by checks.pyi, and the
+    # rest sit on the tree comparison, Emmet and CSS parsing functions, where splitting them
+    # up is a refactor with real regression risk rather than a lint fix.
+    "C901",
+    "PLR0911",
+    "PLR0912",
+    "PLR0913",
+    "PLR0915",
+    "PLR0917",
+    # The numbers being compared are HTML and CSS shapes: a hex colour has 3, 4, 6 or 8 digits,
+    # an rgb triple has 3 components, find_parents() always returns 2 extra. Naming those says
+    # less than the literal does. In tests the number is the expectation itself.
+    "PLR2004",
+    # The TODOs here are inline markers next to the exact line they are about. An author, an
+    # issue link, a colon and a sentence would all have to be invented to satisfy these.
+    "FIX002",
+    "TD002",
+    "TD003",
+    "TD004",
+    "TD005",
+    # Deferred, both are a large body of work on their own:
+    # D   937 findings. 277 are missing docstrings (D1xx) and 468 are rewriting summary lines
+    #     to end in a period and start in the imperative mood. Those summaries are the text
+    #     teachers see in autocomplete, so that is a documentation pass, not a formatting one.
+    # ANN 412 findings. Worth doing now that ty checks the whole repo, but it means annotating
+    #     every **kwargs bag and every check-returning method, and it belongs in its own PR
+    #     where the type changes can be reviewed as type changes.
+    "D",
+    "ANN",
+]
 
 [tool.ruff.lint.per-file-ignores]
 # Feedback strings stay on one line so they stay greppable and diff cleanly.
 "dodona/translator.py" = ["E501"]
+# docs/evaluator.py is the example evaluator from the README, deliberately laid out the way a
+# teacher's exercise repo lays it out, so it is not part of a package here.
+"docs/*" = ["INP001"]
+# The tests reach into _bs, _checks and friends on purpose: they assert on what the checks
+# built, and the public surface only tells you whether a check passed.
+"tests/*" = ["SLF001"]
 # Stub signatures and their one-line docstrings don't wrap usefully.
 # checks.pyi is also the one file we hand to other people's tooling: teachers copy it into
 # their own exercise repo so their editor can autocomplete against it. PEP 695 generics
@@ -29,6 +93,10 @@ select = ["E", "W", "F", "I", "UP", "PYI036"]
 # offering completions rather than reporting anything, so the stub stays on the older TypeVar
 # and TypeAlias syntax. The judge's own code runs on 3.13 and doesn't have that constraint.
 "*.pyi" = ["E501", "UP040", "UP047"]
+# Both of these are the teacher-facing signatures themselves. `id` is a parameter name that
+# exercises already pass by keyword, and the Emmet TypeVar shows up by name in the annotations
+# an editor renders, so prefixing it with an underscore changes what teachers read.
+"validators/checks.pyi" = ["A002", "PYI001"]
 
 [tool.pytest.ini_options]
 # All test classes are unittest.TestCase subclasses, which pytest always collects

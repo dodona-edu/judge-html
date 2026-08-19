@@ -1,7 +1,9 @@
 from colour import Color as Col
 
 
-class Color(Col):
+# __eq__ compares the alpha channel that colour.Color doesn't carry. No __hash__ to match:
+# these are only ever compared, never used as a dict key or put in a set.
+class Color(Col):  # noqa: PLW1641
     def __init__(self, val: str):
         val = val.replace(" ", "")
         self.__dict__.__setitem__("alpha", 1.0)

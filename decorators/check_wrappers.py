@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import functools
-from collections.abc import Callable
 from typing import TYPE_CHECKING, Concatenate, Protocol, cast
 
-from bs4 import BeautifulSoup
-
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from bs4 import BeautifulSoup
     from bs4.element import Tag
 
     from validators.css_validator import CssValidator
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 def fail():
     """Return a Check that always fails"""
     # Local import to avoid circular dependencies
-    from validators.checks import Check
+    from validators.checks import Check  # noqa: PLC0415
 
     def _inner(_: BeautifulSoup) -> bool:
         return False

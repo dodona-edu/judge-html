@@ -2,6 +2,9 @@
 util file with functions to load specific types of files
 """
 
+import json
+from pathlib import Path
+
 
 def html_loader(file_path: str, **kwargs) -> str:
     """Utility function to load a HTML file in order to use the content
@@ -16,7 +19,7 @@ def html_loader(file_path: str, **kwargs) -> str:
     if kwargs.get("shorted", True) and not file_path.endswith(".html"):
         file_path += ".html"
 
-    with open(file_path) as file:
+    with Path(file_path).open() as file:
         content = file.read()
 
         if kwargs.get("wrap_head", False):
@@ -42,7 +45,5 @@ def json_loader(file_path: str, **kwargs) -> dict:
     if kwargs.get("shorted", True) and not file_path.endswith(".json"):
         file_path += ".json"
 
-    with open(file_path) as f:
-        import json
-
+    with Path(file_path).open() as f:
         return json.load(f)

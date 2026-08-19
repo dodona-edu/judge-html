@@ -9,7 +9,9 @@ class DoubleCharError(FeedbackException):
         super().__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
-class LocatableDoubleCharError(DoubleCharError):
+# The comparisons below exist to sort these by position, not to key them. Adding __hash__
+# would make them hashable, which they are not today and nothing needs.
+class LocatableDoubleCharError(DoubleCharError):  # noqa: PLW1641
     """Exceptions that can be located"""
 
     def __init__(self, trans: Translator, msg: str, line: int, pos: int):

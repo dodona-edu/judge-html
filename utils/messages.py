@@ -17,8 +17,12 @@ def invalid_suites(judge: SimpleNamespace, config: DodonaConfig):
     judge.accepted = False
 
 
-def invalid_evaluator_file(exception: Exception):
-    """Show the teacher a message saying that their evaluator file is invalid"""
+def invalid_evaluator_file():
+    """Show the teacher a message saying that their evaluator file is invalid
+
+    Takes no exception: it reads the one currently being handled off format_exc(),
+    so it only says anything useful from inside an except block.
+    """
     with Message(permission=MessagePermission.STAFF, description=traceback.format_exc(), format=MessageFormat.CODE):
         pass
 

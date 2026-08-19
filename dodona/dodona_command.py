@@ -74,7 +74,9 @@ class DodonaException(Exception):
         self.message = Message(*args, **kwargs) if len(args) > 0 or len(kwargs) > 0 else None
 
 
-class DodonaCommand(ABC):
+# ABC without abstract methods on purpose: every method here has a working default, the
+# base is abstract only in the sense that it should never be entered as a 'with' block itself.
+class DodonaCommand(ABC):  # noqa: B024
     """abstract class, parent of all Dodona commands
     This class provides all shared functionality for the Dodona commands. These commands
     should be used in a Python 'with' block.
@@ -174,10 +176,7 @@ class DodonaCommand(ABC):
         returns True, this function also returns True and the error is not propagated.
         :return: if True, the exception is not propagated
         """
-        if isinstance(exc_val, DodonaException):
-            handled = self.handle_dodona_exception(exc_val)
-        else:
-            handled = False
+        handled = self.handle_dodona_exception(exc_val) if isinstance(exc_val, DodonaException) else False
 
         self.__print_command(self.close_msg())
         return handled

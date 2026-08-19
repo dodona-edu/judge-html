@@ -1,4 +1,4 @@
-from os import path
+from pathlib import Path
 
 from dodona.translator import Translator
 from utils.file_loaders import html_loader as _html_loader
@@ -6,14 +6,14 @@ from utils.file_loaders import html_loader as _html_loader
 # Location of this test file
 from validators.checks import Check, ChecklistItem, Checks, TestSuite
 
-basepath = path.dirname(__file__)
+basepath = Path(__file__).parent
 
 # Location of html files
-html_dir = path.abspath(path.join(basepath, "../tests/html_files"))
+html_dir = (basepath / "../tests/html_files").resolve()
 
 
 def html_loader(file: str) -> str:
-    return _html_loader(path.join(html_dir, file))
+    return _html_loader(str(html_dir / file))
 
 
 class UnitTestSuite(TestSuite):

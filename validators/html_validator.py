@@ -1,7 +1,6 @@
 from functools import lru_cache
 from html.parser import HTMLParser
-from os import path
-from pathlib import PureWindowsPath
+from pathlib import Path, PureWindowsPath
 from typing import cast
 
 from dodona.translator import Translator
@@ -24,7 +23,7 @@ from utils.file_loaders import html_loader, json_loader
 from validators.double_chars_validator import DoubleCharsValidator
 
 # Location of this test file
-base_path = path.dirname(__file__)
+base_path = Path(__file__).parent
 # keynames for the json
 REQUIRED_ATR_KEY = "required_attributes"
 RECOMMENDED_ATR_KEY = "recommended_attributes"
@@ -77,7 +76,7 @@ class HtmlValidator(HTMLParser):
         self.warnings = Warnings(self.translator)
         self.tag_stack = []
         self.double_chars_validator = DoubleCharsValidator(translator)
-        self.valid_dict = json_loader(path.abspath(path.join(base_path, "html_tags_attributes.json")))
+        self.valid_dict = json_loader(str((base_path / "html_tags_attributes.json").resolve()))
         self.check_required = kwargs.get("required", True)
         self.check_recommended = kwargs.get("recommended", True)
         self.check_nesting = kwargs.get("nesting", True)
@@ -184,12 +183,15 @@ class HtmlValidator(HTMLParser):
                     MissingOpeningTagError(trans=self.translator, tag=tag, line=self.getpos()[0], pos=self.getpos()[1])
                 )
 
-    @lru_cache
+    # lru_cache on a method keeps the instance alive for as long as the cache does. A judge
+    # process handles one submission and exits, so the validator it holds on to is one that
+    # was going to live that long anyway.
+    @lru_cache  # noqa: B019
     def _is_void_tag(self, tag: str) -> bool:
         """indicates whether the tag its corresponding closing tag is omittable or not"""
         return VOID_KEY in self.valid_dict[tag] and self.valid_dict[tag][VOID_KEY]
 
-    @lru_cache
+    @lru_cache  # noqa: B019
     def _valid_tag(self, tag: str):
         """validate that a tag is a valid HTML tag (if a tag isn't allowed, this wil also raise an exception"""
         if tag not in self.valid_dict:

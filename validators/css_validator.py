@@ -72,8 +72,8 @@ def _get_xpath(selector: str) -> str:
     try:
         # TODO filter out pseudo-elements (like or ::after)
         return GenericTranslator().css_to_xpath(selector)
-    except SelectorError:
-        raise CssParsingError
+    except SelectorError as err:
+        raise CssParsingError from err
 
 
 class Rule:
@@ -98,8 +98,8 @@ class Rule:
         if self.is_color():
             try:
                 self.color = Color(self.value_str)
-            except (IndexError, ValueError):
-                raise CssParsingError
+            except (IndexError, ValueError) as err:
+                raise CssParsingError from err
 
     def __repr__(self):
         return f"(Rule: {self.selector_str} | {self.name} {self.value} {'important' if self.important else ''})"
@@ -216,14 +216,13 @@ class Rules:
         r: Rule
         # find all rules defined for the solution element for the specified key
         for r in reversed(self.rules):
-            if r.name == key:
-                if r.pseudo == pseudo:
-                    for element in cast("list[_Element]", root.xpath(r.xpath)):
-                        if element == solution_element:
-                            if r.important:
-                                imp.append(r)
-                            else:
-                                rs.append(r)
+            if r.name == key and r.pseudo == pseudo:
+                for element in cast("list[_Element]", root.xpath(r.xpath)):
+                    if element == solution_element:
+                        if r.important:
+                            imp.append(r)
+                        else:
+                            rs.append(r)
 
         # check if there are rules containing !important
         if imp:
@@ -260,11 +259,9 @@ class Rules:
                     else:
                         by_keyword[r.name][1].append(r)
 
-        for key in by_keyword:
-            imp, rs = by_keyword[key]
-            # check if there are rules containing !important
-            if imp:
-                rs = imp
+        for imp, non_imp in by_keyword.values():
+            # rules containing !important win from the ones that don't
+            rs = imp or non_imp
             # get the most specific rule or the one that was defined the latest if multiple with the same specificity
             dom_rule = rs[0]  # the dominating rule
             for r in rs:
@@ -280,9 +277,12 @@ class Rules:
         dom_rule: Rule | None = None
         rule: Rule
         for rule in self.rules:
-            if rule.selector_str == css_selector and rule.name == key:
-                if dom_rule is None or rule.specificity > dom_rule.specificity:
-                    dom_rule = rule
+            if (
+                rule.selector_str == css_selector
+                and rule.name == key
+                and (dom_rule is None or rule.specificity > dom_rule.specificity)
+            ):
+                dom_rule = rule
         return dom_rule
 
 
