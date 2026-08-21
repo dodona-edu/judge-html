@@ -1,0 +1,46 @@
+name: Test
+
+on:
+  push:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version-file: ".tool-versions"
+          cache: "pip"
+          cache-dependency-path: |
+            requirements.txt
+            requirements-test.txt
+      - name: Install the packages requirements.txt lists
+        run: ./devel/install_deps.sh
+      - name: Install test dependencies
+        run: ./devel/install_test_deps.sh
+      - name: Run tests
+        run: ./devel/run-tests.sh
+
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version-file: ".tool-versions"
+          cache: "pip"
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+            requirements-test.txt
+      - name: Install the packages requirements.txt lists
+        run: ./devel/install_deps.sh
+      - name: Install dev dependencies
+        run: ./devel/install_dev_deps.sh
+      - name: Run the linters
+        run: ./devel/check.sh
