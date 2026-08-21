@@ -4,18 +4,11 @@ on:
   push:
 
 jobs:
-  # A drift canary as much as a check on the proposal: the same pins resolved fresh
-  # against today's transitives, so red here while integration-test stays green
-  # means rebuilding the image today would break the judge.
   test:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v7
-      # A fresh install of the pins requirements.txt declares is the proposed
-      # environment: a dropped pin is absent by construction, and the transitives
-      # resolve against the proposed versions, like the candidate image docker-images
-      # builds once a proposal graduates. integration-test covers the image.
       - name: Setup Python
         uses: actions/setup-python@v7
         with:
@@ -31,17 +24,11 @@ jobs:
       - name: Run tests
         run: ./devel/run-tests.sh
 
-  # Advisory by design: a typings straddle during a dependency bump window can need a
-  # narrow `ty: ignore` or small typed shim.
   lint:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v7
-      # A fresh install of the pins requirements.txt declares is the proposed
-      # environment: a dropped pin is absent by construction, and the transitives
-      # resolve against the proposed versions, like the candidate image docker-images
-      # builds once a proposal graduates. integration-lint covers the image.
       - name: Setup Python
         uses: actions/setup-python@v7
         with:
