@@ -9,6 +9,21 @@ jobs:
     with:
       ref: ${{ github.sha }}
 
+  integration-lint:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/dodona-edu/dodona-html:latest
+      options: --user root
+
+    steps:
+      - uses: actions/checkout@v7
+      # Runs inside the judge image so ty resolves bs4, lxml, etc. against the exact
+      # versions production ships, not whatever pip picks on the runner.
+      - name: Install dev dependencies
+        run: ./devel/install_dev_deps.sh
+      - name: Run the linters
+        run: ./devel/check.sh
+
   # codecov-action needs curl and gpg, which the slim production image doesn't ship.
   # We'd rather not add packages to the environment the test is meant to exercise.
   coverage:
