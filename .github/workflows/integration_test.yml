@@ -4,29 +4,16 @@ on:
   push:
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/dodona-edu/dodona-html:latest
-      options: --user root
-
-    steps:
-      - uses: actions/checkout@v7
-      - name: Install test dependencies
-        run: ./devel/install_test_deps.sh
-      - name: Run tests
-        run: ./devel/run-tests.sh
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v7
-        with:
-          name: coverage
-          path: coverage.xml
+  integration-test:
+    uses: ./.github/workflows/e2e.yml
+    with:
+      ref: ${{ github.sha }}
 
   # codecov-action needs curl and gpg, which the slim production image doesn't ship.
   # We'd rather not add packages to the environment the test is meant to exercise.
   coverage:
     runs-on: ubuntu-latest
-    needs: test
+    needs: integration-test
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
