@@ -3,5 +3,5 @@
 # Without these, ty resolves lxml.etree to nothing and types every lxml call Unknown,
 # which silently switches off checking in css_validator.py and structure_validator.py.
 lxml-stubs==0.5.1
-ruff==0.16.3
-ty==0.0.72
+ruff==0.16.9
+ty==0.0.84
