@@ -176,3 +176,26 @@ class TestHtmlValidator(unittest.TestCase):
             self.validator.validate_content(r"<img src='C:\x\y.jpg'>")
         with self.assertRaises(AttributeValueError):
             self.validator.validate_content("<img src='C:/x/y.jpg'>")
+
+    def test_line_numbers(self):
+        # regression test for #250: reported line was one too low
+        self.setup(False, False, False)
+        with self.assertRaises(InvalidTagError) as cm:
+            self.validator.validate_content("<html>\n<body>\n\n<foo></foo>\n</body>\n</html>")
+        self.assertEqual(3, cm.exception.line)  # 0-based
+        self.assertIn("at line 4 ", str(cm.exception))
+
+    def test_line_number_first_line(self):
+        self.setup(False, False, False)
+        with self.assertRaises(InvalidTagError) as cm:
+            self.validator.validate_content("<foo></foo>")
+        self.assertEqual(0, cm.exception.line)
+        self.assertIn("at line 1 ", str(cm.exception))
+
+    def test_line_number_repeated_validation(self):
+        # the line counter must be reset between validations
+        self.setup(False, False, False)
+        for _ in range(2):
+            with self.assertRaises(InvalidTagError) as cm:
+                self.validator.validate_content("<html>\n<foo></foo>\n</html>")
+            self.assertIn("at line 2 ", str(cm.exception))

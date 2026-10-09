@@ -157,7 +157,7 @@ class DoubleCharsValidator:
         ls = []
         generator = Generator()
         saved_text = ""
-        line, pos = 0, 0
+        line, pos = 1, 0
         while s:
             res: DoubleChar | None
             res, s = generator.create(s, line, pos)

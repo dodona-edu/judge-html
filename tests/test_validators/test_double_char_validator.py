@@ -140,3 +140,43 @@ class TestDoubleCharValidator(unittest.TestCase):
     def test_value(self):
         # correct
         self.run_correct(["""<html lang='bi"boe(ba'>""", """<html lang='bi"boe)ba'>"""])
+
+    def get_error(self, text: str) -> MultipleMissingCharsError:
+        with self.assertRaises(MultipleMissingCharsError) as cm:
+            self.validator.validate_content(text)
+        return cm.exception
+
+    def test_line_numbers(self):
+        # regression test for #250: line numbers were off by one
+        # (stored 0-based, displayed 1-based)
+        text = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Websites</title>
+</head>
+<body>
+<ul>
+    <li> <a href="https://www.ugent.be/we/nl/" > Faculteit Wetenschappen (FWE) </a> </li>
+    <li> <a href="https://www.ugent.be/ea/nl/" > Faculteit Ingenieurswetenschappen en Architectuur (FEA )</a</li>
+    <li> <a href="https://www.ugent.be/bw/nl/" > Faculteit Bio-ingenieurswetenschappen (FBW) </a></li>
+</ul>
+</body>
+</html>"""
+        error = self.get_error(text)
+        self.assertEqual(1, len(error.exceptions))
+        self.assertEqual(9, error.exceptions[0].line)  # 0-based
+        self.assertIn("at line 10 ", str(error.exceptions[0]))
+        self.assertIn("at line 10 ", str(error))
+
+    def test_line_number_first_line(self):
+        # an error on the first line must still have a line number
+        error = self.get_error("(\nok")
+        self.assertEqual(0, error.exceptions[0].line)
+        self.assertIn("at line 1 ", str(error.exceptions[0]))
+        self.assertIn("at line 1 ", str(error))
+
+    def test_line_number_later_line(self):
+        error = self.get_error("ok\n\n  {\nok")
+        self.assertEqual(2, error.exceptions[0].line)
+        self.assertIn("at line 3 position 3", str(error.exceptions[0]))
