@@ -20,9 +20,7 @@ def prep_render(html_content: str, render_css: bool) -> tuple[str, str]:
         soup = bs4.BeautifulSoup(html_content, "html.parser")
 
         # remove title
-        # find() and find_all() are typed as yielding PageElement, which covers
-        # NavigableString too. Searching by tag name only ever matches Tags.
-        title = cast("Tag | None", soup.find("title"))
+        title = soup.find("title")
         if title is not None:
             title_str = title.text
             title.decompose()
@@ -32,7 +30,7 @@ def prep_render(html_content: str, render_css: bool) -> tuple[str, str]:
         # wrap div around the contents of body
         div = soup.new_tag("div", attrs={"id": "solution_rendering"})
 
-        body = cast("Tag | None", soup.find("body"))
+        body = soup.find("body")
 
         if body is not None:
             body.wrap(div)
@@ -43,6 +41,8 @@ def prep_render(html_content: str, render_css: bool) -> tuple[str, str]:
             div.wrap(soup.new_tag("body", attrs=cast("dict[str, str]", attrs)))
 
         # Change all img src's to refer to the /media directory
+        # find_all() is typed as yielding PageElement, which covers NavigableString
+        # too. Searching by tag name only ever matches Tags.
         for img in cast("list[Tag]", soup.find_all("img", src=True)):
             # src=True in the search above already ruled out a missing attribute, and
             # src is not one of the attributes bs4 splits into a list
@@ -61,7 +61,7 @@ def prep_render(html_content: str, render_css: bool) -> tuple[str, str]:
 
                 img["src"] = f"media/{filename}"
 
-        style = cast("Tag | None", soup.find("style"))
+        style = soup.find("style")
         if style is not None:
             # Css should not be rendered, remove it from the tree
             if not render_css:
