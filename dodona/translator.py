@@ -72,7 +72,7 @@ class Translator:
         self.language = language
 
     @classmethod
-    def from_str(cls, language: str) -> "Translator":
+    def from_str(cls, language: str) -> Translator:
         """created a Translator instance
         If the language is not detected correctly or not supported
         the translator defaults to English (EN).
@@ -110,7 +110,7 @@ class Translator:
         """
         return self.text_translations[self.language][message].format(**kwargs)
 
-    error_translations: ClassVar[dict["Translator.Language", dict[ErrorType, str]]] = {
+    error_translations: ClassVar[dict[Translator.Language, dict[ErrorType, str]]] = {
         Language.EN: {
             ErrorType.INTERNAL_ERROR: "Internal error",
             ErrorType.COMPILATION_ERROR: "The code is not valid",
@@ -137,7 +137,7 @@ class Translator:
         },
     }
 
-    text_translations: ClassVar[dict["Translator.Language", dict["Translator.Text", str]]] = {
+    text_translations: ClassVar[dict[Translator.Language, dict[Translator.Text, str]]] = {
         Language.EN: {
             Text.MISSING_EVALUATION_FILE: "The evaluator.py and solution.html files are missing.",
             Text.MISSING_CREATE_SUITE: "The evaluator.py file does not implement the 'create_suites(content)' method.",

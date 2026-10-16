@@ -46,10 +46,10 @@ class Check:
     """
 
     callback: Callable[[BeautifulSoup], bool]
-    on_success: list["Check"] = field(default_factory=list)
+    on_success: list[Check] = field(default_factory=list)
     abort_on_fail: bool = False
 
-    def _find_deepest_nested(self) -> "Check":
+    def _find_deepest_nested(self) -> Check:
         """Find the deepest Check nested with on_success chains"""
         current_deepest = self.on_success[-1]
 
@@ -59,7 +59,7 @@ class Check:
 
         return current_deepest
 
-    def or_abort(self) -> "Check":
+    def or_abort(self) -> Check:
         """Prevent the next tests from running if this one fails
         Can be used when a test is necessary for the rest to continue, for example
         the HTML-validation step.
@@ -67,12 +67,13 @@ class Check:
         self.abort_on_fail = True
         return self
 
-    def is_crucial(self) -> "Check":
+    def is_crucial(self) -> Check:
         """Alias to or_abort()"""
         return self.or_abort()
 
+    # Quoted: flatten_varargs' getfullargspec evaluates annotations eagerly.
     @flatten_varargs
-    def then(self, *args: Checks) -> "Check":
+    def then(self, *args: Checks) -> "Check":  # noqa: UP037
         """Register a list of checks to perform in case this check succeeds
         When this check already has checks registered, try to find the deepest check
         and append it to that check. The reasoning is that x.then(y).then(z) suggests y should
@@ -119,7 +120,7 @@ class Element:
         return f"<{self.tag}>"
 
     # HTML utilities
-    def get_child(self, tag: str | Emmet | None = None, index: int = 0, direct: bool = True, **kwargs) -> "Element":
+    def get_child(self, tag: str | Emmet | None = None, index: int = 0, direct: bool = True, **kwargs) -> Element:
         """Find the child element that matches the specifications
 
         :param tag:     the tag to search for
@@ -135,7 +136,7 @@ class Element:
         # id is not one of the attributes bs4 splits into a list, so it is never a list here
         return Element(child.name, cast("str | None", child.get("id", None)), child, self._css_validator)
 
-    def get_children(self, tag: str | Emmet | None = None, direct: bool = True, **kwargs) -> "ElementContainer":
+    def get_children(self, tag: str | Emmet | None = None, direct: bool = True, **kwargs) -> ElementContainer:
         """Get all children of this element that match the requested input"""
         # This element doesn't exist so it has no children
         if self._element is None:
@@ -744,7 +745,7 @@ class ElementContainer:
         return self._size
 
     @classmethod
-    def from_tags(cls, tags: list[Tag], css_validator: CssValidator | None) -> "ElementContainer":
+    def from_tags(cls, tags: list[Tag], css_validator: CssValidator | None) -> ElementContainer:
         """Construct a container from a list of bs4 Tag instances"""
         # id is not one of the attributes bs4 splits into a list, so it is never a list here
         elements = [Element(x.name, cast("str | None", x.get("id", None)), x, css_validator) for x in tags]
