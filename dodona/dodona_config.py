@@ -44,7 +44,7 @@ class DodonaConfig(SimpleNamespace):
         self.workdir = str(self.workdir)
 
     @classmethod
-    def from_json(cls, json_file: TextIO) -> "DodonaConfig":
+    def from_json(cls, json_file: TextIO) -> DodonaConfig:
         """decode json filestream into a DodonaConfig object
         :param json_file: input json-encoded filestream
         :return: decoded Dodona judge config

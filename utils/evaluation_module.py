@@ -1,6 +1,5 @@
 from pathlib import Path
 from types import ModuleType
-from typing import Optional
 
 from dodona.dodona_config import DodonaConfig
 from validators.checks import TestSuite
@@ -30,7 +29,7 @@ class EvaluationModule(ModuleType):
         raise NotImplementedError
 
     @classmethod
-    def build(cls, config: DodonaConfig) -> Optional["EvaluationModule"]:
+    def build(cls, config: DodonaConfig) -> EvaluationModule | None:
         """Create a new EvaluationModule from a DodonaConfig configuration"""
         # Create filepath
         custom_evaluator_path = Path(config.resources) / "evaluator.py"

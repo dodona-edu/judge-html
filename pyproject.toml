@@ -12,7 +12,7 @@ source = ["."]
 [tool.ruff]
 line-length = 120
 # Keep in step with .tool-versions; ruff defaults to py310 and can't infer it without a [project] table.
-target-version = "py313"
+target-version = "py314"
 
 [tool.ruff.lint]
 select = ["ALL"]
@@ -38,6 +38,11 @@ ignore = [
     # not a side effect of turning on a rule set.
     "PT009",
     "PT027",
+    # Annotations are read at runtime (getfullargspec) and validators.checks names are public to evaluators,
+    # so annotation-only imports stay real.
+    "TC001",
+    "TC002",
+    "TC003",
     # assert is fine here.
     "S101",
     # This judge runs student HTML/CSS through bs4, lxml and tinycss2, and runs a teacher's
