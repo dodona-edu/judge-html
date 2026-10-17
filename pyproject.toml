@@ -12,7 +12,7 @@ source = ["."]
 [tool.ruff]
 line-length = 120
 # Keep in step with .tool-versions; ruff defaults to py310 and can't infer it without a [project] table.
-target-version = "py314"
+target-version = "py315"
 
 [tool.ruff.lint]
 select = ["ALL"]
