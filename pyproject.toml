@@ -1,13 +1,15 @@
 [tool.coverage.run]
 omit = [
-    ".github/*",
-    "docs/*",
-    "htmlcov/*",
+    "*/.github/*",
+    "*/docs/*",
+    "*/htmlcov/*",
     "*/site-packages/*",
-    "tests/*",
-    "venv/*",
+    "*/tests/*",
+    "*/venv/*",
 ]
 source = ["."]
+# The end-to-end tests run html_judge.py in a subprocess
+patch = ["subprocess"]
 
 [tool.ruff]
 line-length = 120
