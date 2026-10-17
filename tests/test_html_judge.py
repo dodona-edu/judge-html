@@ -112,6 +112,7 @@ class HtmlJudgeEndToEndTest(unittest.TestCase):
         evaluator: str | None = None,
         solution: str | None = None,
         env: dict[str, str] | None = None,
+        natural_language: str = "en",
     ) -> JudgeRun:
         self.source.write_text(submission, encoding="utf-8")
         if evaluator is not None:
@@ -123,7 +124,7 @@ class HtmlJudgeEndToEndTest(unittest.TestCase):
             "memory_limit": 100_000_000,
             "time_limit": 10,
             "programming_language": "html",
-            "natural_language": "en",
+            "natural_language": natural_language,
             "resources": str(self.resources),
             "source": str(self.source),
             "judge": str(JUDGE_DIR),
@@ -183,6 +184,77 @@ class HtmlJudgeEndToEndTest(unittest.TestCase):
         self.assertEqual(1, len(staff))
         self.assertIn("Traceback", staff[0]["description"])
         self.assertIn("ModuleNotFoundError: No module named 'module_that_does_not_exist'", staff[0]["description"])
+
+    def assert_invalid_exercise(self, run: JudgeRun, staff_text: str):
+        self.assertFalse(run.accepted)
+        self.assertEqual("runtime error", run.status)
+        self.assertEqual({}, run.testcases())
+        staff = [m for m in run.messages() if m.get("permission") == "staff"]
+        self.assertEqual(1, len(staff))
+        self.assertIn(staff_text, staff[0]["description"])
+        students = [m for m in run.messages() if m.get("permission") != "staff"]
+        self.assertEqual(1, len(students))
+        self.assertEqual(
+            "Your submission could not be evaluated because of an error in the solution file.",
+            students[0]["description"],
+        )
+
+    def test_missing_evaluator_and_solution(self):
+        run = self.run_judge(page())
+
+        self.assert_invalid_exercise(run, "The evaluator.py and solution.html files are missing.")
+
+    def test_empty_solution_without_evaluator(self):
+        run = self.run_judge(page(), solution="")
+
+        self.assert_invalid_exercise(run, "The evaluator.py and solution.html files are missing.")
+
+    def test_evaluator_without_create_suites(self):
+        run = self.run_judge(page(), evaluator="x = 1\n")
+
+        self.assert_invalid_exercise(run, "does not implement the 'create_suites(content)' method")
+
+    def test_create_suites_returns_empty_list(self):
+        run = self.run_judge(page(), evaluator="def create_suites(content):\n    return []\n")
+
+        self.assert_invalid_exercise(run, "did not return any evaluation suites")
+
+    def test_create_suites_returns_none(self):
+        run = self.run_judge(page(), evaluator="def create_suites(content):\n    pass\n")
+
+        self.assert_invalid_exercise(run, "did not return any evaluation suites")
+
+    def test_create_suites_raises(self):
+        run = self.run_judge(page(), evaluator="def create_suites(content):\n    raise ValueError('boom')\n")
+
+        self.assert_invalid_exercise(run, "ValueError: boom")
+
+    def test_evaluator_syntax_error(self):
+        run = self.run_judge(page(), evaluator="def create_suites(content:\n")
+
+        self.assert_invalid_exercise(run, "SyntaxError")
+
+    def test_invalid_exercise_messages_follow_natural_language(self):
+        run = self.run_judge(page(), natural_language="nl")
+
+        self.assertEqual("runtime error", run.status)
+        staff = [m for m in run.messages() if m.get("permission") == "staff"]
+        self.assertEqual(["De evaluator.py en solution.html bestanden ontbreken."], [m["description"] for m in staff])
+        students = [m for m in run.messages() if m.get("permission") != "staff"]
+        self.assertEqual(
+            ["Jouw indiening kon niet geëvalueerd worden door een fout in het oplossingsbestand."],
+            [m["description"] for m in students],
+        )
+
+    def test_several_failing_items_give_plural_status(self):
+        run = self.run_judge(
+            "<html lang='en'><head></head><body><p>No heading</p></body></html>", evaluator=CHECKLIST_EVALUATOR
+        )
+
+        self.assertEqual("wrong answer", run.status)
+        self.assertFalse(run.accepted)
+        self.assertFalse(run.testcases()["The page has a title"])
+        self.assertFalse(run.testcases()["The page has a heading"])
 
     def assert_non_ascii_survives(self, locale_name: str):
         evaluator = CHECKLIST_EVALUATOR.replace("The page has a title", f"Titel {NON_ASCII}")
