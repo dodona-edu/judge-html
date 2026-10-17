@@ -46,13 +46,6 @@ class EvaluationAborted(RuntimeError):
         super().__init__(*args)
 
 
-class InvalidTranslation(ValueError):
-    """Exception raised when the length of a translation doesn't match the checklist"""
-
-    def __init__(self, *args):
-        super().__init__(*args)
-
-
 class DelayedExceptions(Exception):
     """class made to gather multiple exceptions"""
 

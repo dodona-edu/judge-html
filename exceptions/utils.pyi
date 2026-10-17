@@ -16,9 +16,6 @@ class FeedbackException(Exception):
 class EvaluationAborted(RuntimeError):
     def __init__(self, *args): ...
 
-class InvalidTranslation(ValueError):
-    def __init__(self, *args): ...
-
 class DelayedExceptions(FeedbackException):
     exceptions: list[FeedbackException]
 

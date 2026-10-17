@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING
 from dodona.dodona_command import ErrorType, Judgement, Message, MessageFormat, Tab
 from dodona.dodona_config import DodonaConfig
 from dodona.translator import Translator
-from exceptions.utils import InvalidTranslation
 from utils.evaluation_module import EvaluationModule
 from utils.file_loaders import html_loader
 from utils.messages import (
@@ -86,21 +85,13 @@ def main():
         # Same HTML is used every time so once is enough
         html_validated: bool = False
         css_validated: bool = False
-        aborted: bool = False
 
         # Run all test suites
         for suite in test_suites:
             suite.create_validator(config)
 
             with Tab(suite.name):
-                try:
-                    failed_tests += suite.evaluate(config.translator)
-                except InvalidTranslation:
-                    # One of the translations was invalid
-                    invalid_suites(judge, config)
-
-                    aborted = True
-                    continue
+                failed_tests += suite.evaluate(config.translator)
 
             # This suite validated the HTML
             if suite.html_is_valid():
@@ -116,18 +107,14 @@ def main():
             with Tab(f"Rendered{f': {title}' if title else ''}"), Message(format=MessageFormat.HTML, description=html):
                 pass
 
-        if aborted:
-            judge.status = config.translator.error_status(ErrorType.RUNTIME_ERROR)
-            judge.accepted = False
-        else:
-            status = (
-                ErrorType.CORRECT_ANSWER
-                if failed_tests == 0
-                else ErrorType.WRONG
-                if failed_tests == 1
-                else ErrorType.WRONG_ANSWER
-            )
-            judge.status = config.translator.error_status(status, amount=failed_tests)
+        status = (
+            ErrorType.CORRECT_ANSWER
+            if failed_tests == 0
+            else ErrorType.WRONG
+            if failed_tests == 1
+            else ErrorType.WRONG_ANSWER
+        )
+        judge.status = config.translator.error_status(status, amount=failed_tests)
 
 
 if __name__ == "__main__":

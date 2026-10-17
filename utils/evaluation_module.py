@@ -22,9 +22,7 @@ class EvaluationModule(ModuleType):
         it will override this one.
 
         :param content:         The content of the HTML file submitted by the student
-        :raises DodonaException In case this method was not implemented.
-                                Does NOT raise a NotImplementedError() so that it can be
-                                displayed nicely on Dodona.
+        :raises NotImplementedError In case this method was not implemented.
         """
         raise NotImplementedError
 
@@ -39,7 +37,7 @@ class EvaluationModule(ModuleType):
             return None
 
         # Read raw content of .py file
-        with custom_evaluator_path.open() as fp:
+        with custom_evaluator_path.open(encoding="utf-8") as fp:
             # Compile the code into bytecode
             evaluator_script = compile(fp.read(), "<string>", "exec")
 
