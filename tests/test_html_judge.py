@@ -60,9 +60,6 @@ def find_locale() -> str | None:
 
 LATIN1_LOCALE = find_locale()
 
-# open() and stdin follow the locale encoding before 3.15 (utils/file_loaders.py, utils/evaluation_module.py)
-locale_encoding_before_315 = unittest.expectedFailure if sys.version_info < (3, 15) else (lambda test: test)
-
 
 class JudgeRun:
     """The parsed output of one run of html_judge.py"""
@@ -274,6 +271,5 @@ class HtmlJudgeEndToEndTest(unittest.TestCase):
         self.assert_non_ascii_survives("C")
 
     @unittest.skipIf(LATIN1_LOCALE is None, "no Latin-1 locale available")
-    @locale_encoding_before_315
     def test_non_ascii_under_latin1_locale(self):
         self.assert_non_ascii_survives(LATIN1_LOCALE or "")
