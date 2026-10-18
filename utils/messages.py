@@ -23,14 +23,14 @@ def invalid_evaluator_file():
     Takes no exception: it reads the one currently being handled off format_exc(),
     so it only says anything useful from inside an except block.
     """
-    with Message(permission=MessagePermission.STAFF, description=traceback.format_exc(), format=MessageFormat.CODE):
+    with Message(permission=MessagePermission.EDUCATOR, description=traceback.format_exc(), format=MessageFormat.CODE):
         pass
 
 
 def missing_evaluator_file(translator: Translator):
     """Show the teacher a message saying that the evaluator file is missing"""
     with Message(
-        permission=MessagePermission.STAFF,
+        permission=MessagePermission.EDUCATOR,
         description=translator.translate(Translator.Text.MISSING_EVALUATION_FILE),
         format=MessageFormat.TEXT,
     ):
@@ -39,7 +39,7 @@ def missing_evaluator_file(translator: Translator):
 
 def missing_create_suite(translator: Translator):
     with Message(
-        permission=MessagePermission.STAFF,
+        permission=MessagePermission.EDUCATOR,
         description=translator.translate(Translator.Text.MISSING_CREATE_SUITE),
         format=MessageFormat.TEXT,
     ):
@@ -48,7 +48,7 @@ def missing_create_suite(translator: Translator):
 
 def no_suites_found(translator: Translator):
     with Message(
-        permission=MessagePermission.STAFF,
+        permission=MessagePermission.EDUCATOR,
         description=translator.translate(Translator.Text.MISSING_SUITES),
         format=MessageFormat.TEXT,
     ):

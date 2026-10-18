@@ -180,7 +180,7 @@ class HtmlJudgeEndToEndTest(unittest.TestCase):
 
         self.assertFalse(run.accepted)
         self.assertEqual("runtime error", run.status)
-        staff = [m for m in run.messages() if m.get("permission") == "staff"]
+        staff = [m for m in run.messages() if m.get("permission") == "educator"]
         self.assertEqual(1, len(staff))
         self.assertIn("Traceback", staff[0]["description"])
         self.assertIn("ModuleNotFoundError: No module named 'module_that_does_not_exist'", staff[0]["description"])
@@ -189,10 +189,10 @@ class HtmlJudgeEndToEndTest(unittest.TestCase):
         self.assertFalse(run.accepted)
         self.assertEqual("runtime error", run.status)
         self.assertEqual({}, run.testcases())
-        staff = [m for m in run.messages() if m.get("permission") == "staff"]
+        staff = [m for m in run.messages() if m.get("permission") == "educator"]
         self.assertEqual(1, len(staff))
         self.assertIn(staff_text, staff[0]["description"])
-        students = [m for m in run.messages() if m.get("permission") != "staff"]
+        students = [m for m in run.messages() if m.get("permission") != "educator"]
         self.assertEqual(1, len(students))
         self.assertEqual(
             "Your submission could not be evaluated because of an error in the solution file.",
@@ -238,9 +238,9 @@ class HtmlJudgeEndToEndTest(unittest.TestCase):
         run = self.run_judge(page(), natural_language="nl")
 
         self.assertEqual("runtime error", run.status)
-        staff = [m for m in run.messages() if m.get("permission") == "staff"]
+        staff = [m for m in run.messages() if m.get("permission") == "educator"]
         self.assertEqual(["De evaluator.py en solution.html bestanden ontbreken."], [m["description"] for m in staff])
-        students = [m for m in run.messages() if m.get("permission") != "staff"]
+        students = [m for m in run.messages() if m.get("permission") != "educator"]
         self.assertEqual(
             ["Jouw indiening kon niet geëvalueerd worden door een fout in het oplossingsbestand."],
             [m["description"] for m in students],
