@@ -1,8 +1,9 @@
+import time
 import unittest
 
 from dodona.translator import Translator
 from exceptions.double_char_exceptions import MultipleMissingCharsError
-from validators.double_chars_validator import DoubleCharsValidator
+from validators.double_chars_validator import MAX_REPORTED_ERRORS, DoubleCharsValidator
 
 
 class TestDoubleCharValidator(unittest.TestCase):
@@ -229,3 +230,15 @@ class TestDoubleCharErrors(unittest.TestCase):
 
     def test_run_of_opening_chars(self):
         self.assertEqual([("MissingClosingCharError", 0, pos) for pos in (4, 3, 2, 1, 0)], self.errors("((((("))
+
+    def test_error_count_is_capped(self):
+        errors = self.errors("(" * 60)
+        self.assertEqual([("MissingClosingCharError", 0, pos) for pos in range(59, 9, -1)], errors)
+        self.assertEqual(MAX_REPORTED_ERRORS, len(errors))
+
+    def test_long_input_is_linear(self):
+        start = time.perf_counter()
+        errors = self.errors("(" * 256 * 1024)
+        # CI with coverage takes about 1 s; the former quadratic scan took over 5 s even locally
+        self.assertLess(time.perf_counter() - start, 5)
+        self.assertEqual(MAX_REPORTED_ERRORS, len(errors))
