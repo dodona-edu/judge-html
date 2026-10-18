@@ -26,7 +26,7 @@ class MessagePermission(StrEnum):
     """Dodona permission for a message"""
 
     STUDENT = "student"
-    STAFF = "staff"
+    EDUCATOR = "educator"
     ZEUS = "zeus"
 
 
