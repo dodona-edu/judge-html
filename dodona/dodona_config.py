@@ -59,9 +59,12 @@ class DodonaConfig(SimpleNamespace):
         Also, this Python file (and all other Python judge files) should be located in the 'judge' dir.
         """
         # Make sure that the current working dir is the workdir
-        assert Path.cwd().resolve() == Path(self.workdir).resolve()
+        if Path.cwd().resolve() != Path(self.workdir).resolve():
+            raise RuntimeError
 
         # Make sure that this file is located right below the judge folder
         script_path = Path(__file__).resolve().parent.parent
         judge_path = Path(self.judge).resolve()
-        assert script_path == judge_path, f"{script_path} | {judge_path}"
+        if script_path != judge_path:
+            msg = f"{script_path} | {judge_path}"
+            raise RuntimeError(msg)
