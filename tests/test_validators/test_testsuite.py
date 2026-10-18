@@ -30,6 +30,47 @@ class TestTestSuite(unittest.TestCase):
         suite = TestSuite("", "<!DOCTYPE somethingelse>")
         self.assertFalse(suite.has_doctype().callback(suite._bs))
 
+    def has_doctype(self, content: str) -> bool:
+        suite = TestSuite("", content)
+        return suite.has_doctype().callback(suite._bs)
+
+    def test_doctype_after_leading_comments(self):
+        self.assertTrue(self.has_doctype("<!-- a -->\n<!doctype html>\n<html></html>"))
+        self.assertTrue(self.has_doctype("<!-- a --><!-- b -->\n\n<!DOCTYPE HTML>"))
+
+    def test_doctype_leading_comment_run(self):
+        # a short run of comments stays fast
+        self.assertTrue(self.has_doctype("<!-- c -->\n" * 10 + "<!DOCTYPE html>"))
+        self.assertFalse(self.has_doctype("<!-- c -->\n" * 10 + "<html></html>"))
+
+    def test_no_doctype(self):
+        self.assertFalse(self.has_doctype("<html><body></body></html>"))
+        self.assertFalse(self.has_doctype(""))
+
+    def test_doctype_case_variants(self):
+        for variant in ("<!DOCTYPE html>", "<!doctype html>", "<!DocType HTML>", "<!Doctype Html>"):
+            with self.subTest(variant=variant):
+                self.assertTrue(self.has_doctype(variant))
+
+    def test_doctype_whitespace_variants(self):
+        self.assertTrue(self.has_doctype("  \n\t<!doctype html>"))
+        # exactly one space between "doctype" and "html" is accepted
+        self.assertFalse(self.has_doctype("<!doctype  html>"))
+        self.assertFalse(self.has_doctype("<!doctype\thtml>"))
+
+    def test_doctype_prefix_only(self):
+        # the pattern only looks at the start of the declaration, what follows is not checked
+        self.assertTrue(self.has_doctype('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">'))
+        self.assertTrue(self.has_doctype("<!doctype htmlfoo>"))
+
+    def test_doctype_on_later_line_is_accepted(self):
+        # pins today's behaviour: the pattern is multiline, so any line may start with the doctype
+        self.assertTrue(self.has_doctype("<html>\n<!DOCTYPE html>\n</html>"))
+        self.assertTrue(self.has_doctype("text\n<!DOCTYPE html>"))
+
+    def test_doctype_after_text_on_same_line_is_rejected(self):
+        self.assertFalse(self.has_doctype("<html><!DOCTYPE html>"))
+
     def test_invalid_css(self):
         valid_suite = UnitTestSuite("css_1")
         self.assertIsNotNone(valid_suite._css_validator)

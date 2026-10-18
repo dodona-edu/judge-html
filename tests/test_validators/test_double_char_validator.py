@@ -180,3 +180,52 @@ class TestDoubleCharValidator(unittest.TestCase):
         error = self.get_error("ok\n\n  {\nok")
         self.assertEqual(2, error.exceptions[0].line)
         self.assertIn("at line 3 position 3", str(error.exceptions[0]))
+
+
+class TestDoubleCharErrors(unittest.TestCase):
+    """Characterizes which errors are reported, and where (line and position are 0-based)"""
+
+    def errors(self, text: str) -> list[tuple[str, int, int]]:
+        validator = DoubleCharsValidator(Translator(Translator.Language.EN))
+        try:
+            validator.validate_content(text)
+        except MultipleMissingCharsError as e:
+            return [(type(x).__name__, x.line, x.pos) for x in e.exceptions]
+        return []
+
+    def test_balanced(self):
+        self.assertEqual([], self.errors("(a)[b]{c}"))
+        self.assertEqual([], self.errors("{[(x)]}"))
+        self.assertEqual([], self.errors("<p>it's (fine)</p>"))
+
+    def test_missing_closing_round(self):
+        self.assertEqual([("MissingClosingCharError", 0, 0)], self.errors("(a[b]"))
+
+    def test_missing_opening_square(self):
+        self.assertEqual([("MissingOpeningCharError", 0, 1)], self.errors("a]b"))
+
+    def test_missing_opening_on_later_line(self):
+        self.assertEqual([("MissingOpeningCharError", 1, 0)], self.errors("a\n]"))
+
+    def test_nested_mix_missing_closing(self):
+        self.assertEqual([("MissingClosingCharError", 0, 7)], self.errors("{[(x)]}("))
+
+    def test_interleaved_pairs(self):
+        # errors are reported in the order they are found: the stack is unwound last-in first
+        self.assertEqual(
+            [
+                ("MissingOpeningCharError", 0, 3),
+                ("MissingOpeningCharError", 0, 2),
+                ("MissingClosingCharError", 0, 1),
+                ("MissingClosingCharError", 0, 0),
+            ],
+            self.errors("([)]"),
+        )
+
+    def test_unterminated_quote(self):
+        # pins today's behaviour: an unterminated quote is reported as a missing opening character
+        self.assertEqual([("MissingOpeningCharError", 0, 0)], self.errors("'abc"))
+        self.assertEqual([("MissingOpeningCharError", 0, 2)], self.errors('x "y'))
+
+    def test_run_of_opening_chars(self):
+        self.assertEqual([("MissingClosingCharError", 0, pos) for pos in (4, 3, 2, 1, 0)], self.errors("((((("))
