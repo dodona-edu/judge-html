@@ -74,3 +74,37 @@ class TestHtmlValidator(unittest.TestCase):
     def test_empty_sub(self):
         with self.assertRaises(NotTheSame):
             compare(self.base, "        ", self.translator)
+
+
+class TestTailComparison(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.translator = Translator(Translator.Language.EN)
+
+    def compare(self, solution: str, submission: str):
+        compare(solution, submission, self.translator, contents=True)
+
+    # RULE-015 (owner's note): contents=True also compares the text after an inline element
+    @unittest.expectedFailure
+    def test_tail_after_inline_element_differs(self):
+        with self.assertRaises(NotTheSame):
+            self.compare("<p>Hi <b>x</b> there</p>", "<p>Hi <b>x</b> WRONG</p>")
+
+    # RULE-015 (owner's note): contents=True also compares the text between two inline elements
+    @unittest.expectedFailure
+    def test_tail_between_inline_elements_differs(self):
+        with self.assertRaises(NotTheSame):
+            self.compare("<p>a <b>x</b> middle <i>y</i></p>", "<p>a <b>x</b> nonsense <i>y</i></p>")
+
+    # RULE-015 (owner's note): contents=True also compares body text after a block element
+    @unittest.expectedFailure
+    def test_tail_after_block_element_differs(self):
+        solution = "<html><body><h1>T</h1>Some body text</body></html>"
+        with self.assertRaises(NotTheSame):
+            self.compare(solution, solution.replace("Some body", "Other"))
+
+    def test_dummy_tail_matches_any_text(self):
+        self.compare("<p>Hi <b>x</b> DUMMY</p>", "<p>Hi <b>x</b> anything</p>")
+
+    def test_whitespace_only_tail_difference_is_ignored(self):
+        self.compare("<p>Hi <b>x</b>   there</p>", "<p>Hi <b>x</b> there</p>")

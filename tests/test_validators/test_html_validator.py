@@ -199,3 +199,34 @@ class TestHtmlValidator(unittest.TestCase):
             with self.assertRaises(InvalidTagError) as cm:
                 self.validator.validate_content("<html>\n<foo></foo>\n</html>")
             self.assertIn("at line 2 ", str(cm.exception))
+
+    def test_dd_inside_dl(self):
+        self.setup(False, False, True)
+        self.validator.validate_content("<dl><dt>term</dt><dd>def</dd></dl>")
+
+    # RULE-014 (owner's note): dd may not sit inside dt
+    @unittest.expectedFailure
+    def test_dd_inside_dt_is_rejected(self):
+        self.setup(False, False, True)
+        with self.assertRaises(UnexpectedTagError):
+            self.validator.validate_content("<dl><dt>term<dd>def</dd></dt></dl>")
+
+    def test_script_noscript_and_svg_children_are_rejected(self):
+        self.setup(False, False, True)
+        for html in ("<script></script>", "<noscript></noscript>", "<svg><path></path></svg>"):
+            with self.subTest(html=html), self.assertRaises(InvalidTagError):
+                self.validator.validate_content(html)
+
+    # validator bug: a reused HtmlValidator rejects valid HTML
+    @unittest.expectedFailure
+    def test_reused_validator_accepts_valid_page_again(self):
+        self.setup(False, False, False)
+        self.validator.validate_content("<div id='a'></div>")
+        self.validator.validate_content("<div id='a'></div>")
+
+    # validator bug: an attribute without a value crashes
+    @unittest.expectedFailure
+    def test_attribute_without_value_gets_empty_id_feedback(self):
+        self.setup(False, False, False)
+        with self.assertRaises(AttributeValueError):
+            self.validator.validate_content("<div id></div>")
