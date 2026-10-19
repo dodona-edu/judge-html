@@ -1,4 +1,5 @@
 import unittest
+from unittest import mock
 
 from utils.render_ready import prep_render
 
@@ -58,23 +59,32 @@ class TestPrepRender(unittest.TestCase):
         self.assertIn('src="www.example.com/c.png"', out)
         self.assertNotIn("media/", out)
 
-    @unittest.expectedFailure
     def test_every_style_block_is_scoped(self):
-        # intended: the rules of both style blocks are scoped, no unscoped rule remains
         _, html = prep_render(TWO_STYLES, True)
         self.assertIn("#solution_rendering p{color:red;}", html)
         self.assertIn("#solution_rendering b{color:blue;}", html)
         self.assertNotIn("\n   b{color:blue;}", html)
 
-    @unittest.expectedFailure
     def test_non_empty_style_after_empty_style_is_scoped(self):
-        # intended: an empty first style does not stop the next one from being scoped
         html = "<html><head><style></style><style>p{color:red;}</style></head><body><p>x</p></body></html>"
         _, out = prep_render(html, True)
         self.assertIn("#solution_rendering p{color:red;}", out)
 
-    @unittest.expectedFailure
     def test_every_style_block_removed_without_render_css(self):
-        # intended: with render_css=False no style block is left, not only the first
         _, html = prep_render(TWO_STYLES, False)
         self.assertNotIn("<style>", html)
+
+    def test_style_block_that_cannot_be_parsed_is_dropped_and_preview_still_wrapped(self):
+        html = (
+            "<html><head><style>p{color:red;} }</style><style>b{color:blue;}</style></head><body><p>x</p></body></html>"
+        )
+        _, out = prep_render(html, True)
+        self.assertNotIn("color:red", out)
+        self.assertIn("#solution_rendering b{color:blue;}", out)
+        self.assertIn('<div id="solution_rendering">', out)
+
+    def test_failed_preparation_returns_title_and_empty_preview(self):
+        with mock.patch("utils.render_ready.bs4.BeautifulSoup", side_effect=RuntimeError):
+            title, html = prep_render(ONE_STYLE, True)
+        self.assertEqual("", title)
+        self.assertEqual("", html)

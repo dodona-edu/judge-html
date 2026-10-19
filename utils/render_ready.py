@@ -10,9 +10,8 @@ if TYPE_CHECKING:
 
 
 def prep_render(html_content: str, render_css: bool) -> tuple[str, str]:
-    """prepares the html for rendering:
-    a body and a style tag must be present, if not returns the input html
-    if both are present:
+    """prepares the html for rendering, returns the title and the preview html:
+    if preparing fails, the preview is empty rather than the unprepared input
     * wraps the contents of body in a div with id='solution_rendering'
     * prepends '#solution_rendering ' to every css rule, so that every rule applies to descendants of the div"""
     title_str = ""
@@ -61,29 +60,31 @@ def prep_render(html_content: str, render_css: bool) -> tuple[str, str]:
 
                 img["src"] = f"media/{filename}"
 
-        style = soup.find("style")
-        if style is not None:
+        for style in soup.find_all("style"):
             # Css should not be rendered, remove it from the tree
             if not render_css:
                 style.decompose()
-            else:
-                # edit the css-rules
-                # An empty <style></style> gives string None, and Rules() then raises a
-                # TypeError. The except below catches it and returns the html unchanged,
-                # so keep it that way rather than growing a branch for it here
-                rs = Rules(cast("str", style.string))
-                x: Rule
-                for x in rs.rules:
-                    x.selector_str = f"#solution_rendering {x.selector_str}"
+            # An empty <style></style> has no string and nothing to scope
+            elif style.string:
+                try:
+                    # edit the css-rules
+                    rs = Rules(cast("str", style.string))
+                    x: Rule
+                    for x in rs.rules:
+                        x.selector_str = f"#solution_rendering {x.selector_str}"
 
-                new_style = ""
-                for r in rs.rules:
-                    new_style += (
-                        f"{r.selector_str}{{{r.name}:{r.value_str}{'!important' if r.important else ''};}}\n   "
-                    )
+                    new_style = ""
+                    for r in rs.rules:
+                        new_style += (
+                            f"{r.selector_str}{{{r.name}:{r.value_str}{'!important' if r.important else ''};}}\n   "
+                        )
 
-                style.string = new_style
+                    style.string = new_style
+                except Exception:
+                    # A block that can't be scoped is dropped rather than shown unscoped
+                    style.decompose()
 
         return title_str, str(soup.prettify())
     except Exception:
-        return title_str, html_content
+        # never fall back to the raw input: its styles are not scoped to the preview
+        return title_str, ""
