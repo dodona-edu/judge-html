@@ -173,7 +173,6 @@ class HtmlJudgeEndToEndTest(unittest.TestCase):
         self.assertFalse(run.testcases()["The submission resembles the solution."])
 
     # RULE-016 (owner's note): unparseable submission CSS fails "The CSS is valid." and does not skip the comparison
-    @unittest.expectedFailure
     def test_comparison_unparseable_submission_css_fails_css_item(self):
         solution = (
             page().replace("</head>", "<style>p { color: red }</style></head>").replace("<h1>Hello</h1>", "<p>x</p>")
