@@ -21,7 +21,7 @@ from exceptions.structure_exceptions import NotTheSame
 from exceptions.utils import EvaluationAborted
 from utils.flatten import flatten_queue
 from utils.html_navigation import compare_content, contains_comment, find_child, find_emmet, match_emmet
-from utils.regexes import doctype_re
+from utils.regexes import has_leading_doctype
 from validators.css_validator import AmbiguousXpath, CssParsingError, CssValidator, ElementNotFound, Rule
 from validators.html_validator import HtmlValidator
 from validators.structure_validator import compare, get_similarity
@@ -1107,7 +1107,7 @@ class TestSuite:
         def _inner(_: BeautifulSoup) -> bool:
             # Do NOT use the BS Doctype for this, because it repairs
             # incorrect/broken HTML which invalidates this function
-            return re.search(doctype_re.pattern, self.content, doctype_re.flags) is not None
+            return has_leading_doctype(self.content)
 
         return Check(_inner)
 

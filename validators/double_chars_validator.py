@@ -7,6 +7,8 @@ from exceptions.double_char_exceptions import (
     MultipleMissingCharsError,
 )
 
+MAX_REPORTED_ERRORS = 50
+
 
 class DoubleChar:
     type: str
@@ -49,17 +51,11 @@ class DoubleChar:
     def len_close(self) -> int:
         return len(self.close)
 
-    def match_open(self, s: str) -> bool:
-        if len(s) < self.len_open():
-            return False
-        s = s[0 : self.len_open()]
-        return self.open == s
+    def match_open(self, s: str, i: int = 0) -> bool:
+        return s.startswith(self.open, i)
 
-    def match_close(self, s: str) -> bool:
-        if len(s) < self.len_close():
-            return False
-        s = s[0 : self.len_close()]
-        return self.close == s
+    def match_close(self, s: str, i: int = 0) -> bool:
+        return s.startswith(self.close, i)
 
 
 class Round(DoubleChar):
@@ -128,13 +124,13 @@ class Generator:
             reverse=True,
         )
 
-    def create(self, s: str, line: int, pos: int) -> tuple[DoubleChar | None, str]:
+    def create(self, s: str, i: int, line: int, pos: int) -> tuple[DoubleChar | None, int]:
         for x in self.ls:
-            if x.match_open(s):
-                return x.create(True, line, pos), s[x.len_open() :]
-            if x.match_close(s):
-                return x.create(False, line, pos), s[x.len_close() :]
-        return None, s
+            if x.match_open(s, i):
+                return x.create(True, line, pos), i + x.len_open()
+            if x.match_close(s, i):
+                return x.create(False, line, pos), i + x.len_close()
+        return None, i
 
 
 class DoubleCharsValidator:
@@ -158,9 +154,10 @@ class DoubleCharsValidator:
         generator = Generator()
         saved_text = ""
         line, pos = 1, 0
-        while s:
+        i = 0
+        while i < len(s):
             res: DoubleChar | None
-            res, s = generator.create(s, line, pos)
+            res, i = generator.create(s, i, line, pos)
             if res:
                 if saved_text:
                     ls.append(saved_text)
@@ -168,8 +165,8 @@ class DoubleCharsValidator:
                 ls.append(res)
                 pos += res.len_open() if res.is_unambiguous and res.is_open() else res.len_close()
             else:
-                c = s[0]
-                s = s[1:]
+                c = s[i]
+                i += 1
                 saved_text += c
                 pos += 1
                 if c == "\n":
@@ -188,6 +185,10 @@ class DoubleCharsValidator:
         wait_until_seen: DoubleChar | None = None
         # Error checking
         errors = MultipleMissingCharsError(self.translator)
+
+        def add_error(error_type: type[MissingOpeningCharError | MissingClosingCharError], char: str, dc: DoubleChar):
+            if len(errors) < MAX_REPORTED_ERRORS:
+                errors.add(error_type(trans=self.translator, char=char, line=dc.line, pos=dc.pos))
 
         def push_stack(el: DoubleChar):
             """
@@ -211,8 +212,7 @@ class DoubleCharsValidator:
                 stack.pop()
             return wus
 
-        while text_ls:
-            dc = text_ls.pop(0)
+        for dc in text_ls:
             if isinstance(dc, DoubleChar):
                 if not wait_until_seen:
                     dc: DoubleChar
@@ -225,9 +225,7 @@ class DoubleCharsValidator:
                     elif stack and stack[-1].type == dc.type:
                         wait_until_seen = pop_stack(dc)
                     else:
-                        errors.add(
-                            MissingOpeningCharError(trans=self.translator, char=dc.close, line=dc.line, pos=dc.pos)
-                        )
+                        add_error(MissingOpeningCharError, dc.close, dc)
 
                 # We're inside something that we don't need to check, so the only question is
                 # whether we need to leave this state.
@@ -238,19 +236,19 @@ class DoubleCharsValidator:
 
         # Error checking
         # the stack should be empty, if not error remaining things
-        while stack:
+        while stack and len(errors) < MAX_REPORTED_ERRORS:
             dc = stack.pop()
             if dc.is_unambiguous and dc.is_close():
-                errors.add(MissingOpeningCharError(trans=self.translator, char=dc.close, line=dc.line, pos=dc.pos))
+                add_error(MissingOpeningCharError, dc.close, dc)
             else:
-                errors.add(MissingClosingCharError(trans=self.translator, char=dc.open, line=dc.line, pos=dc.pos))
+                add_error(MissingClosingCharError, dc.open, dc)
         # wait_until_seen should be empty
         if wait_until_seen:
             dc = wait_until_seen
             if dc.check_in_between:
                 if dc.is_open():
-                    errors.add(MissingClosingCharError(trans=self.translator, char=dc.open, line=dc.line, pos=dc.pos))
+                    add_error(MissingClosingCharError, dc.open, dc)
                 else:
-                    errors.add(MissingOpeningCharError(trans=self.translator, char=dc.open, line=dc.line, pos=dc.pos))
+                    add_error(MissingOpeningCharError, dc.open, dc)
         if errors:
             raise errors

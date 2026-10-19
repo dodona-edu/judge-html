@@ -1,4 +1,5 @@
 import re
+import time
 import unittest
 
 from dodona.translator import Translator
@@ -42,6 +43,11 @@ class TestTestSuite(unittest.TestCase):
         # a short run of comments stays fast
         self.assertTrue(self.has_doctype("<!-- c -->\n" * 10 + "<!DOCTYPE html>"))
         self.assertFalse(self.has_doctype("<!-- c -->\n" * 10 + "<html></html>"))
+
+    def test_doctype_many_leading_comments_is_fast(self):
+        start = time.perf_counter()
+        self.assertFalse(self.has_doctype("<!-- c -->" * 40 + "<html></html>"))
+        self.assertLess(time.perf_counter() - start, 1)
 
     def test_no_doctype(self):
         self.assertFalse(self.has_doctype("<html><body></body></html>"))
