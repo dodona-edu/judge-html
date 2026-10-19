@@ -1386,7 +1386,7 @@ class _CompareSuite(HtmlSuite):
         super().__init__(content, check_recommended, allow_warnings, abort)
 
         # Adds a check for CSS-validation only if there is some CSS supplied
-        if self._css_validated and self._css_validator:
+        if self._css_validator or not self._css_validated:
             if abort:
                 self._default_checks.append(ChecklistItem("The CSS is valid.", self.validate_css().or_abort()))
             else:

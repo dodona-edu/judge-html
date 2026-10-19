@@ -1,7 +1,6 @@
 from functools import lru_cache
 from html.parser import HTMLParser
 from pathlib import Path, PureWindowsPath
-from typing import cast
 
 from dodona.translator import Translator
 from exceptions.html_exceptions import (
@@ -112,6 +111,7 @@ class HtmlValidator(HTMLParser):
         """here the actual validation occurs"""
         self.tag_stack.clear()
         self.warnings.clear()
+        self._id_set.clear()
         self.reset()
         # check brackets and stuff ( '(', '"', '{', '[', '<')
         self._valid_double_chars(text)
@@ -140,10 +140,8 @@ class HtmlValidator(HTMLParser):
         if not self._is_void_tag(tag):
             self.tag_stack.append(tag)
 
-        # An attribute written without a value, like <input disabled>, comes through as
-        # None. _valid_attributes has never handled that, and teaching it to means
-        # changing what the validator reports, so the cast keeps today's behaviour
-        self._valid_attributes(tag, cast("dict[str, str]", {a[0].lower(): a[1] for a in attrs}))
+        # An attribute without a value, like <input disabled>, comes through as None
+        self._valid_attributes(tag, {a[0].lower(): a[1] or "" for a in attrs})
 
     def handle_endtag(self, tag: str):
         """handles a html tag that closes, like <body/>"""
@@ -159,6 +157,7 @@ class HtmlValidator(HTMLParser):
     def handle_startendtag(self, tag, attrs):
         """handles a html tag that opens and instantly closes, like <meta/>"""
         tag = tag.lower()
+        self._valid_tag(tag)
         if not self._is_void_tag(tag):
             self.error(
                 NoSelfClosingTagError(trans=self.translator, tag=tag, line=self.getpos()[0], pos=self.getpos()[1])

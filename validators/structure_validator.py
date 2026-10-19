@@ -127,6 +127,13 @@ def compare(solution_str: str, submission_str: str, trans: Translator, **kwargs)
             raise NotTheSame(
                 trans=trans, msg=trans.translate(Translator.Text.CONTENTS_DIFFER), line=node_sub.sourceline, pos=-1
             )
+        if check_contents:
+            sol_tail = (node_sol.tail or "").strip()
+            sub_tail = (node_sub.tail or "").strip()
+            if sol_tail != "DUMMY" and not compare_content(sol_tail, sub_tail):
+                raise NotTheSame(
+                    trans=trans, msg=trans.translate(Translator.Text.CONTENTS_DIFFER), line=node_sub.sourceline, pos=-1
+                )
         # check css
         # Both validators are set together, and check_css only stays True when both made
         # it through the block above, but that is a chain of assignments away from here
