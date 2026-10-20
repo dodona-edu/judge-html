@@ -15,6 +15,11 @@ TWO_STYLES = (
 )
 
 
+def scoped(selectors: str, body_attrs: str = "") -> str:
+    html = f"<html><head><style>{selectors}{{color:red;}}</style></head><body{body_attrs}><p>x</p></body></html>"
+    return prep_render(html, True)[1]
+
+
 class TestPrepRender(unittest.TestCase):
     def test_style_rules_are_scoped_to_preview_container(self):
         title, html = prep_render(ONE_STYLE, True)
@@ -26,7 +31,7 @@ class TestPrepRender(unittest.TestCase):
     def test_body_contents_are_wrapped_and_body_attributes_kept(self):
         _, html = prep_render(ONE_STYLE, True)
         self.assertIn('<body class="a b">', html)
-        self.assertIn('<div id="solution_rendering">', html)
+        self.assertIn('<div class="a b" id="solution_rendering">', html)
         self.assertNotIn("<title>", html)
 
     def test_style_removed_without_render_css(self):
@@ -88,3 +93,61 @@ class TestPrepRender(unittest.TestCase):
             title, html = prep_render(ONE_STYLE, True)
         self.assertEqual("", title)
         self.assertEqual("", html)
+
+
+class TestPageSelectors(unittest.TestCase):
+    def assert_scoped(self, selector: str, expected: str):
+        self.assertIn(f"{expected}{{color:red;}}", scoped(selector))
+
+    def test_body_selects_the_preview_itself(self):
+        self.assert_scoped("body", "#solution_rendering")
+
+    def test_body_descendant_and_child(self):
+        self.assert_scoped("body p", "#solution_rendering p")
+        self.assert_scoped("body > p", "#solution_rendering > p")
+
+    def test_html_and_root_select_the_preview_itself(self):
+        self.assert_scoped("html", "#solution_rendering")
+        self.assert_scoped(":root", "#solution_rendering")
+        self.assert_scoped("html body", "#solution_rendering")
+        self.assert_scoped("html > body", "#solution_rendering")
+        self.assert_scoped(":root body", "#solution_rendering")
+
+    def test_html_body_descendant(self):
+        self.assert_scoped("html body p", "#solution_rendering p")
+
+    def test_compound_on_body_keeps_its_parts(self):
+        self.assert_scoped("body.dark", "#solution_rendering.dark")
+        self.assert_scoped("body:hover", "#solution_rendering:hover")
+
+    def test_body_class_is_also_on_the_preview_container(self):
+        out = scoped("body.dark", " class='dark wide'")
+        self.assertIn('<div class="dark wide" id="solution_rendering">', out)
+        self.assertIn('<body class="dark wide">', out)
+
+    def test_selector_list_with_body(self):
+        out = scoped("h1, body")
+        self.assertIn("#solution_rendering h1{color:red;}", out)
+        self.assertIn("#solution_rendering{color:red;}", out)
+
+    def test_body_selector_is_case_insensitive(self):
+        self.assert_scoped("BODY", "#solution_rendering")
+        self.assert_scoped("HTML P", "#solution_rendering P")
+
+    def test_non_leading_body_keeps_the_prefix(self):
+        self.assert_scoped(".x body", "#solution_rendering .x body")
+
+    def test_other_selectors_are_prefixed(self):
+        self.assert_scoped("*", "#solution_rendering *")
+        self.assert_scoped("p.x", "#solution_rendering p.x")
+        self.assert_scoped("bodyguard", "#solution_rendering bodyguard")
+
+    def test_issue_309_page_gets_a_selector_that_matches(self):
+        html = (
+            '<!DOCTYPE html><html lang="en"><head><title>x</title><meta charset="UTF-8">'
+            "<style>p { color: red }</style></head><body><p>hello</p></body>"
+            "<head><style>body { background: yellow }</style></head></html>"
+        )
+        _, out = prep_render(html, True)
+        self.assertIn("#solution_rendering{background:yellow;}", out)
+        self.assertIn("#solution_rendering p{color:red;}", out)
