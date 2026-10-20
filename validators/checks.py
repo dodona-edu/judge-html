@@ -1,7 +1,6 @@
 """Basic checking library to create evaluation tests for exercises"""
 
 import re
-from collections import deque
 from collections.abc import Callable, Iterable, Iterator
 from copy import copy
 from dataclasses import dataclass, field
@@ -1418,6 +1417,14 @@ UTILITY FUNCTIONS
 """
 
 
+def _passes_with_follow_ups(check: Check, bs: BeautifulSoup) -> bool:
+    """A check together with its on_success follow-ups (recursively) counts as one unit"""
+    if not check.callback(bs):
+        return False
+
+    return all(_passes_with_follow_ups(sub, bs) for sub in check.on_success)
+
+
 @flatten_varargs
 def all_of(*args: Checks) -> Check:
     """Perform an AND-statement on a series of Checks
@@ -1426,21 +1433,9 @@ def all_of(*args: Checks) -> Check:
     """
     # Flatten list of checks
     flattened = flatten_queue(*args)
-    queue: deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:
-        while queue:
-            check = queue.popleft()
-
-            # One check failed, return False
-            if not check.callback(bs):
-                return False
-
-            # Try the other checks
-            for sub in reversed(check.on_success):
-                queue.appendleft(sub)
-
-        return True
+        return all(_passes_with_follow_ups(check, bs) for check in flattened)
 
     return Check(_inner)
 
@@ -1453,21 +1448,9 @@ def any_of(*args: Checks) -> Check:
     """
     # Flatten list of checks
     flattened = flatten_queue(*args)
-    queue: deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:
-        while queue:
-            check = queue.popleft()
-
-            # One check passed, return True
-            if check.callback(bs):
-                return True
-
-            # Try the other checks
-            for sub in reversed(check.on_success):
-                queue.appendleft(sub)
-
-        return False
+        return any(_passes_with_follow_ups(check, bs) for check in flattened)
 
     return Check(_inner)
 
@@ -1477,15 +1460,12 @@ def at_least(amount: int, *args: Checks) -> Check:
     """Check that at least [amount] checks passed"""
     # Flatten list of checks
     flattened = flatten_queue(*args)
-    queue: deque[Check] = deque(flattened)
 
     def _inner(bs: BeautifulSoup) -> bool:
         passed = 0
 
-        while queue:
-            check = queue.popleft()
-
-            if check.callback(bs):
+        for check in flattened:
+            if _passes_with_follow_ups(check, bs):
                 passed += 1
 
             if passed >= amount:
