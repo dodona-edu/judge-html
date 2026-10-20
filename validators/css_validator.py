@@ -3,7 +3,7 @@ from typing import Any, cast
 import tinycss2
 import tinycss2.nth
 from bs4.element import Tag
-from cssselect import GenericTranslator, SelectorError
+from cssselect import GenericTranslator, SelectorError, parse
 from lxml.etree import _Element
 from lxml.html import fromstring
 from tinycss2.ast import (
@@ -141,26 +141,9 @@ class Rule:
         return self.value_str == value
 
 
-def calc_specificity(selector_str: str) -> tuple[int, int, int]:  # see https://specificity.keegan.st/
-    """calculates how specific a css-selector is"""
-    # count selectors: ID
-    a = selector_str.count("#")
-    # count selectors: CLASSES & PSEUDO-CLASSES & ATTRIBUTES
-    b = 0
-    prev = ""
-    for x in selector_str:
-        if x in {".", "["} or (x == ":" and prev != ":"):
-            b += 1
-        prev = x
-    # count selectors: ELEMENTS PSEUDO-ELEMENTS
-    c = 0
-    prev = ""
-    for x in selector_str:
-        if (x.isalpha() and prev not in ".[:=\"'") or (x == ":" and prev == ":"):
-            c += 1
-        prev = x
-    # ignore pseudo-elements
-    return a, b, c
+def calc_specificity(selector_str: str) -> tuple[int, int, int]:
+    """calculates how specific a single css-selector is, as (ids, classes/attributes/pseudo-classes, elements)"""
+    return parse(selector_str)[0].specificity()
 
 
 class Rules:
