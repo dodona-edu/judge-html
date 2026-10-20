@@ -3,7 +3,7 @@ from typing import Any, cast
 import tinycss2
 import tinycss2.nth
 from bs4.element import Tag
-from cssselect import GenericTranslator, SelectorError
+from cssselect import GenericTranslator, SelectorError, parse
 from lxml.etree import _Element
 from lxml.html import fromstring
 from tinycss2.ast import (
@@ -61,6 +61,15 @@ def strip(ls: list) -> list:
     while ls and ls[-1].type == WhitespaceToken.type:
         ls.pop()
     return ls
+
+
+def normalize_selector(selector: str) -> str | None:
+    """canonical lower-case form of a single selector, None if it isn't one"""
+    try:
+        selectors = parse(selector)
+    except SelectorError:
+        return None
+    return selectors[0].canonical().lower() if len(selectors) == 1 else None
 
 
 class CssParsingError(Exception):
@@ -274,13 +283,17 @@ class Rules:
         return dom_css
 
     def find_by_css_selector(self, css_selector: str, key: str) -> Rule | None:
+        query = normalize_selector(css_selector)
+        if query is None:
+            return None
+        key = key.strip().lower()
         dom_rule: Rule | None = None
         rule: Rule
         for rule in self.rules:
             if (
-                rule.selector_str == css_selector
-                and rule.name == key
-                and (dom_rule is None or rule.specificity > dom_rule.specificity)
+                normalize_selector(rule.selector_str) == query
+                and rule.name.lower() == key
+                and (dom_rule is None or rule.specificity >= dom_rule.specificity)
             ):
                 dom_rule = rule
         return dom_rule
@@ -382,6 +395,4 @@ class CssValidator:
     def find_by_css_selector(self, css_selector: str, key: str) -> Rule | None:
         if self.root is None:
             return None
-        return self.rules.find_by_css_selector(
-            css_selector.replace("\n", "").replace(" ", "").lower(), key.replace(" ", "").lower()
-        )
+        return self.rules.find_by_css_selector(css_selector, key)

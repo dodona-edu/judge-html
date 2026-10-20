@@ -141,6 +141,70 @@ class TestTestSuite(unittest.TestCase):
         self.assertIsNone(invalid_suite._css_validator)
         self.assertFalse(invalid_suite.contains_css("a", "color").callback(invalid_suite._bs))
 
+    @staticmethod
+    def _css_suite(css: str) -> TestSuite:
+        return TestSuite("", f"<html><head><style>{css}</style></head><body><nav><a>x</a></nav></body></html>")
+
+    def test_contains_css_descendant_selector(self):
+        suite = self._css_suite("nav a { color: red }")
+        self.assertTrue(suite.contains_css("nav a", "color", "red").callback(suite._bs))
+        self.assertTrue(suite.contains_css("nav   a", "color").callback(suite._bs))
+        self.assertFalse(suite.contains_css("nava", "color").callback(suite._bs))
+        self.assertFalse(suite.contains_css("nav", "color").callback(suite._bs))
+
+    def test_contains_css_combinator_spacing(self):
+        for css_selector in ("ul > li", "ul>li", " ul >li "):
+            for stylesheet_selector in ("ul > li", "ul>li"):
+                suite = self._css_suite(f"{stylesheet_selector} {{ color: red }}")
+                self.assertTrue(suite.contains_css(css_selector, "color").callback(suite._bs))
+
+        suite = self._css_suite("h1 + p, h1 ~ ul { color: red }")
+        self.assertTrue(suite.contains_css("h1+p", "color").callback(suite._bs))
+        self.assertTrue(suite.contains_css("h1 ~ ul", "color").callback(suite._bs))
+
+    def test_contains_css_multiline_selector(self):
+        suite = self._css_suite("nav\n  a { color: red }")
+        self.assertTrue(suite.contains_css("nav a", "color").callback(suite._bs))
+        self.assertTrue(suite.contains_css("nav\na", "color").callback(suite._bs))
+
+    def test_contains_css_selector_case(self):
+        suite = self._css_suite("#Main { color: red }")
+        self.assertTrue(suite.contains_css("#Main", "color").callback(suite._bs))
+        self.assertTrue(suite.contains_css("#main", "color").callback(suite._bs))
+
+    def test_contains_css_property_case(self):
+        suite = self._css_suite("p { Color: red }")
+        self.assertTrue(suite.contains_css("p", "color", "red").callback(suite._bs))
+        self.assertTrue(suite.contains_css("p", "COLOR", "red").callback(suite._bs))
+
+    def test_contains_css_duplicate_declaration_later_wins(self):
+        suite = self._css_suite("p { color: red; color: blue } p { color: green }")
+        self.assertTrue(suite.contains_css("p", "color", "green").callback(suite._bs))
+        self.assertFalse(suite.contains_css("p", "color", "red").callback(suite._bs))
+
+        suite = self._css_suite("p { color: red; color: blue }")
+        self.assertTrue(suite.contains_css("p", "color", "blue").callback(suite._bs))
+        self.assertFalse(suite.contains_css("p", "color", "red").callback(suite._bs))
+
+    def test_contains_css_attribute_string_whitespace_is_kept(self):
+        for quote in ('"', "'"):
+            suite = self._css_suite(f"[title={quote}a  b{quote}] {{ color: red }}")
+            self.assertTrue(suite.contains_css('[title="a  b"]', "color").callback(suite._bs))
+            self.assertTrue(suite.contains_css("[title='a  b']", "color").callback(suite._bs))
+            self.assertFalse(suite.contains_css('[title="a b"]', "color").callback(suite._bs))
+
+    def test_contains_css_invalid_or_grouped_query_fails(self):
+        suite = self._css_suite("p, a { color: red } p { color: red }")
+        self.assertFalse(suite.contains_css("p >", "color").callback(suite._bs))
+        self.assertFalse(suite.contains_css("p, a", "color").callback(suite._bs))
+
+    def test_contains_css_simple_selectors(self):
+        suite = self._css_suite("p { color: red } .box { margin: 0 } #yellow:hover { color: yellow }")
+        self.assertTrue(suite.contains_css("p", "color", "red").callback(suite._bs))
+        self.assertTrue(suite.contains_css(".box", "margin", "0").callback(suite._bs))
+        self.assertTrue(suite.contains_css("#yellow:hover", "color", "yellow").callback(suite._bs))
+        self.assertFalse(suite.contains_css(".box", "color").callback(suite._bs))
+
     def test_check_minimal_on_bare_boilerplate_suite(self):
         # BoilerplateTestSuite and its check_minimal argument are both part of checks.pyi, so
         # a bare one has to work too, without an HtmlSuite/CssSuite subclass filling in the
