@@ -2,6 +2,8 @@ from ntpath import basename
 from typing import TYPE_CHECKING, cast
 
 import bs4
+import tinycss2
+from tinycss2.ast import IdentToken, LiteralToken, Node, WhitespaceToken
 
 from validators.css_validator import Rule, Rules
 
@@ -9,11 +11,48 @@ if TYPE_CHECKING:
     from bs4.element import Tag
 
 
+PREVIEW_ROOT = "#solution_rendering"
+
+
+def _root_length(tokens: list[Node]) -> int:
+    """number of leading tokens that select the page itself: html, body or :root"""
+    if tokens and isinstance(tokens[0], IdentToken) and tokens[0].lower_value in ("html", "body"):
+        return 1
+    if (
+        len(tokens) > 1
+        and isinstance(tokens[0], LiteralToken)
+        and tokens[0].value == ":"
+        and isinstance(tokens[1], IdentToken)
+        and tokens[1].lower_value == "root"
+    ):
+        return 2
+    return 0
+
+
+def scope_selector(selector: list[Node]) -> str:
+    """scopes a selector to the preview: a leading html, body or :root selects the preview container itself,
+    anything else selects its descendants"""
+    rest = selector
+    separator = " "
+    while length := _root_length(rest):
+        rest = rest[length:]
+        separator = ""
+        if rest and isinstance(rest[0], WhitespaceToken):
+            rest = rest[1:]
+            separator = " "
+        if rest and isinstance(rest[0], LiteralToken) and rest[0].value == ">":
+            after = rest[2:] if len(rest) > 1 and isinstance(rest[1], WhitespaceToken) else rest[1:]
+            if _root_length(after):
+                rest = after
+                separator = ""
+    return PREVIEW_ROOT + (separator if rest else "") + tinycss2.serialize(rest)
+
+
 def prep_render(html_content: str, render_css: bool) -> tuple[str, str]:
     """prepares the html for rendering, returns the title and the preview html:
     if preparing fails, the preview is empty rather than the unprepared input
     * wraps the contents of body in a div with id='solution_rendering'
-    * prepends '#solution_rendering ' to every css rule, so that every rule applies to descendants of the div"""
+    * scopes every css rule to the div: a leading html, body or :root selects the div, anything else its descendants"""
     title_str = ""
     try:
         soup = bs4.BeautifulSoup(html_content, "html.parser")
@@ -35,6 +74,9 @@ def prep_render(html_content: str, render_css: bool) -> tuple[str, str]:
             body.wrap(div)
             attrs = body.attrs
             body.unwrap()
+            # body.dark has to match the div, which stands in for the body
+            if "class" in attrs:
+                div["class"] = attrs["class"]
             # bs4 types new_tag's attrs as Mapping[str, str], but Tag.attrs holds the
             # multi-valued ones (class, rel, ...) as lists, and new_tag takes those fine
             div.wrap(soup.new_tag("body", attrs=cast("dict[str, str]", attrs)))
@@ -71,7 +113,7 @@ def prep_render(html_content: str, render_css: bool) -> tuple[str, str]:
                     rs = Rules(cast("str", style.string))
                     x: Rule
                     for x in rs.rules:
-                        x.selector_str = f"#solution_rendering {x.selector_str}"
+                        x.selector_str = scope_selector(x.selector)
 
                     new_style = ""
                     for r in rs.rules:
