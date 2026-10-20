@@ -15,7 +15,7 @@ from tinycss2.ast import (
     WhitespaceToken,
 )
 
-from utils.color_converter import Color
+from utils.color_converter import Color, UnresolvedColor
 
 """
 tinycss2 docs
@@ -72,6 +72,22 @@ def normalize_selector(selector: str) -> str | None:
     return selectors[0].canonical().lower() if len(selectors) == 1 else None
 
 
+# Properties with "color" in their name that don't take a colour
+NON_COLOR_PROPERTIES = {
+    "color-scheme",
+    "print-color-adjust",
+    "-webkit-print-color-adjust",
+    "forced-color-adjust",
+    "color-adjust",
+    "color-interpolation",
+    "color-interpolation-filters",
+    "color-rendering",
+}
+
+# Properties that take several colours at once
+MULTI_COLOR_PROPERTIES = {"border-color", "border-block-color", "border-inline-color", "scrollbar-color"}
+
+
 class CssParsingError(Exception):
     """Thrown when the css is not in a correct format"""
 
@@ -104,17 +120,26 @@ class Rule:
         self.specificity = calc_specificity(self.selector_str)
         self.value_str = tinycss2.serialize(self.value)
         self.color = None
-        if self.is_color():
+        if self.is_color() and not self._has_multiple_colors():
             try:
                 self.color = Color(self.value_str)
-            except (IndexError, ValueError) as err:
-                raise CssParsingError from err
+            except ValueError as err:
+                # a custom property can hold anything
+                if not isinstance(err, UnresolvedColor) and not self.name.startswith("--"):
+                    raise CssParsingError from err
 
     def __repr__(self):
         return f"(Rule: {self.selector_str} | {self.name} {self.value} {'important' if self.important else ''})"
 
     def is_color(self) -> bool:
-        return "color" in self.name.lower()
+        name = self.name.lower()
+        return "color" in name and name not in NON_COLOR_PROPERTIES
+
+    def _has_multiple_colors(self) -> bool:
+        return (
+            self.name.lower() in MULTI_COLOR_PROPERTIES
+            and len([n for n in self.value if not isinstance(n, WhitespaceToken)]) > 1
+        )
 
     def has_color(self, color: str) -> bool:
         """Check that this element has a given color
