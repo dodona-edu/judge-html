@@ -461,6 +461,87 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(at_least(2, (p_element.has_content() for p_element in p_elements))))
         self.assertFalse(suite.check(at_least(3, (p_element.has_content() for p_element in p_elements))))
 
+    def test_combinators_reevaluate(self):
+        suite = UnitTestSuite("test_1")
+        body = suite.element("body")
+        phantom = suite.element("video")  # does not exist
+
+        passing = all_of(body.exists(), body.has_child("div"))
+        failing = all_of(body.exists(), phantom.exists())
+        any_passing = any_of(phantom.exists(), body.exists())
+        any_failing = any_of(phantom.exists(), phantom.has_content())
+        enough = at_least(2, body.exists(), body.has_child("div"), phantom.exists())
+        too_few = at_least(3, body.exists(), body.has_child("div"), phantom.exists())
+
+        for _ in range(2):
+            self.assertTrue(suite.check(passing))
+            self.assertFalse(suite.check(failing))
+            self.assertTrue(suite.check(any_passing))
+            self.assertFalse(suite.check(any_failing))
+            self.assertTrue(suite.check(enough))
+            self.assertFalse(suite.check(too_few))
+
+    def test_combinators_reused_in_checklist_items(self):
+        suite = UnitTestSuite("test_1")
+        body = suite.element("body")
+        phantom = suite.element("video")  # does not exist
+
+        failing = all_of(body.exists(), phantom.exists())
+        passing_any = any_of(phantom.exists(), body.exists())
+
+        self.assertFalse(suite.checklist_item(suite.item(failing)))
+        self.assertFalse(suite.checklist_item(suite.item(failing)))
+        self.assertTrue(suite.checklist_item(suite.item(passing_any)))
+        self.assertTrue(suite.checklist_item(suite.item(passing_any)))
+
+    def test_any_of_follow_ups(self):
+        suite = UnitTestSuite("test_1")
+        body = suite.element("body")
+        phantom = suite.element("video")  # does not exist
+
+        # A passes but its follow-up fails: the unit fails
+        self.assertFalse(suite.check(any_of(body.exists().then(phantom.exists()), phantom.exists())))
+        # A passes with a passing follow-up
+        self.assertTrue(suite.check(any_of(body.exists().then(body.has_child("div")), phantom.exists())))
+        # A fails: its follow-up never counts as an alternative
+        self.assertFalse(suite.check(any_of(phantom.exists().then(body.exists()))))
+        # The second unit may pass instead
+        self.assertTrue(suite.check(any_of(body.exists().then(phantom.exists()), body.has_child("div"))))
+
+    def test_all_of_follow_ups(self):
+        suite = UnitTestSuite("test_1")
+        body = suite.element("body")
+        phantom = suite.element("video")  # does not exist
+
+        self.assertTrue(suite.check(all_of(body.exists().then(body.has_child("div")))))
+        self.assertFalse(suite.check(all_of(body.exists().then(phantom.exists()))))
+        self.assertFalse(suite.check(all_of(phantom.exists().then(body.exists()))))
+
+    def test_at_least_follow_ups(self):
+        suite = UnitTestSuite("test_1")
+        body = suite.element("body")
+        phantom = suite.element("video")  # does not exist
+
+        units = [
+            body.exists().then(body.has_child("div")),  # passes
+            body.exists().then(phantom.exists()),  # fails through its follow-up
+            phantom.exists().then(body.exists()),  # fails
+            body.has_child("div"),  # passes
+        ]
+
+        self.assertTrue(suite.check(at_least(2, *units)))
+        self.assertFalse(suite.check(at_least(3, *units)))
+
+    def test_container_all_any_reevaluate(self):
+        suite = UnitTestSuite("test_1")
+        divs = suite.all_elements("div")
+
+        all_check = divs.all(lambda d: d.exists())
+        any_check = divs.any(lambda d: d.exists())
+        for _ in range(2):
+            self.assertTrue(suite.check(all_check))
+            self.assertTrue(suite.check(any_check))
+
     def test_fail_if(self):
         suite = UnitTestSuite("test_1")
         body_element = suite.element("body")
