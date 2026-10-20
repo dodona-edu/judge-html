@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, cast
 from bs4 import BeautifulSoup
 
 from utils.color_converter import Color
-from validators.css_validator import CssValidator
+from validators.css_validator import CssValidator, calc_specificity
 
 if TYPE_CHECKING:
     from bs4.element import Tag
@@ -174,6 +174,50 @@ class TestCssValidator(unittest.TestCase):
 
         self.assertEqual(str(plain.color), "red")
         self.assertEqual(str(hover.color), "green")
+
+    def test_calc_specificity(self):
+        cases = {
+            "p": (0, 0, 1),
+            "section": (0, 0, 1),
+            "section p": (0, 0, 2),
+            "div div p": (0, 0, 3),
+            ".navigation": (0, 1, 0),
+            "p.navigation": (0, 1, 1),
+            "a[href='https://example.com']": (0, 1, 1),
+            "#main": (1, 0, 0),
+            "#nav ul li a:hover": (1, 1, 3),
+            "#nav ul li.active a::after": (1, 1, 4),
+            "a:hover": (0, 1, 1),
+            "p::first-line": (0, 0, 2),
+            "*": (0, 0, 0),
+            "div > *": (0, 0, 1),
+            "div > p + a ~ b": (0, 0, 4),
+            ":not(.a)": (0, 1, 0),
+            "p:not(#a)": (1, 0, 1),
+            ":is(#a)": (1, 0, 0),
+            ":where(#a)": (0, 0, 0),
+            "p:where(.a)": (0, 0, 1),
+        }
+        for selector, expected in cases.items():
+            with self.subTest(selector=selector):
+                self.assertEqual(calc_specificity(selector), expected)
+
+    def test_specificity_cascade(self):
+        """More type selectors beat fewer, regardless of the length of their names"""
+        x = """
+        <html><head><style>
+        div div p { color: red; }
+        section p { color: blue; }
+        </style></head>
+        <body><section><div><div><p>text</p></div></div></section></body></html>
+        """
+        cssval = CssValidator(x)
+        tag = cast("Tag", BeautifulSoup(x, "html.parser").find("p"))
+
+        color = cssval.find(tag, "color")
+
+        assert color is not None
+        self.assertEqual(str(color.color), "red")
 
     def test_green_tests(self):
         test_classes = [
