@@ -220,6 +220,28 @@ class TestCssValidator(unittest.TestCase):
         assert color is not None
         self.assertEqual(color.color, Color("red"))
 
+    def _find_all(self, css: str):
+        cssval = CssValidator(
+            f'<html><head><style>{css}</style></head><body><p id="x" class="c">text</p></body></html>'
+        )
+        assert cssval.root is not None
+        element = cssval.root.find(".//p")
+        assert element is not None
+        return cssval.rules.find_all(cssval.root, element)
+
+    def test_find_all_more_specific_rule_wins(self):
+        found = self._find_all("#x { color: red } .c { color: blue } p { color: green; margin: 1px }")
+        self.assertEqual(found["color"].color, Color("red"))
+        self.assertEqual(found["margin"].value_str, "1px")
+
+    def test_find_all_later_rule_wins_at_equal_specificity(self):
+        found = self._find_all(".c { color: red } .c { color: blue }")
+        self.assertEqual(found["color"].color, Color("blue"))
+
+    def test_find_all_important_wins_over_more_specific(self):
+        found = self._find_all("p { color: red !important } #x { color: blue }")
+        self.assertEqual(found["color"].color, Color("red"))
+
     def test_green_tests(self):
         test_classes = [
             "test_classname",
