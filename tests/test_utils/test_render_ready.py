@@ -1,6 +1,8 @@
 import unittest
 from unittest import mock
 
+from bs4 import BeautifulSoup, Tag
+
 from utils.render_ready import prep_render
 
 ONE_STYLE = (
@@ -33,6 +35,20 @@ class TestPrepRender(unittest.TestCase):
         self.assertIn('<body class="a b">', html)
         self.assertIn('<div class="a b" id="solution_rendering">', html)
         self.assertNotIn("<title>", html)
+
+    def test_body_with_many_children_is_wrapped_in_order(self):
+        count = 2000
+        html = "<html><body class='a'>" + "".join(f"<p>{i}</p>" for i in range(count)) + "</body></html>"
+        _, out = prep_render(html, True)
+        soup = BeautifulSoup(out, "html.parser")
+        body = soup.find("body")
+        assert isinstance(body, Tag)
+        wrapper = body.find("div", id="solution_rendering")
+        self.assertEqual([wrapper], body.find_all(True, recursive=False))
+        assert isinstance(wrapper, Tag)
+        self.assertEqual(
+            [str(i) for i in range(count)], [p.get_text(strip=True) for p in wrapper.find_all("p", recursive=False)]
+        )
 
     def test_style_removed_without_render_css(self):
         title, html = prep_render(ONE_STYLE, False)
