@@ -1,4 +1,4 @@
-from typing import Any, cast
+from typing import cast
 
 import tinycss2
 import tinycss2.nth
@@ -110,8 +110,7 @@ class Rule:
         self.xpath = _get_xpath(self.selector_str)
         if ":" in self.selector_str:
             self.pseudo = self.selector_str.split(":")[1]
-            if self.xpath.endswith("[0]"):
-                self.xpath = self.xpath[: len(self.xpath) - 3]
+            self.xpath = self.xpath.removesuffix("[0]")
         else:
             self.pseudo = None
         self.name = content.name
@@ -183,17 +182,15 @@ def calc_specificity(selector_str: str) -> tuple[int, int, int]:
 class Rules:
     """represents a set of css rules"""
 
-    root: _Element
-
     def __init__(self, css_content: str):
         """parses css to individual Rules"""
         self.rules: list[Rule] = []
-        self.map: dict[str, Any] = {}
 
-        def split_on_comma(prelude: list[Node], start: int = 0) -> list[list[Node]]:
+        def split_on_comma(prelude: list[Node]) -> list[list[Node]]:
             """splits a list on LiteralToken with a value of a comma"""
             ps = []
-            index = start
+            start = 0
+            index = 0
             while index < len(prelude):
                 # tinycss2's Node base class declares neither type nor value, but it is
                 # never instantiated: every node in a prelude is a subclass that has both
@@ -241,23 +238,14 @@ class Rules:
                         else:
                             rs.append(r)
 
-        # check if there are rules containing !important
-        if imp:
-            rs = imp
+        # rules containing !important win from the ones that don't
+        rules = imp or rs
+        return self._dominant(rules) if rules else None
 
-        # no rules found
-        if not rs:
-            return None
-        # get the most specific rule or the one that was defined the latest if multiple with the same specificity
-        dom_rule = rs[0]  # the dominating rule
-        for r in rs:
-            # if   less  than: r is overruled by dom_rule because dom_rule has a higher specificity
-            # if  equal  than: r is overruled by dom_rule because dom_rule was defined after r
-            # if greater than: r overrules dom_rules because of higher specificity
-            if r.specificity > dom_rule.specificity:
-                dom_rule = r
-
-        return dom_rule
+    @staticmethod
+    def _dominant(rules: list[Rule]) -> Rule:
+        """the most specific rule; max() keeps the first of equals, which is the latest defined (rules are reversed)"""
+        return max(rules, key=lambda r: r.specificity)
 
     def find_all(self, root: _Element, solution_element: _Element) -> dict[str, Rule]:
         """find all the css rule for the solution_element,
@@ -278,15 +266,7 @@ class Rules:
 
         for imp, non_imp in by_keyword.values():
             # rules containing !important win from the ones that don't
-            rs = imp or non_imp
-            # get the most specific rule or the one that was defined the latest if multiple with the same specificity
-            dom_rule = rs[0]  # the dominating rule
-            for r in rs:
-                # if   less  than: r is overruled by dom_rule because dom_rule has a higher specificity
-                # if  equal  than: r is overruled by dom_rule because dom_rule was defined after r
-                # if greater than: r overrules dom_rules because of higher specificity
-                if r.specificity > dom_rule.specificity:
-                    dom_rule = r
+            dom_rule = self._dominant(imp or non_imp)
             dom_css[dom_rule.name] = dom_rule
         return dom_css
 
@@ -342,9 +322,6 @@ class CssValidator:
 
         self.rules = Rules(css)
 
-        if self.root is not None:
-            self.rules.root = self.root
-
         self.xpaths = {}
 
     def __bool__(self):
@@ -355,7 +332,7 @@ class CssValidator:
         this is the memorization of the private function (makes it a lot faster)"""
         # memorization of the xpath_soup method
         if id(element) not in self.xpaths:
-            self.xpaths.update({id(element): self._get_xpath_soup(element)})
+            self.xpaths[id(element)] = self._get_xpath_soup(element)
         return self.xpaths[id(element)]
 
     @staticmethod
@@ -395,7 +372,7 @@ class CssValidator:
             raise ElementNotFound
 
         # Found more than one match
-        if not len(sols) == 1:
+        if len(sols) != 1:
             raise AmbiguousXpath
 
         return self.rules.find(self.root, sols[0], key, pseudo)
