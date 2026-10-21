@@ -71,15 +71,12 @@ def prep_render(html_content: str, render_css: bool) -> tuple[str, str]:
         body = soup.find("body")
 
         if body is not None:
-            body.wrap(div)
             attrs = body.attrs
-            body.unwrap()
+            div.extend(list(body.contents))
+            body.append(div)
             # body.dark has to match the div, which stands in for the body
             if "class" in attrs:
                 div["class"] = attrs["class"]
-            # bs4 types new_tag's attrs as Mapping[str, str], but Tag.attrs holds the
-            # multi-valued ones (class, rel, ...) as lists, and new_tag takes those fine
-            div.wrap(soup.new_tag("body", attrs=cast("dict[str, str]", attrs)))
 
         # Change all img src's to refer to the /media directory
         # find_all() is typed as yielding PageElement, which covers NavigableString
