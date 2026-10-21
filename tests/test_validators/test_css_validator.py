@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, cast
 from bs4 import BeautifulSoup
 
 from utils.color_converter import Color
+from validators.checks import Check, TestSuite
 from validators.css_validator import CssValidator, calc_specificity
 
 if TYPE_CHECKING:
@@ -172,8 +173,8 @@ class TestCssValidator(unittest.TestCase):
         assert plain is not None
         assert hover is not None
 
-        self.assertEqual(str(plain.color), "red")
-        self.assertEqual(str(hover.color), "green")
+        self.assertEqual(plain.color, Color("red"))
+        self.assertEqual(hover.color, Color("green"))
 
     def test_calc_specificity(self):
         cases = {
@@ -217,7 +218,7 @@ class TestCssValidator(unittest.TestCase):
         color = cssval.find(tag, "color")
 
         assert color is not None
-        self.assertEqual(str(color.color), "red")
+        self.assertEqual(color.color, Color("red"))
 
     def test_green_tests(self):
         test_classes = [
@@ -267,3 +268,81 @@ class TestCssValidator(unittest.TestCase):
 
                 assert margin is not None
                 self.assertEqual("2px", margin.value_str, green_class)
+
+
+def _suite(css: str) -> TestSuite:
+    return TestSuite("", f"<html><head><style>{css}</style></head><body><p>x</p></body></html>")
+
+
+def _check(suite: TestSuite, check: Check) -> bool:
+    return check.callback(suite._bs)
+
+
+class TestColorProperties(unittest.TestCase):
+    def test_valid_css_that_is_not_a_concrete_colour(self):
+        suite = _suite(
+            "p { background-color: transparent; color: inherit; border-color: red blue; color-scheme: light dark }"
+        )
+        self.assertTrue(suite.css_is_valid())
+        self.assertTrue(_check(suite, suite.validate_css()))
+
+    def test_other_unresolved_values_keep_the_css_valid(self):
+        for declaration in (
+            "color: initial",
+            "color: UNSET",
+            "color: revert-layer",
+            "color: currentColor",
+            "color: var(--main, red)",
+            "color: oklch(60% 0.15 50)",
+            "color: color-mix(in srgb, red, blue)",
+            "color: light-dark(red, blue)",
+            "border-color: var(--a) var(--b) var(--c)",
+            "border-block-color: red blue",
+            "print-color-adjust: exact",
+            "forced-color-adjust: none",
+            "color-interpolation: sRGB",
+            "--x-color: 10px",
+            "--x-color: light dark",
+            "--x-color: banana",
+        ):
+            with self.subTest(declaration=declaration):
+                self.assertTrue(_suite(f"p {{ {declaration} }}").css_is_valid())
+
+    def test_lab_and_oklch_are_unresolved(self):
+        suite = _suite("p { color: lab(50% 40 59); background-color: oklch(60% 0.15 50) }")
+        self.assertTrue(suite.css_is_valid())
+        self.assertTrue(_check(suite, suite.validate_css()))
+        p = suite.element("p")
+        self.assertFalse(_check(suite, p.has_color("color", "red")))
+        self.assertFalse(_check(suite, p.has_color("background-color", "red")))
+
+    def test_invalid_colour_invalidates_the_css(self):
+        for declaration in (
+            "color: banana",
+            "background-color: #12345",
+            "background-color: #1234567",
+            "color: rgb(1, 2)",
+            "border-top-color: red blue",
+        ):
+            with self.subTest(declaration=declaration):
+                suite = _suite(f"p {{ {declaration} }}")
+                self.assertFalse(suite.css_is_valid())
+                self.assertFalse(_check(suite, suite.validate_css()))
+
+    def test_has_color_through_the_suite(self):
+        suite = _suite(
+            "p { color: HSL(120deg 100% 50% / 50%); background-color: transparent; border-color: red blue;"
+            " outline-color: inherit; color-scheme: light dark }"
+        )
+        p = suite.element("p")
+        self.assertTrue(_check(suite, p.has_color("color", "rgba(0, 255, 0, 0.5)")))
+        self.assertTrue(_check(suite, p.has_color("color", "hsla(120, 100%, 50%, .5)")))
+        self.assertTrue(_check(suite, p.has_color("color", "rgb(0 255 0 / 50%)")))
+        self.assertFalse(_check(suite, p.has_color("color", "lime")))
+        self.assertTrue(_check(suite, p.has_color("background-color", "transparent")))
+        self.assertTrue(_check(suite, p.has_color("background-color", "RGBA(0,0,0,0)")))
+        self.assertFalse(_check(suite, p.has_color("background-color", "black")))
+        for prop in ("border-color", "outline-color", "color-scheme"):
+            self.assertFalse(_check(suite, p.has_color(prop, "red")), prop)
+            self.assertFalse(_check(suite, p.has_color(prop, "inherit")), prop)
+        self.assertFalse(_check(suite, p.has_color("color", "banana")))
