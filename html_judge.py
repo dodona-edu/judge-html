@@ -76,7 +76,7 @@ def main():
             return
 
         # No suites found, either no return or an empty list
-        if test_suites is None or not test_suites:
+        if not test_suites:
             no_suites_found(config.translator)
             invalid_suites(judge, config)
             return

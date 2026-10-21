@@ -69,6 +69,6 @@ class Color:  # noqa: PLW1641
         return self.rgba[3] / 255
 
     def __eq__(self, other):
-        if other is None or type(other) is not type(self):
+        if type(other) is not type(self):
             return False
         return self.rgba == other.rgba

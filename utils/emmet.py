@@ -24,24 +24,21 @@ def emmet_to_check(emmet_str: str, suite: Any) -> Check:
         if node.attributes:
             a: AbbreviationAttribute
             for a in node.attributes:
-                if a.name.isdigit():
-                    # this is a n-th tag selector, like div[2]
-                    # we will do this in the match_one function
-                    pass
-                else:
+                # a digit name is a n-th tag selector, like div[2], handled in match_one
+                if not a.name.isdigit():
                     val = " ".join(a.value)
                     if val.strip().upper() == "DUMMY":
                         # dummy values
-                        out.update({a.name: True})
+                        out[a.name] = True
                     else:
                         # normal values, this is a list
-                        out.update({a.name: " ".join(a.value)})
+                        out[a.name] = val
         if node.value:
             val = " ".join(node.value)
             if val.strip().upper() == "DUMMY":
-                out.update({"text": True})
+                out["text"] = True
             else:
-                out.update({"text": " ".join(node.value)})
+                out["text"] = val
         return out
 
     def match_one(ls: ElementContainer, node: AbbreviationNode):
