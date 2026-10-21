@@ -132,5 +132,7 @@ fail_if(a_tag.has_url_with_fragment())
 ChecklistItem("The anchor tag does not contain a fragment", a_tag.exists(), fail_if(a_tag.has_url_with_fragment()))
 ```
 
+With `.then()`, `fail_if` negates the whole chain, so `fail_if(a_tag.exists().then(a_tag.has_url_with_fragment()))` also passes when there is no `<a>` at all: keep `exists()` as a separate check, as in the solution above.
+
 
 
