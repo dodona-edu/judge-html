@@ -38,7 +38,7 @@ def find_child(
             return None
 
         # Nothing found
-        if emmet_match is None or not emmet_match:
+        if not emmet_match:
             return None
 
         # Index is already applied in the find_emmet method so safely take the first element
@@ -81,7 +81,7 @@ def find_emmet(
     # Tag must always be in the beginning, otherwise we can't parse it out
     tag_regex = re.compile(r"^[a-zA-Z0-9]+")
     id_regex = re.compile(r"#([a-zA-Z0-9_-]+)")
-    index_regex = re.compile(r"\[(-?)([0-9]+)\]$")
+    index_regex = re.compile(r"\[(-?[0-9]+)\]$")
 
     # Cannot start with a digit, two hyphens or a hyphen followed by a number.
     illegal_class_regex = re.compile(r"\.([0-9]|--|-[0-9])")
@@ -91,13 +91,10 @@ def find_emmet(
 
     # the from_root should only be done once, afterwards it's always True to support this syntax
     moved = False
-    current_element: BeautifulSoup | Tag | None = element
+    current_element: BeautifulSoup | Tag = element
 
     # Keep going until path is empty
     while path_stack:
-        if current_element is None:
-            return None
-
         # Take first entry from stack
         current_entry = path_stack.pop(0)
 
@@ -133,19 +130,10 @@ def find_emmet(
         if class_names:
             filter_kwargs["class"] = " ".join(class_names)
 
-        # Parse index out
-        # First match is an optional -
-        # Second match is the number
-        if index is not None:
-            sign = 1
-            if index.group(1):
-                sign = -1
-
-            index = int(index.group(2)) * sign
-        else:
-            # Take the first arg, but if an index was specified as a parameter
-            # and this is the last part of the path, then use that index
-            index = 0 if path_stack else ind
+        # Parse index out, with an optional leading -
+        # Without one, take the first arg, but if an index was specified as a parameter
+        # and this is the last part of the path, then use that index
+        index = int(index.group(1)) if index is not None else (0 if path_stack else ind)
 
         # Apply kwargs to the end of the path only,
         # and the path takes priority so it overrides the others
@@ -155,9 +143,7 @@ def find_emmet(
         # Apply filters & find a matching element
         # Only use from_root if we haven't moved at least once, otherwise never go recursive
         # find_all() is typed as yielding PageElement, but filtering on a name only matches Tags
-        matches = cast(
-            "list[Tag]", current_element.find_all(recursive=not from_root if not moved else False, **filter_kwargs)
-        )
+        matches = cast("list[Tag]", current_element.find_all(recursive=not from_root and not moved, **filter_kwargs))
 
         # No matches found, or not enough
         if not matches or len(matches) <= index:

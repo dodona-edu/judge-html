@@ -32,7 +32,7 @@ class EvaluationModule(ModuleType):
         # Create filepath
         custom_evaluator_path = Path(config.resources) / "evaluator.py"
 
-        # Evaluator doesn't exist, show an exception
+        # Evaluator doesn't exist, so there is nothing to build
         if not custom_evaluator_path.exists():
             return None
 

@@ -1,12 +1,3 @@
-import re
-from typing import NamedTuple
-
-
-class Regex(NamedTuple):
-    pattern: str
-    flags: re.RegexFlag
-
-
 def _skip_whitespace(line: str, i: int) -> int:
     while i < len(line) and line[i].isspace():
         i += 1

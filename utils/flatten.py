@@ -20,11 +20,7 @@ def flatten_queue[T](*queue: T | Iterable[T]) -> list[T]:
         # pile of nonsense entries, so keep them whole and let them fail as non-Checks
         if isinstance(el, Iterable) and not isinstance(el, (str, bytes)):
             # Cast to a list first (allows map, generators, ...)
-            nested = list(el)
-
-            # Iterate in reverse to keep the order of checks!
-            for nested_el in reversed(nested):
-                remaining.insert(0, nested_el)
+            remaining[:0] = list(el)
         else:
             # T could itself be str, so as far as the annotation goes a str landing here
             # is still an Iterable[T]. It never is one in practice
