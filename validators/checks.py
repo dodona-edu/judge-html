@@ -2,7 +2,6 @@
 
 import re
 from collections.abc import Callable, Iterable, Iterator
-from copy import copy
 from dataclasses import dataclass, field
 from typing import TypeVar, cast, overload
 from urllib.parse import urlsplit
@@ -208,18 +207,10 @@ class Element:
                 # we already have one (found above) so we can return True here
                 return True
 
-            # Get direct parent
-            direct_parent = self._element.find_parent()
-
-            # No parents found
-            # shouldn't happen, but just in case
-            if direct_parent is None:
-                return False
-
             # Check if the direct parent is the same as the first parent that matched
             # Using eq should be safe here because different levels of parents should have
             # different child elements
-            return first_matching_parent == direct_parent
+            return first_matching_parent == self._element.find_parent()
 
         return Check(_inner)
 
@@ -244,7 +235,7 @@ class Element:
 
         def _inner(_: BeautifulSoup) -> bool:
             # No text in this element
-            if element.text is None or len(element.text) == 0:
+            if not element.text:
                 return False
 
             if text is not None:
@@ -326,11 +317,7 @@ class Element:
             return any(value in v for v in attribute)
 
         # Match regex
-        if mode == 2:
-            return any(re.search(value, v, flags) is not None for v in attribute)
-
-        # Possible future modes
-        return False
+        return any(re.search(value, v, flags) is not None for v in attribute)
 
     @html_check
     def attribute_exists(self, attr: str, value: str | None = None, case_insensitive: bool = False) -> Check:
@@ -420,7 +407,7 @@ class Element:
                 return False
 
             # Check if all headers have the same content in the same order
-            return all(compare_content(header[i], ths[i].text) for i in range(len(header)))
+            return all(compare_content(h, th.text) for h, th in zip(header, ths, strict=True))
 
         return Check(_inner)
 
@@ -462,17 +449,17 @@ class Element:
                 return False
 
             # Compare tds (actual data)
-            for i in range(len(rows)):
-                data = trs[i].find_all("td")
+            for tr, row in zip(trs, rows, strict=True):
+                data = tr.find_all("td")
 
                 # Row doesn't have the same amount of tds
-                if len(data) != len(rows[i]):
+                if len(data) != len(row):
                     return False
 
                 # Compare content
-                for j in range(len(rows[i])):
+                for td, expected in zip(data, row, strict=True):
                     # Content doesn't match
-                    if not compare_content(data[j].text, rows[i][j], case_insensitive):
+                    if not compare_content(td.text, expected, case_insensitive):
                         return False
 
             return True
@@ -497,7 +484,9 @@ class Element:
             if len(tds) != len(row):
                 return False
 
-            return all(compare_content(row[i], tds[i].text, case_insensitive) for i in range(len(row)))
+            return all(
+                compare_content(expected, td.text, case_insensitive) for expected, td in zip(row, tds, strict=True)
+            )
 
         return Check(_inner)
 
@@ -824,7 +813,7 @@ class ChecklistItem:
 
     def evaluate(self, bs: BeautifulSoup, language: str) -> bool:
         """Evaluate all checks inside of this item"""
-        queue = copy(self._checks)
+        queue = list(self._checks)
 
         should_abort = False
         success = True
@@ -848,8 +837,7 @@ class ChecklistItem:
                 success = False
 
             # Check succeeded, add all on_success checks
-            for os_check in reversed(check.on_success):
-                queue.insert(0, os_check)
+            queue[:0] = check.on_success
 
         # Abort future items
         if should_abort:
@@ -868,8 +856,8 @@ class VerboseChecklistItem(ChecklistItem):
     # Print the messages depending on when a Check fails or succeeds,
     # True for only on success, False for only on failure, None for always
     only_when_status: bool | None
-    messages: dict[str, list[str]] = field(default_factory=dict)
-    _is_verbose: bool = field(init=False)
+    messages: dict[str, list[str]]
+    _is_verbose: bool
 
     def __init__(self, message: str, messages: dict[str, list[str]], only_when_status: bool, *checks: Checks):
         self.only_when_status = only_when_status
@@ -1152,7 +1140,7 @@ class TestSuite:
         :returns:   the amount of failed tests
         :rtype:     int
         """
-        aborted = -1
+        aborted = False
         failed_tests = 0
 
         lang_abr = translator.language.name.lower()
@@ -1171,7 +1159,7 @@ class TestSuite:
                 test_case.accepted = False
 
                 # Evaluation was aborted, print a message and skip this test
-                if aborted >= 0:
+                if aborted:
                     with Message(
                         description=translator.translate(translator.Text.TESTCASE_NO_LONGER_EVALUATED),
                         format=MessageFormat.TEXT,
@@ -1179,13 +1167,12 @@ class TestSuite:
                         failed_tests += 1
                         continue
 
-                # Can't set items on tuples so overwrite it
                 try:
                     test_case.accepted = item.evaluate(self._bs, lang_abr)
                 except EvaluationAborted:
                     # Crucial test failed, stop evaluation and let the next tests
                     # all be marked as wrong
-                    aborted = i
+                    aborted = True
 
                     with Message(
                         description=translator.translate(translator.Text.TESTCASE_ABORTED), format=MessageFormat.TEXT
@@ -1227,6 +1214,10 @@ class BoilerplateTestSuite(TestSuite):
         self._default_translations = {"en": [], "nl": []}
         self._default_checks = []
         self.check_minimal = check_minimal
+
+    @staticmethod
+    def _maybe_abort(check: Check, abort: bool) -> Check:
+        return check.or_abort() if abort else check
 
     def _add_default_translations(self):
         self._create_language_lists()
@@ -1322,10 +1313,9 @@ class HtmlSuite(BoilerplateTestSuite):
         super().__init__("HTML", content, check_recommended, check_minimal)
 
         # Only abort if necessary
-        if abort:
-            self._default_checks = [ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings).or_abort())]
-        else:
-            self._default_checks = [ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings))]
+        self._default_checks = [
+            ChecklistItem("The HTML is valid.", self._maybe_abort(self.validate_html(allow_warnings), abort))
+        ]
 
         self._default_translations = {"en": ["The HTML is valid."], "nl": ["De HTML is geldig."]}
 
@@ -1348,16 +1338,10 @@ class CssSuite(BoilerplateTestSuite):
         super().__init__("CSS", content, check_recommended, check_minimal)
 
         # Only abort if necessary
-        if abort:
-            self._default_checks = [
-                ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings).or_abort()),
-                ChecklistItem("The CSS is valid.", self.validate_css().or_abort()),
-            ]
-        else:
-            self._default_checks = [
-                ChecklistItem("The HTML is valid.", self.validate_html(allow_warnings)),
-                ChecklistItem("The CSS is valid.", self.validate_css()),
-            ]
+        self._default_checks = [
+            ChecklistItem("The HTML is valid.", self._maybe_abort(self.validate_html(allow_warnings), abort)),
+            ChecklistItem("The CSS is valid.", self._maybe_abort(self.validate_css(), abort)),
+        ]
 
         self._default_translations = {
             "en": ["The HTML is valid.", "The CSS is valid."],
@@ -1384,12 +1368,11 @@ class _CompareSuite(HtmlSuite):
     ):
         super().__init__(content, check_recommended, allow_warnings, abort)
 
-        # Adds a check for CSS-validation only if there is some CSS supplied
+        # CSS that parsed is validated, and so is CSS that failed to parse (to report why)
         if self._css_validator or not self._css_validated:
-            if abort:
-                self._default_checks.append(ChecklistItem("The CSS is valid.", self.validate_css().or_abort()))
-            else:
-                self._default_checks.append(ChecklistItem("The CSS is valid.", self.validate_css()))
+            self._default_checks.append(
+                ChecklistItem("The CSS is valid.", self._maybe_abort(self.validate_css(), abort))
+            )
             # Translations
             self._default_translations["en"].append("The CSS is valid.")
             self._default_translations["nl"].append("De CSS is geldig.")
