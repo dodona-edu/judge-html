@@ -532,6 +532,33 @@ class TestElement(unittest.TestCase):
         self.assertTrue(suite.check(at_least(2, *units)))
         self.assertFalse(suite.check(at_least(3, *units)))
 
+    def test_fail_if_follow_ups(self):
+        suite = UnitTestSuite("test_1")
+        body = suite.element("body")
+        phantom = suite.element("video")  # does not exist
+
+        # A passes and its follow-up fails: the unit passes
+        self.assertTrue(suite.check(fail_if(body.exists().then(phantom.exists()))))
+        # A and its follow-up pass: the unit fails
+        self.assertFalse(suite.check(fail_if(body.exists().then(body.has_child("div")))))
+        # A fails: the unit passes
+        self.assertTrue(suite.check(fail_if(phantom.exists().then(body.exists()))))
+        # Without follow-ups, A alone decides
+        self.assertFalse(suite.check(fail_if(body.exists())))
+        self.assertTrue(suite.check(fail_if(phantom.exists())))
+
+    def test_fail_if_reevaluates(self):
+        suite = UnitTestSuite("test_1")
+        body = suite.element("body")
+        phantom = suite.element("video")  # does not exist
+
+        passes = fail_if(body.exists().then(phantom.exists()))
+        fails = fail_if(body.exists().then(body.has_child("div")))
+
+        for _ in range(2):
+            self.assertTrue(suite.check(passes))
+            self.assertFalse(suite.check(fails))
+
     def test_container_all_any_reevaluate(self):
         suite = UnitTestSuite("test_1")
         divs = suite.all_elements("div")

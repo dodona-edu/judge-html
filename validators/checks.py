@@ -1482,6 +1482,6 @@ def fail_if(check: Check) -> Check:
     """
 
     def _inner(bs: BeautifulSoup):
-        return not check.callback(bs)
+        return not _passes_with_follow_ups(check, bs)
 
     return Check(_inner)
