@@ -1,7 +1,6 @@
 # Copy of dodona-html/requirements.txt in dodona-edu/docker-images, the source of
 # truth. CI checks this file against the image; PR changes there to ship them.
 beautifulsoup4==4.15.0
-colour==0.1.5
 cssselect==1.6.0
 html-similarity==0.5.0
 lxml==6.1.3
