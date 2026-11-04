@@ -46,11 +46,11 @@ class EvaluationAborted(RuntimeError):
         super().__init__(*args)
 
 
-class DelayedExceptions(Exception):
+class DelayedExceptions[E: FeedbackException](Exception):
     """class made to gather multiple exceptions"""
 
     def __init__(self):
-        self.exceptions: list[FeedbackException] = []
+        self.exceptions: list[E] = []
 
     def __len__(self):
         return len(self.exceptions)
@@ -58,7 +58,7 @@ class DelayedExceptions(Exception):
     def __bool__(self):
         return bool(self.exceptions)
 
-    def add(self, exception: FeedbackException):
+    def add(self, exception: E):
         self.exceptions.append(exception)
 
     def clear(self):
