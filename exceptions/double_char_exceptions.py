@@ -52,11 +52,7 @@ class MissingClosingCharError(LocatableDoubleCharError):
         super().__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
-class MultipleMissingCharsError(DelayedExceptions):
-    # Declared here and not in __init__ so it narrows the list[FeedbackException] inherited from
-    # DelayedExceptions: __str__ sorts without a key, which needs LocatableDoubleCharError's ordering.
-    exceptions: list[LocatableDoubleCharError]
-
+class MultipleMissingCharsError(DelayedExceptions[LocatableDoubleCharError]):
     def __init__(self, translator: Translator):
         super().__init__()
         self.translator = translator

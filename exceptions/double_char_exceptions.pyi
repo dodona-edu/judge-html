@@ -20,11 +20,7 @@ class MissingOpeningCharError(LocatableDoubleCharError):
 class MissingClosingCharError(LocatableDoubleCharError):
     def __init__(self, trans: Translator, char: str, line: int, pos: int): ...
 
-class MultipleMissingCharsError(DelayedExceptions):
-    # Narrows the list[FeedbackException] inherited from DelayedExceptions, same as the
-    # implementation does: __str__ sorts without a key, which needs the ordering that
-    # LocatableDoubleCharError defines.
-    exceptions: list[LocatableDoubleCharError]
+class MultipleMissingCharsError(DelayedExceptions[LocatableDoubleCharError]):
     translator: Translator
 
     def __init__(self, translator: Translator): ...

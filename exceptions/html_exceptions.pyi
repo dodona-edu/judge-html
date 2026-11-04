@@ -40,9 +40,8 @@ class AttributeValueError(LocatableHtmlValidationError):
 class MissingRecommendedAttributesWarning(LocatableHtmlValidationError):
     def __init__(self, trans: Translator, tag: str, attribute: str, line: int, pos: int): ...
 
-class Warnings(DelayedExceptions):
+class Warnings(DelayedExceptions[LocatableHtmlValidationError]):
     translator: Translator
-    exceptions: list[LocatableHtmlValidationError]
 
     def __init__(self, translator: Translator): ...
     def __str__(self): ...

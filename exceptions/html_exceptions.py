@@ -116,11 +116,10 @@ class MissingRecommendedAttributesWarning(LocatableHtmlValidationError):
         super().__init__(trans=trans, msg=msg, line=line, pos=pos)
 
 
-class Warnings(DelayedExceptions):
+class Warnings(DelayedExceptions[LocatableHtmlValidationError]):
     def __init__(self, translator: Translator):
         super().__init__()
         self.translator = translator
-        self.exceptions: list[LocatableHtmlValidationError]  # makes them sortable
 
     def __str__(self):
         self.exceptions.sort(key=lambda x: (x.line, x.pos))
