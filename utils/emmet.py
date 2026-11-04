@@ -36,9 +36,9 @@ def emmet_to_check(emmet_str: str, suite: Any) -> Check:
         if node.value:
             val = " ".join(node.value)
             if val.strip().upper() == "DUMMY":
-                out["text"] = True
+                out["string"] = True
             else:
-                out["text"] = val
+                out["string"] = val
         return out
 
     def match_one(ls: ElementContainer, node: AbbreviationNode):
