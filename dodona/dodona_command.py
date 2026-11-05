@@ -25,53 +25,15 @@ class ErrorType(StrEnum):
 class MessagePermission(StrEnum):
     """Dodona permission for a message"""
 
-    STUDENT = "student"
     EDUCATOR = "educator"
-    ZEUS = "zeus"
 
 
 class MessageFormat(StrEnum):
     """Dodona format for a message"""
 
-    PLAIN = "plain"
     TEXT = "text"
     HTML = "html"
-    MARKDOWN = "markdown"
-    CALLOUT = "callout"
-    CALLOUT_INFO = "callout-info"
-    CALLOUT_WARNING = "callout-warning"
-    CALLOUT_DANGER = "callout-danger"
     CODE = "code"
-    SQL = "sql"
-
-
-class AnnotationSeverity(StrEnum):
-    """Dodona severity of an annotation"""
-
-    ERROR = "error"
-    WARNING = "warning"
-    INFO = "info"
-
-
-class DodonaException(Exception):
-    """exception that will automatically create a message and set the correct status when thrown
-    When thrown inside a Dodona 'with' block, an error message will be created on the current
-    Dodona object (eg. Test, Context ...). Blocks that extend the DodonaCommandWithAccepted class
-    will have their accepted field set to True (if CORRECT or CORRECT_ANSWER) and to False otherwise.
-    If the block also extends DodonaCommandWithStatus, its status is updated with this exception's
-    status. The outer Judgement block will silently catch the exception and the process will exit
-    with a 0 exitcode.
-    """
-
-    def __init__(
-        self,
-        status: dict[str, str],
-        *args,
-        **kwargs,
-    ):
-        super().__init__()
-        self.status = status
-        self.message = Message(*args, **kwargs) if len(args) > 0 or len(kwargs) > 0 else None
 
 
 # ABC without abstract methods on purpose: every method here has a working default, the
@@ -140,79 +102,19 @@ class DodonaCommand(ABC):  # noqa: B024
         self.__print_command(self.start_msg())
         return self.close_args
 
-    # pylint: disable=no-self-use
-    def handle_dodona_exception(self, exception: DodonaException) -> bool:
-        """handle a DodonaException
-        This function returns a boolean that is True if the exception should
-        not get propagated to parent codeblocks. This should only be True
-        for the most outer block (Judgement), so that all levels of Dodona
-        objects can update their status and success parameters.
-        This function can be overwritten by child classes, these overwrites
-        should still call this function.
-        This function prints a Dodona message and removes the message from
-        the exception, so it is not also printed by the parent 'with' blocks.
-        :param exception: exception thrown in the enclosed 'with' block
-        :return: if True, the exception is not propagated
-        """
-
-        # Add an error message
-        if exception.message is not None:
-            with exception.message:
-                pass
-
-            exception.message = None
-
-        return False
-
     def __exit__(
         self,
         exc_type: type[BaseException] | None,
         exc_val: BaseException | None,
         exc_tb: TracebackType | None,
     ) -> bool:
-        """print the close message when exiting the 'with' block & handle enclosed exceptions
-        If a DodonaException was thrown in the enclosed 'with' block, the 'handle_dodona_exception'
-        function is called. This function can be overwritten by child classes. If 'handle_dodona_exception'
-        returns True, this function also returns True and the error is not propagated.
-        :return: if True, the exception is not propagated
-        """
-        handled = self.handle_dodona_exception(exc_val) if isinstance(exc_val, DodonaException) else False
-
+        """print the close message when exiting the 'with' block, exceptions are not handled"""
         self.__print_command(self.close_msg())
-        return handled
+        return False
 
 
-class DodonaCommandWithAccepted(DodonaCommand):
-    """abstract class, parent of all Dodona commands that have an accepted field"""
-
-    def handle_dodona_exception(self, exception: DodonaException) -> bool:
-        """update the accepted parameter based on the exception status"""
-        if not hasattr(self.close_args, "accepted"):
-            accepted = (
-                exception.status["enum"] == ErrorType.CORRECT or exception.status["enum"] == ErrorType.CORRECT_ANSWER
-            )
-            self.close_args.accepted = accepted
-
-        return super().handle_dodona_exception(exception)
-
-
-class DodonaCommandWithStatus(DodonaCommandWithAccepted):
-    """abstract class, parent of all Dodona commands that have a status field"""
-
-    def handle_dodona_exception(self, exception: DodonaException) -> bool:
-        """update the status of the object"""
-        self.close_args.status = exception.status
-
-        return super().handle_dodona_exception(exception)
-
-
-class Judgement(DodonaCommandWithStatus):
+class Judgement(DodonaCommand):
     """Dodona Judgement"""
-
-    def handle_dodona_exception(self, exception: DodonaException) -> bool:
-        """return True to prevent the exception from crashing Python and causing a non-zero exit code"""
-        super().handle_dodona_exception(exception)
-        return True
 
 
 class Tab(DodonaCommand):
@@ -222,71 +124,42 @@ class Tab(DodonaCommand):
         super().__init__(title=title, **kwargs)
 
 
-class Context(DodonaCommandWithAccepted):
+class Context(DodonaCommand):
     """Dodona Context"""
 
 
-class TestCase(DodonaCommandWithAccepted):
+class TestCase(DodonaCommand):
     """Dodona TestCase"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, description: str | dict) -> None:
         """create TestCase
-        If a single positional argument is passed, this is assumed to be the message.
+        The description is the message of the test case, either a string or a dict with the message's content.
         Example:
         >>> with TestCase("This is the message"):
         ...     pass
         >>> with TestCase({
-        ...     "format": MessageFormat.SQL,
+        ...     "format": MessageFormat.CODE,
         ...     "description": "This is the message"
         ... }):
         ...     pass
-        If keyword arguments are passed, these are assumed to be the message's content.
-        Example:
-        >>> with TestCase(
-        ...     format=MessageFormat.SQL,
-        ...     description="This is the message"
-        ... ):
-        ...     pass
         """
-        if len(args) == 1:
-            super().__init__(description=args[0])
-        else:
-            super().__init__(description=kwargs)
-
-
-class Test(DodonaCommandWithStatus):
-    """Dodona Test"""
-
-    def __init__(self, description: str, expected: str, **kwargs):
-        super().__init__(description=description, expected=expected, **kwargs)
+        super().__init__(description=description)
 
 
 class Message(DodonaCommand):
     """Dodona Message"""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs) -> None:
         """create Message
-        If a single positional argument is passed, this is assumed to be the message.
-        Example:
-        >>> with Message("This is the message"):
-        ...     pass
-        >>> with Message({
-        ...     "format": MessageFormat.SQL,
-        ...     "description": "This is the message"
-        ... }):
-        ...     pass
-        If keyword arguments are passed, these are assumed to be the message's content.
+        The keyword arguments are the message's content.
         Example:
         >>> with Message(
-        ...     format=MessageFormat.SQL,
+        ...     format=MessageFormat.CODE,
         ...     description="This is the message"
         ... ):
         ...     pass
         """
-        if len(args) == 1:
-            super().__init__(message=args[0])
-        else:
-            super().__init__(message=kwargs)
+        super().__init__(message=kwargs)
 
     def start_msg(self) -> dict:
         """print the "append-message" command and parameters when entering the 'with' block"""
@@ -296,30 +169,20 @@ class Message(DodonaCommand):
         """don't print anything when exiting the 'with' block"""
 
 
-class Annotation(DodonaCommand):
-    """Dodona Annotation"""
-
-    def __init__(self, row: int, text: str, **kwargs):
-        super().__init__(row=row, text=text, **kwargs)
-
-    # Optional because SafeAnnotation below overrides this to return None for negative line numbers
-    def start_msg(self) -> dict | None:
-        """print the "annotate-code" command and parameters when entering the 'with' block"""
-        return {"command": "annotate-code", **self.start_args.__dict__}
-
-    def close_msg(self) -> None:
-        """don't print anything when exiting the 'with' block"""
-
-
-class SafeAnnotation(Annotation):
+class SafeAnnotation(DodonaCommand):
     """Annotation that isn't displayed for negative line numbers"""
 
     def __init__(self, row: int, text: str, **kwargs):
         super().__init__(row=row, text=text, **kwargs)
 
     def start_msg(self) -> dict | None:
-        """If the row number was less than 0, don't print the annotation"""
+        """print the "annotate-code" command and parameters when entering the 'with' block
+        If the row number was less than 0, don't print the annotation
+        """
         if self.start_args.row < 0:
             return None
 
-        return super().start_msg()
+        return {"command": "annotate-code", **self.start_args.__dict__}
+
+    def close_msg(self) -> None:
+        """don't print anything when exiting the 'with' block"""
